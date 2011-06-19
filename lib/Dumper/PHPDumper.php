@@ -14,9 +14,20 @@ use lib\Node\FilterNode;
 use lib\Node\CommentNode;
 use lib\Node\CodeNode;
 
-class PHPDumper {
+/*
+ * This file is part of the Jade.php.
+ * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-    protected $_doctypes = array(
+/**
+ * Jade -> PHP template dumper.
+ */
+class PHPDumper
+{
+    protected $doctypes = array(
         '5'             => '<!DOCTYPE html>',
         'xml'           => '<?xml version="1.0" encoding="utf-8" ?>',
         'default'       => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
@@ -27,10 +38,8 @@ class PHPDumper {
         'basic'         => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',
         'mobile'        => '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">'
     );
-
-    protected $_self_closing = array('meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'base');
-
-    protected $_codes = array(
+    protected $selfClosing = array('meta', 'img', 'link', 'br', 'hr', 'input', 'area', 'base');
+    protected $codes = array(
         "/^ *if[ \(]+.*\: *$/"        => 'endif',
         "/^ *else *\: *$/"            => 'endif',
         "/^ *else *if[ \(]+.*\: *$/"  => 'endif',
@@ -40,19 +49,16 @@ class PHPDumper {
         "/^ *switch[ \(]+.*\: *$/"    => 'endswitch',
         "/^ *case *.* *\: *$/"        => 'break'
     );
-
-    protected $_next_is_if = array();
-
-    protected $_visitors = array(
-        'code'      => array(),
-        'comment'   => array(),
-        'doctype'   => array(),
-        'filter'    => array(),
-        'tag'       => array(),
-        'text'      => array()
+    protected $nextIsIf = array();
+    protected $visitors = array(
+        'code'      => array()
+      , 'comment'   => array()
+      , 'doctype'   => array()
+      , 'filter'    => array()
+      , 'tag'       => array()
+      , 'text'      => array()
     );
-
-    protected $_filters = array();
+    protected $filters = array();
 
     /**
      * Dump node to string.
@@ -61,7 +67,8 @@ class PHPDumper {
      *
      * @return  string
      */
-    public function dump(BlockNode $node) {
+    public function dump(BlockNode $node)
+    {
         return $this->dumpNode($node);
     }
 
@@ -71,8 +78,9 @@ class PHPDumper {
      * @param   string              $name       name of the visitable node (code, comment, doctype, filter, tag, text)
      * @param   AutotagsVisitor    $visitor    visitor object
      */
-    public function registerVisitor($name, AutotagsVisitor $visitor) {
-        $names = array_keys($this->_visitors);
+    public function registerVisitor($name, AutotagsVisitor $visitor)
+    {
+        $names = array_keys($this->visitors);
 
         if (!in_array($name, $names)) {
             throw new \InvalidArgumentException(sprintf('Unsupported node type given "%s". Use %s.',
@@ -80,7 +88,7 @@ class PHPDumper {
             ));
         }
 
-        $this->_visitors[$name][] = $visitor;
+        $this->visitors[$name][] = $visitor;
     }
 
     /**
@@ -89,12 +97,13 @@ class PHPDumper {
      * @param   string          $alias  filter alias (:javascript for example)
      * @param   FilterInterface $filter filter
      */
-    public function registerFilter($alias, FilterInterface $filter) {
-        if (isset($this->_filters[$alias])) {
+    public function registerFilter($alias, FilterInterface $filter)
+    {
+        if (isset($this->filters[$alias])) {
             throw new \InvalidArgumentException(sprintf('Filter with alias %s is already registered', $alias));
         }
 
-        $this->_filters[$alias] = $filter;
+        $this->filters[$alias] = $filter;
     }
 
     /**
@@ -105,7 +114,8 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpNode(Node $node, $level = 0) {
+    protected function dumpNode(Node $node, $level = 0)
+    {
         $dumper = 'dump' . basename(str_replace('\\', '/', get_class($node)), 'Node');
 
         return $this->$dumper($node, $level);
@@ -119,7 +129,8 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpBlock(BlockNode $node, $level = 0) {
+    protected function dumpBlock(BlockNode $node, $level = 0)
+    {
         $html = '';
         $last = '';
 
@@ -129,7 +140,7 @@ class PHPDumper {
                 $html .= "\n";
             }
 
-            $this->_next_is_if[$level] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
+            $this->nextIsIf[$level] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
             $last  = $this->dumpNode($child, $level);
             $html .= $last;
         }
@@ -145,16 +156,17 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpDoctype(DoctypeNode $node, $level = 0) {
-        foreach ($this->_visitors['doctype'] as $visitor) {
+    protected function dumpDoctype(DoctypeNode $node, $level = 0)
+    {
+        foreach ($this->visitors['doctype'] as $visitor) {
             $visitor->visit($node);
         }
 
-        if (!isset($this->_doctypes[$node->getVersion()])) {
+        if (!isset($this->doctypes[$node->getVersion()])) {
             throw new \Exception(sprintf('Unknown doctype %s', $node->getVersion()));
         }
 
-        return $this->_doctypes[$node->getVersion()];
+        return $this->doctypes[$node->getVersion()];
     }
 
     /**
@@ -165,14 +177,15 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpTag(TagNode $node, $level = 0) {
+    protected function dumpTag(TagNode $node, $level = 0)
+    {
         $html = str_repeat('  ', $level);
 
-        foreach ($this->_visitors['tag'] as $visitor) {
+        foreach ($this->visitors['tag'] as $visitor) {
             $visitor->visit($node);
         }
 
-        if (in_array($node->getName(), $this->_self_closing)) {
+        if (in_array($node->getName(), $this->selfClosing)) {
             $html .= '<' . $node->getName();
             $html .= $this->dumpAttributes($node->getAttributes());
             $html .= ' />';
@@ -206,7 +219,7 @@ class PHPDumper {
                 $html .= "\n";
                 $childs = $node->getChilds();
                 foreach ($childs as $i => $child) {
-                    $this->_next_is_if[$level + 1] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
+                    $this->nextIsIf[$level + 1] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
                     $html .= $this->dumpNode($child, $level + 1);
                 }
                 $html .= "\n" . str_repeat('  ', $level);
@@ -224,10 +237,11 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpText(TextNode $node, $level = 0) {
+    protected function dumpText(TextNode $node, $level = 0)
+    {
         $indent = str_repeat('  ', $level);
 
-        foreach ($this->_visitors['text'] as $visitor) {
+        foreach ($this->visitors['text'] as $visitor) {
             $visitor->visit($node);
         }
 
@@ -242,8 +256,9 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpComment(CommentNode $node, $level = 0) {
-        foreach ($this->_visitors['comment'] as $visitor) {
+    protected function dumpComment(CommentNode $node, $level = 0)
+    {
+        foreach ($this->visitors['comment'] as $visitor) {
             $visitor->visit($node);
         }
 
@@ -285,10 +300,11 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpCode(CodeNode $node, $level = 0) {
+    protected function dumpCode(CodeNode $node, $level = 0)
+    {
         $html = str_repeat('  ', $level);
 
-        foreach ($this->_visitors['code'] as $visitor) {
+        foreach ($this->visitors['code'] as $visitor) {
             $visitor->visit($node);
         }
 
@@ -300,11 +316,11 @@ class PHPDumper {
             }
             $end = "\n" . str_repeat('  ', $level) . '<?php } ?>';
 
-            foreach ($this->_codes as $regex => $ending) {
+            foreach ($this->codes as $regex => $ending) {
                 if (preg_match($regex, $node->getCode())) {
                     $begin  = '<?php ' . preg_replace('/^ +| +$/', '', $node->getCode()) . " ?>\n";
                     $end    = "\n" . str_repeat('  ', $level) . '<?php ' . $ending . '; ?>';
-                    if ('endif' === $ending && isset($this->_next_is_if[$level]) && $this->_next_is_if[$level]) {
+                    if ('endif' === $ending && isset($this->nextIsIf[$level]) && $this->nextIsIf[$level]) {
                         $end = '';
                     }
                     break;
@@ -333,8 +349,9 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpFilter(FilterNode $node, $level = 0) {
-        if (!isset($this->_filters[$node->getName()])) {
+    protected function dumpFilter(FilterNode $node, $level = 0)
+    {
+        if (!isset($this->filters[$node->getName()])) {
             throw new \Exception(sprintf('Filter with alias "%s" is not registered.', $node->getName()));
         }
 
@@ -343,7 +360,7 @@ class PHPDumper {
             $text = $this->dumpNode($node->getBlock(), $level + 1);
         }
 
-        return $this->_filters[$node->getName()]->filter($text, $node->getAttributes(), str_repeat('  ', $level));
+        return $this->filters[$node->getName()]->filter($text, $node->getAttributes(), str_repeat('  ', $level));
     }
 
     /**
@@ -353,7 +370,8 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function dumpAttributes(array $attributes) {
+    protected function dumpAttributes(array $attributes)
+    {
         $items = array();
 
         foreach ($attributes as $key => $value) {
@@ -377,7 +395,8 @@ class PHPDumper {
      *
      * @return  string
      */
-    protected function replaceHolders($string, $decode = false) {
+    protected function replaceHolders($string, $decode = false)
+    {
         return preg_replace_callback("/{{((?!}}).*)}}/", function($matches) use($decode) {
             return sprintf('<?php echo %s ?>', $decode ? html_entity_decode($matches[1]) : $matches[1]);
         }, $string);
