@@ -2,8 +2,6 @@
 
 namespace lib\Lexer;
 
-use lib\Exception\Exception;
-
 /*
  * This file is part of the Jade.php.
  * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
@@ -380,14 +378,14 @@ class Lexer {
 
                 return $token;
             } elseif (0 !== $indents % 1) {
-                throw new Exception(sprintf(
+                throw new \Exception(sprintf(
                     'Invalid indentation found. Spaces count must be a multiple of two, but %d got.'
                   , mb_strlen($token->value)
                 ));
             } elseif ($this->lastIndents === $indents) {
                 $token->type = 'newline';
             } elseif ($this->lastIndents + 1 < $indents) {
-                throw new Exception(sprintf(
+                throw new \Exception(sprintf(
                     'Invalid indentation found. Got %d, but expected %d.'
                   , $indents
                   , $this->lastIndents + 1
