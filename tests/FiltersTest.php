@@ -1,6 +1,5 @@
 <?php
 
-use lib\Jade;
 use lib\Parser;
 use lib\Lexer;
 use lib\Dumper;

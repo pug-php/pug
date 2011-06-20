@@ -1,6 +1,7 @@
 <?php
 
-namespace lib;
+use lib\Parser;
+use lib\Dumper;
 
 class Jade {
 
