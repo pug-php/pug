@@ -351,16 +351,46 @@ class PHPDumper
      */
     protected function dumpFilter(FilterNode $node, $level = 0)
     {
+        /*
         if (!isset($this->filters[$node->getName()])) {
             throw new \Exception(sprintf('Filter with alias "%s" is not registered.', $node->getName()));
         }
+        */
 
         $text = '';
         if ($node->getBlock()) {
             $text = $this->dumpNode($node->getBlock(), $level + 1);
         }
 
-        return $this->filters[$node->getName()]->filter($text, $node->getAttributes(), str_repeat('  ', $level));
+        //return $this->filters[$node->getName()]->filter($text, $node->getAttributes(), str_repeat('  ', $level));
+        return $this->_filter($node->getName(), $text, str_repeat('  ', $level));
+    }
+
+    protected function _filter($type, $text, $indent) {
+        switch ( $type ) {
+            case 'style':
+                $opening_tag = '<style type="text/css">';
+                $closing_tag = '</style>';
+                break;
+            case 'php':
+                $opening_tag = '<?php';
+                $closing_tag = '?>';
+                break;
+            case 'cdata':
+                $opening_tag = '<![CDATA[';
+                $closing_tag = ']]>';
+                break;
+            case 'javascript':
+                $opening_tag = '<script type="text/javascript">';
+                $closing_tag = '</script>';
+                break;
+        }
+
+        $html  = $indent . $opening_tag . "\n";
+        $html .= $text . "\n";
+        $html .= $indent . $closing_tag;
+
+        return $html;
     }
 
     /**

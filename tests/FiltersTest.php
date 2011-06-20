@@ -6,11 +6,6 @@ use lib\Lexer\Lexer;
 use lib\Dumper\PHPDumper;
 use lib\Visitor\AutotagsVisitor;
 
-use lib\Filter\JavaScriptFilter;
-use lib\Filter\CDATAFilter;
-use lib\Filter\PHPFilter;
-use lib\Filter\CSSFilter;
-
 /*
  * This file is part of the Jade.php.
  * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
@@ -31,10 +26,6 @@ class FiltersTest extends \PHPUnit_Framework_TestCase
         $parser = new Parser(new Lexer());
         $dumper = new PHPDumper();
         $dumper->registerVisitor('tag', new AutotagsVisitor());
-        $dumper->registerFilter('javascript', new JavaScriptFilter());
-        $dumper->registerFilter('cdata', new CDATAFilter());
-        $dumper->registerFilter('php', new PHPFilter());
-        $dumper->registerFilter('style', new CSSFilter());
 
         $this->jade = new Jade($parser, $dumper);
     }
