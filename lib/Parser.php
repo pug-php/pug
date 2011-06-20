@@ -2,15 +2,15 @@
 
 namespace lib;
 
-use lib\Lexer\Lexer;
+use lib\Lexer;
 
-use lib\Node\BlockNode;
-use lib\Node\CodeNode;
-use lib\Node\CommentNode;
-use lib\Node\DoctypeNode;
-use lib\Node\FilterNode;
-use lib\Node\TagNode;
-use lib\Node\TextNode;
+use lib\node\BlockNode;
+use lib\node\CodeNode;
+use lib\node\CommentNode;
+use lib\node\DoctypeNode;
+use lib\node\FilterNode;
+use lib\node\TagNode;
+use lib\node\TextNode;
 
 /*
  * This file is part of the Jade.php.

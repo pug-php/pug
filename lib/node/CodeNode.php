@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Node;
+namespace lib\node;
 
 /*
  * This file is part of the Jade.php.
@@ -11,41 +11,41 @@ namespace lib\Node;
  */
 
 /**
- * Comment Node.
+ * Code Node.
  */
-class CommentNode extends Node
+class CodeNode extends Node
 {
-    protected $string;
+    protected $code;
     protected $buffering = false;
     protected $block;
 
     /**
      * Initialize code node.
      *
-     * @param   string  $string     comment string
+     * @param   string  $code       code string
      * @param   boolean $buffering  turn on buffering
      * @param   integer $line       source line
      */
-    public function __construct($string, $buffering = false, $line)
+    public function __construct($code, $buffering = false, $line)
     {
         parent::__construct($line);
 
-        $this->string       = $string;
+        $this->code         = $code;
         $this->buffering    = $buffering;
     }
 
     /**
-     * Return comment string.
+     * Return code string.
      *
      * @return  string
      */
-    public function getString()
+    public function getCode()
     {
-        return $this->string;
+        return $this->code;
     }
 
     /**
-     * Return true if comment buffered.
+     * Return true if code buffered.
      *
      * @return  boolean
      */

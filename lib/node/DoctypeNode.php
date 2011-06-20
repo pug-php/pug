@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Node;
+namespace lib\node;
 
 /*
  * This file is part of the Jade.php.

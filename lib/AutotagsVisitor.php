@@ -1,9 +1,9 @@
 <?php
 
-namespace lib\Visitor;
+namespace lib;
 
-use lib\Node\Node;
-use lib\Node\TagNode;
+use lib\node\Node;
+use lib\node\TagNode;
 
 /*
  * This file is part of the Jade.php.

@@ -1,18 +1,17 @@
 <?php
 
-namespace lib\Dumper;
+namespace lib;
 
-use lib\Visitor\AutotagsVisitor;
-use lib\Filter\FilterInterface;
+use lib\AutotagsVisitor;
 
-use lib\Node\Node;
-use lib\Node\BlockNode;
-use lib\Node\DoctypeNode;
-use lib\Node\TagNode;
-use lib\Node\TextNode;
-use lib\Node\FilterNode;
-use lib\Node\CommentNode;
-use lib\Node\CodeNode;
+use lib\node\Node;
+use lib\node\BlockNode;
+use lib\node\DoctypeNode;
+use lib\node\TagNode;
+use lib\node\TextNode;
+use lib\node\FilterNode;
+use lib\node\CommentNode;
+use lib\node\CodeNode;
 
 /*
  * This file is part of the Jade.php.
@@ -25,7 +24,7 @@ use lib\Node\CodeNode;
 /**
  * Jade -> PHP template dumper.
  */
-class PHPDumper
+class Dumper
 {
     protected $doctypes = array(
         '5'             => '<!DOCTYPE html>',
@@ -50,15 +49,6 @@ class PHPDumper
         "/^ *case *.* *\: *$/"        => 'break'
     );
     protected $nextIsIf = array();
-    protected $visitors = array(
-        'code'      => array()
-      , 'comment'   => array()
-      , 'doctype'   => array()
-      , 'filter'    => array()
-      , 'tag'       => array()
-      , 'text'      => array()
-    );
-    protected $filters = array();
 
     /**
      * Dump node to string.
@@ -70,40 +60,6 @@ class PHPDumper
     public function dump(BlockNode $node)
     {
         return $this->dumpNode($node);
-    }
-
-    /**
-     * Register visitee extension.
-     *
-     * @param   string              $name       name of the visitable node (code, comment, doctype, filter, tag, text)
-     * @param   AutotagsVisitor    $visitor    visitor object
-     */
-    public function registerVisitor($name, AutotagsVisitor $visitor)
-    {
-        $names = array_keys($this->visitors);
-
-        if (!in_array($name, $names)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported node type given "%s". Use %s.',
-                $name, implode(', ', $names)
-            ));
-        }
-
-        $this->visitors[$name][] = $visitor;
-    }
-
-    /**
-     * Register filter on dumper.
-     *
-     * @param   string          $alias  filter alias (:javascript for example)
-     * @param   FilterInterface $filter filter
-     */
-    public function registerFilter($alias, FilterInterface $filter)
-    {
-        if (isset($this->filters[$alias])) {
-            throw new \InvalidArgumentException(sprintf('Filter with alias %s is already registered', $alias));
-        }
-
-        $this->filters[$alias] = $filter;
     }
 
     /**
@@ -134,13 +90,13 @@ class PHPDumper
         $html = '';
         $last = '';
 
-        $childs = $node->getChilds();
-        foreach ($childs as $i => $child) {
+        $children = $node->getChildren();
+        foreach ($children as $i => $child) {
             if (!empty($html) && !empty($last)) {
                 $html .= "\n";
             }
 
-            $this->nextIsIf[$level] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
+            $this->nextIsIf[$level] = isset($children[$i + 1]) && ($children[$i + 1] instanceof CodeNode);
             $last  = $this->dumpNode($child, $level);
             $html .= $last;
         }
@@ -158,10 +114,6 @@ class PHPDumper
      */
     protected function dumpDoctype(DoctypeNode $node, $level = 0)
     {
-        foreach ($this->visitors['doctype'] as $visitor) {
-            $visitor->visit($node);
-        }
-
         if (!isset($this->doctypes[$node->getVersion()])) {
             throw new \Exception(sprintf('Unknown doctype %s', $node->getVersion()));
         }
@@ -177,13 +129,14 @@ class PHPDumper
      *
      * @return  string
      */
-    protected function dumpTag(TagNode $node, $level = 0)
+    protected function dumpTag(TagNode $node, $level = 0, $visitor = null)
     {
         $html = str_repeat('  ', $level);
 
-        foreach ($this->visitors['tag'] as $visitor) {
-            $visitor->visit($node);
+        if ( is_null($visitor) ) {
+            $visitor = new AutotagsVisitor();
         }
+        $visitor->visit($node);
 
         if (in_array($node->getName(), $this->selfClosing)) {
             $html .= '<' . $node->getName();
@@ -201,25 +154,25 @@ class PHPDumper
             }
 
             if ($node->getCode()) {
-                if (count($node->getChilds())) {
+                if (count($node->getChildren())) {
                     $html .= "\n" . str_repeat('  ', $level + 1) . $this->dumpCode($node->getCode());
                 } else {
                     $html .= $this->dumpCode($node->getCode());
                 }
             }
             if ($node->getText() && count($node->getText()->getLines())) {
-                if (count($node->getChilds())) {
+                if (count($node->getChildren())) {
                     $html .= "\n" . str_repeat('  ', $level + 1) . $this->dumpText($node->getText());
                 } else {
                     $html .= $this->dumpText($node->getText());
                 }
             }
 
-            if (count($node->getChilds())) {
+            if (count($node->getChildren())) {
                 $html .= "\n";
-                $childs = $node->getChilds();
-                foreach ($childs as $i => $child) {
-                    $this->nextIsIf[$level + 1] = isset($childs[$i + 1]) && ($childs[$i + 1] instanceof CodeNode);
+                $children = $node->getChildren();
+                foreach ($children as $i => $child) {
+                    $this->nextIsIf[$level + 1] = isset($children[$i + 1]) && ($children[$i + 1] instanceof CodeNode);
                     $html .= $this->dumpNode($child, $level + 1);
                 }
                 $html .= "\n" . str_repeat('  ', $level);
@@ -241,10 +194,6 @@ class PHPDumper
     {
         $indent = str_repeat('  ', $level);
 
-        foreach ($this->visitors['text'] as $visitor) {
-            $visitor->visit($node);
-        }
-
         return $indent . $this->replaceHolders(implode("\n" . $indent, $node->getLines()));
     }
 
@@ -258,10 +207,6 @@ class PHPDumper
      */
     protected function dumpComment(CommentNode $node, $level = 0)
     {
-        foreach ($this->visitors['comment'] as $visitor) {
-            $visitor->visit($node);
-        }
-
         if ($node->isBuffered()) {
             $html = str_repeat('  ', $level);
 
@@ -303,10 +248,6 @@ class PHPDumper
     protected function dumpCode(CodeNode $node, $level = 0)
     {
         $html = str_repeat('  ', $level);
-
-        foreach ($this->visitors['code'] as $visitor) {
-            $visitor->visit($node);
-        }
 
         if ($node->getBlock()) {
             if ($node->isBuffered()) {
@@ -351,18 +292,11 @@ class PHPDumper
      */
     protected function dumpFilter(FilterNode $node, $level = 0)
     {
-        /*
-        if (!isset($this->filters[$node->getName()])) {
-            throw new \Exception(sprintf('Filter with alias "%s" is not registered.', $node->getName()));
-        }
-        */
-
         $text = '';
         if ($node->getBlock()) {
             $text = $this->dumpNode($node->getBlock(), $level + 1);
         }
 
-        //return $this->filters[$node->getName()]->filter($text, $node->getAttributes(), str_repeat('  ', $level));
         return $this->_filter($node->getName(), $text, str_repeat('  ', $level));
     }
 

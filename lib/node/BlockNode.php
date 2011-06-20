@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Node;
+namespace lib\node;
 
 /*
  * This file is part of the Jade.php.
@@ -15,7 +15,7 @@ namespace lib\Node;
  */
 class BlockNode extends Node
 {
-    protected $childs = array();
+    protected $children = array();
 
     /**
      * Add child node.
@@ -24,7 +24,7 @@ class BlockNode extends Node
      */
     public function addChild(Node $node)
     {
-        $this->childs[] = $node;
+        $this->children[] = $node;
     }
 
     /**
@@ -32,8 +32,8 @@ class BlockNode extends Node
      *
      * @return  array           array of Node's
      */
-    public function getChilds()
+    public function getChildren()
     {
-        return $this->childs;
+        return $this->children;
     }
 }

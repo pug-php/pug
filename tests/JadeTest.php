@@ -2,9 +2,9 @@
 
 use lib\Jade;
 use lib\Parser;
-use lib\Lexer\Lexer;
-use lib\Dumper\PHPDumper;
-use lib\Visitor\AutotagsVisitor;
+use lib\Lexer;
+use lib\Dumper;
+use lib\AutotagsVisitor;
 
 /*
  * This file is part of the Jade.php.
@@ -24,8 +24,7 @@ class JadeTest extends \PHPUnit_Framework_TestCase
     public function __construct()
     {
         $parser = new Parser(new Lexer());
-        $dumper = new PHPDumper();
-        $dumper->registerVisitor('tag', new AutotagsVisitor());
+        $dumper = new Dumper();
 
         $this->jade = new Jade($parser, $dumper);
     }

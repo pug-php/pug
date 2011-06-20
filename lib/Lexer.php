@@ -1,6 +1,6 @@
 <?php
 
-namespace lib\Lexer;
+namespace lib;
 
 /*
  * This file is part of the Jade.php.
