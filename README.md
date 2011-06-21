@@ -1,7 +1,6 @@
 # Jade - template compiler for PHP5.3
 
-*Jade* is a high performance template compiler heavily influenced by [Haml](http://haml-lang.com)
-and implemented for PHP 5.3.
+Jade is a high performance template compiler heavily influenced by [Haml](http://haml-lang.com).  Implemented for PHP 5.3, it supports inline PHP scripting.
 
 ## Features
 
@@ -17,24 +16,18 @@ and implemented for PHP 5.3.
     - :cdata
     - :css
     - :javascript
-  - you even can write & add own filters throught API
   - [TextMate Bundle](http://github.com/miksago/jade-tmbundle)
   - [VIM Plugin](http://github.com/vim-scripts/jade.vim.git)
 
 ## Public API
 
-    $dumper = new PHPDumper();
-    $dumper->registerVisitor('tag', new AutotagsVisitor());
-    $dumper->registerFilter('javascript', new JavaScriptFilter());
-    $dumper->registerFilter('cdata', new CDATAFilter());
-    $dumper->registerFilter('php', new PHPFilter());
-    $dumper->registerFilter('style', new CSSFilter());
-    
-    // Initialize parser & Jade
+
     $parser = new Parser(new Lexer());
-    $jade   = new Jade($parser, $dumper);
-	
-	// Parse a template (both string & file containers)
+    $dumper = new Dumper();
+
+    $jade = new Jade($parser, $dumper);
+
+    // Parse a template (supports both string inputs and files)
     echo $jade->render($template);
 
 ## Syntax
@@ -81,25 +74,6 @@ div div div sure is annoying, how about:
 which is syntactic sugar for what we have already been doing, and outputs:
 
 	<div id="foo"></div><div class="bar"></div>
-
-jade.php has a feature, called "autotags". It's just snippets for tags. Autotags will expand to basic tags with custom attributes. For example:
-
-	input:text
-
-will expand to `<input type="text" />` & it's the same as `input( type="text" )`, but shorter.
-Another examples:
-
-	input:submit( value="Send" )
-
-will become `<input type="submit" value="Send" />`.
-
-You can even add you own autotags with:
-
-	$parser->setAutotag('input:progress', 'input', array('type'=>'text', class=>'progress-bar'));
-
-that will expands to `<input type="text" class="progress-bar" />`.
-
-It also supports new HTML5 tags (`input:email` => `<input type="email"/>`).
 
 ### Tag Text
 
@@ -186,7 +160,7 @@ Jade supports sharp comments (`//- COMMENT`). So jade block:
 	//- JADE
 	- $foo = "<script>";
 	p
-	//- ##### COMMENTS ARE SUPPER! ######
+	//- ##### COMMENTS ARE SUPER! ######
 	  - switch ($foo)
 	    -case 2
 	      p.foo= $foo

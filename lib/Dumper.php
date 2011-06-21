@@ -2,8 +2,6 @@
 
 namespace lib;
 
-use lib\AutotagsVisitor;
-
 use lib\node\Node;
 use lib\node\BlockNode;
 use lib\node\DoctypeNode;
@@ -129,14 +127,9 @@ class Dumper
      *
      * @return  string
      */
-    protected function dumpTag(TagNode $node, $level = 0, $visitor = null)
+    protected function dumpTag(TagNode $node, $level = 0)
     {
         $html = str_repeat('  ', $level);
-
-        if ( is_null($visitor) ) {
-            $visitor = new AutotagsVisitor();
-        }
-        $visitor->visit($node);
 
         if (in_array($node->getName(), $this->selfClosing)) {
             $html .= '<' . $node->getName();

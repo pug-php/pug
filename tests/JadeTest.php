@@ -3,7 +3,6 @@
 use lib\Parser;
 use lib\Lexer;
 use lib\Dumper;
-use lib\AutotagsVisitor;
 
 /*
  * This file is part of the Jade.php.
@@ -366,12 +365,9 @@ HTML;
         $jade = <<<Jade
 
 input
-input:hidden( name="sf_method", value="PUT" )
-
 Jade;
         $html = <<<HTML
 <input />
-<input name="sf_method" value="PUT" type="hidden" />
 HTML;
         $this->assertEquals($html, $this->parse($jade));
 
@@ -411,12 +407,10 @@ HTML;
 
         $jade = <<<Jade
 
-input:hidden( name="sf_method", value="PUT" )
 = \$form->renderHiddenFields()
 
 Jade;
         $html = <<<HTML
-<input name="sf_method" value="PUT" type="hidden" />
 <?php echo \$form->renderHiddenFields() ?>
 HTML;
         $this->assertEquals($html, $this->parse($jade));
@@ -629,17 +623,6 @@ HTML;
         $this->assertEquals('<input type="текст" value="Поиск" />', $this->parse('input( type="текст", value="Поиск" )'));
     }
 
-    public function testAutotags()
-    {
-        $this->assertEquals('<link media="screen" src="/css/ie6.css" rel="stylesheet" type="text/css" />',
-          $this->parse('link:css( media="screen", src="/css/ie6.css" )'));
-        $this->assertEquals('<input value="Search" type="text" />', $this->parse('input:text( value="Search" )'));
-        $this->assertEquals('<input type="checkbox" />', $this->parse('input:checkbox'));
-        $this->assertEquals('<input value="Send" type="submit" />', $this->parse('input:submit( value="Send" )'));
-        $this->assertEquals('<link href="/css/screen.css" media="screen" rel="stylesheet" type="text/css" />', $this->parse('link:css(href:"/css/screen.css", media="screen")'));
-        $this->assertEquals('<script charset="UTF8" src="http://stats.test.com/scripts/stat.js" type="text/javascript"></script>', $this->parse('script:js(  charset  =  "UTF8",   src:"http://stats.test.com/scripts/stat.js"  )'));
-    }
-
     public function testHTMLComments()
     {
         $jade = <<<Jade
@@ -734,21 +717,5 @@ Jade;
 </html>
 HTML;
         $this->assertEquals($html, $this->parse($jade));
-
-        $jade = <<<Jade
-// [if lt IE 7]
-  link:css( src="/less/ie6.less" )
-Jade;
-        $html = <<<HTML
-<!--[if lt IE 7]>
-  <link src="/less/ie6.less" rel="stylesheet" type="text/css" />
-<![endif]-->
-HTML;
-        $this->assertEquals($html, $this->parse($jade));
-    }
-
-    public function testJSLinkTag()
-    {
-        $this->assertEquals('<a value="hello" href="javascript:void(0)"></a>', $this->parse('a:void( value="hello" )'));
     }
 }

@@ -3,7 +3,6 @@
 use lib\Parser;
 use lib\Lexer;
 use lib\Dumper;
-use lib\AutotagsVisitor;
 
 /*
  * This file is part of the Jade.php.
@@ -112,7 +111,6 @@ Jade
         $jade = <<<Jade
 body
   p
-    link:css( type="text/css", src="/css/ie6.css" )
     :style
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
@@ -121,7 +119,6 @@ Jade;
         $html = <<<HTML
 <body>
   <p>
-    <link type="text/css" src="/css/ie6.css" rel="stylesheet" />
     <style type="text/css">
       img, div, a, input {
           behavior: url(/css/iepngfix.htc);
@@ -135,26 +132,19 @@ HTML;
         $jade = <<<Jade
 body
   p
-    link:css( type="text/css", src="/css/ie6.css" )
     :style
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
       | }
-  p
-    script:js( src="/js/html5.js" )
 Jade;
         $html = <<<HTML
 <body>
   <p>
-    <link type="text/css" src="/css/ie6.css" rel="stylesheet" />
     <style type="text/css">
       img, div, a, input {
           behavior: url(/css/iepngfix.htc);
       }
     </style>
-  </p>
-  <p>
-    <script src="/js/html5.js" type="text/javascript"></script>
   </p>
 </body>
 HTML;
@@ -163,27 +153,19 @@ HTML;
         $jade = <<<Jade
 head
   // [if lt IE 7]
-    link:css( type="text/css", src="/css/ie6.css" )
     :style
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
       | }
-
-  // [if lt IE 9]
-    script:js( src="/js/html5.js" )
 Jade;
         $html = <<<HTML
 <head>
   <!--[if lt IE 7]>
-    <link type="text/css" src="/css/ie6.css" rel="stylesheet" />
     <style type="text/css">
       img, div, a, input {
           behavior: url(/css/iepngfix.htc);
       }
     </style>
-  <![endif]-->
-  <!--[if lt IE 9]>
-    <script src="/js/html5.js" type="text/javascript"></script>
   <![endif]-->
 </head>
 HTML;
