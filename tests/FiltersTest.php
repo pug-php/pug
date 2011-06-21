@@ -92,7 +92,7 @@ Jade
         $this->assertEquals(
             "<style type=\"text/css\">\n  body {\n    color:#000;\n  }\n</style>",
             $this->parse(<<<Jade
-:style
+:css
   | body {
   |   color:#000;
   | }
@@ -102,7 +102,7 @@ Jade
         $this->assertEquals(
             "<style type=\"text/css\">\n  body {color:#000;}\n</style>",
             $this->parse(<<<Jade
-:style
+:css
   | body {color:#000;}
 Jade
             )
@@ -111,7 +111,7 @@ Jade
         $jade = <<<Jade
 body
   p
-    :style
+    :css
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
       | }
@@ -132,7 +132,7 @@ HTML;
         $jade = <<<Jade
 body
   p
-    :style
+    :css
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
       | }
@@ -153,7 +153,7 @@ HTML;
         $jade = <<<Jade
 head
   // [if lt IE 7]
-    :style
+    :css
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
       | }

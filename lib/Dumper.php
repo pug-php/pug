@@ -295,7 +295,7 @@ class Dumper
 
     protected function _filter($type, $text, $indent) {
         switch ( $type ) {
-            case 'style':
+            case 'css':
                 $opening_tag = '<style type="text/css">';
                 $closing_tag = '</style>';
                 break;
