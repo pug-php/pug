@@ -12,19 +12,8 @@ use lib\node\FilterNode;
 use lib\node\TagNode;
 use lib\node\TextNode;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+class Parser {
 
-/**
- * Jade Parser.
- */
-class Parser
-{
     protected $lexer;
 
     /**
@@ -32,8 +21,7 @@ class Parser
      *
      * @param   Lexer $lexer  lexer object
      */
-    public function __construct(Lexer $lexer)
-    {
+    public function __construct(Lexer $lexer) {
         $this->lexer = $lexer;
     }
 
@@ -44,14 +32,13 @@ class Parser
      *
      * @return  BlockNode
      */
-    public function parse($input)
-    {
+    public function parse($input) {
         $this->lexer->setInput($input);
 
         $node = new BlockNode($this->lexer->getCurrentLine());
 
-        while ('eos' !== $this->lexer->predictToken()->type) {
-            if ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type !== 'eos' ) {
+            if ( $this->lexer->predictToken()->type === 'newline' ) {
                 $this->lexer->getAdvancedToken();
             } else {
                 $node->addChild($this->parseExpression());
@@ -66,9 +53,8 @@ class Parser
      *
      * @param   string  $type   type
      */
-    protected function expectTokenType($type)
-    {
-        if ($type === $this->lexer->predictToken()->type) {
+    protected function expectTokenType($type) {
+        if ( $this->lexer->predictToken()->type === $type ) {
             return $this->lexer->getAdvancedToken();
         } else {
             throw new \Exception(sprintf('Expected %s, but got %s', $type, $this->lexer->predictToken()->type));
@@ -80,9 +66,8 @@ class Parser
      *
      * @param   string  $type   type
      */
-    protected function acceptTokenType($type)
-    {
-        if ($type === $this->lexer->predictToken()->type) {
+    protected function acceptTokenType($type) {
+        if ( $this->lexer->predictToken()->type === $type ) {
             return $this->lexer->getAdvancedToken();
         }
     }
@@ -92,9 +77,8 @@ class Parser
      *
      * @return  Node
      */
-    protected function parseExpression()
-    {
-        switch ($this->lexer->predictToken()->type) {
+    protected function parseExpression() {
+        switch ( $this->lexer->predictToken()->type ) {
             case 'tag':
                 return $this->parseTag();
             case 'doctype':
@@ -122,8 +106,7 @@ class Parser
      *
      * @return  TextNode
      */
-    protected function parseText($trim = false)
-    {
+    protected function parseText($trim = false) {
         $token = $this->expectTokenType('text');
         $value = $trim ? preg_replace('/^ +/', '', $token->value) : $token->value;
 
@@ -135,17 +118,16 @@ class Parser
      *
      * @return  CodeNode
      */
-    protected function parseCode()
-    {
+    protected function parseCode() {
         $token  = $this->expectTokenType('code');
         $node   = new CodeNode($token->value, $token->buffer, $this->lexer->getCurrentLine());
 
         // Skip newlines
-        while ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type === 'newline' ) {
             $this->lexer->getAdvancedToken();
         }
 
-        if ('indent' === $this->lexer->predictToken()->type) {
+        if ( $this->lexer->predictToken()->type === 'indent' ) {
             $node->setBlock($this->parseBlock());
         }
 
@@ -157,17 +139,16 @@ class Parser
      *
      * @return  CommentNode
      */
-    protected function parseComment()
-    {
+    protected function parseComment() {
         $token  = $this->expectTokenType('comment');
         $node   = new CommentNode(preg_replace('/^ +| +$/', '', $token->value), $token->buffer, $this->lexer->getCurrentLine());
 
         // Skip newlines
-        while ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type === 'newline' ) {
             $this->lexer->getAdvancedToken();
         }
 
-        if ('indent' === $this->lexer->predictToken()->type) {
+        if ( $this->lexer->predictToken()->type === 'indent' ) {
             $node->setBlock($this->parseBlock());
         }
 
@@ -179,8 +160,7 @@ class Parser
      *
      * @return  DoctypeNode
      */
-    protected function parseDoctype()
-    {
+    protected function parseDoctype() {
         $token = $this->expectTokenType('doctype');
 
         return new DoctypeNode($token->value, $this->lexer->getCurrentLine());
@@ -191,13 +171,12 @@ class Parser
      *
      * @return  FilterNode
      */
-    protected function parseFilter()
-    {
+    protected function parseFilter() {
         $block      = null;
         $token      = $this->expectTokenType('filter');
         $attributes = $this->acceptTokenType('attributes');
 
-        if ('text' === $this->lexer->predictToken(2)->type) {
+        if ( $this->lexer->predictToken(2)->type === 'text' ) {
             $block = $this->parseTextBlock();
         } else {
             $block = $this->parseBlock();
@@ -216,13 +195,12 @@ class Parser
      *
      * @return  TextToken
      */
-    protected function parseTextBlock()
-    {
+    protected function parseTextBlock() {
         $node = new TextNode(null, $this->lexer->getCurrentLine());
 
         $this->expectTokenType('indent');
-        while ('text' === $this->lexer->predictToken()->type || 'newline' === $this->lexer->predictToken()->type) {
-            if ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type === 'text' || $this->lexer->predictToken()->type === 'newline' ) {
+            if ( $this->lexer->predictToken()->type === 'newline' ) {
                 $this->lexer->getAdvancedToken();
             } else {
                 $node->addLine($this->lexer->getAdvancedToken()->value);
@@ -238,13 +216,12 @@ class Parser
      *
      * @return  BlockNode
      */
-    protected function parseBlock()
-    {
+    protected function parseBlock() {
         $node = new BlockNode($this->lexer->getCurrentLine());
 
         $this->expectTokenType('indent');
-        while ('outdent' !== $this->lexer->predictToken()->type) {
-            if ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type !== 'outdent' ) {
+            if ( $this->lexer->predictToken()->type === 'newline' ) {
                 $this->lexer->getAdvancedToken();
             } else {
                 $node->addChild($this->parseExpression());
@@ -260,21 +237,20 @@ class Parser
      *
      * @return  TagNode
      */
-    protected function parseTag()
-    {
+    protected function parseTag() {
         $name = $this->lexer->getAdvancedToken()->value;
         $node = new TagNode($name, $this->lexer->getCurrentLine());
 
         // Parse id, class, attributes token
-        while (true) {
-            switch ($this->lexer->predictToken()->type) {
+        while ( true ) {
+            switch ( $this->lexer->predictToken()->type ) {
                 case 'id':
                 case 'class':
                     $token = $this->lexer->getAdvancedToken();
                     $node->setAttribute($token->type, $token->value);
                     continue;
                 case 'attributes':
-                    foreach ($this->lexer->getAdvancedToken()->attributes as $name => $value) {
+                    foreach ( $this->lexer->getAdvancedToken()->attributes as $name => $value ) {
                         $node->setAttribute($name, $value);
                     }
                     continue;
@@ -284,7 +260,7 @@ class Parser
         }
 
         // Parse text/code token
-        switch ($this->lexer->predictToken()->type) {
+        switch ( $this->lexer->predictToken()->type ) {
             case 'text':
                 $node->setText($this->parseText(true));
                 break;
@@ -294,12 +270,12 @@ class Parser
         }
 
         // Skip newlines
-        while ('newline' === $this->lexer->predictToken()->type) {
+        while ( $this->lexer->predictToken()->type === 'newline' ) {
             $this->lexer->getAdvancedToken();
         }
 
         // Tag text on newline
-        if ('text' === $this->lexer->predictToken()->type) {
+        if ( $this->lexer->predictToken()->type === 'text' ) {
             if ($text = $node->getText()) {
                 $text->addLine('');
             } else {
@@ -308,7 +284,7 @@ class Parser
         }
 
         // Parse block indentation
-        if ('indent' === $this->lexer->predictToken()->type) {
+        if ( $this->lexer->predictToken()->type === 'indent' ) {
             $node->addChild($this->parseBlock());
         }
 

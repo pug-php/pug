@@ -2,22 +2,14 @@
 
 namespace lib\node;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+class TagNode extends BlockNode {
 
-/**
- * Tag Node.
- */
-class TagNode extends BlockNode
-{
     protected $name;
+
     protected $attributes = array('id' => false);
+
     protected $text;
+
     protected $code;
 
     /**
@@ -26,8 +18,7 @@ class TagNode extends BlockNode
      * @param   string  $name   tag name
      * @param   integer $line   source line
      */
-    public function __construct($name, $line)
-    {
+    public function __construct($name, $line) {
         parent::__construct($line);
 
         $this->name = $name;
@@ -38,8 +29,7 @@ class TagNode extends BlockNode
      *
      * @param   string  $name   tag name
      */
-    public function setName($name)
-    {
+    public function setName($name) {
         $this->name = $name;
     }
 
@@ -48,8 +38,7 @@ class TagNode extends BlockNode
      *
      * @return  string
      */
-    public function getName()
-    {
+    public function getName() {
         return $this->name;
     }
 
@@ -59,10 +48,9 @@ class TagNode extends BlockNode
      * @param   string  $key    attribute name
      * @param   string  $value  attribute value
      */
-    public function setAttribute($key, $value)
-    {
-        if ('class' === $key) {
-            if (!isset($this->attributes[$key])) {
+    public function setAttribute($key, $value) {
+        if ( $key === 'class' ) {
+            if ( !isset($this->attributes[$key]) ) {
                 $this->attributes[$key] = array();
             }
 
@@ -77,8 +65,7 @@ class TagNode extends BlockNode
      *
      * @return  array
      */
-    public function getAttributes()
-    {
+    public function getAttributes() {
         return $this->attributes;
     }
 
@@ -87,8 +74,7 @@ class TagNode extends BlockNode
      *
      * @param   TextNode    $node   inner text
      */
-    public function setText(TextNode $node)
-    {
+    public function setText(TextNode $node) {
         $this->text = $node;
     }
 
@@ -97,8 +83,7 @@ class TagNode extends BlockNode
      *
      * @return  TextNode|null
      */
-    public function getText()
-    {
+    public function getText() {
         return $this->text;
     }
 
@@ -107,8 +92,7 @@ class TagNode extends BlockNode
      *
      * @param   CodeNode    $node   inner code
      */
-    public function setCode(CodeNode $node)
-    {
+    public function setCode(CodeNode $node) {
         $this->code = $node;
     }
 
@@ -117,8 +101,7 @@ class TagNode extends BlockNode
      *
      * @return  CodeNode
      */
-    public function getCode()
-    {
+    public function getCode() {
         return $this->code;
     }
 }

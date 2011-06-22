@@ -2,19 +2,8 @@
 
 namespace lib\node;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+class TextNode extends Node {
 
-/**
- * Text Node.
- */
-class TextNode extends Node
-{
     protected $lines = array();
 
     /**
@@ -23,11 +12,10 @@ class TextNode extends Node
      * @param   string|null $string text
      * @param   integer     $line   source line
      */
-    public function __construct($string = null, $line)
-    {
+    public function __construct($string = null, $line) {
         parent::__construct($line);
 
-        if (!empty($string)) {
+        if ( !empty($string) ) {
             $this->lines = explode("\n", $string);
         }
     }
@@ -37,8 +25,7 @@ class TextNode extends Node
      *
      * @param   string  $line   string line
      */
-    public function addLine($line)
-    {
+    public function addLine($line) {
         $this->lines[] = $line;
     }
 
@@ -47,8 +34,7 @@ class TextNode extends Node
      *
      * @return  array           array of strings
      */
-    public function getLines()
-    {
+    public function getLines() {
         return $this->lines;
     }
 }

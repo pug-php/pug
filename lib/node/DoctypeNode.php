@@ -2,19 +2,8 @@
 
 namespace lib\node;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+class DoctypeNode extends Node {
 
-/**
- * Doctype Node.
- */
-class DoctypeNode extends Node
-{
     protected $version;
 
     /**
@@ -23,8 +12,7 @@ class DoctypeNode extends Node
      * @param   string  $version    doctype version
      * @param   integer $line       source line
      */
-    public function __construct($version, $line)
-    {
+    public function __construct($version, $line) {
         parent::__construct($line);
 
         $this->version = $version;
@@ -35,8 +23,7 @@ class DoctypeNode extends Node
      *
      * @return  string
      */
-    public function getVersion()
-    {
+    public function getVersion() {
         return $this->version;
     }
 }

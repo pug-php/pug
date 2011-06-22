@@ -2,19 +2,8 @@
 
 namespace lib\node;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+abstract class Node {
 
-/**
- * Node.
- */
-abstract class Node
-{
     protected $line;
 
     /**
@@ -22,8 +11,7 @@ abstract class Node
      *
      * @param   integer $line   source line
      */
-    public function __construct($line)
-    {
+    public function __construct($line) {
         $this->line = $line;
     }
 
@@ -32,8 +20,7 @@ abstract class Node
      *
      * @return  integer
      */
-    public function getLine()
-    {
+    public function getLine() {
         return $this->line;
     }
 }

@@ -2,21 +2,12 @@
 
 namespace lib\node;
 
-/*
- * This file is part of the Jade.php.
- * (c) 2010 Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+class CodeNode extends Node {
 
-/**
- * Code Node.
- */
-class CodeNode extends Node
-{
     protected $code;
+
     protected $buffering = false;
+
     protected $block;
 
     /**
@@ -26,8 +17,7 @@ class CodeNode extends Node
      * @param   boolean $buffering  turn on buffering
      * @param   integer $line       source line
      */
-    public function __construct($code, $buffering = false, $line)
-    {
+    public function __construct($code, $buffering = false, $line) {
         parent::__construct($line);
 
         $this->code         = $code;
@@ -39,8 +29,7 @@ class CodeNode extends Node
      *
      * @return  string
      */
-    public function getCode()
-    {
+    public function getCode() {
         return $this->code;
     }
 
@@ -49,8 +38,7 @@ class CodeNode extends Node
      *
      * @return  boolean
      */
-    public function isBuffered()
-    {
+    public function isBuffered() {
         return $this->buffering;
     }
 
@@ -59,8 +47,7 @@ class CodeNode extends Node
      *
      * @param   BlockNode   $node   child node
      */
-    public function setBlock(BlockNode $node)
-    {
+    public function setBlock(BlockNode $node) {
         $this->block = $node;
     }
 
@@ -69,8 +56,7 @@ class CodeNode extends Node
      *
      * @return  BlockNode
      */
-    public function getBlock()
-    {
+    public function getBlock() {
         return $this->block;
     }
 }
