@@ -135,7 +135,7 @@ HTML;
 
         $jade = <<<Jade
 head
-  // [if lt IE 7]
+  //if lt IE 7
     :css
       | img, div, a, input {
       |     behavior: url(/css/iepngfix.htc);
