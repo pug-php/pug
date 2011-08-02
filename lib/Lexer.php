@@ -2,9 +2,17 @@
 
 namespace lib;
 
-class Lexer {
+function jade_text($bytes) {
+	$patterns = array('/&(?!\w+;)/', '/</', '/>/', '/"/');
+	$replacements = array('&amp;', '&lt;', '&gt;', '&quot;');
+	return preg_replace($patterns, $replacements, $bytes);
+}
 
-    protected $input;
+function jade_html($bytes) {
+	return $bytes;
+}
+
+class Lexer extends JP {
 
     protected $deferredObjects   = array();
 
@@ -20,7 +28,8 @@ class Lexer {
      * @param   string  $input  input string
      */
     public function setInput($input) {
-        $this->input            = preg_replace(array('/\r\n|\r/', '/\t/'), array("\n", '  '), $input);
+		$this->adjustLineDelimiter($input);
+/* TODO TAB */        $this->page            = preg_replace(array('/\r\n|\r/', '/\t/'), array("\n", '  '), $input);
         $this->deferredObjects  = array();
         $this->lastIndents      = 0;
         $this->lineno           = 1;
@@ -118,20 +127,24 @@ class Lexer {
         $scanners = array(
             'getDeferredToken'
           , 'scanEOS'
-          , 'scanTag'
-          , 'scanFilter'
+          , 'tag'
+          , 'filter'
           , 'scanCode'
-          , 'scanDoctype'
-          , 'scanId'
-          , 'scanClass'
+          , 'doctype'
+          , 'id'
+          , 'class'
           , 'scanAttributes'
           , 'scanIndentation'
           , 'scanComment'
-          , 'scanText'
+          , 'text'
         );
 
         foreach ( $scanners as $scan ) {
-            $token = $this->$scan();
+			if (preg_match('/^scan|get/', $scan)) {
+				$token = $this->$scan();
+			} else {
+				$token = $this->scanInput('', $scan);
+			}
 
             if ( $token ) {
                 return $token;
@@ -139,27 +152,21 @@ class Lexer {
         }
     }
 
-    /**
-     * Consume input.
-     *
-     * @param   integer $length length of input to consume
-     */
-    protected function consumeInput($length) {
-        $this->input = mb_substr($this->input, $length);
-    }
-
-    /**
-     * Scan for token with specified regex.
-     *
-     * @param   string  $regex  regular expression
-     * @param   string  $type   expected token type
-     *
-     * @return  Object|null
-     */
     protected function scanInput($regex, $type) {
+$map = array(
+'doctype'=>'/^!!! *(\w+)?/',
+'tag'=>'/^(\w[:-\w]*)/',
+'id'=>'/^(#[\w-]+)/',
+'class'=>'/^(\.[\w-]+)/',
+'filter'=>'/^:(\w+)/',
+'text'=>'/^(?:\|)? ?([^\n]+)/'
+);
+		if (isset($map[$type])) {
+			$regex = $map[$type];
+		}
         $matches = array();
-        if ( preg_match($regex, $this->input, $matches) ) {
-            $this->consumeInput(mb_strlen($matches[0]));
+        if ( preg_match($regex, $this->page, $matches) ) {
+            $this->reduce($matches[0]);
 
             return $this->takeToken($type, $matches[1]);
         }
@@ -171,7 +178,7 @@ class Lexer {
      * @return  Object|null
      */
     protected function scanEOS() {
-        if ( mb_strlen($this->input) ) {
+        if ( mb_strlen($this->page) ) {
             return;
         }
 
@@ -186,8 +193,8 @@ class Lexer {
     protected function scanComment() {
         $matches = array();
 
-        if ( preg_match('/^ *\/\/(-)?([^\n]+)?/', $this->input, $matches) ) {
-            $this->consumeInput(mb_strlen($matches[0]));
+        if ( preg_match('/^ *\/\/(-)?([^\n]+)?/', $this->page, $matches) ) {
+            $this->reduce($matches[0]);
             $token = $this->takeToken('comment', isset($matches[2]) ? $matches[2] : '');
             $token->buffer = !isset($matches[1]) || '-' !== $matches[1];
 
@@ -195,74 +202,16 @@ class Lexer {
         }
     }
 
-    /**
-     * Scan tag from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanTag() {
-        return $this->scanInput('/^(\w[:-\w]*)/', 'tag');
-    }
-
-    /**
-     * Scan tag from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanFilter() {
-        return $this->scanInput('/^:(\w+)/', 'filter');
-    }
-
-    /**
-     * Scan doctype from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanDoctype() {
-        return $this->scanInput('/^!!! *(\w+)?/', 'doctype');
-    }
-
-    /**
-     * Scan id from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanId() {
-        return $this->scanInput('/^#([\w-]+)/', 'id');
-    }
-
-    /**
-     * Scan class from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanClass() {
-        return $this->scanInput('/^\.([\w-]+)/', 'class');
-    }
-
-    /**
-     * Scan text from input & return it if found.
-     *
-     * @return  Object|null
-     */
-    protected function scanText() {
-        return $this->scanInput('/^(?:\|)? ?([^\n]+)/', 'text');
-    }
-
-    /**
-     * Scan code from input & return it if found.
-     *
-     * @return  Object|null
-     */
     protected function scanCode() {
         $matches = array();
 
-        if ( preg_match('/^(!?=|-)([^\n]+)/', $this->input, $matches) ) {
-            $this->consumeInput(mb_strlen($matches[0]));
+        if ( preg_match('/^(!?=|-)([^\n]+)/', $this->page, $matches) ) {
+            $this->reduce($matches[0]);
 
             $flags = $matches[1];
             $token = $this->takeToken('code', $matches[2]);
             $token->buffer = (isset($flags[0]) && '=' === $flags[0]) || (isset($flags[1]) && '=' === $flags[1]);
+			$token->code_type = $matches[1];
 
             return $token;
         }
@@ -274,12 +223,14 @@ class Lexer {
      * @return  Object|null
      */
     protected function scanAttributes() {
-        if ( $this->input[0] === '(' ) {
+        if ( $this->page[0] === '(' ) {
             $index      = $this->getDelimitersIndex('(', ')');
-            $input      = mb_substr($this->input, 1, $index - 1);
+            $input      = mb_substr($this->page, 1, $index - 1);
             $token      = $this->takeToken('attributes', $input);
             $attributes = preg_split('/ *, *(?=[\'"\w-]+ *[:=]|[\w-]+ *$)/', $token->value);
-            $this->consumeInput($index + 1);
+            $this->reduce($input . '()');
+			//61:63 length
+			//print mb_strlen($input).":".($index+1);
             $token->attributes = array();
 
             foreach ( $attributes as $i => $pair ) {
@@ -313,7 +264,7 @@ class Lexer {
                     }
 
                     $key   = mb_substr($pair, 0, $splitter);
-                    $value = preg_replace('/^ *[\'"]?|[\'"]? *$/', '', mb_substr($pair, ++$splitter, mb_strlen($pair)));
+                    $value = mb_substr($pair, ++$splitter, mb_strlen($pair));
 
                     if ( $value === 'true' ) {
                         $value = true;
@@ -329,23 +280,18 @@ class Lexer {
         }
     }
 
-    /**
-     * Scan indentation from input & return it if found.
-     *
-     * @return  Object|null
-     */
     protected function scanIndentation() {
         $matches = array();
 
-        if ( preg_match('/^\n( *)/', $this->input, $matches) ) {
+        if ( preg_match('/^\n( *)/', $this->page, $matches) ) {
             $this->lineno++;
-            $this->consumeInput(mb_strlen($matches[0]));
+            $this->reduce($matches[0]);
 
             $token      = $this->takeToken('indent', $matches[1]);
             $indents    = mb_strlen($token->value) / 2;
 
 
-            if ( mb_strlen($this->input) && $this->input[0] === "\n" ) {
+            if ( mb_strlen($this->page) && $this->page[0] === "\n" ) {
                 $token->type = 'newline';
 
                 return $token;
@@ -385,24 +331,16 @@ class Lexer {
      * @return  integer         position index
      */
     protected function getDelimitersIndex($begin, $end) {
-        $string     = $this->input;
+        $string     = $this->page;
         $nbegin     = 0;
         $nend       = 0;
         $position   = 0;
 
-        $sbrac      = false;
-        $dbrac      = false;
 
         for ( $i = 0, $length = mb_strlen($string); $i < $length; ++$i ) {
-            if ( $string[$i] === '"' ) {
-                $dbrac = !$dbrac;
-            } elseif ( $string[$i] === '\'' ) {
-                $sbrac = !$sbrac;
-            }
-
-            if ( !$sbrac && !$dbrac && $string[$i] === $begin ) {
+            if ( $string[$i] === $begin ) {
                 ++$nbegin;
-            } elseif ( !$sbrac && !$dbrac && $string[$i] === $end ) {
+            } elseif ( $string[$i] === $end ) {
                 if ( $nbegin === ++$nend ) {
                     $position = $i;
                     break;
@@ -413,3 +351,7 @@ class Lexer {
         return $position;
     }
 }
+
+
+
+?>

@@ -119,19 +119,10 @@ class Dumper {
         $html = str_repeat('  ', $level);
 
         if ( in_array($node->getName(), $this->selfClosing) ) {
-            $html .= '<' . $node->getName();
-            $html .= $this->dumpAttributes($node->getAttributes());
-            $html .= ' />';
-
-            return $html;
+			$html .= sprintf('<%s%s />', $node->getName(), $this->dumpAttributes($node->getAttributes()));
+			return $html;
         } else {
-            if ( count($node->getAttributes()) ) {
-                $html .= '<' . $node->getName();
-                $html .= $this->dumpAttributes($node->getAttributes());
-                $html .= '>';
-            } else {
-                $html .= '<' . $node->getName() . '>';
-            }
+			$html .= sprintf('<%s%s>', $node->getName(), $this->dumpAttributes($node->getAttributes()));
 
             if ( $node->getCode() ) {
                 if ( count($node->getChildren()) ) {
@@ -158,7 +149,7 @@ class Dumper {
                 $html .= "\n" . str_repeat('  ', $level);
             }
 
-            return $html . '</' . $node->getName() . '>';
+            return $html.sprintf('</%s>', $node->getName());
         }
     }
 
@@ -173,7 +164,7 @@ class Dumper {
     protected function dumpText(TextNode $node, $level = 0) {
         $indent = str_repeat('  ', $level);
 
-        return $indent . $this->replaceHolders(implode("\n" . $indent, $node->getLines()));
+        return $indent . $this->replaceHolders(implode("\n" . $indent, $node->getLines()), 'text');
     }
 
     /**
@@ -228,7 +219,7 @@ class Dumper {
 
         if ( $node->getBlock() ) {
             if ( $node->isBuffered() ) {
-                $begin = '<?php echo ' . preg_replace('/^ +/', '', $node->getCode()) . " { ?>\n";
+                $begin = '<?php echo '.$node->getCodeType().'($' . trim(preg_replace('/^ +/', '', $node->getCode())) . ") { ?>\n";
             } else {
                 $begin = '<?php ' . preg_replace('/^ +/', '', $node->getCode()) . " { ?>\n";
             }
@@ -250,7 +241,7 @@ class Dumper {
             $html .= $end;
         } else {
             if ( $node->isBuffered() ) {
-                $html .= '<?php echo ' . preg_replace('/^ +/', '', $node->getCode()) . ' ?>';
+                $html .= '<?php echo '.$node->getCodeType().'($' . preg_replace('/^ +/', '', $node->getCode()) . ') ?>';
             } else {
                 $html .= '<?php ' . preg_replace('/^ +/', '', $node->getCode()) . ' ?>';
             }
@@ -313,40 +304,53 @@ class Dumper {
 
         foreach ( $attributes as $key => $value ) {
             if ( is_array($value) ) {
-                $items[] = $key . '="' . $this->replaceHolders(htmlspecialchars(implode(' ', $value)), true) . '"';
+                $items[] = $key . '="' . $this->replaceHolders(implode(' ', $value), 'attribute', $key) . '"';
             } elseif ( $value === true ) {
                 $items[] = $key . '="' . $key . '"';
             } elseif ( $value !== false ) {
-                $items[] = $key . '="' . $this->replaceHolders(htmlspecialchars($value), true) . '"';
+                $items[] = $key . '="' . $this->replaceHolders($value, 'attribute', $key) . '"';
             }
         }
 
         return count($items) ? ' ' . implode(' ', $items) : '';
     }
 
-    /**
-     * Replace tokenized PHP string in text.
-     *
-     * @param   string  $string text
-     * @param   boolean $decode decode HTML entities
-     *
-     * @return  string
-     */
-    protected function replaceHolders($string, $decode = false) {
-        // Check for escaped curly brackets (e.g. \{{what you see is what you get}} )
-        $pattern = "/\\\{{((?!}}).*)}}/";
-        if ( preg_match($pattern, $string) ) {
-            return preg_replace_callback($pattern, function($matches) use($decode) {
-                return ( $decode ) 
-                    ? '{{' . html_entity_decode($matches[1]) . '}}' 
-                    : '{{' . $matches[1] . '}}';
-            }, $string);
-        }
-
-        // Check for non-escaped curly brackets (e.g. {{$echo_me}} )
-        $pattern = "/{{((?!}}).*)}}/";
-        return preg_replace_callback($pattern, function($matches) use($decode) {
-            return sprintf('<?php echo %s ?>', $decode ? html_entity_decode($matches[1]) : $matches[1]);
+    protected function replaceHolders($string, $type = 'none', $key = '') {
+		//TODO # id 
+		//fixes replacement bugs and changes syntax as like jade original
+		if ($type == 'attribute') {
+			if (preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $string)) {
+				return sprintf('<?php echo jade\jade_text($%s) ?>', $string);
+			}
+			$string = trim($string, '\'\"');
+			$string = preg_replace('/[\'\"]/', '', $string);
+			if ($key == 'class') {
+				$string = str_replace('.', '', $string);
+			}
+			if ($key == 'id') {
+				$string = str_replace('#', '', $string);
+			}
+			$string = jade_text($string);
+		}
+        $string = preg_replace_callback('/([!#]){([a-zA-Z_][^}]*)}/', function($matches) {
+			$map = array('#'=>'jade\jade_text', '!'=>'jade\jade_html');
+			return sprintf('<?php echo %s($%s) ?>', $map[$matches[1]], implementDotNotation($matches[2]));
         }, $string);
+		
+		return $string;
     }
 }
+
+function implementDotNotation($expression) {
+	$mark = 0;
+	$identifiers = array();
+	for ($at = 0; $at < mb_strlen($expression); $at ++) {
+		if ($expression[$at] == '.') {
+			$identifiers[] = substr($expression, $mark, $at - $mark);
+			$mark = $at;
+		}
+	}
+	$identifiers[] = substr($expression, $mark);
+	return implode('', preg_replace('/^\.([a-zA-Z0-9_][a-zA-Z0-9_]*)$/', '->$1', $identifiers));
+}
+?>

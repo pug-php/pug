@@ -9,6 +9,7 @@ class CodeNode extends Node {
     protected $buffering = false;
 
     protected $block;
+	protected $code_type;
 
     /**
      * Initialize code node.
@@ -59,4 +60,10 @@ class CodeNode extends Node {
     public function getBlock() {
         return $this->block;
     }
+	public function setCodeType($t) {
+		$this->code_type = $t;
+	}
+	public function getCodeType() {
+		$this->code_type;
+	}
 }

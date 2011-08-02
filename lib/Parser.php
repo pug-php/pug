@@ -121,6 +121,7 @@ class Parser {
     protected function parseCode() {
         $token  = $this->expectTokenType('code');
         $node   = new CodeNode($token->value, $token->buffer, $this->lexer->getCurrentLine());
+		$node->setCodeType($token->code_type);
 
         // Skip newlines
         while ( $this->lexer->predictToken()->type === 'newline' ) {
@@ -291,3 +292,4 @@ class Parser {
         return $node;
     }
 }
+?>
