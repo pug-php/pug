@@ -29,7 +29,11 @@ class Jade {
 
         $cacheKey = basename($input, '.jade');
         $path = $this->cache . '/' . $cacheKey . '.php';
-        $cacheTime = filemtime($path);
+		$cacheTime = 0;
+
+		if (file_exists($path)) {
+			$cacheTime = filemtime($path);
+		}
 
         if ( $cacheTime && filemtime($input) < $cacheTime ) {
             return $path;
