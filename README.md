@@ -4,10 +4,7 @@ Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) t
 
 ## Public API
 
-    $parser = new Parser(new Lexer());
-    $dumper = new Dumper();
-
-    $jade = new Jade($parser, $dumper);
+    $jade = new Jade();
 
     // Parse a template (supports both string inputs and files)
     echo $jade->render($template);
