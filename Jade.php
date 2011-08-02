@@ -6,9 +6,9 @@ class Jade {
     protected $dumper;
     protected $cache;
 
-    public function __construct(Parser $parser, Dumper $dumper, $cache = null) {
-        $this->parser = $parser;
-        $this->dumper = $dumper;
+    public function __construct($cache = null) {
+        $this->parser = new Parser(new Lexer());
+        $this->dumper = new Dumper();
         $this->cache  = $cache;
     }
 
