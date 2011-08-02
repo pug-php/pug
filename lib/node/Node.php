@@ -1,7 +1,5 @@
 <?php
 
-namespace lib\node;
-
 abstract class Node {
 
     protected $line;

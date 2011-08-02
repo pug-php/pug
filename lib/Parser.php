@@ -1,17 +1,5 @@
 <?php
 
-namespace lib;
-
-use lib\Lexer;
-
-use lib\node\BlockNode;
-use lib\node\CodeNode;
-use lib\node\CommentNode;
-use lib\node\DoctypeNode;
-use lib\node\FilterNode;
-use lib\node\TagNode;
-use lib\node\TextNode;
-
 class Parser {
 
     protected $lexer;

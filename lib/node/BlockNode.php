@@ -1,6 +1,5 @@
 <?php
 
-namespace lib\node;
 
 class BlockNode extends Node {
 

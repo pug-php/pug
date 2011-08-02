@@ -1,6 +1,5 @@
 <?php
 
-namespace lib\node;
 
 class CodeNode extends Node {
 

@@ -1,6 +1,5 @@
 <?php
 
-namespace lib\node;
 
 class DoctypeNode extends Node {
 

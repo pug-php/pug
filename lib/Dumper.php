@@ -1,15 +1,5 @@
 <?php
 
-namespace lib;
-
-use lib\node\Node;
-use lib\node\BlockNode;
-use lib\node\DoctypeNode;
-use lib\node\TagNode;
-use lib\node\TextNode;
-use lib\node\FilterNode;
-use lib\node\CommentNode;
-use lib\node\CodeNode;
 
 class Dumper {
 

@@ -1,6 +1,5 @@
 <?php
 
-namespace lib;
 
 function jade_text($bytes) {
 	$patterns = array('/&(?!\w+;)/', '/</', '/>/', '/"/');

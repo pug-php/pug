@@ -1,8 +1,5 @@
 <?php
 
-use lib\Parser;
-use lib\Dumper;
-
 class Jade {
 
     protected $parser;

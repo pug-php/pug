@@ -1,11 +1,20 @@
 <?php
 
-require '/home/ruf/jade_test/Jade.php';
+require '../work.php';
+require '../lib/node/Node.php';
+require '../lib/node/BlockNode.php';
+require '../lib/node/CodeNode.php';
+require '../lib/node/CommentNode.php';
+require '../lib/node/DoctypeNode.php';
+require '../lib/node/FilterNode.php';
+require '../lib/node/TagNode.php';
+require '../lib/node/TextNode.php';
+require '../lib/Dumper.php';
+require '../lib/Lexer.php';
+require '../lib/Parser.php';
+require '../Jade.php';
 
-use jade\Lexer;
-use jade\Dumper;
-use jade\Parser;
-use jade\Jade;
+
 
 class JadeTest extends \PHPUnit_Framework_TestCase {
 
