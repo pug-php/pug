@@ -21,8 +21,23 @@ class JP {
 	}
 }
 
-//class Collection {}
-//class Node {}
 //class Jade {}
+
+class iNode {
+	private $properties = array();
+
+	function __get($key) {
+		return $this->properties[$key];
+	}
+
+	function __set($key, $value) {
+		$this->properties[$key] = $value;
+	}
+
+	function setAttribute($a, $b) {
+	}
+}
+
+//class Collection {}
 
 ?>

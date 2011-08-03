@@ -17,7 +17,7 @@ class Lexer extends JP {
 
     protected $lastIndents      = 0;
 
-    protected $lineno           = 1;
+/* need? */    protected $lineno           = 1;
 
     protected $stash            = array();
 
@@ -46,15 +46,6 @@ class Lexer extends JP {
         }
 
         return $this->getNextToken();
-    }
-
-    /**
-     * Return current line number.
-     *
-     * @return  integer
-     */
-    public function getCurrentLine() {
-        return $this->lineno;
     }
 
     /**
