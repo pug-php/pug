@@ -1,6 +1,6 @@
 <?php
 require './work.php';
-require './lib/node/Node.php';
+require './lib/Node.php';
 require './lib/Dumper.php';
 require './lib/Lexer.php';
 require './lib/Parser.php';
