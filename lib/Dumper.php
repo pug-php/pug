@@ -294,11 +294,11 @@ class Dumper {
 
         foreach ( $attributes as $key => $value ) {
             if ( is_array($value) ) {
-                $items[] = $key . '="' . $this->replaceHolders(implode(' ', $value), 'attribute', $key) . '"';
+                $items[] = $key . '="' . trim($this->replaceHolders(implode(' ', $value), 'attribute', $key)) . '"';
             } elseif ( $value === true ) {
-                $items[] = $key . '="' . $key . '"';
+                $items[] = $key . '="' . trim($key) . '"';
             } elseif ( $value !== false ) {
-                $items[] = $key . '="' . $this->replaceHolders($value, 'attribute', $key) . '"';
+                $items[] = $key . '="' . trim($this->replaceHolders($value, 'attribute', $key)) . '"';
             }
         }
 
