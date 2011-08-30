@@ -309,7 +309,7 @@ class Dumper {
 		//fixes replacement bugs and changes syntax as like jade original
 		if ($type == 'attribute') {
 			if (preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $string)) {
-				return sprintf('<?php echo jade\jade_text($%s) ?>', $string);
+				return sprintf('<?php echo jade_text($%s) ?>', $string);
 			}
 			$string = trim($string, '\'\"');
 			$string = preg_replace('/[\'\"]/', '', $string);
@@ -322,7 +322,7 @@ class Dumper {
 			$string = jade_text($string);
 		}
         $string = preg_replace_callback('/([!#]){([a-zA-Z_][^}]*)}/', function($matches) {
-			$map = array('#'=>'jade\jade_text', '!'=>'jade\jade_html');
+			$map = array('#'=>'jade_text', '!'=>'jade_html');
 			return sprintf('<?php echo %s($%s) ?>', $map[$matches[1]], implementDotNotation($matches[2]));
         }, $string);
 		
