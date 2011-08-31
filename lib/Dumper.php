@@ -207,9 +207,12 @@ class Dumper {
     protected function dumpCode(Node $node, $level = 0) {
         $html = str_repeat('  ', $level);
 
+		$map = array('!='=>'jade_text', '='=>'jade_html');
+
+
         if ( $node->block ) {
             if ( $node->buffering ) {
-                $begin = '<?php echo '.$node->codeType.'($' . trim(preg_replace('/^ +/', '', $node->code)) . ") { ?>\n";
+                $begin = '<?php echo '.$map[$node->codeType].'($' . trim(preg_replace('/^ +/', '', $node->code)) . ") { ?>\n";
             } else {
                 $begin = '<?php ' . preg_replace('/^ +/', '', $node->code) . " { ?>\n";
             }
@@ -231,7 +234,7 @@ class Dumper {
             $html .= $end;
         } else {
             if ( $node->buffering ) {
-                $html .= '<?php echo '.$node->codeType.'($' . preg_replace('/^ +/', '', $node->code) . ') ?>';
+                $html .= '<?php echo '.$map[$node->codeType].'($' . preg_replace('/^ +/', '', $node->code) . ') ?>';
             } else {
                 $html .= '<?php ' . preg_replace('/^ +/', '', $node->code) . ' ?>';
             }
