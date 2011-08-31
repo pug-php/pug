@@ -117,48 +117,28 @@ class Lexer extends JP {
         $scanners = array(
             'getDeferredToken'
           , 'scanEOS'
-          , 'tag'
-          , 'filter'
+          , 'TAG'
+          , 'FILTER'
           , 'scanCode'
-          , 'doctype'
-          , 'id'
-          , 'class'
+          , 'DOCUMENT_TYPE'
+          , 'ID'
+          , 'CLASS'
           , 'scanAttributes'
           , 'scanIndentation'
           , 'scanComment'
-          , 'text'
+          , 'TEXT'
         );
 
         foreach ( $scanners as $scan ) {
 			if (preg_match('/^scan|get/', $scan)) {
 				$token = $this->$scan();
 			} else {
-				$token = $this->scanInput('', $scan);
+				$token = $this->next($scan);
 			}
 
             if ( $token ) {
                 return $token;
             }
-        }
-    }
-
-    protected function scanInput($regex, $type) {
-$map = array(
-'doctype'=>'/^!!! *(\w+)?/',
-'tag'=>'/^(\w[:-\w]*)/',
-'id'=>'/^(#[\w-]+)/',
-'class'=>'/^(\.[\w-]+)/',
-'filter'=>'/^:(\w+)/',
-'text'=>'/^(?:\|)? ?([^\n]+)/'
-);
-		if (isset($map[$type])) {
-			$regex = $map[$type];
-		}
-        $matches = array();
-        if ( preg_match($regex, $this->page, $matches) ) {
-            $this->reduce($matches[0]);
-
-            return $this->takeToken($type, $matches[1]);
         }
     }
 
@@ -214,58 +194,25 @@ $map = array(
      */
     protected function scanAttributes() {
         if ( $this->page[0] === '(' ) {
-            $index      = $this->getDelimitersIndex('(', ')');
-            $input      = mb_substr($this->page, 1, $index - 1);
-            $token      = $this->takeToken('attributes', $input);
-            $attributes = preg_split('/\s*,\s*(?=[\'"\w-]+\s*[:=]|[\w-]+\s*$)/', $token->value);
-            $this->reduce($input . '()');
-			//61:63 length
-			//print mb_strlen($input).":".($index+1);
+            $token = $this->takeToken('attributes', '');
             $token->attributes = array();
+			//pass '('
+			$this->next('ATTRIBUTE');
 
-            foreach ( $attributes as $i => $pair ) {
-                $pair = preg_replace('/^ *| *$/', '', $pair);
-                $colon = mb_strpos($pair, ':');
-                $equal = mb_strpos($pair, '=');
+			do {
+				$attr = $this->next('ATTRIBUTE');
+				if ($attr[0] == '') {
+					//TODO Error reporting
+					return null;
+				}
+				$attr = array_values(preg_grep('/^.+$/', $attr));
 
-                $sbrac = mb_strpos($pair, '\'');
-                $dbrac = mb_strpos($pair, '"');
-                if ( $sbrac < 1 ) {
-                    $sbrac = false;
-                }
-                if ( $dbrac < 1 ) {
-                    $dbrac = false;
-                }
-                if ( ($sbrac !== false && $colon > $sbrac) || ($dbrac !== false && $colon > $dbrac) ) {
-                    $colon = false;
-                }
-                if ( ($sbrac !== false && $equal > $sbrac) || ($dbrac !== false && $equal > $dbrac) ) {
-                    $equal = false;
-                }
-
-                if ( $colon === false && $equal === false ) {
-                    $key   = $pair;
-                    $value = true;
-                } else {
-                    $splitter = ( $colon !== false ) ? $colon : $equal;
-
-                    if ( $colon !== false && $colon < $equal ) {
-                        $splitter = $colon;
-                    }
-
-                    $key   = mb_substr($pair, 0, $splitter);
-                    $value = mb_substr($pair, ++$splitter, mb_strlen($pair));
-
-                    if ( $value === 'true' ) {
-                        $value = true;
-                    } elseif ( empty($value) || $value === 'null' || $value === 'false' ) {
-                        $value = false;
-                    }
-                }
-
-                $token->attributes[preg_replace(array('/^ +| +$/', '/^[\'"]|[\'"]$/'), '', $key)] = $value;
-            }
-
+				if (isset($attr[1]) && isset($attr[2])) {
+					$token->attributes[$attr[1]] = $attr[2];
+				} elseif (isset($attr[1]) && $attr[1] != ',' && $attr[1] != ')') {
+					$token->attributes[$attr[1]] = '"'.$attr[1].'"';
+				}
+			} while ($attr[1] != ')');
             return $token;
         }
     }
@@ -310,35 +257,6 @@ $map = array(
 
             return $token;
         }
-    }
-
-    /**
-     * Return the index of begin/end delimiters.
-     *
-     * @param   string  $begin  befin delimiter
-     * @param   string  $end    end delimiter
-     *
-     * @return  integer         position index
-     */
-    protected function getDelimitersIndex($begin, $end) {
-        $string     = $this->page;
-        $nbegin     = 0;
-        $nend       = 0;
-        $position   = 0;
-
-
-        for ( $i = 0, $length = mb_strlen($string); $i < $length; ++$i ) {
-            if ( $string[$i] === $begin ) {
-                ++$nbegin;
-            } elseif ( $string[$i] === $end ) {
-                if ( $nbegin === ++$nend ) {
-                    $position = $i;
-                    break;
-                }
-            }
-        }
-
-        return $position;
     }
 }
 

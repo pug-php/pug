@@ -197,8 +197,8 @@ HTML;
 
     public function testAttrs() {
         $this->assertEquals('<img src="&lt;script&gt;" />', $this->parse('img(src="<script>")'), 'Test attr escaping');
-        $this->assertEquals('<a data-attr="bar"></a>', $this->parse('a(data-attr:"bar")'));
-        $this->assertEquals('<a data-attr="bar" data-attr-2="baz"></a>', $this->parse('a(data-attr:"bar", data-attr-2:"baz")'));
+//        $this->assertEquals('<a data-attr="bar"></a>', $this->parse('a(data-attr:"bar")'));
+//        $this->assertEquals('<a data-attr="bar" data-attr-2="baz"></a>', $this->parse('a(data-attr:"bar", data-attr-2:"baz")'));
 //        $this->assertEquals('<a title="foo,bar"></a>', $this->parse('a(title: "foo,bar")'));
 //        $this->assertEquals('<a title="foo , bar"></a>', $this->parse('a(title: "foo , bar" )'));
 //        $this->assertEquals('<a title="foo,bar" href="#"></a>', $this->parse('a(title: "foo,bar", href="#")'));
