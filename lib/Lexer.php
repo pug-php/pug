@@ -217,7 +217,7 @@ $map = array(
             $index      = $this->getDelimitersIndex('(', ')');
             $input      = mb_substr($this->page, 1, $index - 1);
             $token      = $this->takeToken('attributes', $input);
-            $attributes = preg_split('/ *, *(?=[\'"\w-]+ *[:=]|[\w-]+ *$)/', $token->value);
+            $attributes = preg_split('/\s*,\s*(?=[\'"\w-]+\s*[:=]|[\w-]+\s*$)/', $token->value);
             $this->reduce($input . '()');
 			//61:63 length
 			//print mb_strlen($input).":".($index+1);
