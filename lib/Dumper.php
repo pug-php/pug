@@ -207,7 +207,7 @@ class Dumper {
     protected function dumpCode(Node $node, $level = 0) {
         $html = str_repeat('  ', $level);
 
-		$map = array('!='=>'jade_text', '='=>'jade_html');
+		$map = array('='=>'jade_text', '!='=>'jade_html');
 
 
         if ( $node->block ) {
