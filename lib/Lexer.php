@@ -124,6 +124,7 @@ class Lexer extends JP {
           , 'ID'
           , 'CLASS'
           , 'scanAttributes'
+          , 'scanDotBlock'
           , 'scanIndentation'
           , 'scanComment'
           , 'TEXT'
@@ -140,6 +141,14 @@ class Lexer extends JP {
                 return $token;
             }
         }
+    }
+		
+    protected function scanDotBlock() {
+			if ( $this->page[0] === '.' ) {
+				$token = $this->takeToken('text', $this->next('dotBlock')->value);
+				return $token;
+			}
+			else return null;
     }
 
     /**

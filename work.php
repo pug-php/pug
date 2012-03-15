@@ -31,6 +31,7 @@ class JP {
 				.'|^([\w:-]+)/', /* _NONE */
 			'NEXT'=>'/^(:  *)|^\n( *)/',
 			'TEXT'=>'/^(?:\| ?)?([^\n]+)/',
+			'dotBlock' => '/^(\.\n)(\s+)(.+)(\n\2.+)*(\n|$)(\s*)/m',
 		);
 
 		if (preg_match($map[$type], $this->page, $parentheses)) {
@@ -48,7 +49,8 @@ class JP {
 			'ID'=>'id',
 			'CLASS'=>'class',
 			'TEXT'=>'text',
-			'ATTRIBUTE'=>'attributes'
+			'ATTRIBUTE'=>'attributes',
+			'dotBlock' => 'text',
 		);
 
 		$index = 0;
@@ -60,6 +62,9 @@ class JP {
 		}
 		if ($type == 'ATTRIBUTE') {
 			return $data;
+		}
+		if ($type === 'dotBlock'){
+			$data[0] = ltrim($data[0], '.');
 		}
 		return (object) array('type'=>$remap[$type], 'value'=>$data[$index]);
 	}
