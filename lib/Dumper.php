@@ -234,7 +234,7 @@ class Dumper {
             $html .= $end;
         } else {
             if ( $node->buffering ) {
-                $html .= '<?php echo '.$map[$node->codeType].'($' . preg_replace('/^ +/', '', $node->code) . ') ?>';
+                $html .= '<?php echo '.$map[$node->codeType].'(' . preg_replace('/^ +/', '', $node->code) . ') ?>';
             } else {
                 $html .= '<?php ' . preg_replace('/^ +/', '', $node->code) . ' ?>';
             }
@@ -256,8 +256,7 @@ class Dumper {
         if ( $node->block ) {
             $text = $this->dumpNode($node->block, $level + 1);
         }
-
-        switch ( $node->name ) {
+        switch ( ltrim($node->name, ':') ) {
             case 'css':
                 $opening_tag = '<style type="text/css">';
                 $closing_tag = '</style>';
@@ -315,34 +314,23 @@ class Dumper {
 				return sprintf('<?php echo jade_text($%s) ?>', $string);
 			}
 			$string = trim($string, '\'\"');
-			$string = preg_replace('/[\'\"]/', '', $string);
-			if ($key == 'class') {
+			if ($key === 'class') {
 				$string = str_replace('.', '', $string);
 			}
 			if ($key === 'id' && strpos($string, '#{') === false) {
 				$string = str_replace('#', '', $string);
 			}
-			$string = jade_text($string);
+			// If it doesn't look like php we can run it through jade_text
+			if ( strpos($string, '(') === false && strpos($string, ')') === false && strpos($string, '::') === false && strpos($string, '->') === false){
+				$string = jade_text($string);
+			}
 		}
-        $string = preg_replace_callback('/([!#]){([a-zA-Z_][^}]*)}/', function($matches) {
+        $string = preg_replace_callback('/([!#]){([^}]+)}/', function($matches) {
 			$map = array('#'=>'jade_text', '!'=>'jade_html');
-			return sprintf('<?php echo %s($%s) ?>', $map[$matches[1]], implementDotNotation($matches[2]));
+			return sprintf('<?php echo %s(%s) ?>', $map[$matches[1]], $matches[2]);
         }, $string);
 		
 		return $string;
     }
-}
-
-function implementDotNotation($expression) {
-	$mark = 0;
-	$identifiers = array();
-	for ($at = 0; $at < mb_strlen($expression); $at ++) {
-		if ($expression[$at] == '.') {
-			$identifiers[] = substr($expression, $mark, $at - $mark);
-			$mark = $at;
-		}
-	}
-	$identifiers[] = substr($expression, $mark);
-	return implode('', preg_replace('/^\.([a-zA-Z0-9_][a-zA-Z0-9_]*)$/', '->$1', $identifiers));
 }
 ?>
