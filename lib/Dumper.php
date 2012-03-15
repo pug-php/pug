@@ -319,7 +319,7 @@ class Dumper {
 			if ($key == 'class') {
 				$string = str_replace('.', '', $string);
 			}
-			if ($key == 'id') {
+			if ($key === 'id' && strpos($string, '#{') === false) {
 				$string = str_replace('#', '', $string);
 			}
 			$string = jade_text($string);
