@@ -31,7 +31,7 @@ class JP {
 				.'|^([\w:-]+)/', /* _NONE */
 			'NEXT'=>'/^(:  *)|^\n( *)/',
 			'TEXT'=>'/^(?:\| ?)?([^\n]+)/',
-			'dotBlock' => '/^(\.\n)(\s+)(.+)(\n\2.+)*(\n|$)(\s*)/m',
+			'dotBlock' => '/^(\.\n)(\s+)(.+)(\n\2.+)*/m',
 		);
 
 		if (preg_match($map[$type], $this->page, $parentheses)) {
@@ -65,6 +65,10 @@ class JP {
 		}
 		if ($type === 'dotBlock'){
 			$data[0] = ltrim($data[0], '.');
+
+			// Correct the indent
+			preg_match('/\n( +)/m', $data[0], $matches);
+			$data[0] .= "\n" . str_repeat(' ', strlen($matches[1]) - 2);
 		}
 		return (object) array('type'=>$remap[$type], 'value'=>$data[$index]);
 	}
