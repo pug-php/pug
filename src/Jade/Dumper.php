@@ -1,5 +1,6 @@
 <?php
 
+namespace Jade;
 
 class Dumper {
 
@@ -29,6 +30,16 @@ class Dumper {
     );
 
     protected $nextIsIf = array();
+
+    public static function _text($bytes) {
+        $patterns = array('/&(?!\w+;)/', '/</', '/>/', '/"/');
+        $replacements = array('&amp;', '&lt;', '&gt;', '&quot;');
+        return preg_replace($patterns, $replacements, $bytes);
+    }
+
+    public static function _html($bytes) {
+        return $bytes;
+    }
 
     /**
      * Dump node to string.
@@ -207,7 +218,7 @@ class Dumper {
     protected function dumpCode(Node $node, $level = 0) {
         $html = str_repeat('  ', $level);
 
-		$map = array('='=>'jade_text', '!='=>'jade_html');
+		$map = array('='=>'Jade\Dumper::_text', '!='=>'Jade\Dumper::_html');
 
 
         if ( $node->block ) {
@@ -311,7 +322,7 @@ class Dumper {
 		//fixes replacement bugs and changes syntax as like jade original
 		if ($type == 'attribute') {
 			if (preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $string)) {
-				return sprintf('<?php echo jade_text($%s) ?>', $string);
+				return sprintf('<?php echo Jade\Dumper::_text($%s); ?>', $string);
 			}
 			$string = trim($string, '\'\"');
 			if ($key === 'class') {
@@ -320,14 +331,14 @@ class Dumper {
 			if ($key === 'id' && strpos($string, '#{') === false) {
 				$string = str_replace('#', '', $string);
 			}
-			// If it doesn't look like php we can run it through jade_text
+			// If it doesn't look like php we can run it through dump_text
 			if ( strpos($string, '(') === false && strpos($string, ')') === false && strpos($string, '::') === false && strpos($string, '->') === false){
-				$string = jade_text($string);
+				$string = self::_text($string);
 			}
 		}
         $string = preg_replace_callback('/([!#]){([^}]+)}/', function($matches) {
-			$map = array('#'=>'jade_text', '!'=>'jade_html');
-			return sprintf('<?php echo %s(%s) ?>', $map[$matches[1]], $matches[2]);
+			$map = array('#'=>'Jade\Dumper::_text', '!'=>'Jade\Dumper::_html');
+			return sprintf('<?php echo %s(%s); ?>', $map[$matches[1]], $matches[2]);
         }, $string);
 		
 		return $string;

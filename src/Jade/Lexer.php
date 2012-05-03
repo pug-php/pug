@@ -1,20 +1,12 @@
 <?php
 
+namespace Jade;
 
-function jade_text($bytes) {
-	$patterns = array('/&(?!\w+;)/', '/</', '/>/', '/"/');
-	$replacements = array('&amp;', '&lt;', '&gt;', '&quot;');
-	return preg_replace($patterns, $replacements, $bytes);
-}
-
-function jade_html($bytes) {
-	return $bytes;
-}
-
-class Lexer extends JP {
+class Lexer {
 
     protected $deferredObjects   = array();
-
+    protected $page;
+    private $last;
     protected $lastIndents      = 0;
 
 /* need? */    protected $lineno           = 1;
@@ -28,12 +20,14 @@ class Lexer extends JP {
      */
     public function setInput($input) {
 		$this->adjustLineDelimiter($input);
-/* TODO TAB */        $this->page            = preg_replace(array('/\r\n|\r/', '/\t/'), array("\n", '  '), $input);
+        $this->page            = preg_replace(array('/\r\n|\r/', '/\t/'), array("\n", '  '), $input); // TODO: Tab
         $this->deferredObjects  = array();
         $this->lastIndents      = 0;
         $this->lineno           = 1;
         $this->stash            = array();
     }
+
+
 
     /**
      * Return next token or previously stashed one.
@@ -266,6 +260,66 @@ class Lexer extends JP {
 
             return $token;
         }
+    }
+
+    function reduce($bytes) {
+        $this->page = mb_substr($this->page, mb_strlen($bytes));
+    }
+    function length() {
+        return mb_strlen($this->page);
+    }
+    function adjustLineDelimiter($bytes) {
+        $this->page = preg_replace('/\r\n|\r/', '\n', $bytes);
+    }
+    function next($type) {
+        $map = array(
+            'DOCUMENT_TYPE'=>'/^(?:!!!|doctype) *(\w+)?/',
+            'TAG'=>'/^(\w[\w:-]*\w)|^(\w[\w-]*)/',
+            'FILTER'=>'/^:(\w+)/',
+            'SCRIPT'=>'/^(!?=|-)([^\n]+)/',
+            'ID'=>'/^#([\w-]+)/',
+            'CLASS'=>'/^\.([\w-]+)/',
+            'ATTRIBUTE'=>''
+                .'/^([\(])\s*' /* OPENER */
+                .'|^\s*([\)])' /* CLOSER */
+                .'|^[\t ]*([,\n])[\t ]*' /* DELIMITER */
+                .'|^([\w:-]+)[\t ]*=[\t ]*([\w.]+)' /* VARIABLE */
+                .'|^([\w:-]+)[\t ]*=[\t ]*(\'[^\']*\')' /* SINGLE_QUOTE */
+                .'|^([\w:-]+)[\t ]*=[\t ]*(\"[^\"]*\")' /* DOUBLE_QUOTE */
+                .'|^([\w:-]+)/', /* _NONE */
+            'NEXT'=>'/^(:  *)|^\n( *)/',
+            'TEXT'=>'/^(?:\| ?)?([^\n]+)/',
+        );
+
+        if (preg_match($map[$type], $this->page, $parentheses)) {
+            $this->reduce($parentheses[0]);
+            return $this->item($type, $parentheses);
+        }
+    }
+    function item($type, $data) {
+//      echo sprintf('%-16s  %s'.PHP_EOL, $type, trim($data[0]));
+        $remap= array(
+            'DOCUMENT_TYPE'=>'doctype',
+            'TAG'=>'tag',
+            'FILTER'=>'filter',
+            'SCRIPT'=>'code',
+            'ID'=>'id',
+            'CLASS'=>'class',
+            'TEXT'=>'text',
+            'ATTRIBUTE'=>'attributes'
+        );
+
+        $index = 0;
+        if ($type == 'DOCUMENT_TYPE') {
+            $index = 1;
+        }
+        if ($type == 'TEXT') {
+            $index = 1;
+        }
+        if ($type == 'ATTRIBUTE') {
+            return $data;
+        }
+        return (object) array('type'=>$remap[$type], 'value'=>$data[$index]);
     }
 }
 

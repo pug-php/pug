@@ -1,8 +1,12 @@
 <?php
+
+namespace Jade;
+
 class Node {
+
     protected $string;
-	public $codeType;
-	public $type;
+  	public $codeType;
+    public $type;
     public $block;
     public $buffering = false;
     public $children = array();

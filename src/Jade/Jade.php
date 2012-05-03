@@ -1,5 +1,11 @@
 <?php
 
+namespace Jade;
+
+use Jade\Parser;
+use Jade\Lexer;
+use Jade\Dumper;
+
 class Jade {
 
     protected $parser;

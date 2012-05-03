@@ -1,5 +1,7 @@
 <?php
 
+namespace Jade;
+
 class Parser {
 
     protected $lexer;

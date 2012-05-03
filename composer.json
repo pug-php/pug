@@ -1,0 +1,33 @@
+{
+    "name": "dz0ny/jade.php",
+    "description": "HAML-like template engine for PHP 5.3",
+    "keywords": ["jade", "minification","template"],
+    "homepage": "https://github.com/dz0ny/jade.php",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Konstantin Kudryasho",
+            "email": "konstantin.kudryashov@knplabs.com",
+            "homepage": "http://about.me/everzet",
+            "role": "Developer"
+        },
+        {
+            "name": "Janez Troha",
+            "email": "janez.troha@gmail.com",
+            "homepage": "http://flavors.me/dz0ny",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": { "Jade": "src/" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "master"
+        }
+    }
+}
