@@ -5,20 +5,26 @@ namespace Jade;
 class Parser {
 
     protected $lexer;
-
+    public $basepath; //current file basepath, used for include type
     public function __construct(Lexer $lexer) {
         $this->lexer = $lexer;
     }
 
     public function parse($input) {
-        $this->lexer->setInput($input);
+        $source = ( is_file($input) ) ? file_get_contents($input) : (string) $input;
+        $this->basepath = ( is_file($input) ) ? dirname($input) : False ;
+        $this->lexer->setInput($source);
 
         $node = new Node('block');
 
         while ( $this->lexer->predictToken()->type !== 'eos' ) {
+            //echo $this->lexer->predictToken()->type.PHP_EOL;
             if ( $this->lexer->predictToken()->type === 'newline' ) {
                 $this->lexer->getAdvancedToken();
-            } else {
+            }else if ( $this->lexer->predictToken()->type === 'include' ) {
+                $node->addChildren($this->parseExpression());
+            }
+            else {
                 $node->addChild($this->parseExpression());
             }
         }
@@ -42,6 +48,8 @@ class Parser {
 
     protected function parseExpression() {
         switch ( $this->lexer->predictToken()->type ) {
+            case 'include':
+                return $this->parseInclude();
             case 'tag':
                 return $this->parseTag();
             case 'doctype':
@@ -104,6 +112,14 @@ class Parser {
         return $node;
     }
 
+    protected function parseInclude() {
+        $token = $this->expectTokenType('include');
+        $filename = (strripos($token->value , ".jade", -5) !== False ) ? $token->value : $token->value.".jade";
+        $source = realpath($this->basepath) . DIRECTORY_SEPARATOR . $filename;
+        $l_parser = new Parser(new Lexer());
+        return $l_parser->parse($source)->children;
+    }
+
     protected function parseDoctype() {
         $token = $this->expectTokenType('doctype');
 
@@ -150,9 +166,10 @@ class Parser {
         while ( $this->lexer->predictToken()->type !== 'outdent' ) {
             if ( $this->lexer->predictToken()->type === 'newline' ) {
                 $this->lexer->getAdvancedToken();
-            } else {
+            }else if ( $this->lexer->predictToken()->type === 'include' ) {
+                $node->addChildren($this->parseExpression());
+            }else {
                 $node->addChild($this->parseExpression());
-//                $node->children[] = $this->parseExpression();
             }
         }
         $this->expectTokenType('outdent');

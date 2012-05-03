@@ -58,6 +58,11 @@ class Node {
     public function addChild(Node $node) {
         $this->children[] = $node;
     }
+
+    public function addChildren(Array $nodes) {
+        $this->children = array_merge($this->children, $nodes);
+    }
+
     public function setAttribute($key, $value) {
         if ( $key === 'class' ) {
             if ( !isset($this->attributes[$key]) ) {

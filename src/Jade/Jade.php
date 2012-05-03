@@ -19,8 +19,7 @@ class Jade {
     }
 
     public function render($input) {
-        $source = ( is_file($input) ) ? file_get_contents($input) : (string) $input;
-        $parsed = $this->parser->parse($source);
+        $parsed = $this->parser->parse($input);
 
         return $this->dumper->dump($parsed);
     }

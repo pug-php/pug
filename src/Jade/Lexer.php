@@ -109,7 +109,8 @@ class Lexer {
      */
     protected function getNextToken() {
         $scanners = array(
-            'getDeferredToken'
+            'INCLUDE'
+          , 'getDeferredToken'
           , 'scanEOS'
           , 'TAG'
           , 'FILTER'
@@ -272,7 +273,9 @@ class Lexer {
         $this->page = preg_replace('/\r\n|\r/', '\n', $bytes);
     }
     function next($type) {
+        //echo $type.PHP_EOL;
         $map = array(
+            'INCLUDE'=>'/^include +([^\n]+)/',
             'DOCUMENT_TYPE'=>'/^(?:!!!|doctype) *(\w+)?/',
             'TAG'=>'/^(\w[\w:-]*\w)|^(\w[\w-]*)/',
             'FILTER'=>'/^:(\w+)/',
@@ -297,11 +300,12 @@ class Lexer {
         }
     }
     function item($type, $data) {
-//      echo sprintf('%-16s  %s'.PHP_EOL, $type, trim($data[0]));
+        //echo sprintf('%-16s  %s'.PHP_EOL, $type, trim($data[0]));
         $remap= array(
             'DOCUMENT_TYPE'=>'doctype',
             'TAG'=>'tag',
             'FILTER'=>'filter',
+            'INCLUDE'=>'include',
             'SCRIPT'=>'code',
             'ID'=>'id',
             'CLASS'=>'class',
@@ -310,6 +314,9 @@ class Lexer {
         );
 
         $index = 0;
+        if ($type == 'INCLUDE') {
+            $index = 1;
+        }
         if ($type == 'DOCUMENT_TYPE') {
             $index = 1;
         }
