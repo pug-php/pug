@@ -28,6 +28,8 @@ class Dumper {
         "/^ *switch[ \(]+.*\: *$/"    => 'endswitch',
         "/^ *case *.* *\: *$/"        => 'break'
     );
+	
+    protected $specialAttribtues = array('selected', 'checked', 'required', 'disabled');
 
     protected $nextIsIf = array();
 
@@ -310,6 +312,8 @@ class Dumper {
                 $items[] = $key . '="' . trim($this->replaceHolders(implode(' ', $value), 'attribute', $key)) . '"';
             } elseif ( $value === true ) {
                 $items[] = $key . '="' . trim($key) . '"';
+            } elseif (in_array($key, $this->specialAttribtues) && preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $value)) {
+                $items[] = trim($this->replaceHolders($value, 'attribute', $key));
             } elseif ( $value !== false ) {
                 $items[] = $key . '="' . trim($this->replaceHolders($value, 'attribute', $key)) . '"';
             }
@@ -322,6 +326,9 @@ class Dumper {
 		//fixes replacement bugs and changes syntax as like jade original
 		if ($type == 'attribute') {
 			if (preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $string)) {
+				if (in_array($key, $this->specialAttribtues)) {
+					return sprintf('<?php if ($%s) echo "%s=\'".Jade\Dumper::_text($%s)."\'"; ?>', $string, $key, $string);
+				}
 				return sprintf('<?php echo Jade\Dumper::_text($%s); ?>', $string);
 			}
 			$string = trim($string, '\'\"');
