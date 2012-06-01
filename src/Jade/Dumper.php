@@ -312,7 +312,7 @@ class Dumper {
                 $items[] = $key . '="' . trim($this->replaceHolders(implode(' ', $value), 'attribute', $key)) . '"';
             } elseif ( $value === true ) {
                 $items[] = $key . '="' . trim($key) . '"';
-            } elseif (in_array($key, $this->specialAttribtues)) {
+            } elseif (in_array($key, $this->specialAttribtues) && preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_>]*$/', $value)) {
                 $items[] = trim($this->replaceHolders($value, 'attribute', $key));
             } elseif ( $value !== false ) {
                 $items[] = $key . '="' . trim($this->replaceHolders($value, 'attribute', $key)) . '"';
