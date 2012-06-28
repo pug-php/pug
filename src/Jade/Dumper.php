@@ -34,8 +34,8 @@ class Dumper {
     protected $nextIsIf = array();
 
     public static function _text($bytes) {
-        $patterns = array('/&(?!\w+;)/', '/</', '/>/', '/"/');
-        $replacements = array('&amp;', '&lt;', '&gt;', '&quot;');
+        $patterns = array('/&(?!\w+;)/', '/</', '/>/');
+        $replacements = array('&amp;', '&lt;', '&gt;');
         return preg_replace($patterns, $replacements, $bytes);
     }
 
