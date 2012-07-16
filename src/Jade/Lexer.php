@@ -4,8 +4,6 @@ namespace Jade;
 
 class Lexer {
 
-    private $last;
-
     protected $input;
     protected $pipeless;
     protected $deferred		= array();
@@ -115,7 +113,7 @@ class Lexer {
      *
      * @return  Object
      */
-	protected function scanAdvance() {
+	protected function advance() {
         return $this->getStashed() || $this->next();
 	}
 
@@ -611,16 +609,6 @@ class Lexer {
     }
 
 	public function nextToken() {
-		var_dump($this->input);
-		/*var_dump($this->input);
-		var_dump($this->deferred);
-		var_dump($this->indentStack);
-		var_dump($this->lineno);
-		var_dump($this->stash);
-		var_dump($r = $this->deferred() || $r = $this->scanDoctype());
-		var_dump($r);
-		die();*/
-
 		$r = $this->deferred()
 		or $r = $this->scanBlank()
 		or $r = $this->scanEOS()
@@ -666,5 +654,6 @@ class Lexer {
 	 * @deprecated Use advance instead
 	 */
     public function getAdvancedToken() {
+		return $this->avance();
     }
 }
