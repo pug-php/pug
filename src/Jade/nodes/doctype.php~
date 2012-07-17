@@ -1,0 +1,6 @@
+<?php 
+
+namespace Nodes
+
+class Doctype extends Node {
+}

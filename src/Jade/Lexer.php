@@ -4,12 +4,17 @@ namespace Jade;
 
 class Lexer {
 
+	public $lineno = 1;
+
     protected $input;
     protected $pipeless;
     protected $deferred		= array();
     protected $indentStack	= 0;
-	protected $lineno		= 1;
     protected $stash		= array();
+
+	public function __construct($input) {
+		$this->setInput($input);
+	}
 
     /**
      * Set lexer input.
