@@ -28,6 +28,7 @@ class Tag extends Attributes {
 	public $name;
 	public $attributes;
 	public $block;
+	public $selfClosing = false;
 
 	public function __construct($name, $block=null) {
 		$this->name = $name;
@@ -48,7 +49,7 @@ class Tag extends Attributes {
 	public function canInline() {
 		$nodes = $this->block->nodes;
 
-		$isInline = function($node) use ($isInline) {
+		$isInline = function($node) use (&$isInline) {
 			if ($node->isBlock) {
 				foreach ($node->nodes as $n) {
 					if (!$isInline($n)) {

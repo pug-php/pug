@@ -1,11 +1,11 @@
 <?php
 
-namespace \Nodes;
+namespace Nodes;
 
 class Attributes extends Node {
 	public $attributes = array();
 
-	public function setAttribute($name, $value, $escaped) {
+	public function setAttribute($name, $value, $escaped=false) {
 		array_push($this->attributes, array('name'=>$name,'value'=>$value,'escaped'=>$escaped));
 		return $this;
 	}

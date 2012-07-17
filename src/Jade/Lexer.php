@@ -5,9 +5,9 @@ namespace Jade;
 class Lexer {
 
 	public $lineno = 1;
+    public $pipeless;
 
     protected $input;
-    protected $pipeless;
     protected $deferred		= array();
     protected $indentStack	= 0;
     protected $stash		= array();
@@ -118,8 +118,11 @@ class Lexer {
      *
      * @return  Object
      */
-	protected function advance() {
-        return $this->getStashed() || $this->next();
+	public function advance() {
+		$token = $this->getStashed()
+		or $token = $this->next();
+
+		return $token;
 	}
 
     /**
@@ -195,7 +198,8 @@ class Lexer {
 				$token = $this->token('tag', $name);
 			}
 
-			$token->selfClosing = (isset($matches[2])) ? true: false;
+			$token->selfClosing = ($matches[2] == '/') ? true: false;
+
 			return $token;
 		}
 	}
@@ -375,7 +379,8 @@ class Lexer {
 
             $token = $this->token('attributes');
 			$token->attributes	= array();
-			$token->escape		= array();
+			$token->escaped		= array();
+			$token->selfClosing	= false;
 
 			$key	= '';
 			$val	= '';
@@ -417,7 +422,7 @@ class Lexer {
 									,''
 									,$key
 								);
-								$token->escape[$key]	= $escapedAttribute;
+								$token->escaped[$key]	= $escapedAttribute;
 								$token->attributes[$key]= ('' == $val) ? true : $interpolate($val);
 
 								$key = '';
@@ -565,8 +570,7 @@ class Lexer {
             $this->lineno++;
             $this->consume($matches[0]);
 
-
-			if (' ' == $this->input[0] || "\t" == $this->input[0]) {
+			if ($this->length() && (' ' == $this->input[0] || "\t" == $this->input[0])) {
                 throw new \Exception('Invalid indentation, you can use tabs or spaces but not both');
 			}
 
@@ -603,7 +607,7 @@ class Lexer {
 				$i = $this->length();
 			}
 
-			$str = mb_substr($this->input,0,$i+1);
+			$str = mb_substr($this->input,0,$i); // do not include the \n char
 			$this->consume($str);
 			return $this->token('text', $str);
 		}

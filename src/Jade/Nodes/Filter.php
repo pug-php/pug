@@ -14,8 +14,8 @@ class Filter extends Node {
 		$this->attributes = $attributes;
 
 		$this->isASTFilter = false;
-		foreach ($block->nodes as $n) {
-			if (false == $node->isText) {
+		foreach ($block->nodes as $node) {
+			if (!isset($node->isText) || false == $node->isText) {
 				$this->isASTFilter = true;
 				break;
 			}

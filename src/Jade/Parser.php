@@ -2,6 +2,8 @@
 
 namespace Jade;
 
+require_once('Lexer.php');
+
 class Parser {
 
     public $basepath;
@@ -11,14 +13,22 @@ class Parser {
     protected $input;
     protected $lexer;
     protected $filename;
+	protected $extending;
     protected $blocks = array();
     protected $mixins = array();
 	protected $context = array();
 
-    public function __construct(String $str, String $filename) {
-		$this->input = $str;
-        $this->lexer = new Lexer($str);
-		$this->filename = $filename;
+    public function __construct($str,$filename=null) {
+
+		if ($filename == null && file_exists($str)) {
+			$this->input = file_get_contents($str);
+			$this->filename = $str;
+		}else{
+			$this->input = $str;
+			$this->filename = $filename;
+		}
+
+		$this->lexer = new Lexer($this->input);
 		array_push($this->context, $this);
     }
 
@@ -45,7 +55,7 @@ class Parser {
 		return $this->lexer->lineno;
 	}
 
-	public function lookahead($n) {
+	public function lookahead($n=1) {
 		return $this->lexer->lookahead($n);
 	}
 
@@ -56,7 +66,7 @@ class Parser {
         while ($this->peek()->type !== 'eos') {
 
             if ($this->peek()->type === 'newline') {
-                $this->advanced();
+                $this->advance();
 			}
 			else
 			{
@@ -132,14 +142,14 @@ class Parser {
 			return new \Nodes\Block($this->parseExpression());
 		}
 
-		return $this->parseBlock();
+		return $this->block();
 	}
 
 	protected function parseCase() {
 		$value = $this->expect('case')->value;
 		$node = new \Nodes\CaseNode($value);
 		$node->line = $this->line();
-		$node->block = $this->parseBlock();
+		$node->block = $this->block();
 		return $node;
 	}
 
@@ -165,7 +175,7 @@ class Parser {
 
         if ($this->lookahead($i)->type === 'indent') {
 			$this->skip($i-1);
-            $node->block = $this->parseBlock();
+            $node->block = $this->block();
         }
 
         return $node;
@@ -175,7 +185,7 @@ class Parser {
         $token  = $this->expect('comment');
 
         if ($this->peek()->type === 'indent') {
-			$node = new \Nodes\BlockComment($token->value, $this->parseBlock(), $token->buffer);
+			$node = new \Nodes\BlockComment($token->value, $this->block(), $token->buffer);
 		}else{
 			$node = new \Nodes\Comment($token->value, $token->buffer);
 		}
@@ -208,7 +218,7 @@ class Parser {
 		$token = $this->expect('tag');
 		$attributes = $this->accept('attributes');
 		$this->expect(':');
-		$block = $this->parseBlock();
+		$block = $this->block();
 
 		$node = new \Nodes\Filter($token->value, $block, $attributes);
 		$node->line = $this->line();
@@ -219,7 +229,7 @@ class Parser {
 		$token = $this->expect('each');
 		$node = new \Nodes\Each($token->code, $token->value, $token->key);
 		$node->line = $this->line();
-		$node->block = $this->parseBlock();
+		$node->block = $this->block();
 		return $node;
 	}
 
@@ -243,7 +253,7 @@ class Parser {
 		$mode = $block->mode;
 		$name = trim($block->value);
 
-		$block = 'indent' == $this->peek()->type ? $this->parseBlock() : new \Nodes\Block(new \Node\Literal(''));
+		$block = 'indent' == $this->peek()->type ? $this->block() : new \Nodes\Block(new \Node\Literal(''));
 		$prev = $this->blocks[$name];
 
 		if ($prev) {
@@ -294,7 +304,7 @@ class Parser {
 		$ast->filename = $path;
 
 		if ('indent' == $this->peek()->type) {
-			$ast->includeBlock()->push($this->parseBlock());
+			$ast->includeBlock()->push($this->block());
 		}
 
 		return $ast;
@@ -322,7 +332,7 @@ class Parser {
 
 		// definition
 		if ('indent' == $this->peek()->type) {
-			$mixin = new \Nodes\Mixin($name, $arguments, $this->parseBlock(), false);
+			$mixin = new \Nodes\Mixin($name, $arguments, $this->block(), false);
 			$this->mixins[$name] = $mixin;
 			return $mixin;
 		// call
@@ -370,7 +380,7 @@ class Parser {
         return $block;
     }
 
-    protected function parseBlock() {
+    protected function block() {
         $block = new \Nodes\Block();
 		$block->line = $this->line();
         $this->expect('indent');
@@ -412,7 +422,12 @@ class Parser {
 
 		$token = $this->advance();
 		$tag = new \Nodes\Tag($token->value);
-		$tag->selfClosing = $token->selfClosing;
+		
+		if (isset($token->selfClosing)){
+			$tag->selfClosing = $token->selfClosing;
+		}else{
+			$tag->selfClosing = false;
+		}
 		
 		return $this->tag($tag);
 	}
@@ -420,36 +435,37 @@ class Parser {
 	protected function tag($tag) {
 		$tag->line = $this->line();
 
-		out:
-			while (true) {
-				switch ($this->peek()->type) {
-					case 'id':
-					case 'class':
-						$token = $this->advance();
-						$tag->setAttribute($token->type, "'" . $token->value . "'");
-						continue;
+		while (true) {
 
-					case 'attributes':
-						$token = $this->advance();
-						$obj = $token->attributes;
-						$escaped = $token->escaped;
-						$keys = array_keys($obj);
+			switch ($this->peek()->type) {
+				case 'id':
+				case 'class':
+					$token = $this->advance();
+					$tag->setAttribute($token->type, "'" . $token->value . "'");
+					continue;
 
-						if ($token->selfClosing) {
-							$tag->selfClosing = true;
-						}
+				case 'attributes':
+					$token = $this->advance();
+					$obj = $token->attributes;
+					$escaped = $token->escaped;
+					$name_list = array_keys($obj);
 
-						foreach ($keys as $k) {
-							$value = $obj[$k];
-							$tag->setAttribute($k, $value, $escaped[$name]);
-						}
-						continue;
+					if ($token->selfClosing) {
+						$tag->selfClosing = true;
+					}
 
-					default:
-						break out;
-				}
+					foreach ($name_list as $name) {
+						$value = $obj[$name];
+						$tag->setAttribute($name, $value, $escaped[$name]);
+					}
+					continue;
+
+				default:
+					break 2;
 			}
+		}
 
+		$tag->textOnly = false;
 		if ('.' == $this->peek()->value) {
 			$dot = $tag->textOnly = true;
 			$this->advance();
@@ -482,7 +498,7 @@ class Parser {
 		if ('script' == $tag->name) {
 			$type = $tag->getAttribute('type');
 
-			if (!dot && $type && 'text/javascript' != preg_replace('/^[\'\"]|[\'\"]$/','',$type)) {
+			if (!$tag->textOnly && $type && 'text/javascript' != preg_replace('/^[\'\"]|[\'\"]$/','',$type)) {
 				$tag->textOnly = false;
 			}
 		}
