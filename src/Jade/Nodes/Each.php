@@ -1,6 +1,6 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Each extends Node
 {
@@ -9,7 +9,7 @@ class Each extends Node
 	public $key;
 	public $block;
 	
-	function __construct($obj, $value, $key, $block)
+	function __construct($obj, $value, $key, $block=null)
 	{
 		$this->obj = $obj;
 		$this->value = $value;

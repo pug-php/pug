@@ -1,6 +1,6 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Comment extends Node {
 	public $value;

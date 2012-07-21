@@ -1,12 +1,12 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Literal extends Node {
-	public $str;
+	public $string;
 
-	public function __construct($str) {
+	public function __construct($string) {
 		// escape the chars '\', '\n', '\r\n' and "'"
-		$this->str = preg_replace( array('/\\\\/','/\n|\r\n/','/\'/'), array('\\\\',"\\n","\\'"), $str);
+		$this->string = preg_replace( array('/\\\\/','/\n|\r\n/','/\'/'), array('\\\\',"\\n","\\'"), $string);
 	}
 }

@@ -1,6 +1,6 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Text extends Node {
 	public $value = '';

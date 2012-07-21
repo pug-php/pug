@@ -1,5 +1,5 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Node {}

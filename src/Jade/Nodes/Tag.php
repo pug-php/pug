@@ -1,6 +1,6 @@
 <?php 
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 $inline_tags = array(
 	'a'

@@ -4,24 +4,20 @@ namespace Jade;
 
 use Jade\Parser;
 use Jade\Lexer;
-use Jade\Dumper;
+use Jade\Compiler;
 
 class Jade {
-
-    protected $parser;
-    protected $dumper;
     protected $cache;
 
     public function __construct($cache = null) {
-        $this->parser = new Parser(new Lexer());
-        $this->dumper = new Dumper();
         $this->cache  = $cache;
     }
 
     public function render($input) {
-        $parsed = $this->parser->parse($input);
+        $parser = new Parser($input);
+        $compiler = new Compiler();
 
-        return $this->dumper->dump($parsed);
+        return $compiler->compile($parser->parse($input));
     }
 
     public function cache($input) {
@@ -53,5 +49,4 @@ class Jade {
 
         return $path;
     }
-
 }

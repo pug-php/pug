@@ -6,8 +6,8 @@ class Lexer {
 
 	public $lineno = 1;
     public $pipeless;
+    public $input;
 
-    protected $input;
     protected $deferred		= array();
     protected $indentStack	= 0;
     protected $stash		= array();
@@ -22,7 +22,7 @@ class Lexer {
      * @param   string  $input  input string
      */
     public function setInput($input) {
-        $this->input		= preg_replace(array('/\r\n|\r/', '/\t/'), array("\n", '  '), $input);
+        $this->input		= preg_replace("/\r\n|\r/", "\n", $input);
         $this->lineno       = 1;
         $this->deferred		= array();
         $this->indentStack  = array();
@@ -65,7 +65,7 @@ class Lexer {
 
 		if( preg_match($regex, $this->input, $matches) ){
 			$this->consume($matches[0]);
-			return $this->token($type, (isset($matches[1])) ? $matches[1] : '' );
+			return $this->token($type, mb_strlen($matches[1]) > 0 ? $matches[1] : '' );
 		}
 	}
 
@@ -153,9 +153,11 @@ class Lexer {
 	protected function scanBlank() {
 		
 		if( preg_match('/^\n *\n/', $this->input, $matches) ){
-			$this->consume($matches[0]);
+			$this->consume(mb_substr($matches[0],0,-1)); // do not cosume the last \r
 
-			if( $this->pipeless ) return $this->token('text','');
+			if ($this->pipeless) {
+				return $this->token('text','');
+			}
 
 			return $this->next();
 		}
@@ -178,7 +180,7 @@ class Lexer {
     }
 
 	protected function scanInterpolation() {
-		return $this->scan('/^#\{(.*?)\}/', 'interpolation');
+		return $this->scan('/^#{(.*?)}/', 'interpolation');
 	}
 
 	protected function scanTag() {
@@ -266,8 +268,8 @@ class Lexer {
 
 	protected function scanBlock() {
 
-		if( preg_match('/^block\b *(?:(prepend|append) +)?([^\n]*)/', $this->input, $matches) ) {
-			$this->cosume($matches[0]);
+		if( preg_match("/^block\b *(?:(prepend|append) +)?([^\n]*)/", $this->input, $matches) ) {
+			$this->consume($matches[0]);
 			$token = $this->token('block', $matches[2]);
 			$token->mode = (mb_strlen($matches[1]) == 0) ? 'replace' : $matches[1];
 			return $token;
@@ -296,7 +298,7 @@ class Lexer {
 
 	protected function scanAssignment() {
 		if ( preg_match('/^(\w+) += *([^;\n]+)( *;? *)/', $this->input, $matches) ) {
-			$this->cosumen($matches[0]);
+			$this->cosume($matches[0]);
 			// return $this->token('code', 'var ' + $matches[1] + ' = (' + $matches[2] + ');');
 			return $this->token('code', '$' + $matches[1] + ' = ' + $matches[2] + ';');
 		}
@@ -349,11 +351,13 @@ class Lexer {
 	}
 
 	protected function scanEach() {
-		if ( preg_match('/^(?:- *)(?:each|for) +(\w+)(?: *, *(\w+))? * in *([^\n]+)/', $this->input, $matches) ) {
+		if ( preg_match('/^(?:- *)?(?:each|for) +(\w+)(?: *, *(\w+))? +in *([^\n]+)/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
 			$token = $this->token('each', $matches[1]);
 			$token->key = $matches[2];
 			$token->code = $matches[3];
+
+			return $token;
 		}
 	}
 
@@ -372,6 +376,8 @@ class Lexer {
 
 	protected function scanAttributes() {
         if ( $this->input[0] === '(' ) {
+			// cant use ^ anchor in the regex because the pattern is recursive
+			// but this restriction is asserted by the if above
 			preg_match('/\((?:[^()]++|(?R))*+\)/', $this->input, $matches);
 			$this->consume($matches[0]);
 
@@ -476,18 +482,21 @@ class Lexer {
 							array_pop($states);
 						}
 						$val = $val . $char;
+						break;
 
 					case '[':
 						if ($state() == 'val') {
 							array_push('array');
 						}
 						$val = $val . $char;
+						break;
 
 					case ']':
 						if ($state() == 'array') {
 							array_pop('array');
 						}
 						$val = $val . $char;
+						break;
 
 					case '"':
 					case "'":
@@ -511,6 +520,7 @@ class Lexer {
 								array_push($states, 'string');
 								$val = $val . $char;
 								$quote = $char;
+								break;
 						}
 						break;
 
@@ -526,6 +536,7 @@ class Lexer {
 
 							default:
 								$val = $val . $char;
+								break;
 						}
 				}
 				$previousChar = $char;
@@ -537,7 +548,7 @@ class Lexer {
 
 			$parse(',');
 
-			if ('/' == $this->input[0]) {
+			if ($this->length() && '/' == $this->input[0]) {
 				$this->consume(1);
 				$token->selfClosing = true;
 			}
@@ -551,11 +562,11 @@ class Lexer {
 		if (isset($this->identRE)) {
 			$ok = preg_match($this->identRE, $this->input, $matches);
 		}else{
-			$re = '/^\n(\t*) */';
+			$re = "/^\n(\t*) */";
 			$ok = preg_match($re, $this->input, $matches);
 
 			if ($ok && mb_strlen($matches[1]) == 0) {
-				$re = '/^\n( *)/';
+				$re = "/^\n( *)/";
 				$ok = preg_match($re, $this->input, $matches);
 			}
 

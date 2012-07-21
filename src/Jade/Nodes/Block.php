@@ -1,6 +1,6 @@
 <?php
 
-namespace Nodes;
+namespace Jade\Nodes;
 
 class Block extends Node {
 	public $isBlock = true;
