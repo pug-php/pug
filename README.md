@@ -2,11 +2,11 @@
 
 Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) template compiler.
 
-## Public API
+## Implementation details
 
-    $jade = new Jade();
+	The fork is a complete rewrite, all the code is ported from the original jade project.
 
-    // Parse a template (supports both string inputs and files)
-    echo $jade->render($template);
+	All the features from the original are supported, but undertested, this includes inheritance
+	and mixins.
 
 ## [Syntax](https://github.com/visionmedia/jade#readme)   
