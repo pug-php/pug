@@ -65,7 +65,7 @@ class Lexer {
 
 		if( preg_match($regex, $this->input, $matches) ){
 			$this->consume($matches[0]);
-			return $this->token($type, mb_strlen($matches[1]) > 0 ? $matches[1] : '' );
+			return $this->token($type, isset($matches[1]) && mb_strlen($matches[1]) > 0 ? $matches[1] : '' );
 		}
 	}
 
@@ -323,7 +323,7 @@ class Lexer {
 		if ( preg_match('/^mixin +([-\w]+)(?: *\((.*)\))?/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
 			$token = $this->token('mixin', $matches[1]);
-			$token->args = $matches[2];
+			$token->arguments = $matches[2];
 			return $token;
 		}
 	}
@@ -399,9 +399,9 @@ class Lexer {
 				return $states[count($states)-1];
 			};
 
-			$interpolate = function($attr) use ($quote) {
+			$interpolate = function($attr) use (&$quote) {
 				// the global flag is turned on by default
-				return preg_replace('/#\{([^}]+)\}/', $quote + ' + (\1) + ' + $quote, $attr);
+				return preg_replace('/#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr);
 			};
 
 			$parse = function($char) use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, $state, $interpolate) {
@@ -486,14 +486,14 @@ class Lexer {
 
 					case '[':
 						if ($state() == 'val') {
-							array_push('array');
+							array_push($states, 'array');
 						}
 						$val = $val . $char;
 						break;
 
 					case ']':
 						if ($state() == 'array') {
-							array_pop('array');
+							array_pop($states);
 						}
 						$val = $val . $char;
 						break;

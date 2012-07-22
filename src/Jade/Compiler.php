@@ -12,6 +12,7 @@ class Compiler {
 	protected $buffer = array();
 	protected $prettyprint = false;
 	protected $terse = true;
+	protected $withinCase = false;
 	protected $indents = 0;
 
     protected $doctypes = array(
@@ -28,7 +29,7 @@ class Compiler {
     );
 
     protected $selfClosing = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
-	protected $phpKeywords = array('switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach');
+	protected $phpKeywords = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach');
 
 	public function __construct($prettyprint=false) {
 		$this->prettyprint = $prettyprint;
@@ -45,8 +46,12 @@ class Compiler {
 		return $this->buffer;
     }
 
-	protected function buffer($line) {
-		array_push($this->buffer, $line);
+    protected function buffer($line, $indent=null) {
+        if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
+		    array_push($this->buffer, $this->indent() . $line . $this->newline());
+        }else{
+		    array_push($this->buffer, $line);
+        }
 	}
 
 	protected function indent() {
@@ -63,14 +68,33 @@ class Compiler {
 		return '';
 	}
 
+    protected function isConstant($str) {
+        // pattern without escaping for php:
+        //      /^[ \t]*(([\'\"])(?:\\.|[^\'\"\\])*\1|true|false|null)[ \t]*$/
+        //
+        //      [ \t] - space
+        //
+        //      subpatterns:
+        //          [\'\"] - matches a string opening
+        //          \\. - matches any escaped character 
+        //          [^\'\"\\] - matches everythin, except the escape char and string ending
+        //          \2 - matches the same char used for opening the string
+        //
+        //          true|false|null - keywords
+        $ok = preg_match_all('/^[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\2|true|false|null)[ \t]*$/', $str);
+
+        return $ok>0 ? true : false;
+    }
+
+    /**
+     * Add the dollar sign in front of identifiers, and guess the right accessor '[]' or '->' for a given
+     * property or array index.
+     *
+     * Todo: Handle better function calls and arrays accesses
+     */
 	protected function addDollarSign($str) {
 		$id_regex = "[a-zA-Z_][a-zA-Z0-9_]*";
 
-		/*
-		 * TODO: test this against:
-		 *		arr[], arr[1], arr[var], arr['const']
-		 *		ojb.method, obj.method(), obj.method(arg), obj.method('const'), obj.method(arg1,arg2)
-		 */
 		$add = function($str) use ($id_regex) {
 			$separators = preg_split("/{$id_regex}/",$str,-1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
 
@@ -81,6 +105,7 @@ class Compiler {
 			$out		= '$__=$'.substr($str,0,$separators[0][1]).';';
 			$sep_offset = $separators[0][1];
 			$offset_end = 0;
+            $states     = array();
 
 			// $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
 			// $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
@@ -97,8 +122,7 @@ class Compiler {
 					$name = substr($str,$sep_offset+1,$offset_end);
 					$out .= '$__=isset($__->' . $name . ') ? $__->' . $name . ' : $__[\''.$name.'\'];';
 					$sep_offset = $offset_end;
-				//}elseif (in_array(trim($sep[0]),array('()','(',')','[',']'))) {
-				}else{
+                 }else{
 					$out .= $sep[0];
 				}
 
@@ -107,22 +131,45 @@ class Compiler {
 		};
 
 		$out = '';
+        $call=false;
 		// find ids without the dollar sign
 		while (preg_match("/.*?({$id_regex})/", $str, $matches)) {
-			$pos = strpos($str, $matches[1]);
+            $pos = strpos($str, $matches[1]);
 
-			if (!in_array($matches[1], $this->phpKeywords) && ($pos === 0 || $str[$pos-1] != '$')) {
+            // not a keyword
+            // doesnt have $ yet
+            if (!in_array($matches[1], $this->phpKeywords) && ($pos === 0 || $str[$pos-1] != '$')) {
 				$out .= substr($str,0,$pos);
 				$str = substr($str,$pos);
+
 				preg_match('/([a-zA-Z0-9_]+|\.|->)+/', $str, $call_chain);
+
 				$out .= $add($call_chain[0]);
 				$str = substr($str,mb_strlen($call_chain[0]));
-			}else{
+
+                // hack for function call
+                // this will add the placeholder at the end of the out string, in the following 
+                // interaction the parenthesis will be added and the function will be called
+                // from the placeholder reference
+                if ($str[0] == '(') {
+                    $out .= '$__=$__';
+                    $call = true;
+                }
+            }else{
 				$pos = $pos+mb_strlen($matches[1]);
-				$out .= substr($str,0,$pos);
-				$str = substr($str,$pos);
+				$out .= mb_substr($str,0,$pos);
+				$str = mb_substr($str,$pos);
 			}
-		}
+
+            // hack for funciton call
+            // this will add the semicolon after the function call
+            if ($call && mb_strlen($str) && $str[0] == ')') {
+                $out .= ');';
+                // remove the parenthesis from the $str since we already used it
+                $pos--; 
+                $str = mb_substr($str,1);
+            }
+        }
 		return $out . $str;
 	}
 
@@ -130,15 +177,82 @@ class Compiler {
 		$variables = array();
 		$arguments = func_get_args();
 
-
-		// dont add the trailing semicolon because it might be a end of block '}' or 'else'
+		// dont add the trailing semicolon because it might be a end of block '}' or '} else {'
 		if (count($arguments)==1) {
 			return '<?php '.$code.' ?>';
 		}
 
+        $handle_string_and_code = function($code,$str,$res) {
+            // no id means we might have as separator:
+            //      a list of arguments     - a,b,c
+            //      a function call         - a(b)
+            //      a array access          - a[b]
+            //      just a empty code part  - 'string'
+            //
+            // in theses cases we do not concatenate
+            $test_ids = preg_match('/[a-zA-Z_][a-zA-Z0-9_]*/', $code);
+
+            if (!$test_ids) {
+                return $res . $code . $str;
+            }
+
+            $code = str_replace('+','.',$code);
+            $code = $this->addDollarSign(trim($code));
+            
+            // the code expanded to a variable access, so, we need to set $__ to 
+            // the right value
+            if (strpos($code,';')) {
+                // remove '.' if there is one, because we are moving code to the begining
+                $code= trim($code,' .'); 
+
+                if (strlen($str)) {
+                    $res = $code . '$__=' . $res . '. $__ .' . $str . ';';
+                }else{
+                    $res = $code . '$__=' . $res . '. $__;';
+                }
+            }else{
+                $res .= $code . $str;
+            }
+
+            return $res;
+        };
+
 		array_shift($arguments); // remove $code
 		foreach ($arguments as $arg) {
-			array_push($variables, $this->addDollarSign(trim($arg)));
+
+            // shortcut for constants
+            if ($this->isConstant($arg)) {
+                array_push($variables, $arg);
+                continue;
+            }
+
+            $test_string = preg_match_all('/([\'"])(?:\\\\.|[^\'"\\\\])*\1/', $arg, $matches, PREG_SET_ORDER);
+
+            // there are no strings
+            if (!$test_string) { 
+			    array_push($variables, $this->addDollarSign(trim($arg)));
+                continue;
+            }
+
+            // handle string - this handles mostly attributes like ".span(class='const-' + var)"
+            $result = '';
+            foreach ($matches as $m) {
+                $string     = $m[0];
+                $pos        = mb_strpos($arg, $m[0]);
+                $code_part  = mb_substr($arg,0,$pos);
+
+                $result = $handle_string_and_code($code_part, $string, $result);    
+
+                // consume the arg
+                $arg = mb_substr($arg,$pos+mb_strlen($m[0]));
+            }
+
+            // consumed all intercalated strings, means we have code left in the end
+            if (mb_strlen($arg)) {
+                $result = $handle_string_and_code($arg, '', $result);    
+            }
+
+            array_push($variables, $result);
 		}
 
 		/*
@@ -224,7 +338,11 @@ class Compiler {
 
 			// \#{dont_do_interpolation}
 			if (mb_strlen($m[1]) == 0) {
-				$code_str = $this->createCode('echo %s',$m[3]);
+                if ($m[2] == '!') {
+				    $code_str = $this->createCode('echo %s',$m[3]);
+                }else{
+				    $code_str = $this->createCode('echo htmlspecialchars(%s)',$m[3]);
+                }
 				$text = str_replace($m[0], $code_str, $text, $i);
 			}
 		}
@@ -240,35 +358,38 @@ class Compiler {
         return $this->$method($node);
     }
 
-	protected function visitCase(Nodes\CaseNode $node) {
-		$within = $this->whithinCase;
+	protected function visitCasenode(Nodes\CaseNode $node) {
+		$within = $this->withinCase;
 		$this->withinCase = true;
 
-		$code = $this->createCode('switch (%s):',$node->expr);
-		$this->buffer($this->indent() . $code . $this->newline());
+        // TODO: fix the case hack
+        // php expects that the first case statement will be inside the same php block as the switch
+        $code_str = 'switch (%s) { '.$this->newline().$this->indent().'case "__phphackhere__": break;';
+		$code = $this->createCode($code_str,$node->expr);
+		$this->buffer($code);
 
 		$this->indents++;
 		$this->visit($node->block);
 		$this->indents--;
 
-		$code = $this->createCode('endswitch');
-		$this->buffer($this->indent() . $code . $this->newline());
+		$code = $this->createCode('}');
+		$this->buffer($code);
 		$this->withinCase = $within;
 	}
 
 	protected function visitWhen(Nodes\When $node) {
 		if ('default' == $node->expr) {
 			$code = $this->createCode('default:');
-			$this->buffer($this->indent() . $code . $this->newline());
+			$this->buffer($code);
 		}else{
 			$code = $this->createCode('case %s:',$node->expr);
-			$this->buffer($this->indent() . $code . $this->newline());
+			$this->buffer($code);
 		}
 
 		$this->visit($node->block);
 
-		$code = $this->createCode('break');
-		$this->buffer($this->indent() . $code . $this->newline());
+		$code = $this->createCode('break;');
+		$this->buffer( $code . $this->newline());
 	}
 
 	protected function visitLiteral(Nodes\Literal $node) {
@@ -295,7 +416,7 @@ class Compiler {
 		}
 
 		$str = $this->doctypes[strtolower($doc)];
-		$this->buffer($this->indent() . $str . $this->newline());
+		$this->buffer( $str . $this->newline());
 
 		if ($doc == '5' || $doc == 'html' || $doc == 'default') {
 			$this->terse = true;
@@ -308,17 +429,21 @@ class Compiler {
 	}
 
 	protected function visitMixin(Nodes\Mixin $mixin) {
-		$name = preg_replace('/-/', '_', $mixin) . '_mixin';
+		$name = preg_replace('/-/', '_', $mixin->name) . '_mixin';
 		$arguments = $mixin->arguments;
 		$block = $mixin->block;
-		$attributes = $mixin->attribute;
+		$attributes = $mixin->attributes;
 
 		if ($mixin->call) {
-			$this->buffer($name . '(' . implode(', ',$arguments) . ');');
+            $code = $this->createCode("{$name}(%s);", $arguments);
+			$this->buffer($code);
 		}else{
-			$this->buffer('function ' . $name . '(' . implode(', ',$arguments) . '){');
+            $code = $this->createCode("function {$name} (%s) {", $arguments);
+			$this->buffer($code);
+            $this->indents++;
 			$this->visit($block);
-			$this->buffer('}');
+            $this->indents--;
+			$this->buffer($this->createCode('}'));
 		}
 	}
 
@@ -341,9 +466,9 @@ class Compiler {
 				$close = '>';
 			}
 
-			$this->buffer($this->indent() . $open);
+			$this->buffer($this->indent() . $open, false);
 			$this->visitAttributes($tag->attributes);
-			$this->buffer($close . $this->newline());
+			$this->buffer($close . $this->newline(), false);
 		}else{
 			$html_tag = '';
 
@@ -353,7 +478,7 @@ class Compiler {
 				$html_tag = '<' . $tag->name . '>';
 			}
 
-			$this->buffer($this->indent() . $html_tag . $this->newline());
+			$this->buffer($html_tag);
 		}
 
 		if (!$self_closing) {
@@ -364,7 +489,7 @@ class Compiler {
 			$this->visit($tag->block);
 			$this->indents--;
 
-            $this->buffer($this->indent() . '</'. $tag->name . '>' . $this->newline());
+            $this->buffer('</'. $tag->name . '>');
         }
     }
 
@@ -382,11 +507,11 @@ class Compiler {
 			}
 			$str = $filter($str, $filter->attributes);
 		}
-		$this->buffer($this->indent() . $str . $this->newline());
+		$this->buffer($str);
     }
 
     protected function visitText(Nodes\Text $text) {
-		$this->buffer($this->indent() . $this->interpolate($text->value) . $this->newline());
+		$this->buffer($this->interpolate($text->value));
     }
 
     protected function visitComment(Nodes\Comment $comment) {
@@ -394,7 +519,7 @@ class Compiler {
 			return;
 		}
 
-		$this->buffer($this->indent() .'<!--' . $comment->value . '-->' . $this->newline());
+		$this->buffer('<!--' . $comment->value . '-->');
     }
 
 	protected function visitBlockComment(Nodes\BlockComment $comment) {
@@ -403,11 +528,11 @@ class Compiler {
 		}
 
 		if (0 === strpos('if', trim($comment->value))) {
-			$this->buffer($this->indent() .'<!--[' . trim($comment->value) . ']>');
+			$this->buffer('<!--[' . trim($comment->value) . ']>');
 			$this->visit($comment->block);
-			$this->buffer($this->indent() .'<![endif]-->');
+			$this->buffer('<![endif]-->');
 		}else{
-			$this->buffer($this->indent() .'<!--' . $comment->value);
+			$this->buffer('<!--' . $comment->value);
 			$this->visit($comment->block);
 			$this->buffer('-->');
 		}
@@ -418,9 +543,9 @@ class Compiler {
 		if ($code->buffer) {
 
 			if ($code->escape) {
-				$this->buffer($this->indent() . $this->createCode('echo htmlspecialchars(%s)',$code->value) . $this->newline());
+				$this->buffer($this->createCode('echo htmlspecialchars(%s)',$code->value));
 			}else{
-				$this->buffer($this->indent() . $this->createCode('echo %s',$code->value) . $this->newline());
+				$this->buffer($this->createCode('echo %s',$code->value));
 			}
 		}else{
 
@@ -429,9 +554,9 @@ class Compiler {
 			$index = count($this->buffer)-1;
 			if (false !== strpos($this->buffer[$index], $this->createCode('}'))) {
 				unset($this->buffer[$index]);
-				$this->buffer($this->indent() . $this->createCode('} %s {',$code->value) . $this->newline());
+				$this->buffer($this->createCode('} %s {',$code->value));
 			}else{
-				$this->buffer($this->indent() . $this->createCode('%s {',$code->value) . $this->newline());
+				$this->buffer($this->createCode('%s {',$code->value));
 			}
 
 		}
@@ -442,7 +567,7 @@ class Compiler {
 			$this->indents--;
 
 			if (!$code->buffer) {
-				$this->buffer($this->indent() . $this->createCode('}') . $this->newline());
+				$this->buffer($this->createCode('}'));
 			}
 		}
     }
@@ -458,22 +583,66 @@ class Compiler {
 			$code = $this->createCode('foreach (%s as %s) {',$node->obj,$node->value);
 		}
 
-		$this->buffer($this->indent() . $code . $this->newline());
+		$this->buffer($code);
 
 		$this->indents++;
 		$this->visit($node->block);
 		$this->indents--;
 
-		$this->buffer($this->indent() . $this->createCode('}') . $this->newline());
+		$this->buffer($this->createCode('}'));
 	}
     
     protected function visitAttributes($attributes) {
         $items = array();
         $classes = array();
 
+        /* Moved the string logic into createCode()
+         * //if we have a concatenation we need to add the dollar sign and echo
+        $attributeCode = function($attribute) {
+            // explanation of the regular expression in the isConstant method
+            preg_match_all('/([\'"])(?:\\\\.|[^\'"\\\\])*\1/', $attribute, $matches, PREG_SET_ORDER);
+
+            $code = '';
+            foreach ($matches as $m) {
+                $pos = strpos($attribute, $m[0]);
+                $str = trim($m[0],'\'"');
+
+                if ($pos>0) {
+                    $c = trim(mb_substr($attribute,0, $pos),' +');
+                    if (mb_strlen($c)) {
+                        $code .= $this->createCode('echo %s', $c);
+                    }
+                    $code .= $str;
+                    $attribute = mb_substr($attribute,$pos+mb_strlen($m[0]));
+                }else{
+                    $code .= $str;
+                    $attribute = mb_substr($attribute,$pos+mb_strlen($m[0]));
+                }
+            }
+
+            if (mb_strlen($attribute)) {
+                $code .= $this->createCode('echo %s', trim($attribute,' +'));
+            }
+
+            return $code;
+        };*/
+
         foreach ($attributes as $attr) {
 			$key = trim($attr['name']);
-			$value = trim($attr['value'],' \'\"');
+			$value = trim($attr['value']);
+
+            /* createCode() is handling strings better
+            if (false !== strpos($value, '+')) {
+                $value = $attributeCode($value);
+            }else{
+                $value = trim($value, '\'"');
+            }
+            */
+            if ($this->isConstant($value)) {
+                $value = trim($value,' \'"');
+            }else{
+                $value = $this->createCode('echo %s', $value);
+            }
 
 			if ($key == 'class') {
 				array_push($classes, $value);
@@ -498,6 +667,6 @@ class Compiler {
 			$items[] = 'class=\'' . implode(' ', $classes) . '\'';
 		}
 
-		$this->buffer(implode(' ', $items));
+		$this->buffer(implode(' ', $items), false);
     }
 }
