@@ -7,15 +7,15 @@ use Jade\Lexer;
 use Jade\Compiler;
 
 class Jade {
-    protected $cache;
+    protected $prettyprint = false;
 
-    public function __construct($cache = null) {
-        $this->cache  = $cache;
+    public function __construct($prettyprint = false) {
+        $this->prettyprint  = $prettyprint;
     }
 
     public function render($input) {
         $parser = new Parser($input);
-        $compiler = new Compiler();
+        $compiler = new Compiler($this->prettyprint);
 
         return $compiler->compile($parser->parse($input));
     }

@@ -168,7 +168,9 @@ class Parser {
 
     protected function parseCode() {
         $token  = $this->expect('code');
-        $node   = new Nodes\Code($token->value, $token->buffer, $token->escape);
+        $buffer = isset($token->buffer) ? $token->buffer : false;
+        $escape = isset($token->escape) ? $token->escape : true;
+        $node   = new Nodes\Code($token->value, $buffer, $escape);
 		$node->line = $this->line();
 
 		$i = 1;
@@ -313,7 +315,11 @@ class Parser {
 		$ast->filename = $path;
 
 		if ('indent' == $this->peek()->type) {
-			$ast->includeBlock()->push($this->block());
+            // includeBlock might not be set
+            $block = $ast->includeBlock();
+            if (is_object($block)) {
+                $block->push($this->block());
+            }
 		}
 
 		return $ast;

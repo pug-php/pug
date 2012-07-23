@@ -29,19 +29,21 @@ class Block extends Node {
 	}
 
 	public function includeBlock() {
+        $ret = null;
+
 		foreach ($this->nodes as $node) {
-			if ($node->yield) {
+			if (isset($node->yield)) {
 				return $node;
 			}
 
-			if ($node->textOnly) {
+			if (isset($node->textOnly)) {
 				continue;
 			}
 
-			if ($node->includeBlock) {
+			if (isset($node->includeBlock)) {
 				$ret = $node->includeBlock();
 			}
-			elseif ($node->block && !$node->block->isEmpty()) {
+			elseif (isset($node->block) && !$node->block->isEmpty()) {
 				$ret = $node->block->includeBlock();
 			}
 		}

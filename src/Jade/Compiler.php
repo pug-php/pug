@@ -9,11 +9,11 @@ class Compiler {
 	protected $xml;
 	protected $parentIndents;
 
-	protected $buffer = array();
-	protected $prettyprint = false;
-	protected $terse = true;
-	protected $withinCase = false;
-	protected $indents = 0;
+	protected $buffer       = array();
+	protected $prettyprint  = false;
+	protected $terse        = false;
+	protected $withinCase   = false;
+	protected $indents      = 0;
 
     protected $doctypes = array(
         '5'             => '<!DOCTYPE html>',
@@ -30,6 +30,8 @@ class Compiler {
 
     protected $selfClosing = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
 	protected $phpKeywords = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach');
+    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach');
+    protected $phpCloseBlock = array('endswitch','endif','endwhile','endfor','endforeach');
 
 	public function __construct($prettyprint=false) {
 		$this->prettyprint = $prettyprint;
@@ -69,21 +71,55 @@ class Compiler {
 	}
 
     protected function isConstant($str) {
-        // pattern without escaping for php:
-        //      /^[ \t]*(([\'\"])(?:\\.|[^\'\"\\])*\1|true|false|null)[ \t]*$/
+        //  This pattern matches against string constants, some php keywords, number constants and a empty string
         //
-        //      [ \t] - space
+        //  the pattern without php escaping:
         //
-        //      subpatterns:
-        //          [\'\"] - matches a string opening
-        //          \\. - matches any escaped character 
-        //          [^\'\"\\] - matches everythin, except the escape char and string ending
-        //          \2 - matches the same char used for opening the string
+        //      [ \t]*((['"])(?:\\.|[^'"\\])*\g{-1}|true|false|null|[0-9]+|\b\b)[ \t]*
         //
-        //          true|false|null - keywords
-        $ok = preg_match_all('/^[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\2|true|false|null)[ \t]*$/', $str);
+        //  pattern explained:
+        //
+        //      [ \t]* - we ignore spaces at the beginning and at the end: useful for the recursive pattern bellow
+        //
+        //      the first part of the unamed subpattern matches strings:
+        //          (['"]) - matches a string opening, inside a group because we use a backreference
+        //
+        //          unamed group to catch the string content:
+        //              \\.     - matches any escaped character, including ', " and \
+        //              [^'"\\] - matches any character, except the ones that have a meaning
+        //
+        //          \g{-1}  - relative backreference - http://codesaway.info/RegExPlus/backreferences.html#relative
+        //                  - used for two reasons:
+        //                      1. reference the same character used to open the string
+        //                      2. the pattern is used twice inside the array regex, so cant used absolute or named
+        //
+        //      the rest of the pattern:
+        //          true|false|null - language constants
+        //          0-9             - number constants
+        //          \b\b            - matches a empty string: useful for a empty array
+        $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|[0-9]+|\b\b)[ \t]*';
+        $str = trim($str);
+        $ok = preg_match("/^{$const_regex}$/", $str);
 
-        return $ok>0 ? true : false;
+        // test agains a array of constants
+        if (!$ok && (0 === strpos($str,'array(') || 0 === strpos($str,'['))) {
+
+            // This pattern matches against array constants: useful for "data-" attributes (see test attrs-data.jade)
+            //
+            // simpler regex                - explanation
+            //
+            // arrray\(\)                   - matches against the old array construct
+            // []                           - matches against the new/shorter array construct
+            // (const=>)?const(,recursion)  - matches against the value list, values can be a constant or a new array built of constants
+            if (preg_match("/array[ \t]*\((?R)\)|\[(?R)\]|({$const_regex}=>)?{$const_regex}(,(?R))?/", $str, $matches)) {
+                // cant use ^ and $ because the patter is recursive
+                if (strlen($matches[0]) == strlen($str)) {
+                    $ok = true;
+                }
+            }
+        }
+
+        return $ok;
     }
 
     /**
@@ -225,6 +261,9 @@ class Compiler {
                 array_push($variables, $arg);
                 continue;
             }
+
+            // TODO: handle js/json syntax/objects
+            $arg = preg_replace('/\bvar\b/','',$arg);
 
             $test_string = preg_match_all('/([\'"])(?:\\\\.|[^\'"\\\\])*\1/', $arg, $matches, PREG_SET_ORDER);
 
@@ -415,7 +454,12 @@ class Compiler {
 			$doc = $doctype->value;
 		}
 
-		$str = $this->doctypes[strtolower($doc)];
+        if (isset($this->doctypes[strtolower($doc)])) {
+		    $str = $this->doctypes[strtolower($doc)];
+        }else{
+            $str = "<!DOCTYPE {$doc}>";
+        }
+
 		$this->buffer( $str . $this->newline());
 
 		if ($doc == '5' || $doc == 'html' || $doc == 'default') {
@@ -454,6 +498,11 @@ class Compiler {
 
 		$self_closing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
 
+        if ($tag->name == 'pre') {
+            $pp = $this->prettyprint;
+            $this->prettyprint = false;
+        }
+
 		if (count($tag->attributes)) {
 			$open = '';
 			$close= '';
@@ -491,6 +540,10 @@ class Compiler {
 
             $this->buffer('</'. $tag->name . '>');
         }
+
+        if ($tag->name == 'pre') {
+            $this->prettyprint = $pp;
+        }
     }
 
 	protected function visitFilter(Nodes\Filter $node) {
@@ -527,6 +580,10 @@ class Compiler {
 			return;
 		}
 
+        if (!strlen($comment->value)) {
+            return;
+        }
+
 		if (0 === strpos('if', trim($comment->value))) {
 			$this->buffer('<!--[' . trim($comment->value) . ']>');
 			$this->visit($comment->block);
@@ -539,6 +596,7 @@ class Compiler {
 	}
 
     protected function visitCode(Nodes\Code $code) {
+        $block = !$code->buffer;
 
 		if ($code->buffer) {
 
@@ -549,16 +607,18 @@ class Compiler {
 			}
 		}else{
 
-			// fix else, it needs to be in the same php block that closes the if
-			$end = false;
-			$index = count($this->buffer)-1;
-			if (false !== strpos($this->buffer[$index], $this->createCode('}'))) {
-				unset($this->buffer[$index]);
-				$this->buffer($this->createCode('} %s {',$code->value));
-			}else{
-				$this->buffer($this->createCode('%s {',$code->value));
-			}
-
+            if (preg_match('/'. implode('|',$this->phpOpenBlock).'/', $code->value)) {
+                // fix else, it needs to be in the same php block that closes the if
+                $index = count($this->buffer)-1;
+                if (isset($this->buffer[$index]) && false !== strpos($this->buffer[$index], $this->createCode('}'))) {
+                    unset($this->buffer[$index]);
+                    $this->buffer($this->createCode('} %s {',$code->value));
+                }else{
+                    $this->buffer($this->createCode('%s {',$code->value));
+                }
+            }else{
+                $this->buffer($this->createCode('%s',$code->value));
+            }
 		}
 
 		if (isset($code->block)) {
@@ -596,52 +656,22 @@ class Compiler {
         $items = array();
         $classes = array();
 
-        /* Moved the string logic into createCode()
-         * //if we have a concatenation we need to add the dollar sign and echo
-        $attributeCode = function($attribute) {
-            // explanation of the regular expression in the isConstant method
-            preg_match_all('/([\'"])(?:\\\\.|[^\'"\\\\])*\1/', $attribute, $matches, PREG_SET_ORDER);
-
-            $code = '';
-            foreach ($matches as $m) {
-                $pos = strpos($attribute, $m[0]);
-                $str = trim($m[0],'\'"');
-
-                if ($pos>0) {
-                    $c = trim(mb_substr($attribute,0, $pos),' +');
-                    if (mb_strlen($c)) {
-                        $code .= $this->createCode('echo %s', $c);
-                    }
-                    $code .= $str;
-                    $attribute = mb_substr($attribute,$pos+mb_strlen($m[0]));
-                }else{
-                    $code .= $str;
-                    $attribute = mb_substr($attribute,$pos+mb_strlen($m[0]));
-                }
-            }
-
-            if (mb_strlen($attribute)) {
-                $code .= $this->createCode('echo %s', trim($attribute,' +'));
-            }
-
-            return $code;
-        };*/
-
         foreach ($attributes as $attr) {
 			$key = trim($attr['name']);
 			$value = trim($attr['value']);
 
-            /* createCode() is handling strings better
-            if (false !== strpos($value, '+')) {
-                $value = $attributeCode($value);
-            }else{
-                $value = trim($value, '\'"');
-            }
-            */
             if ($this->isConstant($value)) {
                 $value = trim($value,' \'"');
+
+                if (0 === strpos($key,'data-')) {
+                    $value = json_encode($value);
+                }
             }else{
-                $value = $this->createCode('echo %s', $value);
+                if (0 === strpos($key,'data-')) {
+                    $value = $this->createCode('echo json_encode(%s)', $value);
+                }else{
+                    $value = $this->createCode('echo %s', $value);
+                }
             }
 
 			if ($key == 'class') {

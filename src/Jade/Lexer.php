@@ -298,9 +298,8 @@ class Lexer {
 
 	protected function scanAssignment() {
 		if ( preg_match('/^(\w+) += *([^;\n]+)( *;? *)/', $this->input, $matches) ) {
-			$this->cosume($matches[0]);
-			// return $this->token('code', 'var ' + $matches[1] + ' = (' + $matches[2] + ');');
-			return $this->token('code', '$' + $matches[1] + ' = ' + $matches[2] + ';');
+			$this->consume($matches[0]);
+			return $this->token('code', '$' . $matches[1] . ' = ' . $matches[2]);
 		}
 	}
 
@@ -333,10 +332,10 @@ class Lexer {
 			$this->consume($matches[0]);
 
 			switch ($matches[1]) {
-				case 'if': $code = 'if (' + $matches[2] + '):'; break;
-				case 'unless': $code = 'if (!(' + $matches[2] + ')):'; break;
-				case 'else if': $code = 'elseif (' + $matches[2] + '):'; break;
-				case 'else': $code = 'else (' + $matches[2] + '):'; break;
+				case 'if': $code = 'if (' . $matches[2] . '):'; break;
+				case 'unless': $code = 'if (!(' . $matches[2] . ')):'; break;
+				case 'else if': $code = 'elseif (' . $matches[2] . '):'; break;
+				case 'else': $code = 'else (' . $matches[2] . '):'; break;
 			}
 
 			return $this->token('code', $code);
@@ -346,7 +345,7 @@ class Lexer {
 	protected function scanWhile() {
 		if ( preg_match('/^while +([^\n]+)/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
-			$this->token(code, 'while (' + $matches[1] + '):');
+			$this->token(code, 'while (' . $matches[1] . '):');
 		}
 	}
 
@@ -401,6 +400,7 @@ class Lexer {
 
 			$interpolate = function($attr) use (&$quote) {
 				// the global flag is turned on by default
+                // TODO: check the +, maybe it is better to use . here
 				return preg_replace('/#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr);
 			};
 
