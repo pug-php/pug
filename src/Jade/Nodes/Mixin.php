@@ -2,7 +2,7 @@
 
 namespace Jade\Nodes;
 
-class Mixin extends Node {
+class Mixin extends Attributes {
 	public $name;
 	public $arguments;
 	public $block;

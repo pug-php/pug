@@ -328,7 +328,13 @@ class Parser {
 	protected function parseCall() {
 		$token = $this->expect('call');
 		$name = $token->value;
-		$arguments = $token->arguments;
+
+        if (isset($token->arguments)) {
+		    $arguments = $token->arguments;
+        }else{
+		    $arguments = null;
+        }
+
 		$mixin = new Nodes\Mixin($name, $arguments, new Nodes\Block(), true);
 
 		$this->tag($mixin);
@@ -481,6 +487,7 @@ class Parser {
 			}
 		}
 
+        $dot = false;
 		$tag->textOnly = false;
 		if ('.' == $this->peek()->value) {
 			$dot = $tag->textOnly = true;
@@ -514,9 +521,13 @@ class Parser {
 		if ('script' == $tag->name) {
 			$type = $tag->getAttribute('type');
 
-			if (!$tag->textOnly && $type && 'text/javascript' != preg_replace('/^[\'\"]|[\'\"]$/','',$type)) {
-				$tag->textOnly = false;
-			}
+            if ($type !== null) {
+                $type = preg_replace('/^[\'\"]|[\'\"]$/','',$type);
+
+                if (!$dot && 'text/javascript' != $type['value']) {
+                    $tag->textOnly = false;
+                }
+            }
 		}
 
 		if ('indent' == $this->peek()->type) {

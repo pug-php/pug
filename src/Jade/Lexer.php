@@ -58,6 +58,12 @@ class Lexer {
         $this->input = mb_substr($this->input, mb_strlen($bytes));
     }
 
+    protected function normalizeCode($code) {
+        // everzet's implementation used ':' at the end of the code line as in php's alternative syntax
+        // this implementation tries to be compatible with both, js-jade and jade.php, so, remove the colon here
+        return $code = (substr($code,-1) == ':') ? substr($code,0,-1) : $code;
+    }
+
 	/**
 	 *  Helper to create tokens
 	 */
@@ -173,7 +179,7 @@ class Lexer {
         if ( preg_match('/^ *\/\/(-)?([^\n]*)/', $this->input, $matches) ) {
             $this->consume($matches[0]);
             $token = $this->token('comment', isset($matches[2]) ? $matches[2] : '');
-            $token->buffer = !isset($matches[1]) || '-' !== $matches[1];
+            $token->buffer = '-' !== $matches[1];
 
             return $token;
         }
@@ -299,7 +305,7 @@ class Lexer {
 	protected function scanAssignment() {
 		if ( preg_match('/^(\w+) += *([^;\n]+)( *;? *)/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
-			return $this->token('code', '$' . $matches[1] . ' = ' . $matches[2]);
+			return $this->token('code', $matches[1] . ' = ' . $matches[2]);
 		}
 	}
 
@@ -322,7 +328,7 @@ class Lexer {
 		if ( preg_match('/^mixin +([-\w]+)(?: *\((.*)\))?/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
 			$token = $this->token('mixin', $matches[1]);
-			$token->arguments = $matches[2];
+			$token->arguments = isset($matches[2]) ? $matches[2] : null;
 			return $token;
 		}
 	}
@@ -331,14 +337,17 @@ class Lexer {
 		if ( preg_match('/^(if|unless|else if|else)\b([^\n]*)/', $this->input, $matches) ) {
 			$this->consume($matches[0]);
 
-			switch ($matches[1]) {
+			/*switch ($matches[1]) {
 				case 'if': $code = 'if (' . $matches[2] . '):'; break;
 				case 'unless': $code = 'if (!(' . $matches[2] . ')):'; break;
 				case 'else if': $code = 'elseif (' . $matches[2] . '):'; break;
 				case 'else': $code = 'else (' . $matches[2] . '):'; break;
-			}
+            }*/
 
-			return $this->token('code', $code);
+            $code   = $this->normalizeCode($matches[0]);
+            $token  = $this->token('code', $code);
+            $token->buffer = false;
+			return $token;
 		}
 	}
 
@@ -351,10 +360,12 @@ class Lexer {
 
 	protected function scanEach() {
 		if ( preg_match('/^(?:- *)?(?:each|for) +(\w+)(?: *, *(\w+))? +in *([^\n]+)/', $this->input, $matches) ) {
+
 			$this->consume($matches[0]);
+
 			$token = $this->token('each', $matches[1]);
 			$token->key = $matches[2];
-			$token->code = $matches[3];
+			$token->code = $this->normalizeCode($matches[3]);
 
 			return $token;
 		}
@@ -362,10 +373,12 @@ class Lexer {
 
 	protected function scanCode() {
         if ( preg_match('/^(!?=|-)([^\n]+)/', $this->input, $matches) ) {
-            $this->consume($matches[0]);
 
-            $flags = $matches[1];
-            $token = $this->token('code', $matches[2]);
+            $this->consume($matches[0]);
+            $flags  = $matches[1];
+            $code   = $this->normalizeCode($matches[2]);
+            
+            $token = $this->token('code', $code);
 			$token->escape = $flags[0] === '=';
             $token->buffer = '=' === $flags[0] || (isset($flags[1]) && '=' === $flags[1]);
 
