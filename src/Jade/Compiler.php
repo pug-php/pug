@@ -48,6 +48,38 @@ class Compiler {
         return $this->buffer;
     }
 
+    protected function apply($method, $arguments){
+        switch(count($arguments)) { 
+            case 0:
+                return $this->{$method}();
+                break; 
+
+            case 1:
+                return $this->{$method}($arguments[0]);
+                break; 
+
+            case 2:
+                return $this->{$method}($arguments[0], $arguments[1]);
+                break; 
+
+            case 3:
+                return $this->{$method}($arguments[0], $arguments[1], $arguments[2]);
+                break; 
+
+            case 4:
+                return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3]);
+                break; 
+
+            case 5:
+                return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3], $arguments[4]);
+                break; 
+
+            default:
+                return call_user_func_array(array($this, $method), $arguments);
+                break; 
+        } 
+    }
+
     protected function buffer($line, $indent=null) {
         if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
             array_push($this->buffer, $this->indent() . $line . $this->newline());
@@ -154,9 +186,6 @@ class Compiler {
         }
         $separators = $_separators;
 
-        // add a pseudo separator for the end of the input
-        array_push($separators, array(null, strlen($input)));
-
         if (count($separators) == 0) {
             if ($input[0] != '$') {
                 $input = '$' . $input;
@@ -164,6 +193,9 @@ class Compiler {
 
             return array($input);
         }
+
+        // add a pseudo separator for the end of the input
+        array_push($separators, array(null, strlen($input)));
 
         if ($separators[0][1] == 0) {
             throw new \Exception('Expecting a variable name got: ' . $input);
@@ -187,10 +219,8 @@ class Compiler {
         };
 
         $host = $this;
-        $handle_recursion = function ($arg, $ns) use ($input, &$result, $host, $get_middle_string) {
-            $start  = $arg[0];
-            $end    = array_slice($arg,-1);
-            $end    = $end[0];
+        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string) {
+            list($start,$end) = $arg;
             $str    = trim($get_middle_string($start, $end));
 
             $_code  = $host->handleCode($str, $ns);
@@ -201,6 +231,46 @@ class Compiler {
             }
 
             return $_code[0];
+        };
+
+        $handle_code_inbetween = function() use(&$separators, $ns, $handle_recursion) {
+            $arguments  = array();
+            $count      = 1;
+
+            $start      = current($separators);
+            $end_pair   = array('['=>']', '{'=>'}', '('=>')', ','=>false);
+            $open       = $start[0];
+            $close      = $end_pair[$start[0]];
+
+            do {
+                // reset start
+                $start = current($separators);
+
+                do {
+                    $curr   = next($separators);
+
+                    if ($curr[0] == $open) $count++;
+                    if ($curr[0] == $close) $count--;
+
+                } while ($curr[0] != null && $count > 0 && $curr[0] != ',' );
+
+                $end    = current($separators);
+
+                if ($end != false && $start[1] != $end[1]) {
+
+                    $tmp_ns = $ns*10 +count($arguments);
+                    $arg    = $handle_recursion(array($start, $end), $tmp_ns);
+
+                    array_push($arguments, $arg);
+                }
+
+            } while ($curr != null && $count > 0);
+
+            if ($close && $count) {
+                throw new \Exception('Missing closing: ' . $close);
+            }
+
+            return $arguments;
         };
 
         $i = 0;
@@ -224,147 +294,50 @@ class Compiler {
 
             $v = "\${$ns}__";
             switch ($sep[0]) {
+                // translate the javascript's obj.attr into php's obj->attr or obj['attr']
                 case '.':
-                    // translate the javascript's obj.attr into php's obj->attr or obj['attr']
-                    // TODO: Move this to a function
+                    // TODO: Move isset(->)?->:[]; to a function
                     $accessor= "{$v}=isset({$varname}->{$name}) ? {$varname}->{$name} : {$varname}['{$name}']";
                     array_push($result, $accessor);
                     $varname = $v;
 
                     break;
                 
+                // funcall
                 case '(':
-                    $arguments  = array();
-                    $old        = $sep;
-
-                    do {
-                        $arg    = array($old);
-                        $curr   = next($separators);
-
-                        do {
-                            array_push($arg, $curr);
-                            $curr = next($separators);
-                        } while ($curr != null && $curr[0] != ')' && $curr[0] != ',' );
-
-                        // missing argument
-                        if (!count($arg)) {
-                            throw new \Exception('Missing argument in function call');
-                        }else{
-                            $tmp_ns = ($ns+1) * 10 + (count($arguments));
-                            $arg    = $handle_recursion($arg, $tmp_ns);
-
-                            array_push($arguments, $arg);
-                        }
-
-                        $old = $curr;
-                    } while ($curr != null && $curr[0] !== ')');
-
-                    $call = $varname . '(' . implode(', ', $arguments) . ')';
+                    $arguments  = $handle_code_inbetween();
+                    $call       = $varname . '(' . implode(', ', $arguments) . ')';
+                    $varname    = $v;
                     array_push($result, "{$v}={$call}");
-                    $varname = $v;
+
                     break;
 
+                // mixin arguments
                 case ',':
-                    $arguments  = array();
-                    $old        = $sep;
-
-                    do {
-                        $arg    = array($old);
-                        $curr   = next($separators);
-
-                        do {
-                            array_push($arg, $curr);
-                            $curr = next($separators);
-                        } while ($curr != null && !in_array($curr[0], array(',',')',']')));
-
-                        if (!count($arg)) {
-                            throw new \Exception('Comma followed by punctuation: ' . $curr[0]);
-                        }else{
-                            // different number for every argument
-                            $tmp_ns = ($ns+1) * 10 + (count($arguments));
-                            $arg    = $handle_recursion($arg, $tmp_ns);
-
-                            array_push($arguments, $arg);
-                        }
-
-                        $old = $curr;
-                    } while ($curr != null && !in_array($curr[0], array(')',']')));
-
+                    $arguments  = $handle_code_inbetween();
                     $varname = $varname . ', ' . implode(', ', $arguments);
-
-                    // array_push($result, $varname);
+                    //array_push($result, $varname);
+                    
                     break;
 
                 /*case '[':
-                    // get the content inside the bracket
-                    $bracket = array();
-                    $sub_str = '';
-                    $start   = $sep[1] + strlen($sep[0]);
+                    $arguments = $handle_code_inbetween();
+                    $varname = $varname . '[' . implode($arguments) . ']';
 
-                    $item = next($separators);
-                    while ($item !== false && $item[0] !== ']') {
-                        array_push($bracket, $item[0]);
-                        $item = next($separators);
-                    }
-
-                    if ($item == false) {
-                        throw new \Exception("Excpecting ']'");
-                    }
-
-                    $end = $item[1];
-
-                    $bracket = $handle_recursion(substr($input, $start, $end - $start), $ns+1);
-                    $varname = $varname . '[' . $bracket . ']';
                     break;*/
 
                 case '=':
-                    $close_match = array('{'=>'}','('=>')','['=>']');
-                    $open = isset($separators[$i+1]) ? $separators[$i+1][0] : false;
-                    
-                    if ($open !== false && $open != null && in_array($open,array_keys($close_match))) {
-                        $item   = next($separators);
-                        $i++;
-
-                        $json   = '';
-                        $close  = $close_match[$open];
-                        $count  = 1;
-
-                        while ($count > 0 && $item[0] != null && $item !== false) {
-
-                            $name = $get_middle_string($item, $get_next());
-                            $json .= $item[0] . addslashes($name);
-
-                            $item = next($separators);
-                            $i++;
-
-                            if ($item[0] == $close) $count--; 
-                            if ($item[0] == $open) $count++;
-                        }
-                        $json .= $close;
-
-                        if ($count > 0) {
-                            throw new \Exception('Missing closing: ' . $close);
-                        }
-
-                        if ($item === false) {
-                            break 2;
-                        }
-
-                        $varname = "{$varname} = json_decode('{$json}')";
+                    if (preg_match('/^[[:space:]]*$/', $name)) {
+                        next($separators); 
+                        $arguments  = $handle_code_inbetween();
+                        $varname    = $varname . ' = ' . implode($arguments);
                     }else{
-                        $varname = $varname . $sep[0] . $name;
+                        ;
+                        $varname    = "{$varname} = " . $handle_recursion(array($sep, end($separators)));
                     }
 
                     break;
 
-                    /*if (preg_match('/(\{([^{]|(?R))*\}|\[([^\[]|(?R))*\])/', $name)) {
-                        $varname= "{$varname} = json_decode('{$name}')";
-                    }else{
-                        $varname = $varname . $sep[0] . $name;
-                    }*/
-
-
-                case '->':
                 default:
                     $varname = $varname . $sep[0] . $name;
                     break;
@@ -417,22 +390,16 @@ class Compiler {
         return $result;
     }
 
-    /**
-     * Accepts a sprintf string as code format and the javascript code, the funciton will
-     * convert the javascript into php and print it with the code format
-     */
-    protected function createCode($code) {
+    protected function createStatements() {
 
-        if (func_num_args()==1) {
-            return $this->newline() . $this->indent() . '<?php ' . $code . ' ?>';
+        if (func_num_args()==0) {
+            throw new Exception();
         }
 
-        // we accept multiple arguments like createCode('foreach( %s as %s)', $arg1, $arg2)
         $arguments = func_get_args();
-        array_shift($arguments); // remove $code
-
-        $variables = array($code); // $code is the first argument to sprintf
         $statements= array();
+        $variables = array();
+
         foreach ($arguments as $arg) {
 
             // shortcut for constants
@@ -447,25 +414,10 @@ class Compiler {
                 continue;
             }
 
-            // handle js object and array syntax
-            /*if (strpos($arg, '=') !== false) {
-                $json = trim(substr($arg, strpos($arg, '=') + 1));
-
-                if (preg_match('/(\{([^{]|(?R))*\}|\[([^\[]|(?R))*\])/', $json) ) {
-
-                    $code       = $this->handleCode(trim(substr($arg,0,strpos($arg,'=') - 1)));
-                    $statements = array_merge($statements, array_slice($code,0,-1));
-                    $code       = array_pop($code);
-                    $json       = addslashes($json);
-                    array_push($variables, "{$code} = json_decode('{$json}')");
-
-                    continue;
-                }
-            }*/
-
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
                 $code= $this->handleString(trim($arg));
             } else {
+                // TODO: move this to handleCode
                 $arg = preg_replace('/\bvar\b/','',$arg);
                 $code = $this->handleCode(trim($arg));
             }
@@ -474,24 +426,50 @@ class Compiler {
             array_push($variables, array_pop($code));
         }
 
-        // generate the code
-        $stmt_string = '';
-        foreach ($statements as $stmt) {
-            $stmt_string .= $this->newline() . $this->indent();
-            $stmt_string .= $stmt;
-            $stmt_string .= ';';
+        array_push($statements, $variables);
+        return $statements;
+    }
+
+    protected function createPhpBlock($code, $statements = null) {
+
+        if ($statements == null) {
+            return '<?php ' . $code . ' ?>';
         }
 
-        $stmt_string .= (count($statements)>1) ? $this->newline() . $this->indent() : '';
-        $stmt_string .= call_user_func_array('sprintf', $variables);
+        $code_format= array_pop($statements);
+        array_unshift($code_format, $code);
 
-        $php_str = $this->newline() . $this->indent() . '<?php ';
+        if (count($statements) == 0) {
+            $php_string = call_user_func_array('sprintf', $code_format);
+            return '<?php ' . $php_string . ' ?>';
+        }
+
+        $stmt_string= '';
+        foreach ($statements as $stmt) {
+            $stmt_string .= $this->newline() . $this->indent() . $stmt . ';';
+        }
+
+        $stmt_string .= $this->newline() . $this->indent();
+        $stmt_string .= call_user_func_array('sprintf', $code_format);
+
+        $php_str = '<?php ';
         $php_str .= $stmt_string;
-        $php_str .= (count($statements)>1) ? $this->newline() . $this->indent() : '';
-        $php_str .= ' ?>';
+        $php_str .= $this->newline() . $this->indent() . ' ?>';
 
         return $php_str;
+    }
 
+    protected function createCode($code) {
+
+        if (func_num_args()>1) {
+            $arguments = func_get_args();
+            array_shift($arguments); // remove $code
+            $statements= $this->apply('createStatements', $arguments);
+
+            return $this->createPhpBlock($code, $statements);
+        }
+
+        return $this->createPhpBlock($code);
     }
 
     protected function interpolate($text) {
@@ -608,22 +586,43 @@ class Compiler {
         $attributes = $mixin->attributes;
         
         if ($mixin->call) {
-            $_attr = array();
-            foreach ($attributes as $data) {
-                if ($data['escaped'] === true) {
-                    $_attr[$data['name']] = htmlspecialchars($data['value']);
-                }else{
-                    $_attr[$data['name']] = $data['value'];
-                }
-            }
-            $attributes = var_export($_attr, true);
-            $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
 
-            if ($arguments !== null && !empty($arguments) && count($arguments) > 0) {
-                array_unshift($arguments, $attributes);
-                $code = $this->createCode("{$name}(%s)", $arguments);
+            if (!count($attributes)) {
+                $attributes = "(isset(\$attributes)) ? \$attributes : array()";
             }else{
-                $code = $this->createCode("{$name}({$attributes})");
+                $_attr = array();
+                foreach ($attributes as $data) {
+                    if ($data['escaped'] === true) {
+                        $_attr[$data['name']] = htmlspecialchars($data['value']);
+                    }else{
+                        $_attr[$data['name']] = $data['value'];
+                    }
+                }
+                $attributes = var_export($_attr, true);
+                $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
+            }
+
+            if ($arguments === null || empty($arguments)) {
+                $code = $this->createPhpBlock("{$name}({$attributes})");
+            }else{
+
+                if (!empty($arguments) && !is_array($arguments)) {
+                    //$arguments = array($arguments);
+                    $arguments = explode(',', $arguments);
+                }
+
+                array_unshift($arguments, $attributes);
+                $statements= $this->apply('createStatements', $arguments);
+
+                $variables = array_pop($statements);
+                $variables = implode(', ', $variables);
+                array_push($statements, $variables);
+
+                $arguments = $statements;
+                $code_format = "{$name}(%s)";
+                array_unshift($arguments, $code_format);
+
+                $code = $this->apply('createCode', $arguments);
             }
             $this->buffer($code);
 
@@ -747,24 +746,24 @@ class Compiler {
         }
     }
 
-    protected function visitCode(Nodes\Code $code) {
-        $block = !$code->buffer;
-        $trim_code = trim($code->value); // remove any extra { and }
+    protected function visitCode(Nodes\Code $node) {
+        $block  = !$node->buffer;
+        $code   = trim($node->value); 
 
-        if ($code->buffer) {
+        if ($node->buffer) {
 
-            if ($code->escape) {
-                $this->buffer($this->createCode('echo htmlspecialchars(%s)',$trim_code));
+            if ($node->escape) {
+                $this->buffer($this->createCode('echo htmlspecialchars(%s)',$code));
             }else{
-                $this->buffer($this->createCode('echo %s',$trim_code));
+                $this->buffer($this->createCode('echo %s',$code));
             }
         }else{
 
             $php_open = implode('|',$this->phpOpenBlock);
 
-            if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $trim_code, $matches)) {
+            if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
 
-				$trim_code  = trim($matches[2],' (){};');
+				$code  = trim($matches[2],' (){};');
                 $index      = count($this->buffer)-1;
                 $conditional= '';
 
@@ -777,11 +776,11 @@ class Compiler {
 
                 $conditional .= '%s';
 
-                if (strlen($trim_code) > 0) {
+                if (strlen($code) > 0) {
                     $conditional .= '(%s) {';
                     $conditional = sprintf($conditional, $matches[1], '%s');
 
-                    $this->buffer($this->createCode($conditional, $trim_code));
+                    $this->buffer($this->createCode($conditional, $code));
                 }else{
                     $conditional .= ' {';
                     $conditional = sprintf($conditional, $matches[1]);
@@ -790,16 +789,16 @@ class Compiler {
                 }
 
             }else{
-                $this->buffer($this->createCode('%s', $trim_code));
+                $this->buffer($this->createCode('%s', $code));
             }
         }
 
-        if (isset($code->block)) {
+        if (isset($node->block)) {
             $this->indents++;
-            $this->visit($code->block);
+            $this->visit($node->block);
             $this->indents--;
 
-            if (!$code->buffer) {
+            if (!$node->buffer) {
                 $this->buffer($this->createCode('}'));
             }
         }
