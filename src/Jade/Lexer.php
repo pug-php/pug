@@ -343,8 +343,10 @@ class Lexer {
                 case 'else if': $code = 'elseif (' . $matches[2] . '):'; break;
                 case 'else': $code = 'else (' . $matches[2] . '):'; break;
             }*/
-
-            $code   = $this->normalizeCode($matches[0]);
+	    if($matches[1] == 'unless')
+		$code = 'if (!$' . trim($matches[2]) . ')';
+	    else
+        	$code = $this->normalizeCode($matches[0]);
             $token  = $this->token('code', $code);
             $token->buffer = false;
             return $token;
@@ -354,7 +356,7 @@ class Lexer {
     protected function scanWhile() {
         if ( preg_match('/^while +([^\n]+)/', $this->input, $matches) ) {
             $this->consume($matches[0]);
-            $this->token(code, 'while (' . $matches[1] . '):');
+            $this->token('code', 'while (' . $matches[1] . '):');
         }
     }
 
