@@ -315,7 +315,7 @@ class Compiler {
                 // mixin arguments
                 case ',':
                     $arguments  = $handle_code_inbetween();
-                    $varname = $varname . ', ' . implode(', ', $arguments);
+                    $varname = $varname . ($arguments ? ', ' . implode(', ', $arguments) : '');
                     //array_push($result, $varname);
                     
                     break;
