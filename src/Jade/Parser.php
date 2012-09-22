@@ -235,6 +235,10 @@ class Parser {
         $node = new Nodes\Each($token->code, $token->value, $token->key);
         $node->line = $this->line();
         $node->block = $this->block();
+	if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
+		$this->advance();
+		$node->alternative = $this->block();
+	}
         return $node;
     }
 

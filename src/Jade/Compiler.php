@@ -315,7 +315,8 @@ class Compiler {
                 // mixin arguments
                 case ',':
                     $arguments  = $handle_code_inbetween();
-                    $varname = $varname . ($arguments ? ', ' . implode(', ', $arguments) : '');
+		    if($arguments)
+                	$varname = $varname . ', ' . implode(', ', $arguments);
                     //array_push($result, $varname);
                     
                     break;
@@ -332,7 +333,6 @@ class Compiler {
                         $arguments  = $handle_code_inbetween();
                         $varname    = $varname . ' = ' . implode($arguments);
                     }else{
-                        ;
                         $varname    = "{$varname} = " . $handle_recursion(array($sep, end($separators)));
                     }
 
@@ -558,18 +558,18 @@ class Compiler {
         if (empty($doctype->value) || $doctype == null || !isset($doctype->value)) {
             $doc = 'default';
         }else{
-            $doc = $doctype->value;
+            $doc = strtolower($doctype->value);
         }
 
-        if (isset($this->doctypes[strtolower($doc)])) {
-            $str = $this->doctypes[strtolower($doc)];
+        if (isset($this->doctypes[$doc])) {
+            $str = $this->doctypes[$doc];
         }else{
             $str = "<!DOCTYPE {$doc}>";
         }
 
         $this->buffer( $str . $this->newline());
 
-        if ($doc == '5' || $doc == 'html' || $doc == 'default') {
+        if (strtolower($str) == '<!doctype html>') {
             $this->terse = true;
         }
 
@@ -770,7 +770,7 @@ class Compiler {
 
                 if (isset($this->buffer[$index]) && false !== strpos($this->buffer[$index], $this->createCode('}'))) {
                     // the "else" statement needs to be in the php block that closes the if
-                    unset($this->buffer[$index]);
+                    $this->buffer[$index] = null;
                     $conditional .= '} ';
                 }
 
@@ -809,6 +809,12 @@ class Compiler {
         //if (is_numeric($node->obj)) {
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
+	if ($node->alternative) {
+            $code = $this->createCode('if (isset(%s) && %s) {',$node->obj,$node->obj);
+	    $this->buffer($code);
+	    $this->indents++;
+	}
+
         if (isset($node->key) && mb_strlen($node->key) > 0) {
             $code = $this->createCode('foreach (%s as %s => %s) {',$node->obj,$node->key,$node->value);
         }else{
@@ -822,6 +828,17 @@ class Compiler {
         $this->indents--;
 
         $this->buffer($this->createCode('}'));
+
+	if ($node->alternative) {
+		$this->indents--;
+    		$this->buffer($this->createCode('} else {'));
+	        $this->indents++;
+
+	        $this->visit($node->block);
+	        $this->indents--;
+
+	        $this->buffer($this->createCode('}'));
+	}
     }
 
     protected function visitAttributes($attributes) {
@@ -856,17 +873,16 @@ class Compiler {
                     $this->prettyprint = $pp;
                 }
             }
-
             if ($key == 'class') {
                 array_push($classes, $value);
             }
-            elseif ($value == '' || $value == null || $attr['value'] === true) {
+            elseif ($value == '' || $value == 'null' || $value == 'true' || $attr['value'] === true) {
                 if ($this->terse) {
                     $items[] = $key;
                 }else{
                     $items[] = "{$key}='{$key}'";
                 }
-            }else{
+            }elseif ($value != 'false') {
                 $items[] = "{$key}='{$value}'";
             }
         }

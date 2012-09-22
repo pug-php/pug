@@ -14,7 +14,7 @@ class Block extends Node {
 
 	public function replace($other) {
 		$other->nodes = $this->nodes;
-	}	
+	}
 
 	public function push($node) {
 		return array_push($this->nodes,$node);
@@ -29,8 +29,7 @@ class Block extends Node {
 	}
 
 	public function includeBlock() {
-        $ret = null;
-
+		$ret = $this;
 		foreach ($this->nodes as $node) {
 			if (isset($node->yield)) {
 				return $node;
@@ -45,6 +44,9 @@ class Block extends Node {
 			}
 			elseif (isset($node->block) && !$node->block->isEmpty()) {
 				$ret = $node->block->includeBlock();
+			}
+			if (isset($ret->yield)) {
+				return $ret;
 			}
 		}
 
