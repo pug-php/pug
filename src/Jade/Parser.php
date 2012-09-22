@@ -247,7 +247,7 @@ class Parser {
         $string = file_get_contents($path);
         $parser = new Parser($string, $path);
         // need to be a reference, or be seted after the parse loop
-        $parser->blocks = &$this->blocks; 
+        $parser->blocks = &$this->blocks;
         $parser->contexts = $this->contexts;
         $this->extending = $parser;
 
@@ -266,12 +266,12 @@ class Parser {
 
             switch ($prev->mode) {
             case 'append':
-                $block->nodes = $block->nodes->concat($prev->nodes);
+                $block->nodes = array_merge($block->nodes, $prev->nodes);
                 $prev = $block;
                 break;
 
             case 'prepend':
-                $block->nodes = $prev->nodes->concat($block->nodes);
+                $block->nodes = array_merge($prev->nodes, $block->nodes);
                 $prev = $block;
                 break;
 
