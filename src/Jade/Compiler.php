@@ -167,6 +167,10 @@ class Compiler {
             throw new \Exception('Expecting a string of javascript, empty string received.');
         }
 
+	if($input[0] == '"' && $input[strlen($input) - 1] == '"') {
+		return array($input);
+	}
+
         //$separators = preg_split(
             //'/[$a-zA-Z_][a-zA-Z0-9_]*/', // regex to match ids
             //$input,
@@ -179,7 +183,6 @@ class Compiler {
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
         );
-
         $_separators = array();
         foreach ($separators as $sep) {
             array_push($_separators, $sep[0]);
@@ -187,7 +190,7 @@ class Compiler {
         $separators = $_separators;
 
         if (count($separators) == 0) {
-            if ($input[0] != '$') {
+            if (strchr('0123456789-+("\'', $input[0]) === FALSE) {
                 $input = '$' . $input;
             }
 
@@ -354,7 +357,7 @@ class Compiler {
         $results_string = array();
 
         $separators = preg_split(
-            '/[+]/', // concatenation operator - only js
+            '/[+](?!\\()/', // concatenation operator - only js
             $input,
             -1, 
             PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE

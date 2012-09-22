@@ -303,7 +303,7 @@ class Lexer {
     }
 
     protected function scanAssignment() {
-        if ( preg_match('/^(\w+) += *([^;\n]+)( *;? *)/', $this->input, $matches) ) {
+        if ( preg_match('/^(\w+) += *(["\'][^"]+["\']|[^;\n]+)( *;? *)/', $this->input, $matches) ) {
             $this->consume($matches[0]);
             return $this->token('code', $matches[1] . ' = ' . $matches[2]);
         }
