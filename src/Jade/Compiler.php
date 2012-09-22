@@ -178,7 +178,7 @@ class Compiler {
             //PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
         //);
         preg_match_all(
-            '/[\[\]{}(),;:.=]/', // js punctuation
+            '/(?<![<>=!])=|[\[\]{}(),;:.]/', // js punctuation
             $input,
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
@@ -190,7 +190,7 @@ class Compiler {
         $separators = $_separators;
 
         if (count($separators) == 0) {
-            if (strchr('0123456789-+("\'', $input[0]) === FALSE) {
+            if (strchr('0123456789-+("\'$', $input[0]) === FALSE) {
                 $input = '$' . $input;
             }
 
