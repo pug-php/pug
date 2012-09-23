@@ -5,6 +5,11 @@
     <link href='css/bootstrap.css' rel='stylesheet'>
     <link href='css/bootstrap-responsive.css' rel='stylesheet'>
     <link href='css/prettify.css' rel='stylesheet'>
+    <!--
+    <style>
+       body{padding-top:120px;}
+    </style>
+    -->
   </head>
   <body>
     <!--.navbar.navbar-fixed-top-->
@@ -12,22 +17,21 @@
       <div class='navbar-inner'>
         <div class='container'>
           <ul class='nav'>
-            <?php 
-            foreach ($nav_list as $dropdown_name => $dropdown) {
-             ?>
+            <?php foreach ($nav_list as $dropdown_name => $dropdown) { ?>
               <li class='dropdown'>
-                <a data-toggle='"dropdown"' class='dropdown-toggle'>
+                <a data-toggle='dropdown' class='dropdown-toggle'>
                   <?php echo htmlspecialchars($dropdown_name) ?>
                   <span class='caret'>
                   </span>
                 </a>
                 <ul class='dropdown-menu'>
-                  <?php 
-                  foreach ($dropdown as $item) {
-                   ?>
+                  <?php foreach ($dropdown as $item) { ?>
                     <li>
-                      <a href='<?php $__=$item;$__=isset($__->link) ? $__->link : $__['link'];$__='?test='. $__;echo $__ ?>'>
-                        <?php $__=$item;$__=isset($__->name) ? $__->name : $__['name'];echo htmlspecialchars($__) ?>
+                      <a href='<?php $__=isset($item->link) ? $item->link : $item['link'];echo '?test=' . $__ ?>'>
+                        <?php 
+                        $__=isset($item->name) ? $item->name : $item['name'];
+                        echo htmlspecialchars($__)
+                         ?>
                       </a>
                     </li>
                   <?php } ?>
@@ -38,7 +42,7 @@
         </div>
       </div>
     </div>
-    <?php if ($test) { ?>
+    <?php if($test) { ?>
       <div class='container'>
         <div class='row'>
           <div class='span6'>

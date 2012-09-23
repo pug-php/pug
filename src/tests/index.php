@@ -30,7 +30,7 @@ function setup_autoload() {
     set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 
     spl_autoload_register(function($class){
-        require_once(str_replace('\\',DIRECTORY_SEPARATOR,$class).'.php');
+        require_once(str_replace("\\",DIRECTORY_SEPARATOR,$class).'.php');
     });
 
 }
@@ -51,7 +51,7 @@ function build_list($test_list) {
         if (!isset($group_list[$parts[0]])) {
             $group_list[$parts[0]] = array();
         }
-        $group_list[$parts[0]][] = ['link' => $test, 'name' => $name];
+        $group_list[$parts[0]][] = array('link' => $test, 'name' => $name);
     }
 
     return $group_list;
