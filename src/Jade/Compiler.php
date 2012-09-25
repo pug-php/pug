@@ -129,7 +129,7 @@ class Compiler {
         //          true|false|null - language constants
         //          0-9             - number constants
         //          \b\b            - matches a empty string: useful for a empty array
-        $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|[0-9]+|\b\b)[ \t]*';
+        $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|undefined|[0-9]+|\b\b)[ \t]*';
         $str= trim($str);
         $ok = preg_match("/^{$const_regex}$/", $str);
 
@@ -203,7 +203,7 @@ class Compiler {
         if ($separators[0][1] == 0) {
             throw new \Exception('Expecting a variable name got: ' . $input);
         }
-        
+    
         // do not add $ if it is a function
         if ($separators[0][0] == '(') {
             $varname=  substr($input,0,$separators[0][1]);
@@ -243,6 +243,8 @@ class Compiler {
             $start      = current($separators);
             $end_pair   = array('['=>']', '{'=>'}', '('=>')', ','=>false);
             $open       = $start[0];
+	    if(!isset($open))
+		return $arguments;
             $close      = $end_pair[$start[0]];
 
             do {
@@ -407,6 +409,8 @@ class Compiler {
 
             // shortcut for constants
             if ($this->isConstant($arg)) {
+                if($arg === 'undefined')
+            	    $arg = 'null';
                 array_push($variables, $arg);
                 continue;
             }
@@ -638,6 +642,7 @@ class Compiler {
                 $arguments = array($arguments);
             }
 
+	    //TODO: assign nulls to all varargs for remove php warnings
             array_unshift($arguments, 'attributes');
             $code = $this->createCode("function {$name} (%s) {", implode(',',$arguments));
 
@@ -854,6 +859,8 @@ class Compiler {
 
             if ($this->isConstant($value)) {
                 $value = trim($value,' \'"');
+                if($value === 'undefined')
+            	    $value = 'null';
             }else{
                 $json = json_decode($value);
 
@@ -877,15 +884,16 @@ class Compiler {
                 }
             }
             if ($key == 'class') {
-                array_push($classes, $value);
+		if($value !== 'false' && $value !== 'null' && $value !== 'undefined')
+            	    array_push($classes, $value);
             }
-            elseif ($value == '' || $value == 'null' || $value == 'true' || $attr['value'] === true) {
+            elseif ($value == 'true' || $attr['value'] === true) {
                 if ($this->terse) {
                     $items[] = $key;
                 }else{
                     $items[] = "{$key}='{$key}'";
                 }
-            }elseif ($value != 'false') {
+            }elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                 $items[] = "{$key}='{$value}'";
             }
         }

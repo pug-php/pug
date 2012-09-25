@@ -317,7 +317,7 @@ class Lexer {
             # check for arguments
             if ( preg_match( '/^ *\((.*?)\)/', $this->input, $matches_arguments) ) {
                 $this->consume($matches_arguments[0]);
-                $token->args = $matches_arguments[1];
+                $token->arguments = $matches_arguments[1];
             }
 
             return $token;
@@ -416,7 +416,7 @@ class Lexer {
             $interpolate = function($attr) use (&$quote) {
                 // the global flag is turned on by default
                 // TODO: check the +, maybe it is better to use . here
-                return preg_replace('/#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr);
+                return preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr);
             };
 
             $parse = function($char) use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, $state, $interpolate) {

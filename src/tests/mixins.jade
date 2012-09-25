@@ -4,16 +4,10 @@ mixin comment(title, str)
     h2= title
     p.body= str
 
-
-mixin comment (title, str)
-  .comment
-    h2= title
-    p.body= str
-
 #user
   h1 Tobi
   .comments
-    mixin comment('This', (('is regular, javascript')))
+    mixin comment('This', 'is a text')
 
 mixin list()
   ul
