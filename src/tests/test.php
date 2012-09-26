@@ -70,6 +70,14 @@ foreach($nav_list as $type => $arr)
 	    file_put_contents($e['name'] . '.jade.html', $code);
 
 	    // automatically compare $code and $html here
+	    $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
+	    $to = array('', '', '', '', "'", '');
+	    $html = str_replace($from, $to, $html);
+	    $code = str_replace($from, $to, $code);
+	    if(strcmp($html, $code)) {
+		print "  -$html\n";
+		print "  +$code\n\n";
+	    }
 	}
     }
 

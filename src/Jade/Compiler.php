@@ -29,8 +29,8 @@ class Compiler {
     );
 
     protected $selfClosing  = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
-    protected $phpKeywords  = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as');
-    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach');
+    protected $phpKeywords  = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
+    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach','unless');
     protected $phpCloseBlock= array('endswitch','endif','endwhile','endfor','endforeach');
 
     public function __construct($prettyprint=false) {
@@ -102,7 +102,7 @@ class Compiler {
         return '';
     }
 
-    protected function isConstant($str) {
+    protected function isConstant($str, $attr = false) {
         //  This pattern matches against string constants, some php keywords, number constants and a empty string
         //
         //  the pattern without php escaping:
@@ -134,7 +134,7 @@ class Compiler {
         $ok = preg_match("/^{$const_regex}$/", $str);
 
         // test agains a array of constants
-        if (!$ok && (0 === strpos($str,'array(') || 0 === strpos($str,'['))) {
+        if (!$attr && !$ok && (0 === strpos($str,'array(') || 0 === strpos($str,'['))) {
 
             // This pattern matches against array constants: useful for "data-" attributes (see test attrs-data.jade)
             //
@@ -143,7 +143,7 @@ class Compiler {
             // arrray\(\)                   - matches against the old array construct
             // []                           - matches against the new/shorter array construct
             // (const=>)?const(,recursion)  - matches against the value list, values can be a constant or a new array built of constants
-            if (preg_match("/array[ \t]*\((?R)\)|\[(?R)\]|({$const_regex}=>)?{$const_regex}(,(?R))?/", $str, $matches)) {
+            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|({$const_regex}=>)?{$const_regex}(,(?R))?/", $str, $matches)) {
                 // cant use ^ and $ because the patter is recursive
                 if (strlen($matches[0]) == strlen($str)) {
                     $ok = true;
@@ -178,7 +178,7 @@ class Compiler {
             //PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
         //);
         preg_match_all(
-            '/(?<![<>=!])=|[\[\]{}(),;:.]/', // js punctuation
+            '/(?<![<>=!])=(?!>)|[\[\]{}(),;:.]/', // js punctuation
             $input,
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
@@ -204,11 +204,10 @@ class Compiler {
             throw new \Exception('Expecting a variable name got: ' . $input);
         }
     
-        // do not add $ if it is a function
-        if ($separators[0][0] == '(') {
-            $varname=  substr($input,0,$separators[0][1]);
-        }else{
-            $varname= '$' . substr($input,0,$separators[0][1]);
+        // do not add $ if it is not like a variable
+        $varname = substr($input,0,$separators[0][1]);
+        if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
+            $varname = '$' . $varname;
         }
 
         $get_middle_string = function($start, $end) use ($input) {
@@ -225,6 +224,8 @@ class Compiler {
         $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string) {
             list($start,$end) = $arg;
             $str    = trim($get_middle_string($start, $end));
+	    if(!strlen($str))
+		return '';
 
             $_code  = $host->handleCode($str, $ns);
 
@@ -262,7 +263,6 @@ class Compiler {
                 $end    = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
-
                     $tmp_ns = $ns*10 +count($arguments);
                     $arg    = $handle_recursion(array($start, $end), $tmp_ns);
 
@@ -274,6 +274,9 @@ class Compiler {
             if ($close && $count) {
                 throw new \Exception('Missing closing: ' . $close);
             }
+
+	    if ($end !== false)
+                next($separators);
 
             return $arguments;
         };
@@ -344,7 +347,8 @@ class Compiler {
                     break;
 
                 default:
-                    $varname = $varname . $sep[0] . $name;
+		    if(($name !== FALSE && $name !== '') || $sep[0] != ')')
+                	$varname = $varname . $sep[0] . $name;
                     break;
             }
 
@@ -500,7 +504,7 @@ class Compiler {
             }
         }
 
-        return $text;
+        return str_replace('\\#{', '#{', $text);
     }
 
     protected function visitNode(Nodes\Node $node) {
@@ -605,6 +609,8 @@ class Compiler {
                         $_attr[$data['name']] = $data['value'];
                     }
                 }
+
+		//TODO: this adds extra escaping, tests mixin.* failed.
                 $attributes = var_export($_attr, true);
                 $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
             }
@@ -685,7 +691,7 @@ class Compiler {
             $html_tag = '';
 
             if ($self_closing) {
-                $html_tag = '<' . $tag->name . ' ' . (($this->terse) ? '>' : '/>');
+                $html_tag = '<' . $tag->name . (($this->terse) ? '>' : '/>');
             }else{
                 $html_tag = '<' . $tag->name . '>';
             }
@@ -743,7 +749,7 @@ class Compiler {
             return;
         }
 
-        if (strlen($comment->value) && 0 === strpos('if', trim($comment->value))) {
+        if (strlen($comment->value) && 0 === strpos(trim($comment->value), 'if')) {
             $this->buffer('<!--[' . trim($comment->value) . ']>');
             $this->visit($comment->block);
             $this->buffer('<![endif]-->');
@@ -786,7 +792,11 @@ class Compiler {
 
                 if (strlen($code) > 0) {
                     $conditional .= '(%s) {';
-                    $conditional = sprintf($conditional, $matches[1], '%s');
+		    if($matches[1] == 'unless') {
+                	$conditional = sprintf($conditional, 'if', '!(%s)');
+		    } else {
+                	$conditional = sprintf($conditional, $matches[1], '%s');
+            	    }
 
                     $this->buffer($this->createCode($conditional, $code));
                 }else{
@@ -817,7 +827,7 @@ class Compiler {
         //if (is_numeric($node->obj)) {
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
-	if ($node->alternative) {
+	if (isset($node->alternative)) {
             $code = $this->createCode('if (isset(%s) && %s) {',$node->obj,$node->obj);
 	    $this->buffer($code);
 	    $this->indents++;
@@ -837,12 +847,12 @@ class Compiler {
 
         $this->buffer($this->createCode('}'));
 
-	if ($node->alternative) {
+	if (isset($node->alternative)) {
 		$this->indents--;
     		$this->buffer($this->createCode('} else {'));
 	        $this->indents++;
 
-	        $this->visit($node->block);
+	        $this->visit($node->alternative);
 	        $this->indents--;
 
 	        $this->buffer($this->createCode('}'));
@@ -857,12 +867,12 @@ class Compiler {
             $key = trim($attr['name']);
             $value = trim($attr['value']);
 
-            if ($this->isConstant($value)) {
+            if ($this->isConstant($value, $key == 'class')) {
                 $value = trim($value,' \'"');
                 if($value === 'undefined')
             	    $value = 'null';
             }else{
-                $json = json_decode($value);
+                $json = json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
 
                 if ($json !== null && is_array($json) && $key == 'class') {
                     $value = implode(' ', $json);

@@ -303,7 +303,7 @@ class Lexer {
     }
 
     protected function scanAssignment() {
-        if ( preg_match('/^(\w+) += *(["\'][^"]+["\']|[^;\n]+)( *;? *)/', $this->input, $matches) ) {
+        if ( preg_match('/^(\w+) += *(\'[^\']+\'|"[^"]+"|[^;\n]+)( *;? *)/', $this->input, $matches) ) {
             $this->consume($matches[0]);
             return $this->token('code', $matches[1] . ' = ' . $matches[2]);
         }
@@ -343,10 +343,7 @@ class Lexer {
                 case 'else if': $code = 'elseif (' . $matches[2] . '):'; break;
                 case 'else': $code = 'else (' . $matches[2] . '):'; break;
             }*/
-	    if($matches[1] == 'unless')
-		$code = 'if (!$' . trim($matches[2]) . ')';
-	    else
-        	$code = $this->normalizeCode($matches[0]);
+            $code   = $this->normalizeCode($matches[0]);
             $token  = $this->token('code', $code);
             $token->buffer = false;
             return $token;
@@ -416,7 +413,7 @@ class Lexer {
             $interpolate = function($attr) use (&$quote) {
                 // the global flag is turned on by default
                 // TODO: check the +, maybe it is better to use . here
-                return preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr);
+                return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr));
             };
 
             $parse = function($char) use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, $state, $interpolate) {
