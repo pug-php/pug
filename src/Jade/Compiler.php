@@ -774,9 +774,9 @@ class Compiler {
 
             if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
 
-		$code = trim($matches[2],'; ');
-	        while (($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
-		        $code = trim(substr($code, 1, strlen($code) - 2));
+                $code = trim($matches[2],'; ');
+                while (($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
+                    $code = trim(substr($code, 1, strlen($code) - 2));
 	        }
 
 	        $index       = count($this->buffer)-1;
