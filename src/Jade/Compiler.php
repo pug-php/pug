@@ -281,8 +281,7 @@ class Compiler {
             return $arguments;
         };
 
-        $i = 0;
-        $get_next = function () use($separators, $i) {
+        $get_next = function ($i) use($separators, $i) {
             if (isset($separators[$i+1])) {
                 return $separators[$i+1];
             }
@@ -290,15 +289,13 @@ class Compiler {
 
         // using next() ourselves so that we can advance the array pointer inside inner loops
         while (key($separators) !== null) {
-            $i  = key($separators);
-
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
             $sep= current($separators);
 
             if ($sep[0] == null) break; // end of string
 
-            $name = $get_middle_string($sep, $get_next());
+            $name = $get_middle_string($sep, $get_next(key($separators)));
 
             $v = "\${$ns}__";
             switch ($sep[0]) {
