@@ -281,7 +281,7 @@ class Compiler {
             return $arguments;
         };
 
-        $get_next = function ($i) use($separators, $i) {
+        $get_next = function ($i) use($separators) {
             if (isset($separators[$i+1])) {
                 return $separators[$i+1];
             }
@@ -775,8 +775,8 @@ class Compiler {
             if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
 
                 $code = trim($matches[2],'; ');
-                while (($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
-                    $code = trim(substr($code, 1, strlen($code) - 2));
+                while (($len = strlen($code)) > 1 && ($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
+                    $code = trim(substr($code, 1, $len - 2));
 	        }
 
 	        $index       = count($this->buffer)-1;
