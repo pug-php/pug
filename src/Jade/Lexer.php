@@ -555,7 +555,7 @@ class Lexer {
             };
 
             for ($i=0;$i<mb_strlen($str);$i++) {
-                $parse($str[$i]);
+                $parse(mb_substr($str, $i, 1));
             }
 
             $parse(',');
