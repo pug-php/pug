@@ -39,6 +39,7 @@ function show_php($file) {
     return $jade->render($file);
 }
 
+mb_internal_encoding('utf-8');
 error_reporting(E_ALL);
 setup_autoload();
 
