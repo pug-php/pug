@@ -30,8 +30,8 @@ class Parser {
             $this->filename = $filename;
         }
 
-	if($this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf")
-	    $this->input = substr($this->input, 3);
+        if($this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf")
+            $this->input = substr($this->input, 3);
 
         $this->lexer = new Lexer($this->input);
         array_push($this->contexts, $this);
@@ -214,7 +214,7 @@ class Parser {
         $attributes = $this->accept('attributes');
 
         $this->lexer->pipeless = true;
-        $block		= $this->parseTextBlock();
+        $block                = $this->parseTextBlock();
         $this->lexer->pipeless = false;
 
         $node = new Nodes\Filter($token->value, $block, $attributes);
@@ -238,10 +238,10 @@ class Parser {
         $node = new Nodes\Each($token->code, $token->value, $token->key);
         $node->line = $this->line();
         $node->block = $this->block();
-	if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
-		$this->advance();
-		$node->alternative = $this->block();
-	}
+        if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
+                $this->advance();
+                $node->alternative = $this->block();
+        }
         return $node;
     }
 

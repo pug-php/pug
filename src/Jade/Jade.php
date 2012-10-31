@@ -31,15 +31,15 @@ class Jade {
         }
         if ( !is_file($input) ) {
             throw new \InvalidArgumentException('Only file templates can be cached.');
-        } 
+        }
 
         $cacheKey = basename($input, '.jade');
         $path = $this->cache . '/' . $cacheKey . '.php';
-		$cacheTime = 0;
+        $cacheTime = 0;
 
-		if (file_exists($path)) {
-			$cacheTime = filemtime($path);
-		}
+        if (file_exists($path)) {
+            $cacheTime = filemtime($path);
+        }
 
         if ( $cacheTime && filemtime($input) < $cacheTime ) {
             return $path;

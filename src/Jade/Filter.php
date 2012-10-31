@@ -1,6 +1,7 @@
 <?php
 
 namespace Jade;
+
 class Filter {
     public static function cdata($data) {
         if (is_object($data)) {

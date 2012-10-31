@@ -50,8 +50,8 @@ class Lexer {
     }
 
     /**
-     * Consume input. 
-     * 
+     * Consume input.
+     *
      * @param   string $bytes utf8 string of input to consume
      */
     protected function consume($bytes) {
@@ -226,7 +226,7 @@ class Lexer {
 
     protected function scanClassName() {
         // http://www.w3.org/TR/CSS21/grammar.html#scanner
-        // 
+        //
         // ident:
         //		-?{nmstart}{nmchar}*
         // nmstart:
