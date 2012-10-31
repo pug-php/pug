@@ -2,7 +2,7 @@
 
 namespace Jade;
 
-require_once('Filter/filters.php');
+use Jade\Filter;
 
 class Compiler {
 
@@ -49,35 +49,35 @@ class Compiler {
     }
 
     protected function apply($method, $arguments){
-        switch(count($arguments)) { 
+        switch(count($arguments)) {
             case 0:
                 return $this->{$method}();
-                break; 
+                break;
 
             case 1:
                 return $this->{$method}($arguments[0]);
-                break; 
+                break;
 
             case 2:
                 return $this->{$method}($arguments[0], $arguments[1]);
-                break; 
+                break;
 
             case 3:
                 return $this->{$method}($arguments[0], $arguments[1], $arguments[2]);
-                break; 
+                break;
 
             case 4:
                 return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3]);
-                break; 
+                break;
 
             case 5:
                 return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3], $arguments[4]);
-                break; 
+                break;
 
             default:
                 return call_user_func_array(array($this, $method), $arguments);
-                break; 
-        } 
+                break;
+        }
     }
 
     protected function buffer($line, $indent=null) {
@@ -156,9 +156,9 @@ class Compiler {
 
     public function handleCode($input, $ns='') {
 	    // needs to be public because of the closure $handle_recursion
-        
+
         $result = array();
-        
+
         if (!is_string($input)) {
             throw new \Exception('Expecting a string of javascript, got: ' . gettype($input));
         }
@@ -174,7 +174,7 @@ class Compiler {
         //$separators = preg_split(
             //'/[$a-zA-Z_][a-zA-Z0-9_]*/', // regex to match ids
             //$input,
-            //-1, 
+            //-1,
             //PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
         //);
         preg_match_all(
@@ -203,7 +203,7 @@ class Compiler {
         if ($separators[0][1] == 0) {
             throw new \Exception('Expecting a variable name got: ' . $input);
         }
-    
+
         // do not add $ if it is not like a variable
         $varname = substr($input,0,$separators[0][1]);
         if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
@@ -307,7 +307,7 @@ class Compiler {
                     $varname = $v;
 
                     break;
-                
+
                 // funcall
                 case '(':
                     $arguments  = $handle_code_inbetween();
@@ -323,7 +323,7 @@ class Compiler {
 		    if($arguments)
                 	$varname = $varname . ', ' . implode(', ', $arguments);
                     //array_push($result, $varname);
-                    
+
                     break;
 
                 /*case '[':
@@ -334,7 +334,7 @@ class Compiler {
 
                 case '=':
                     if (preg_match('/^[[:space:]]*$/', $name)) {
-                        next($separators); 
+                        next($separators);
                         $arguments  = $handle_code_inbetween();
                         $varname    = $varname . ' = ' . implode($arguments);
                     }else{
@@ -362,14 +362,14 @@ class Compiler {
         $separators = preg_split(
             '/[+](?!\\()/', // concatenation operator - only js
             $input,
-            -1, 
+            -1,
             PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
         );
 
         foreach ($separators as $i => $part) {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
-            
+
             $sep = substr(
                 $input,
                 strlen($part[0]) + $part[1] + 1,
@@ -592,7 +592,7 @@ class Compiler {
         $arguments  = $mixin->arguments;
         $block      = $mixin->block;
         $attributes = $mixin->attributes;
-        
+
         if ($mixin->call) {
 
             if (!count($attributes)) {
@@ -717,14 +717,14 @@ class Compiler {
 
         // filter:
         if ($node->isASTFilter) {
-            $str = $filter($node->block, $this, $node->attributes);
+            $str = Filter::$filter($node->block, $this, $node->attributes);
             // :filter
         }else{
             $str = '';
             foreach ($this->block->nodes as $n) {
                 $str .= $n->value . "\n";
             }
-            $str = $filter($str, $filter->attributes);
+            $str = Filter::$filter($str, $node->attributes);
         }
         $this->buffer($str);
     }
@@ -759,7 +759,7 @@ class Compiler {
 
     protected function visitCode(Nodes\Code $node) {
         $block  = !$node->buffer;
-        $code   = trim($node->value); 
+        $code   = trim($node->value);
 
         if ($node->buffer) {
 
