@@ -1,0 +1,22 @@
+html(lang='en')
+  head
+    block head
+      meta(charset='utf-8')
+      title Test application
+      link(href='main.css', rel='stylesheet')
+
+  //[q] 2012, sisoftrg@gmail.com
+  body
+    block scripts
+    block body
+      header
+        nav
+          div.menu Put menu here
+        br
+
+      block content
+
+    //if IE 6
+      h3.bad Shit, your browser too old. Please update it.
+    br
+

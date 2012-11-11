@@ -214,7 +214,7 @@ class Parser {
         $attributes = $this->accept('attributes');
 
         $this->lexer->pipeless = true;
-        $block                = $this->parseTextBlock();
+        $block = $this->parseTextBlock();
         $this->lexer->pipeless = false;
 
         $node = new Nodes\Filter($token->value, $block, $attributes);

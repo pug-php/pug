@@ -160,6 +160,7 @@ class Lexer {
 
         if( preg_match('/^\n *\n/', $this->input, $matches) ){
             $this->consume(mb_substr($matches[0],0,-1)); // do not cosume the last \r
+	    $this->lineno++;
 
             if ($this->pipeless) {
                 return $this->token('text','');
