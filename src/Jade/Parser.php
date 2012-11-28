@@ -9,7 +9,7 @@ require_once('Lexer.php');
 class Parser {
 
     public $basepath;
-    public $extension = '.jade';
+    public static $extension = '.jade';
     public $textOnly = array('script','style');
 
     protected $input;
@@ -249,7 +249,7 @@ class Parser {
 
         $file = $this->expect('extends')->value;
         $dir = realpath(dirname($this->filename));
-        $path = $dir . DIRECTORY_SEPARATOR . $file . $this->extension;
+        $path = $dir . DIRECTORY_SEPARATOR . $file . self::$extension;
 
         $string = file_get_contents($path);
         $parser = new Parser($string, $path);
