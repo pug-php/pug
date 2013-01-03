@@ -171,14 +171,8 @@ class Compiler {
             return array($input);
         }
 
-        //$separators = preg_split(
-            //'/[$a-zA-Z_][a-zA-Z0-9_]*/', // regex to match ids
-            //$input,
-            //-1,
-            //PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
-        //);
         preg_match_all(
-            '/(?<![<>=!])=(?!>)|[\[\]{}(),;:.]/', // js punctuation
+            '/(?<![<>=!])=(?!>)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
             $input,
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
@@ -258,7 +252,7 @@ class Compiler {
                     if ($curr[0] == $open) $count++;
                     if ($curr[0] == $close) $count--;
 
-                } while ($curr[0] != null && $count > 0 && $curr[0] != ',' );
+                } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
                 $end    = current($separators);
 
@@ -312,6 +306,11 @@ class Compiler {
                 case '(':
                     $arguments  = $handle_code_inbetween();
                     $call       = $varname . '(' . implode(', ', $arguments) . ')';
+                    $cs = current($separators);
+                    while($cs[0] == '->') {
+                        $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
+                        $cs = next($separators);
+                    }
                     $varname    = $v;
                     array_push($result, "{$v}={$call}");
 
