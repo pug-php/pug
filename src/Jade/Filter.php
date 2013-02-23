@@ -3,6 +3,17 @@
 namespace Jade;
 
 class Filter {
+    protected static function getTextOfNodes($data) {
+        if (is_object($data)) {
+            $new_str = '';
+            foreach ($data->nodes as $n) {
+                $new_str .= $n->value . "\n";
+            }
+            $data = $new_str;
+        }
+        return $data;
+    }
+
     public static function cdata($data) {
         if (is_object($data)) {
             $new_data = '';
@@ -16,18 +27,11 @@ class Filter {
     }
 
     public static function css($data) {
-        return '<style type="text/css">' . $data . '</style>';
+        return '<style type="text/css">' . self::getTextOfNodes($data) . '</style>';
     }
 
     public static function javascript($data) {
-        if (is_object($data)) {
-            $new_str = '';
-            foreach ($data->nodes as $n) {
-                $new_str .= $n->value . "\n";
-            }
-            $data = $new_str;
-        }
-        return '<script type="text/javascript">' . $data . '</script>';
+        return '<script type="text/javascript">' . self::getTextOfNodes($data) . '</script>';
     }
 
     public static function php($data) {
