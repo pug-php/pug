@@ -35,7 +35,7 @@ class Jade {
             throw new \InvalidArgumentException('Only file templates can be cached.');
         }
 
-        $cacheKey = basename($input, '.jade');
+        $cacheKey = 'jade-' . sha1($input);
         $path = $this->cachePath . '/' . $cacheKey . '.php';
         $cacheTime = 0;
 
