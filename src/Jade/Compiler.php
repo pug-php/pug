@@ -2,14 +2,13 @@
 
 namespace Jade;
 
-use Jade\Filter;
-
 class Compiler
 {
     protected $xml;
     protected $parentIndents;
 
     protected $buffer       = array();
+    protected $filters      = array();
     protected $prettyprint  = false;
     protected $terse        = false;
     protected $withinCase   = false;
@@ -33,9 +32,10 @@ class Compiler
     protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach','unless');
     protected $phpCloseBlock= array('endswitch','endif','endwhile','endfor','endforeach');
 
-    public function __construct($prettyprint=false)
+    public function __construct($prettyprint=false, array $filters = array())
     {
         $this->prettyprint = $prettyprint;
+        $this->filters = $filters;
     }
 
     public function compile($node)
@@ -169,7 +169,6 @@ class Compiler
     public function handleCode($input, $ns='')
     {
         // needs to be public because of the closure $handle_recursion
-
         $result = array();
 
         if (!is_string($input)) {
@@ -387,12 +386,13 @@ class Compiler
         foreach ($separators as $i => $part) {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
+            // @todo: = find original usage of this
+            //$sep = substr(
+            //    $input,
+            //    strlen($part[0]) + $part[1] + 1,
+            //    isset($separators[$i+1]) ? $separators[$i+1][1] : strlen($input)
+            //);
 
-            $sep = substr(
-                $input,
-                strlen($part[0]) + $part[1] + 1,
-                isset($separators[$i+1]) ? $separators[$i+1][1] : strlen($input)
-            );
             // handleCode() and the regex bellow dont like spaces
             $part[0] = trim($part[0]);
 
@@ -413,6 +413,31 @@ class Compiler
         array_push($result, implode(' . ', $results_string));
 
         return $result;
+    }
+
+    public function interpolate($text)
+    {
+        $ok = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
+
+        if (!$ok) {
+            return $text;
+        }
+
+        $i=1; // str_replace need a pass-by-ref
+        foreach ($matches as $m) {
+
+            // \#{dont_do_interpolation}
+            if (mb_strlen($m[1]) == 0) {
+                if ($m[2] == '!') {
+                    $code_str = $this->createCode('echo %s',$m[3]);
+                } else {
+                    $code_str = $this->createCode('echo htmlspecialchars(%s)',$m[3]);
+                }
+                $text = str_replace($m[0], $code_str, $text, $i);
+            }
+        }
+
+        return str_replace('\\#{', '#{', $text);
     }
 
     protected function createStatements()
@@ -501,30 +526,6 @@ class Compiler
         return $this->createPhpBlock($code);
     }
 
-    protected function interpolate($text)
-    {
-        $ok = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
-
-        if (!$ok) {
-            return $text;
-        }
-
-        $i=1; // str_replace need a pass-by-ref
-        foreach ($matches as $m) {
-
-            // \#{dont_do_interpolation}
-            if (mb_strlen($m[1]) == 0) {
-                if ($m[2] == '!') {
-                    $code_str = $this->createCode('echo %s',$m[3]);
-                } else {
-                    $code_str = $this->createCode('echo htmlspecialchars(%s)',$m[3]);
-                }
-                $text = str_replace($m[0], $code_str, $text, $i);
-            }
-        }
-
-        return str_replace('\\#{', '#{', $text);
-    }
 
     protected function visitNode(Nodes\Node $node)
     {
@@ -740,20 +741,28 @@ class Compiler
 
     protected function visitFilter(Nodes\Filter $node)
     {
-        $filter = $node->name;
-
-        // filter:
-        if ($node->isASTFilter) {
-            $str = Filter::$filter($node->block, $this, $node->attributes);
-            // :filter
-        } else {
-            $str = '';
-            foreach ($this->block->nodes as $n) {
-                $str .= $n->value . "\n";
-            }
-            $str = Filter::$filter($str, $node->attributes);
+        // Check that filter is registered
+        if (! array_key_exists($node->name, $this->filters))
+        {
+            throw new \InvalidArgumentException(
+                $node->name.': Filter doesn\'t exists'
+            );
         }
-        $this->buffer($str);
+
+        $filter = $this->filters[$node->name];
+
+        // Filters can be either a iFilter implementation, nor a callable
+        if (is_string($filter))
+        {
+            $filter = new $filter();
+        }
+        if (! is_callable($filter))
+        {
+            throw new \InvalidArgumentException(
+                $node->name.': Filter must be callable'
+            );
+        }
+        $this->buffer($filter($node, $this));
     }
 
     protected function visitText(Nodes\Text $text)
@@ -789,8 +798,7 @@ class Compiler
 
     protected function visitCode(Nodes\Code $node)
     {
-        $block  = !$node->buffer;
-        $code   = trim($node->value);
+        $code = trim($node->value);
 
         if ($node->buffer) {
 

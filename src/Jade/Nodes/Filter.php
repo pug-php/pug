@@ -10,6 +10,7 @@ class Filter extends Node {
     public $isASTFilter;
 
     public function __construct($name, $block, $attributes) {
+
         $this->name = $name;
         $this->block = $block;
         $this->attributes = $attributes;

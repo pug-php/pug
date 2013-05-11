@@ -26,6 +26,17 @@ class Jade {
     protected $wrapperName = 'jade.stream';
 
     /**
+     * Built-in filters
+     * @var array
+     */
+    protected $filters = array(
+        'php' => 'Jade\Filter\Php',
+        'css' => 'Jade\Filter\Css',
+        'cdata' => 'Jade\Filter\Cdata',
+        'javascript' => 'Jade\Filter\javascript',
+    );
+
+    /**
      * Indicate if we registed the stream wrapper,
      * in order to not ask the stream registry each time
      * We need to render a template
@@ -48,13 +59,34 @@ class Jade {
     }
 
     /**
+     * register / override new filter
+     * @param $name
+     * @param $filter
+     * @return $this
+     */
+    public function setFilter($name, $filter)
+    {
+       $this->filters[$name] = $filter;
+       return $this;
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasFilter($name)
+    {
+        return array_key_exists($name, $this->filters);
+    }
+
+    /**
      * @param $input
      * @return string
      */
     public function compile($input)
     {
         $parser     = new Parser($input);
-        $compiler   = new Compiler($this->prettyPrint);
+        $compiler   = new Compiler($this->prettyPrint, $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }
@@ -80,12 +112,12 @@ class Jade {
      */
     public function stream($input)
     {
-        if (! static::$isWrapperRegistered)
+        if (false === static::$isWrapperRegistered)
         {
             static::$isWrapperRegistered = true;
-            stream_wrapper_register($this->wrapperName, 'Jade\Stream');
+            stream_wrapper_register($this->wrapperName, 'Jade\Stream\Template');
         }
-        return $this->wrapperName.'://data;'.base64_encode($input);
+        return $this->wrapperName.'://data;'.base64_encode($this->compile($input));
     }
 
 
