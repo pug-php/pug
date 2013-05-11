@@ -9,7 +9,7 @@ class Lexer {
     public $input;
 
     protected $deferred		= array();
-    protected $indentStack	= 0;
+    protected $indentStack	= array();
     protected $stash		= array();
 
     public function __construct($input) {
@@ -78,7 +78,7 @@ class Lexer {
     /**
      * Defer token.
      *
-     * @param   Object   $token  token to defer
+     * @param   \stdClass   $token  token to defer
      */
     public function defer(\stdClass $token) {
         $this->deferred[] = $token;
@@ -677,16 +677,4 @@ class Lexer {
         return $r;
     }
 
-    /**
-     * @deprecated Use lookahead instead
-     */
-    public function predictToken($number = 1) {
-        $this->lookahead($number);
-    }
-    /**
-     * @deprecated Use advance instead
-     */
-    public function getAdvancedToken() {
-        return $this->avance();
-    }
 }

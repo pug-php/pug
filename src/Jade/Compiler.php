@@ -418,7 +418,7 @@ class Compiler
     protected function createStatements()
     {
         if (func_num_args()==0) {
-            throw new Exception();
+            throw new \Exception("No Arguments provided");
         }
 
         $arguments = func_get_args();
@@ -580,7 +580,7 @@ class Compiler
 
     protected function visitBlock(Nodes\Block $block)
     {
-        foreach ($block->nodes as $k => $n) {
+        foreach ($block->nodes as $n) {
             $this->visit($n);
         }
     }
@@ -700,9 +700,6 @@ class Compiler
         }
 
         if (count($tag->attributes)) {
-            $open = '';
-            $close= '';
-
             if ($self_closing) {
                 $open = '<' . $tag->name . ' ';
                 $close = ($this->terse) ? '>' : '/>';
@@ -715,7 +712,6 @@ class Compiler
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
         } else {
-            $html_tag = '';
 
             if ($self_closing) {
                 $html_tag = '<' . $tag->name . (($this->terse) ? '>' : '/>');

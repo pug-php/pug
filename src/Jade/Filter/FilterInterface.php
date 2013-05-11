@@ -8,10 +8,18 @@
  *              prohibited, proprietary and confidential.
  */
 
-namespace Jade\Nodes;
+namespace Jade\Filter;
 
+/**
+ * Class FilterInterface
+ * @package Jade\Filter
+ */
 interface FilterInterface {
 
-    public function getData()
+    /**
+     * @param $data
+     * @return string
+     */
+    public function get($data);
 
 }

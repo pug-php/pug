@@ -4,8 +4,6 @@ namespace Jade;
 
 use Jade\Nodes as Nodes;
 
-require_once('Lexer.php');
-
 class Parser {
 
     public $basepath;

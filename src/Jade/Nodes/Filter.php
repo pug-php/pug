@@ -3,6 +3,7 @@
 namespace Jade\Nodes;
 
 class Filter extends Node {
+
     public $name;
     public $block;
     public $attributes;
