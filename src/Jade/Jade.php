@@ -10,9 +10,15 @@ class Jade {
     protected $prettyprint = false;
     protected $cachePath = null;
 
-    public function __construct($cachePath, $prettyprint = false) {
-        $this->cachePath = $cachePath;
-        $this->prettyprint = $prettyprint;
+    public function __construct(array $options = array()) {
+
+        foreach ($options as $key => $opt)
+        {
+            if (property_exists($this, $key))
+            {
+                $this->$key = $opt;
+            }
+        }
     }
 
     public function render($input, $scope=null) {
