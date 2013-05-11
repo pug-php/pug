@@ -108,7 +108,7 @@ class Jade {
             static::$isWrapperRegistered = true;
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
-        return $this->options['stream'].'://data;'.base64_encode($this->compile($input));
+        return $this->options['stream'].'://data;'.$this->compile($input);
     }
 
 

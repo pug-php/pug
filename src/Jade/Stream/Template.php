@@ -31,8 +31,7 @@ class Template {
     public function stream_open($path)
     {
         // strip the url from $path
-        $data = substr(strstr($path, ';'), 1);
-        $this->data = base64_decode($data);
+        $this->data = substr(strstr($path, ';'), 1);
         return true;
     }
 

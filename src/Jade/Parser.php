@@ -131,11 +131,11 @@ class Parser {
             return $this->parseExpression();
 
         default:
-            throw new \Exception('Unexcpected token "' . $this->peek()->type . '"');
+            throw new \Exception('Unexpected token "' . $this->peek()->type . '"');
         }
     }
 
-    protected function parseText($trim = false) {
+    protected function parseText() {
         $token = $this->expect('text');
         $node = new Nodes\Text($token->value);
         $node->line = $this->line();
