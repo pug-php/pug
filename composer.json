@@ -1,8 +1,8 @@
 {
-    "name": "lukegb/jade.php",
+    "name": "ronan-gloo/jadephp",
     "description": "HAML-like template engine for PHP 5.3",
     "keywords": ["jade", "minification","template"],
-    "homepage": "https://github.com/lukegb/jade.php",
+    "homepage": "https://github.com/ronan-gloo/jade.php",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -22,6 +22,12 @@
             "name": "Luke GB",
             "email": "git@lukegb.com",
             "homepage": "http://twitter.com/lukegb",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Ronan Tessier",
+            "email": "ronan.tessier@vaconsulting.lu",
+            "homepage": "http://github.com/ronan-gloo",
             "role": "Maintainer"
         }
     ],
