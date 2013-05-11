@@ -10,7 +10,7 @@
 
 namespace Jade\Filter;
 
-class Cdata implements FilterInterface {
+class Cdata implements Ifilter {
 
     public function get($data)
     {

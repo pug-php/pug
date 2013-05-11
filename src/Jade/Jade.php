@@ -6,10 +6,23 @@ use Jade\Parser;
 use Jade\Lexer;
 use Jade\Compiler;
 
+/**
+ * Class Jade
+ * @package Jade
+ */
 class Jade {
+    /**
+     * @var bool
+     */
     protected $prettyprint = false;
+    /**
+     * @var null
+     */
     protected $cachePath = null;
 
+    /**
+     * @param array $options
+     */
     public function __construct(array $options = array()) {
 
         foreach ($options as $key => $opt)
@@ -21,7 +34,12 @@ class Jade {
         }
     }
 
-    public function render($input, $scope=null) {
+    /**
+     * @param $input
+     * @param array $scope
+     * @return string
+     */
+    public function compile($input, array $scope = array()) {
 
         if ($scope !== null && is_array($scope)) {
             extract($scope);
@@ -33,9 +51,30 @@ class Jade {
         return $compiler->compile($parser->parse($input));
     }
 
-    public function cache($input) {
-        if ( $this->cachePath == null || !is_dir($this->cachePath) ) {
+    /**
+     * @param $input
+     * @param array $scope
+     * @return mixed|string
+     */
+    public function render($input, array $scope = array())
+    {
+        return $this->cachePath ? $this->cache($input) : $this->compile($input, $scope);
+    }
+
+    /**
+     * @param $input
+     * @param array $scope
+     * @return mixed|string
+     * @throws \InvalidArgumentException
+     * @throws \Exception
+     */
+    public function cache($input, array $scope = array()) {
+
+        if ( $this->cachePath == null || ! is_dir($this->cachePath) ) {
             throw new \Exception('You must provide correct cache path to Jade for caching.');
+        }
+        if ( !is_writable($this->cachePath) ) {
+            throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $this->cachePath));
         }
         if ( !is_file($input) ) {
             throw new \InvalidArgumentException('Only file templates can be cached.');
@@ -43,23 +82,17 @@ class Jade {
 
         $cacheKey = 'jade-' . sha1($input);
         $path = $this->cachePath . '/' . $cacheKey . '.php';
-        $cacheTime = 0;
 
-        if (file_exists($path)) {
-            $cacheTime = filemtime($path);
-        }
+        $cacheTime = file_exists($path) ? 0 : filemtime($path);
 
         if ( $cacheTime && filemtime($input) < $cacheTime ) {
-            return $path;
+            return include $path;
         }
 
-        if ( !is_writable($this->cachePath) ) {
-            throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $this->cachePath));
-        }
-
-        $rendered = $this->render($input);
+        extract($scope);
+        $rendered = $this->compile($input);
         file_put_contents($path, $rendered);
 
-        return $path;
+        return $rendered;
     }
 }

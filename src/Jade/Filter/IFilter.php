@@ -14,7 +14,7 @@ namespace Jade\Filter;
  * Class FilterInterface
  * @package Jade\Filter
  */
-interface FilterInterface {
+interface IFilter {
 
     /**
      * @param $data
