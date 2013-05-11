@@ -41,12 +41,14 @@ class Jade {
      */
     public function compile($input, array $scope = array()) {
 
-        $scope and extract($scope);
+        extract($scope);
 
         $parser     = new Parser($input);
         $compiler   = new Compiler($this->prettyprint);
 
-        return $compiler->compile($parser->parse($input));
+        $output = $compiler->compile($parser->parse($input));
+
+        return $output;
     }
 
     /**
@@ -57,7 +59,7 @@ class Jade {
     public function render($input, array $scope = array())
     {
         return $this->cachePath
-            ? $this->cache($input)
+            ? $this->cache($input, $scope)
             : $this->compile($input, $scope);
     }
 
@@ -86,11 +88,11 @@ class Jade {
         $cacheTime = file_exists($path) ? 0 : filemtime($path);
 
         if ( $cacheTime && filemtime($input) < $cacheTime ) {
+            extract($scope);
             return include $path;
         }
 
-        extract($scope);
-        $rendered = $this->compile($input);
+        $rendered = $this->compile($input, $scope);
         file_put_contents($path, $rendered);
 
         return $rendered;
