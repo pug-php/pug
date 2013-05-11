@@ -37,11 +37,11 @@ $output = (new Jade())->render('file', $data);
 Filters must be callable: It can be a class that implements the __invoke() method, or an anonymous function.
 
 ```
-$jade->setFilter('escaped', 'My\Callable\Class');
+$jade->filter('escaped', 'My\Callable\Class');
 
 // or
 
-$jade->setFilter('escaped', function($node, $compiler){
+$jade->filter('escaped', function($node, $compiler){
 	foreach ($node->block->nodes as $line) {
 		$output[] = $compiler->interpolate($line->value);
 	}

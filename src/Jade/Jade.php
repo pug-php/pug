@@ -55,7 +55,7 @@ class Jade {
      * @param $filter
      * @return $this
      */
-    public function setFilter($name, $filter)
+    public function filter($name, $filter)
     {
        $this->filters[$name] = $filter;
        return $this;
