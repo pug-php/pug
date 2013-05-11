@@ -140,7 +140,7 @@ class Jade {
         {
             return $path;
         }
-        if (! is_writable($cacheFolder) )
+        if (! is_writable($cacheFolder))
         {
             throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
         }

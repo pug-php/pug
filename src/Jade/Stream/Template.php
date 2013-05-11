@@ -1,9 +1,4 @@
 <?php
-/**
- * @Author      ronan.tessier@vaconsulting.lu
- * @Date        11/05/13
- * @File        Stream.php
- */
 
 namespace Jade\Stream;
 
@@ -30,7 +25,6 @@ class Template {
      */
     public function stream_open($path)
     {
-        // strip the url from $path
         $this->data = substr(strstr($path, ';'), 1);
         return true;
     }
