@@ -2,4 +2,4 @@
 
 namespace Jade\Nodes;
 
-class Node {}
+abstract class Node {}

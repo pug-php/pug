@@ -2,54 +2,61 @@
 
 namespace Jade\Nodes;
 
-$inline_tags = array(
-    'a'
-    ,'abbr'
-    ,'acronym'
-    ,'b'
-    ,'br'
-    ,'code'
-    ,'em'
-    ,'font'
-    ,'i'
-    ,'img'
-    ,'ins'
-    ,'kbd'
-    ,'map'
-    ,'samp'
-    ,'small'
-    ,'span'
-    ,'strong'
-    ,'sub'
-    ,'sup'
-);
-
 class Tag extends Attributes {
+
+    protected static $inline_tags = array(
+        'a',
+        'abbr',
+        'acronym',
+        'b',
+        'br',
+        'code',
+        'em',
+        'font',
+        'i',
+        'img',
+        'ins',
+        'kbd',
+        'map',
+        'samp',
+        'small',
+        'span',
+        'strong',
+        'sub',
+        'sup'
+    );
     public $name;
     public $attributes;
     public $block;
     public $selfClosing = false;
 
-    public function __construct($name, $block=null) {
+    public function __construct($name, $block=null)
+    {
         $this->name = $name;
 
-        if ($block !== null) {
+        if ($block !== null)
+        {
             $this->block = $block;
-        }else{
+        }
+        else
+        {
             $this->block = new Block();
         }
 
         $this->attributes = array();
     }
 
-    public function isInline() {
-        return in_array($this->name, $inline_tags);
+    public function isInline()
+    {
+        return in_array($this->name, static::$inline_tags);
     }
 
-    public function canInline() {
+    public function canInline()
+    {
         $nodes = $this->block->nodes;
 
-        $isInline = function($node) use (&$isInline) {
+        $isInline = function($node) use (&$isInline)
+        {
             if ($node->isBlock) {
                 foreach ($node->nodes as $n) {
                     if (!$isInline($n)) {

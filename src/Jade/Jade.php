@@ -12,28 +12,25 @@ use Jade\Compiler;
  */
 class Jade {
     /**
-     * @var bool
+     * @var array
      */
-    protected $prettyPrint = false;
-    /**
-     * @var null
-     */
-    protected $cachePath = null;
-
-    /**
-     * @var string
-     */
-    protected $wrapperName = 'jade.stream';
+    protected $options = [
+        'cache'         => null,
+        'stream'        => 'jade.stream',
+        'extension'     => '.jade',
+        'prettyprint'   => false
+    ];
 
     /**
      * Built-in filters
      * @var array
      */
     protected $filters = array(
-        'php' => 'Jade\Filter\Php',
-        'css' => 'Jade\Filter\Css',
-        'cdata' => 'Jade\Filter\Cdata',
-        'javascript' => 'Jade\Filter\javascript',
+        'php'       => 'Jade\Filter\Php',
+        'css'       => 'Jade\Filter\Css',
+        'cdata'     => 'Jade\Filter\Cdata',
+        'escaped'   => 'Jade\Filter\Escaped',
+        'javascript'=> 'Jade\Filter\Javascript'
     );
 
     /**
@@ -49,13 +46,7 @@ class Jade {
      */
     public function __construct(array $options = array())
     {
-        foreach ($options as $key => $opt)
-        {
-            if (property_exists($this, $key))
-            {
-                $this->$key = $opt;
-            }
-        }
+        $this->options = $options + $this->options;
     }
 
     /**
@@ -85,8 +76,8 @@ class Jade {
      */
     public function compile($input)
     {
-        $parser     = new Parser($input);
-        $compiler   = new Compiler($this->prettyPrint, $this->filters);
+        $parser     = new Parser($input, null, $this->options['extension']);
+        $compiler   = new Compiler($this->options['prettyprint'], $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }
@@ -98,7 +89,7 @@ class Jade {
      */
     public function render($input, array $vars = array())
     {
-        $file = $this->cachePath ? $this->cache($input) : $this->stream($input);
+        $file = $this->options['cache'] ? $this->cache($input) : $this->stream($input);
 
         extract($vars);
         return include $file;
@@ -115,9 +106,9 @@ class Jade {
         if (false === static::$isWrapperRegistered)
         {
             static::$isWrapperRegistered = true;
-            stream_wrapper_register($this->wrapperName, 'Jade\Stream\Template');
+            stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
-        return $this->wrapperName.'://data;'.base64_encode($this->compile($input));
+        return $this->options['stream'].'://data;'.base64_encode($this->compile($input));
     }
 
 
@@ -133,12 +124,15 @@ class Jade {
         {
             throw new \InvalidArgumentException('Only files can be cached.');
         }
-        if ($this->cachePath == null || ! is_dir($this->cachePath) )
+
+        $cacheFolder = $this->options['cache'];
+
+        if (! is_dir($cacheFolder))
         {
             throw new \Exception('You must provide correct cache path to Jade for caching.');
         }
 
-        $path = str_replace('//', '/', $this->cachePath . '/' . md5($input) . '.php');
+        $path = str_replace('//', '/', $cacheFolder . '/' . md5($input) . '.php');
         $cacheTime = ! file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
@@ -146,9 +140,9 @@ class Jade {
         {
             return $path;
         }
-        if (! is_writable($this->cachePath) )
+        if (! is_writable($cacheFolder) )
         {
-            throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $this->cachePath));
+            throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
         }
 
         $rendered = $this->compile($input);

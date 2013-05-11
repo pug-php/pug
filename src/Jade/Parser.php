@@ -7,7 +7,7 @@ use Jade\Nodes as Nodes;
 class Parser {
 
     public $basepath;
-    public static $extension = '.jade';
+    public $extension;
     public $textOnly = array('script','style');
 
     protected $input;
@@ -18,7 +18,9 @@ class Parser {
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str,$filename=null) {
+    public function __construct($str,$filename = null, $extension = '.jade') {
+
+        $this->extension = $extension;
 
         if ($filename == null && file_exists($str)) {
             $this->input = file_get_contents($str);
@@ -247,7 +249,7 @@ class Parser {
 
         $file = $this->expect('extends')->value;
         $dir = realpath(dirname($this->filename));
-        $path = $dir . DIRECTORY_SEPARATOR . $file . self::$extension;
+        $path = $dir . DIRECTORY_SEPARATOR . $file . $this->extension;
 
         $string = file_get_contents($path);
         $parser = new Parser($string, $path);
