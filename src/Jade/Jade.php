@@ -14,12 +14,12 @@ class Jade {
     /**
      * @var array
      */
-    protected $options = [
+    protected $options = array(
         'cache'         => null,
         'stream'        => 'jade.stream',
         'extension'     => '.jade',
         'prettyprint'   => false
-    ];
+    );
 
     /**
      * Built-in filters
