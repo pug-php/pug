@@ -2,18 +2,51 @@
 
 namespace Jade;
 
+use Jade\Filter\FilterInterface;
+
+/**
+ * Class Compiler
+ * @package Jade
+ */
 class Compiler
 {
+    /**
+     * @var
+     */
     protected $xml;
+    /**
+     * @var
+     */
     protected $parentIndents;
 
+    /**
+     * @var array
+     */
     protected $buffer       = array();
+    /**
+     * @var array
+     */
     protected $filters      = array();
+    /**
+     * @var bool
+     */
     protected $prettyprint  = false;
+    /**
+     * @var bool
+     */
     protected $terse        = false;
+    /**
+     * @var bool
+     */
     protected $withinCase   = false;
+    /**
+     * @var int
+     */
     protected $indents      = 0;
 
+    /**
+     * @var array
+     */
     protected $doctypes = array(
         '5'             => '<!DOCTYPE html>',
         'html'          => '<!DOCTYPE html>',
@@ -27,17 +60,38 @@ class Compiler
         'mobile'        => '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">'
     );
 
+    /**
+     * @var array
+     */
     protected $selfClosing  = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
+    /**
+     * @var array
+     */
     protected $phpKeywords  = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
+    /**
+     * @var array
+     */
     protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach','unless');
+    /**
+     * @var array
+     */
     protected $phpCloseBlock= array('endswitch','endif','endwhile','endfor','endforeach');
 
-    public function __construct($prettyprint=false, array $filters = array())
+    /**
+     * @param bool  $prettyprint
+     * @param array $filters
+     */
+    public function __construct($prettyprint = false, array $filters = array())
     {
         $this->prettyprint = $prettyprint;
         $this->filters = $filters;
     }
 
+    /**
+     * @param $node
+     *
+     * @return string
+     */
     public function compile($node)
     {
         $this->visit($node);
@@ -45,6 +99,10 @@ class Compiler
         return implode('', $this->buffer);
     }
 
+    /**
+     * @param Nodes\Node $node
+     * @return array
+     */
     public function visit(Nodes\Node $node)
     {
         // TODO: set debugging info
@@ -53,66 +111,73 @@ class Compiler
         return $this->buffer;
     }
 
+    /**
+     * @param $method
+     * @param $arguments
+     *
+     * @throws \BadMethodCallException  If the 'apply' rely on non existing method
+     * @return mixed
+     */
     protected function apply($method, $arguments)
     {
-        switch (count($arguments)) {
+        if (! method_exists($this, $method))
+        {
+           throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
+        }
+
+        switch (count($arguments))
+        {
             case 0:
                 return $this->{$method}();
-                break;
 
             case 1:
                 return $this->{$method}($arguments[0]);
-                break;
 
             case 2:
                 return $this->{$method}($arguments[0], $arguments[1]);
-                break;
 
             case 3:
                 return $this->{$method}($arguments[0], $arguments[1], $arguments[2]);
-                break;
-
-            case 4:
-                return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3]);
-                break;
-
-            case 5:
-                return $this->{$method}($arguments[0], $arguments[1], $arguments[2], $arguments[3], $arguments[4]);
-                break;
 
             default:
                 return call_user_func_array(array($this, $method), $arguments);
-                break;
         }
     }
 
+    /**
+     * @param      $line
+     * @param null $indent
+     */
     protected function buffer($line, $indent=null)
     {
         if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
-            array_push($this->buffer, $this->indent() . $line . $this->newline());
-        } else {
-            array_push($this->buffer, $line);
+            $line = $this->indent() . $line . $this->newline();
         }
+
+        $this->buffer[] = $line;
     }
 
+    /**
+     * @return string
+     */
     protected function indent()
     {
-        if ($this->prettyprint) {
-            return str_repeat('  ', $this->indents);
-        }
-
-        return '';
+        return $this->prettyprint ? str_repeat('  ', $this->indents) : '';
     }
 
+    /**
+     * @return string
+     */
     protected function newline()
     {
-        if ($this->prettyprint) {
-            return "\n";
-        }
-
-        return '';
+        return $this->prettyprint ? "\n" : '';
     }
 
+    /**
+     * @param      $str
+     * @param bool $attr
+     * @return bool|int
+     */
     protected function isConstant($str, $attr = false)
     {
         //  This pattern matches against string constants, some php keywords, number constants and a empty string
@@ -166,6 +231,12 @@ class Compiler
         return $ok;
     }
 
+    /**
+     * @param        $input
+     * @param string $ns
+     * @return array
+     * @throws \Exception
+     */
     public function handleCode($input, $ns='')
     {
         // needs to be public because of the closure $handle_recursion
@@ -227,14 +298,16 @@ class Compiler
         };
 
         $host = $this;
-        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string) {
+        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string)
+        {
             list($start,$end) = $arg;
-            $str    = trim($get_middle_string($start, $end));
-            if(!strlen($str))
+            $str = trim($get_middle_string($start, $end));
 
+            if (!strlen($str)) {
                 return '';
+            }
 
-            $_code  = $host->handleCode($str, $ns);
+            $_code = $host->handleCode($str, $ns);
 
             if (count($_code) > 1) {
                 $result = array_merge($result, array_slice($_code, 0, -1));
@@ -252,24 +325,27 @@ class Compiler
             $start      = current($separators);
             $end_pair   = array('['=>']', '{'=>'}', '('=>')', ','=>false);
             $open       = $start[0];
-            if(!isset($open))
 
+            if (null === $open)
+            {
                 return $arguments;
-            $close      = $end_pair[$start[0]];
+            }
+
+            $close = $end_pair[$start[0]];
 
             do {
                 // reset start
                 $start = current($separators);
 
                 do {
-                    $curr   = next($separators);
+                    $curr = next($separators);
 
                     if ($curr[0] == $open) $count++;
                     if ($curr[0] == $close) $count--;
 
                 } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
-                $end    = current($separators);
+                $end = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
                     $tmp_ns = $ns*10 +count($arguments);
@@ -284,8 +360,9 @@ class Compiler
                 throw new \Exception('Missing closing: ' . $close);
             }
 
-            if ($end !== false)
+            if ($end !== false) {
                 next($separators);
+            }
 
             return $arguments;
         };
@@ -371,6 +448,11 @@ class Compiler
         return $result;
     }
 
+    /**
+     * @param $input
+     * @return array
+     * @throws \Exception
+     */
     public function handleString($input)
     {
         $result         = array();
@@ -415,6 +497,10 @@ class Compiler
         return $result;
     }
 
+    /**
+     * @param $text
+     * @return mixed
+     */
     public function interpolate($text)
     {
         $ok = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
@@ -440,6 +526,10 @@ class Compiler
         return str_replace('\\#{', '#{', $text);
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     protected function createStatements()
     {
         if (func_num_args()==0) {
@@ -483,7 +573,11 @@ class Compiler
         return $statements;
     }
 
-    protected function createPhpBlock($code, $statements = null)
+    /**
+     * @param      $code
+     * @param null $statements
+     * @return string
+     */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
             return '<?php ' . $code . ' ?>';
@@ -513,7 +607,10 @@ class Compiler
         return $php_str;
     }
 
-    protected function createCode($code)
+    /**
+     * @param $code
+     * @return string
+     */protected function createCode($code)
     {
         if (func_num_args()>1) {
             $arguments = func_get_args();
@@ -527,6 +624,10 @@ class Compiler
     }
 
 
+    /**
+     * @param Nodes\Node $node
+     * @return mixed
+     */
     protected function visitNode(Nodes\Node $node)
     {
         $fqn = get_class($node);
@@ -537,6 +638,9 @@ class Compiler
         return $this->$method($node);
     }
 
+    /**
+     * @param Nodes\CaseNode $node
+     */
     protected function visitCasenode(Nodes\CaseNode $node)
     {
         $within = $this->withinCase;
@@ -557,6 +661,9 @@ class Compiler
         $this->withinCase = $within;
     }
 
+    /**
+     * @param Nodes\When $node
+     */
     protected function visitWhen(Nodes\When $node)
     {
         if ('default' == $node->expr) {
@@ -573,12 +680,18 @@ class Compiler
         $this->buffer( $code . $this->newline());
     }
 
+    /**
+     * @param Nodes\Literal $node
+     */
     protected function visitLiteral(Nodes\Literal $node)
     {
         $str = preg_replace('/\\n/','\\\\n',$node->string);
         $this->buffer($str);
     }
 
+    /**
+     * @param Nodes\Block $block
+     */
     protected function visitBlock(Nodes\Block $block)
     {
         foreach ($block->nodes as $n) {
@@ -586,6 +699,10 @@ class Compiler
         }
     }
 
+    /**
+     * @param Nodes\Doctype $doctype
+     * @throws \Exception
+     */
     protected function visitDoctype(Nodes\Doctype $doctype=null)
     {
         if (isset($this->hasCompiledDoctype)) {
@@ -617,6 +734,9 @@ class Compiler
         }
     }
 
+    /**
+     * @param Nodes\Mixin $mixin
+     */
     protected function visitMixin(Nodes\Mixin $mixin)
     {
         $name       = preg_replace('/-/', '_', $mixin->name) . '_mixin';
@@ -687,6 +807,9 @@ class Compiler
         }
     }
 
+    /**
+     * @param Nodes\Tag $tag
+     */
     protected function visitTag(Nodes\Tag $tag)
     {
         if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
@@ -739,46 +862,53 @@ class Compiler
         }
     }
 
+    /**
+     * @param Nodes\Filter $node
+     * @throws \InvalidArgumentException
+     */
     protected function visitFilter(Nodes\Filter $node)
     {
         // Check that filter is registered
-        if (! array_key_exists($node->name, $this->filters))
-        {
-            throw new \InvalidArgumentException(
-                $node->name.': Filter doesn\'t exists'
-            );
+        if (! array_key_exists($node->name, $this->filters)){
+            throw new \InvalidArgumentException($node->name.': Filter doesn\'t exists');
         }
 
         $filter = $this->filters[$node->name];
 
         // Filters can be either a iFilter implementation, nor a callable
-        if (is_string($filter))
-        {
+        if (is_string($filter) && class_exists($filter)) {
             $filter = new $filter();
         }
-        if (! is_callable($filter))
-        {
-            throw new \InvalidArgumentException(
-                $node->name.': Filter must be callable'
-            );
+
+        // FilterInterface implements __invoke
+        if (! $filter instanceof FilterInterface && ! is_callable($filter)){
+            throw new \InvalidArgumentException($node->name.': Filter must be callable');
         }
+
         $this->buffer($filter($node, $this));
     }
 
+    /**
+     * @param Nodes\Text $text
+     */
     protected function visitText(Nodes\Text $text)
     {
         $this->buffer($this->interpolate($text->value));
     }
 
+    /**
+     * @param Nodes\Comment $comment
+     */
     protected function visitComment(Nodes\Comment $comment)
     {
-        if (!$comment->buffer) {
-            return;
+        if ($comment->buffer) {
+            $this->buffer('<!--' . $comment->value . '-->');
         }
-
-        $this->buffer('<!--' . $comment->value . '-->');
     }
 
+    /**
+     * @param Nodes\BlockComment $comment
+     */
     protected function visitBlockComment(Nodes\BlockComment $comment)
     {
         if (!$comment->buffer) {
@@ -796,6 +926,9 @@ class Compiler
         }
     }
 
+    /**
+     * @param Nodes\Code $node
+     */
     protected function visitCode(Nodes\Code $node)
     {
         $code = trim($node->value);
@@ -861,6 +994,9 @@ class Compiler
         }
     }
 
+    /**
+     * @param $node
+     */
     protected function visitEach($node)
     {
         //if (is_numeric($node->obj)) {
@@ -887,17 +1023,20 @@ class Compiler
         $this->buffer($this->createCode('}'));
 
         if (isset($node->alternative)) {
-                $this->indents--;
-                $this->buffer($this->createCode('} else {'));
-                $this->indents++;
+            $this->indents--;
+            $this->buffer($this->createCode('} else {'));
+            $this->indents++;
 
-                $this->visit($node->alternative);
-                $this->indents--;
+            $this->visit($node->alternative);
+            $this->indents--;
 
-                $this->buffer($this->createCode('}'));
+            $this->buffer($this->createCode('}'));
        }
     }
 
+    /**
+     * @param $attributes
+     */
     protected function visitAttributes($attributes)
     {
         $items = array();

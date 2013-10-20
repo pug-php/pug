@@ -2,11 +2,13 @@
 
 namespace Jade\Filter;
 
-class Escaped extends FilterAbstract {
+use Jade\Compiler;
+use Jade\Nodes\Filter;
 
-    public function __invoke($node, $compiler)
+class Escaped extends AbstractFilter {
+
+    public function __invoke(Filter $node, Compiler $compiler)
     {
         return htmlentities($this->getNodeString($node, $compiler));
     }
-
 }

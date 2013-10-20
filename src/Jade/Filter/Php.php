@@ -9,7 +9,7 @@ use Jade\Nodes\Filter;
  * Class Php
  * @package Jade\Filter
  */
-class Php {
+class Php implements FilterInterface {
 
     /**
      * @param Filter $node
@@ -33,5 +33,4 @@ class Php {
         }
         return $data ? '<?php ' . $data . ' ?>' : $data;
     }
-
 }

@@ -8,7 +8,7 @@ class Code extends Node {
     public $escape;
 
     public function __construct($value,$buffer,$escape) {
-        $this->value = $value;
+        $this->value  = $value;
         $this->buffer = $buffer;
         $this->escape = $escape;
     }

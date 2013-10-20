@@ -9,8 +9,7 @@ use Jade\Nodes\Filter;
  * Class AFilter
  * @package Jade\Filter
  */
-abstract class FilterAbstract {
-
+abstract class AbstractFilter implements FilterInterface {
     /**
      * Returns the node string value, line by line.
      * If the compiler is present, that means we need

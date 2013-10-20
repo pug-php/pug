@@ -5,7 +5,7 @@ namespace Jade\Filter;
 use Jade\Compiler;
 use Jade\Nodes\Filter;
 
-class Cdata Extends FilterAbstract {
+class Cdata Extends AbstractFilter {
 
     public function __invoke(Filter $node, Compiler $compiler)
     {

@@ -34,7 +34,7 @@ class Jade {
     );
 
     /**
-     * Indicate if we registed the stream wrapper,
+     * Indicate if we registered the stream wrapper,
      * in order to not ask the stream registry each time
      * We need to render a template
      * @var bool
@@ -42,23 +42,26 @@ class Jade {
     protected static $isWrapperRegistered = false;
 
     /**
+     * Merge local options with constructor $options
      * @param array $options
      */
     public function __construct(array $options = array())
     {
-        $this->options = $options + $this->options;
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
-     * register / override new filter
+     * register / override new filter.
+     * "Callability"  of the filter is evaluated when required
+     *
      * @param $name
      * @param $filter
      * @return $this
      */
     public function filter($name, $filter)
     {
-       $this->filters[$name] = $filter;
-       return $this;
+        $this->filters[$name] = $filter;
+        return $this;
     }
 
     /**
@@ -76,8 +79,8 @@ class Jade {
      */
     public function compile($input)
     {
-        $parser     = new Parser($input, null, $this->options['extension']);
-        $compiler   = new Compiler($this->options['prettyprint'], $this->filters);
+        $parser   = new Parser($input, null, $this->options['extension']);
+        $compiler = new Compiler($this->options['prettyprint'], $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }
@@ -136,10 +139,11 @@ class Jade {
         $cacheTime = ! file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
-        if ( $cacheTime && filemtime($input) < $cacheTime )
+        if ($cacheTime && filemtime($input) < $cacheTime)
         {
             return $path;
         }
+
         if (! is_writable($cacheFolder))
         {
             throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
