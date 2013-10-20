@@ -68,10 +68,12 @@ class Compiler
      * @var array
      */
     protected $phpKeywords  = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
+
     /**
      * @var array
      */
-    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','for','foreach','unless');
+    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','foreach','for','unless');
+
     /**
      * @var array
      */
