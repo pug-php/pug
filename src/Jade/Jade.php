@@ -52,7 +52,6 @@ class Jade {
 
     /**
      * register / override new filter.
-     * "Callability"  of the filter is evaluated when required
      *
      * @param $name
      * @param $filter
@@ -111,6 +110,7 @@ class Jade {
             static::$isWrapperRegistered = true;
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
+
         return $this->options['stream'].'://data;'.$this->compile($input);
     }
 
@@ -132,7 +132,7 @@ class Jade {
 
         if (! is_dir($cacheFolder))
         {
-            throw new \Exception('You must provide correct cache path to Jade for caching.');
+            throw new \Exception($cacheFolder . ': Cache directory seem\'s to not exists');
         }
 
         $path = str_replace('//', '/', $cacheFolder . '/' . md5($input) . '.php');

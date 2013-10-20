@@ -45,6 +45,7 @@ class Template {
     {
         $ret = substr($this->data, $this->position, $count);
         $this->position += strlen($ret);
+
         return $ret;
     }
 

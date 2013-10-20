@@ -1,20 +1,26 @@
-//- [q] 2012, sisoftrg@gmail.com
 extends main
 
 block body
-  div#login
-    div: form(method='post')
+  div#login.container
+    div: form(method='post', class='form-vertical')
       fieldset
-        div.center(style='color:darkblue'): b Login page
-        br
-        label Username:
-          input(name='user', value=_REQUEST.user, required, autofocus)
-        br
-        label Password:
-          input(name='pass', type='password', required)
-        br
-        if _POST.user
-          span.bad Bad username or password!
-        br
-        input.btn(type='submit', value='Login')
+        legend: strong.text-info Login page
+
+        if message.error
+          div.alert.alert-danger Missing username or password
+
+        else
+          if message.success
+            div.alert.alert-success You are now connected
+
+        div.form-group
+          label Username:
+          input.form-control(name='username', value=user.username, autofocus)
+
+        div.form-group
+          label Password:
+          input.form-control(name='password', type='password')
+
+        div.form-actions
+          input.btn.btn-primary(type='submit', value='Login')
 

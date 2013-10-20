@@ -1,76 +1,58 @@
 <?php
-// [q] 2012, sisoftrg@gmail.com
 
-$jade = null;
+require 'bootstrap.php';
 
-// init application and php
-function init() {
-    error_reporting(E_ALL & ~E_NOTICE);
-    spl_autoload_register(function($class) {
-        if(!strstr($class, 'Jade'))
-            return;
-        include_once("../" . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php');
-    });
-}
+/**
+ * Home pages list
+ */
+$app->action('/', function(&$view)
+{
+    $view  = 'index';
+    $items = array(
+        array('route' => 'login',  'name' => 'The Login page example'),
+        array('route' => 'cities', 'name' => 'The City API search example'),
+    );
+    return compact('items');
+});
 
-// return cache file name if $file=true or rendered content
-function jade($fn, $file = false, $deps = array()) {
-    global $jade;
-    $time = @filectime($fn);
-    foreach($deps as $dn) {
-        $x = @filectime($dn);
-        if($x === FALSE)
-            break;
-        if($x > $time)
-            $time = $x;
+/**
+ * Basic user form
+ */
+$app->action('login', function()
+{
+    $username = isset($_POST['username']) ? $_POST['username'] : null;
+    $password = isset($_POST['password']) ? $_POST['password'] : null;
+
+    $message['error']   = !! $_POST;
+    $message['success'] = false;
+
+    if (trim($username) && trim($password)){
+        $message['error']   = false;
+        $message['success'] = true;
     }
-    if($time === FALSE)
-        die("can't open jade file '$fn'");
 
-    if(!isset($jade) || !$jade)
-        $jade = new Jade\Jade(true);
+    return array(
+        'message'=> $message,
+        'user'   => compact('username', 'password', 'invalid')
+    );
+});
 
-    if($file) {
-        $cn = "cache/$fn.php";
-        $to = @filectime($pn);
-        if($to === FALSE || $to < $time)
-            file_put_contents($cn, $jade->render($fn));
-        return $cn;
+/**
+ * Cities list search
+ */
+$app->action('cities', function()
+{
+    $query  = isset($_GET['q']) ? trim($_GET['q']) : null;
+    $cities = ['total' => 0, 'result' => null];
+
+    if ($query)
+    {
+        $ch = curl_init('http://gd.geobytes.com/AutoCompleteCity?q=' . $query);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $cities['result'] = json_decode(curl_exec($ch));
+        $cities['total']  = count($cities['result']);
     }
-    return $jade->render($fn);
-}
 
-// check for logged-in user or show login dialog
-function login() {
-    @session_start();
-    if(isset($_SESSION['ok']) && $_SESSION['ok']) {
-        return true;
-    } else {
-        if(isset($_SESSION['ok']))
-            @session_destroy();
-        $ok = false;
-        if(isset($_POST['user']) && isset($_POST['pass'])) {
-            if($_POST['user'] == 'admin' && $_POST['pass'] == 'admin')
-                $ok = true;
-        }
-        if(!$ok) {
-            require(jade('login.jade', true, array('main.jade')));
-            die;
-        }
-        $_SESSION['ok'] = $ok;
-    }
-    return true;
-}
-
-
-// main application
-init();
-login();
-
-// index page = news page for this sample
-$page = "news";
-
-if($page)
-    require($page . ".php");
-require(jade($page ? "{$page}.jade" : "main.jade", true, array('main.jade')));
+    return compact('cities', 'query');
+});
 

@@ -232,7 +232,6 @@ class Lexer
      */
     protected function scanComment()
     {
-
         if (preg_match('/^ *\/\/(-)?([^\n]*)/', $this->input, $matches)) {
             $this->consume($matches[0]);
             $token         = $this->token('comment', isset($matches[2]) ? $matches[2] : '');
