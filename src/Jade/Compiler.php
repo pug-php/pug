@@ -2,8 +2,6 @@
 
 namespace Jade;
 
-use Jade\Filter\FilterInterface;
-
 /**
  * Class Compiler
  * @package Jade
@@ -14,6 +12,7 @@ class Compiler
      * @var
      */
     protected $xml;
+
     /**
      * @var
      */
@@ -64,6 +63,7 @@ class Compiler
      * @var array
      */
     protected $selfClosing  = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
+
     /**
      * @var array
      */
@@ -86,7 +86,7 @@ class Compiler
     public function __construct($prettyprint = false, array $filters = array())
     {
         $this->prettyprint = $prettyprint;
-        $this->filters = $filters;
+        $this->filters     = $filters;
     }
 
     /**
@@ -309,7 +309,7 @@ class Compiler
                 return '';
             }
 
-            $_code = $host->handleCode($str, $ns);
+            $_code  = $host->handleCode($str, $ns);
 
             if (count($_code) > 1) {
                 $result = array_merge($result, array_slice($_code, 0, -1));
@@ -327,27 +327,24 @@ class Compiler
             $start      = current($separators);
             $end_pair   = array('['=>']', '{'=>'}', '('=>')', ','=>false);
             $open       = $start[0];
+            if(!isset($open))
 
-            if (null === $open)
-            {
                 return $arguments;
-            }
-
-            $close = $end_pair[$start[0]];
+            $close      = $end_pair[$start[0]];
 
             do {
                 // reset start
                 $start = current($separators);
 
                 do {
-                    $curr = next($separators);
+                    $curr   = next($separators);
 
                     if ($curr[0] == $open) $count++;
                     if ($curr[0] == $close) $count--;
 
                 } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
-                $end = current($separators);
+                $end    = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
                     $tmp_ns = $ns*10 +count($arguments);
@@ -362,9 +359,8 @@ class Compiler
                 throw new \Exception('Missing closing: ' . $close);
             }
 
-            if ($end !== false) {
+            if ($end !== false)
                 next($separators);
-            }
 
             return $arguments;
         };
@@ -389,11 +385,10 @@ class Compiler
             switch ($sep[0]) {
                 // translate the javascript's obj.attr into php's obj->attr or obj['attr']
                 case '.':
-                    // TODO: Move isset(->)?->:[]; to a function
-                    $accessor= "{$v}=isset({$varname}->{$name}) ? {$varname}->{$name} : {$varname}['{$name}']";
-                    array_push($result, $accessor);
-                    $varname = $v;
-
+                    $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
+                        $v, $varname, $varname, $name, $varname, $name
+                    );
+                    $varname  = $v;
                     break;
 
                 // funcall
@@ -482,7 +477,7 @@ class Compiler
 
             if (preg_match('/^(([\'"]).*?\2)(.*)$/', $part[0], $match)) {
                 if (mb_strlen(trim($match[3]))) {
-                    throw new \Exception('Unexcpected value: ' . $match[3]);
+                    throw new \Exception('Unexpected value: ' . $match[3]);
                 }
                 array_push($results_string, $match[1]);
 
@@ -878,15 +873,12 @@ class Compiler
         $filter = $this->filters[$node->name];
 
         // Filters can be either a iFilter implementation, nor a callable
-        if (is_string($filter) && class_exists($filter)) {
+        if (is_string($filter)) {
             $filter = new $filter();
         }
-
-        // FilterInterface implements __invoke
-        if (! $filter instanceof FilterInterface && ! is_callable($filter)){
+        if (! is_callable($filter)) {
             throw new \InvalidArgumentException($node->name.': Filter must be callable');
         }
-
         $this->buffer($filter($node, $this));
     }
 
@@ -937,14 +929,12 @@ class Compiler
 
         if ($node->buffer) {
 
-            if ($node->escape) {
-                $this->buffer($this->createCode('echo htmlspecialchars(%s)',$code));
-            } else {
-                $this->buffer($this->createCode('echo %s',$code));
-            }
-        } else {
+            $pattern = $node->escape ? 'echo htmlspecialchars(%s)' : 'echo %s';
+            $this->buffer($this->createCode($pattern,$code));
+        }
+        else {
 
-            $php_open = implode('|',$this->phpOpenBlock);
+            $php_open = implode('|', $this->phpOpenBlock);
 
             if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
 
@@ -971,7 +961,6 @@ class Compiler
                     } else {
                         $conditional = sprintf($conditional, $matches[1], '%s');
                     }
-
                     $this->buffer($this->createCode($conditional, $code));
                 } else {
                     $conditional .= ' {';
@@ -1001,11 +990,12 @@ class Compiler
      */
     protected function visitEach($node)
     {
+
         //if (is_numeric($node->obj)) {
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
         if (isset($node->alternative)) {
-            $code = $this->createCode('if (isset(%s) && %s) {',$node->obj,$node->obj);
+            $code = $this->createCode('if (isset(%s) && %s) {',$node->obj, $node->obj);
             $this->buffer($code);
             $this->indents++;
         }
