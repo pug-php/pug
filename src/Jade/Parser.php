@@ -82,7 +82,14 @@ class Parser {
         if ($parser = $this->extending) {
             $this->context($parser);
             //$parser->blocks = $this->blocks;
-            $ast = $parser->parse();
+            try
+            {
+                $ast = $parser->parse();
+            }
+            catch(\Exception $e)
+            {
+                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage());
+            }
             $this->context();
 
             foreach ($this->mixins as $name => $v) {
@@ -317,7 +324,14 @@ class Parser {
         $parser->mixins = $this->mixins;
 
         $this->context($parser);
-        $ast = $parser->parse();
+        try
+        {
+            $ast = $parser->parse();
+        }
+        catch(\Exception $e)
+        {
+            throw new \Exception($path . ' (' . $parser->blocks->line . ') : ' . $e->getMessage());
+        }
         $this->context();
         $ast->filename = $path;
 

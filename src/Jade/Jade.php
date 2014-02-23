@@ -111,7 +111,14 @@ class Jade {
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        return $this->options['stream'].'://data;'.$this->compile($input);
+        try
+        {
+            return $this->options['stream'].'://data;'.$this->compile($input);
+        }
+        catch(\Exception $e)
+        {
+            throw new \Exception($e->getMessage() . "\n" . $input);
+        }
     }
 
 

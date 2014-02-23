@@ -1,5 +1,5 @@
 {
-    "name": "ronan-gloo/jadephp",
+    "name": "kylekatarnls/jade-php",
     "description": "HAML-like template engine for PHP 5.3",
     "keywords": ["jade", "minification","template"],
     "homepage": "https://github.com/ronan-gloo/jade.php",

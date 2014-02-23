@@ -98,7 +98,8 @@ class Compiler
     {
         $this->visit($node);
 
-        return implode('', $this->buffer);
+        //exit(implode('', $this->buffer));
+        return str_replace('$__=$', '$__=', implode('', $this->buffer));
     }
 
     /**
@@ -320,7 +321,7 @@ class Compiler
             return $_code[0];
         };
 
-        $handle_code_inbetween = function() use (&$separators, $ns, $handle_recursion) {
+        $handle_code_inbetween = function() use (&$separators, $ns, $handle_recursion, $input) {
             $arguments  = array();
             $count      = 1;
 
@@ -356,7 +357,7 @@ class Compiler
             } while ($curr != null && $count > 0);
 
             if ($close && $count) {
-                throw new \Exception('Missing closing: ' . $close);
+                throw new \Exception($input . "\nMissing closing: " . $close);
             }
 
             if ($end !== false)
@@ -384,12 +385,14 @@ class Compiler
             $v = "\$__{$ns}";
             switch ($sep[0]) {
                 // translate the javascript's obj.attr into php's obj->attr or obj['attr']
+                /*
                 case '.':
                     $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
                         $v, $varname, $varname, $name, $varname, $name
                     );
                     $varname  = $v;
                     break;
+                //*/
 
                 // funcall
                 case '(':
