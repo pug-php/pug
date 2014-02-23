@@ -94,7 +94,9 @@ class Jade {
         $file = $this->options['cache'] ? $this->cache($input) : $this->stream($input);
 
         extract($vars);
-        return include $file;
+        ob_start();
+        include $file;
+        return ob_get_clean();
     }
 
     /**
