@@ -610,7 +610,8 @@ class Compiler
     /**
      * @param $code
      * @return string
-     */protected function createCode($code)
+     */
+    protected function createCode($code)
     {
         if (func_num_args()>1) {
             $arguments = func_get_args();
@@ -768,8 +769,32 @@ class Compiler
             } else {
 
                 if (!empty($arguments) && !is_array($arguments)) {
+                    $strings = array();
+                    $arguments = preg_replace_callback(
+                        '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
+                        function ($match) use(&$strings)
+                        {
+                            $return = 'stringToReplaceBy' . count($strings) . 'ThCapture';
+                            $strings[] = $match[0];
+                            return $return;
+                        },
+                        $arguments
+                    );
                     //$arguments = array($arguments);
-                    $arguments = explode(',', $arguments);
+                    $arguments = array_map(
+                        function ($arg) use($strings)
+                        {
+                            return preg_replace_callback(
+                                '#stringToReplaceBy([0-9]+)ThCapture#',
+                                function ($match) use($strings)
+                                {
+                                    return $strings[intval($match[1])];
+                                },
+                                $arg
+                            );
+                        },
+                        explode(',', $arguments)
+                    );
                 }
 
                 array_unshift($arguments, $attributes);
