@@ -95,7 +95,15 @@ class Jade {
 
         extract($vars);
         ob_start();
-        include $file;
+        try
+        {
+            include $file;
+        }
+        catch(\Exception $e)
+        {
+            ob_end_clean();
+            throw $e;
+        }
         return ob_get_clean();
     }
 
@@ -113,14 +121,7 @@ class Jade {
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        try
-        {
-            return $this->options['stream'].'://data;'.$this->compile($input);
-        }
-        catch(\Exception $e)
-        {
-            throw new \Exception($e->getMessage() . "\n" . $input);
-        }
+        return $this->options['stream'].'://data;'.$this->compile($input);
     }
 
 
