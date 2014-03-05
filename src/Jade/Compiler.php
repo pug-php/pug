@@ -822,13 +822,13 @@ class Compiler
 
             //TODO: assign nulls to all varargs for remove php warnings
             array_unshift($arguments, 'attributes');
-            $code = $this->createCode("function {$name} (%s) {", implode(',',$arguments));
+            $code = $this->createCode("if(!function_exists('{$name}') { function {$name} (%s) {", implode(',',$arguments));
 
             $this->buffer($code);
             $this->indents++;
             $this->visit($block);
             $this->indents--;
-            $this->buffer($this->createCode('}'));
+            $this->buffer($this->createCode('} }'));
         }
     }
 
