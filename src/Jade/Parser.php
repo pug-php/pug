@@ -106,7 +106,8 @@ class Parser {
             return $this->lexer->advance();
         }
 
-        throw new \Exception(sprintf('Expected %s, but got %s', $type, $this->peek()->type));
+        $line = $this->line();
+        throw new \Exception(sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $line, array_get(explode("\n", $this->input), $line)));
     }
 
     protected function accept($type) {
