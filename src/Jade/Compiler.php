@@ -98,8 +98,8 @@ class Compiler
     {
         $this->visit($node);
 
-        //exit(preg_replace('#(\$__[0-9]*=)\$#', '$1', implode('', $this->buffer)));
-        return preg_replace('#(\$__[0-9]*=)\$#', '$1', implode('', $this->buffer));
+        $code = preg_replace('#(\$__[0-9]*=)\$#', '$1', str_replace('?>', "\n?>", implode("\n", $this->buffer)));
+        return $code;
     }
 
     /**
