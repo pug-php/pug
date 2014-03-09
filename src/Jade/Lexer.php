@@ -808,7 +808,7 @@ class Lexer
      */
     protected function scanColon()
     {
-        return $this->scan('/^: */', ':');
+        return $this->scan('/^:(?!:) */', ':');
     }
 
     /**
