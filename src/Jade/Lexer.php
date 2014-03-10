@@ -102,7 +102,7 @@ class Lexer
     {
         // everzet's implementation used ':' at the end of the code line as in php's alternative syntax
         // this implementation tries to be compatible with both, js-jade and jade.php, so, remove the colon here
-        return $code = (substr($code, -1) == ':') ? substr($code, 0, -1) : $code;
+        return $code = (substr($code, -1) === ':' && substr($code, -2, 1) !== ':') ? substr($code, 0, -1) : $code;
     }
 
     /**
@@ -258,18 +258,18 @@ class Lexer
             $this->consume($matches[0]);
             $name = $matches[1];
 
-            if (':' == mb_substr($name, -1)) {
+            if (':' === mb_substr($name, -1) && ':' !== mb_substr($name, -2, 1)) {
 
                 $name  = mb_substr($name, 0, -1);
                 $token = $this->token('tag', $name);
                 $this->defer($this->token(':'));
 
-                while (' ' == mb_substr($this->input, 0, 1)) $this->consume(mb_substr($this->input, 0, 1));
+                while (' ' === mb_substr($this->input, 0, 1)) $this->consume(mb_substr($this->input, 0, 1));
             } else {
                 $token = $this->token('tag', $name);
             }
 
-            $token->selfClosing = ($matches[2] == '/') ? true : false;
+            $token->selfClosing = ($matches[2] === '/') ? true : false;
 
             return $token;
         }
@@ -280,7 +280,7 @@ class Lexer
      */
     protected function scanFilter()
     {
-        return $this->scan('/^:(\w+)/', 'filter');
+        return $this->scan('/^(?<!:):(?!:)(\w+)/', 'filter');
     }
 
     /**
@@ -307,17 +307,17 @@ class Lexer
         // http://www.w3.org/TR/CSS21/grammar.html#scanner
         //
         // ident:
-        //		-?{nmstart}{nmchar}*
+        //      -?{nmstart}{nmchar}*
         // nmstart:
-        //		[_a-z]|{nonascii}|{escape}
+        //      [_a-z]|{nonascii}|{escape}
         // nonascii:
-        //		[\240-\377]
+        //      [\240-\377]
         // escape:
-        //		{unicode}|\\[^\r\n\f0-9a-f]
+        //      {unicode}|\\[^\r\n\f0-9a-f]
         // unicode:
-        //		\\{h}{1,6}(\r\n|[ \t\r\n\f])?
+        //      \\{h}{1,6}(\r\n|[ \t\r\n\f])?
         // nmchar:
-        //		[_a-z0-9-]|{nonascii}|{escape}
+        //      [_a-z0-9-]|{nonascii}|{escape}
         //
         // /^(-?(?!=[0-9-])(?:[_a-z0-9-]|[\240-\377]|\\{h}{1,6}(?:\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])+)/
         return $this->scan('/^[.]([\w-]+)/', 'class');
@@ -410,7 +410,7 @@ class Lexer
      */
     protected function scanWhen()
     {
-        return $this->scan('/^when +([^:\n]+)/', 'when');
+        return $this->scan('/^when +((::|[^\n:]+)+)/', 'when');
     }
 
     /**
