@@ -98,8 +98,11 @@ class Compiler
     {
         $this->visit($node);
 
+        $code = implode('', $this->buffer);
+
         // Separate in several lines to get a useable line number in case of an error occurs
-        $code = preg_replace('#\?>|<\?php#', "\n$0", implode('', $this->buffer));
+        $code = str_replace('<?php', "<?php\n", $code);
+        $code = str_replace('?>', "\n?>", $code);
         // Remove the $ wich are not needed
         $code = preg_replace('#(\$__[0-9]*=)\$#', '$1', $code);
         $code = preg_replace('#\$((?:[a-zA-Z\\\x7f-\xff][a-zA-Z0-9\\_\x7f-\xff]*::)?[A-Z][A-Z_]+)(?![a-zA-Z0-9\x7f-\xff\[\(_])#', '($1)', $code);
