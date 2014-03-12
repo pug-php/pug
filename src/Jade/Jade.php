@@ -113,7 +113,7 @@ class Jade {
      * @param $input
      * @return string
      */
-    public function stream($input)
+    public function stream($input, $compiled = false)
     {
         if (false === static::$isWrapperRegistered)
         {
@@ -121,7 +121,7 @@ class Jade {
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        return $this->options['stream'].'://data;'.$this->compile($input);
+        return $this->options['stream'].'://data;'.($compiled ? $input : $this->compile($input));
     }
 
 
@@ -162,6 +162,6 @@ class Jade {
         $rendered = $this->compile($input);
         file_put_contents($path, $rendered);
 
-        return $this->stream($rendered);
+        return $this->stream($rendered, true);
     }
 }
