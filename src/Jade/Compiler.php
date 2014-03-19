@@ -104,6 +104,7 @@ class Compiler
         $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n?>"), $code);
         // Remove the $ wich are not needed
         $code = preg_replace('#(\$__[0-9]*=)\$#', '$1', $code);
+        $code = preg_replace('#(\$__[0-9]*=[^;]+;)\s*\}(?!else|\selse)#', '}$1', $code);
         $code = preg_replace('#\$((?:[a-zA-Z\\\x7f-\xff][a-zA-Z0-9\\_\x7f-\xff]*::)?[A-Z][A-Z_]+)(?![a-zA-Z0-9\x7f-\xff\[\(_])#', '$1', $code);
         return $code;
     }
