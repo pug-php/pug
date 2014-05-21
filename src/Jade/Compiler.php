@@ -103,9 +103,9 @@ class Compiler
         // Separate in several lines to get a useable line number in case of an error occurs
         $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n?>"), $code);
         // Remove the $ wich are not needed
-        $code = preg_replace('#(\$__[0-9]*=)\$#', '$1', $code);
-        $code = preg_replace('#(\$__[0-9]*=[^;]+;)\s*\}(?!else|\selse)#', '}$1', $code);
-        $code = preg_replace('#\$((?:[a-zA-Z\\\x7f-\xff][a-zA-Z0-9\\_\x7f-\xff]*::)?[A-Z][A-Z_]+)(?![a-zA-Z0-9\x7f-\xff\[\(_])#', '$1', $code);
+        //$code = preg_replace('#(\$__[0-9]*=)\$#', '$1', $code);
+        //$code = preg_replace('#(\$__[0-9]*=[^;]+;)\s*\}(?!else|\selse)#', '}$1', $code);
+        //$code = preg_replace('#\$((?:[a-zA-Z\\\x7f-\xff][a-zA-Z0-9\\_\x7f-\xff]*::)?[A-Z][A-Z_]+)(?![a-zA-Z0-9\x7f-\xff\[\(_])#', '$1', $code);
         return $code;
     }
 
@@ -241,6 +241,17 @@ class Compiler
         return $ok;
     }
 
+    protected function addDollarIfNeeded($call)
+    {
+        if ($call === 'Inf')
+        {
+            throw new \Exception("Error Processing Request", 1);
+        }
+        if ($call[0] !== '$' && ! preg_match('#^(?:[a-z_\\\\\\x7f-\\xff][a-z0-9:_\\\\\\x7f-\\xff]*\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call))
+            $call = '$' . $call;
+        return $call;
+    }
+
     /**
      * @param        $input
      * @param string $ns
@@ -266,7 +277,9 @@ class Compiler
 
         preg_match_all(
             '/(?<![<>=!])=(?!>)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
-            $input,
+            preg_replace_callback('#([\'"]).*(?<!\\\\)(?:\\\\{2})*\\1#', function ($match) {
+                return str_repeat(" ", strlen($match[0]));
+            }, $input),
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
         );
@@ -278,7 +291,7 @@ class Compiler
 
         if (count($separators) == 0) {
             if (strchr('0123456789-+("\'$', $input[0]) === FALSE) {
-                $input = '$' . $input;
+                $input = $this->addDollarIfNeeded($input);
             }
 
             return array($input);
@@ -294,7 +307,7 @@ class Compiler
         // do not add $ if it is not like a variable
         $varname = substr($input,0,$separators[0][1]);
         if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
-            $varname = '$' . $varname;
+            $varname = $this->addDollarIfNeeded($varname);
         }
 
         $get_middle_string = function($start, $end) use ($input) {
@@ -406,7 +419,7 @@ class Compiler
                     $arguments  = $handle_code_inbetween();
                     $call       = $varname . '(' . implode(', ', $arguments) . ')';
                     $cs = current($separators);
-                    if ($call[0] !== '$') $call = '$' . $call;
+                    $call = $this->addDollarIfNeeded($call);
                     while ($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
                         $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
                         $cs = next($separators);
@@ -568,7 +581,15 @@ class Compiler
             } else {
                 // TODO: move this to handleCode
                 $arg = preg_replace('/\bvar\b/','',$arg);
-                $code = $this->handleCode(trim($arg));
+                try
+                {
+                    $code = $this->handleCode(trim($arg));
+                }
+                catch(\Exception $e)
+                {
+                    var_dump(trim($arg));
+                    exit;
+                }
             }
 
             $statements = array_merge($statements, array_slice($code,0,-1));
