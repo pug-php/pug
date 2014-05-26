@@ -587,8 +587,14 @@ class Compiler
                 }
                 catch(\Exception $e)
                 {
-                    var_dump(trim($arg));
-                    exit;
+                    try
+                    {
+                        $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', trim($arg)));
+                    }
+                    catch(\Exception $e)
+                    {
+                        throw new \Exception("JadePHP do not understand " . trim($arg), 1);
+                    }
                 }
             }
 
