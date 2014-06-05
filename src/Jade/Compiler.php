@@ -44,6 +44,11 @@ class Compiler
     protected $indents      = 0;
 
     /**
+     * @var boolean
+     */
+    static public $jsonEncodeDatas = false;
+
+    /**
      * @var array
      */
     protected $doctypes = array(
@@ -1116,7 +1121,7 @@ class Compiler
 
                     if ($key == 'class') {
                         $value = $this->createCode('echo (is_array(%1$s)) ? implode(" ", %1$s) : %1$s', $value);
-                    } elseif (strpos($key, 'data-') !== false) {
+                    } elseif (static::$jsonEncodeDatas && strpos($key, 'data-') !== false) {
                         $value = $this->createCode('echo json_encode(%s)', $value);
                     } else {
                         $value = $this->createCode('echo %s', $value);
