@@ -9,6 +9,7 @@ class Parser {
     public $basepath;
     public $extension;
     public $textOnly = array('script','style');
+    static public $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
     protected $input;
     protected $lexer;
@@ -314,7 +315,13 @@ class Parser {
         }
 
         $path = $dir . DIRECTORY_SEPARATOR . $file;
-        $str = file_get_contents($path);
+        if( file_exists($path)) {
+            $str = file_get_contents($path);
+        } else if(static::$includeNotFound !== false) {
+            $str = static::$includeNotFound;
+        } else {
+            throw new \Exception("The included file '$path' does not exists.");
+        }
 
         if ('.jade' != substr($file,-5)) {
             return new Nodes\Literal($str);
