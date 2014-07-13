@@ -104,7 +104,13 @@ class Jade {
             ob_end_clean();
             throw $e;
         }
-        return ob_get_clean();
+        $content = ob_get_contents();
+        ob_end_clean();
+        if(empty($content))
+        {
+            throw new \Exception("Empty content at:" . $file);
+        }
+        return $content;
     }
 
     /**
