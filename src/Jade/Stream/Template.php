@@ -64,4 +64,16 @@ class Template {
     {
         return $this->position >= strlen($this->data);
     }
+
+
+    /**
+     * Dummy URL stat method to prevent PHP "undefined method" errors.
+     *
+     * @TODO Return real stat
+     * @return array
+     */
+    public function url_stat($path, $flags)
+    {
+        return array(0,0,0,0,0,0,0,0,0,0,0,0);
+    }
 }
