@@ -15,12 +15,13 @@ class Jade {
      * @var array
      */
     protected $options = array(
-        'cache'         => null,
-        'stream'        => 'jade.stream',
-        'extension'     => '.jade',
-        'prettyprint'   => false,
-        'phpSingleLine' => false,
-        'keepBaseName'  => false
+        'cache'              => null,
+        'stream'             => 'jade.stream',
+        'extension'          => '.jade',
+        'prettyprint'        => false,
+        'phpSingleLine'      => false,
+        'keepBaseName'       => false,
+        'allowMixinOverride' => true
     );
 
     /**
@@ -28,11 +29,11 @@ class Jade {
      * @var array
      */
     protected $filters = array(
-        'php'       => 'Jade\Filter\Php',
-        'css'       => 'Jade\Filter\Css',
-        'cdata'     => 'Jade\Filter\Cdata',
-        'escaped'   => 'Jade\Filter\Escaped',
-        'javascript'=> 'Jade\Filter\Javascript'
+        'php'        => 'Jade\Filter\Php',
+        'css'        => 'Jade\Filter\Css',
+        'cdata'      => 'Jade\Filter\Cdata',
+        'escaped'    => 'Jade\Filter\Escaped',
+        'javascript' => 'Jade\Filter\Javascript'
     );
 
     /**
@@ -81,7 +82,7 @@ class Jade {
     public function compile($input)
     {
         $parser   = new Parser($input, null, $this->options['extension']);
-        $compiler = new Compiler($this->options['prettyprint'], $this->options['phpSingleLine'], $this->filters);
+        $compiler = new Compiler($this->options['prettyprint'], $this->options['phpSingleLine'], $this->options['allowMixinOverride'], $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }

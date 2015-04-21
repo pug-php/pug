@@ -549,6 +549,8 @@ class Lexer
 
             $str = mb_substr($matches[0], 1, mb_strlen($matches[0]) - 2);
 
+            //$str = preg_replace('/()([a-zA-Z0-9_\\x7f-\\xff\\)\\]\\}"\'])(\s+[a-zA-Z_])/', '$1,$2', $str);
+
             $token              = $this->token('attributes');
             $token->attributes  = array();
             $token->escaped     = array();
@@ -560,6 +562,7 @@ class Lexer
             $states           = array('key');
             $escapedAttribute = '';
             $previousChar     = '';
+            $previousNonBlankChar = '';
 
             $state = function () use (&$states) {
                 return $states[count($states) - 1];
@@ -571,10 +574,12 @@ class Lexer
                 return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr));
             };
 
-            $parse = function ($char) use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, $state, $interpolate) {
+            $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate) {
                 switch ($char) {
                     case ',':
                     case "\n":
+                    case "\t":
+                    case " ":
                         switch ($state()) {
                             case 'expr':
                             case 'array':
@@ -584,6 +589,16 @@ class Lexer
                                 break;
 
                             default:
+                                if(
+                                    ($char === ' ' || $char === "\t") &&
+                                    (
+                                        ! preg_match('/^[a-zA-Z0-9_\\x7f-\\xff"\'\\]\\)\\}]$/', $previousNonBlankChar) ||
+                                        ! preg_match('/^[a-zA-Z0-9_]$/', $nextChar)
+                                    )
+                                ) {
+                                    $val = $val . $char;
+                                    break;
+                                }
                                 array_push($states, 'key');
                                 $val = trim($val);
                                 $key = trim($key);
@@ -709,10 +724,13 @@ class Lexer
                         }
                 }
                 $previousChar = $char;
+                if(trim($char) !== '') {
+                    $previousNonBlankChar = $char;
+                }
             };
 
             for ($i = 0; $i < mb_strlen($str); $i++) {
-                $parse(mb_substr($str, $i, 1));
+                $parse(mb_substr($str, $i, 1), mb_substr($str, $i + 1, 1));
             }
 
             $parse(',');

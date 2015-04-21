@@ -36,9 +36,7 @@ function build_list($test_list) {
 
 function show_php($file) {
     $jade = new \Jade\Jade(array(
-        //'cache' => '../cache',
-        'phpSingleLine' => true,
-        'keepBaseName' => true
+        'allowMixinOverride' => true
     ));
     return $jade->render($file);
 }
