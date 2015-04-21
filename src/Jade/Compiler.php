@@ -52,6 +52,10 @@ class Compiler
     /**
      * @var bool
      */
+    protected $allowMixinOverride = false;
+    /**
+     * @var bool
+     */
     protected $terse         = false;
     /**
      * @var bool
@@ -107,11 +111,12 @@ class Compiler
      * @param bool  $prettyprint
      * @param array $filters
      */
-    public function __construct($prettyprint = false, $phpSingleLine = fase, array $filters = array())
+    public function __construct($prettyprint = false, $phpSingleLine = fase, $allowMixinOverride = false, array $filters = array())
     {
-        $this->prettyprint   = $prettyprint;
+        $this->prettyprint = $prettyprint;
         $this->phpSingleLine = $phpSingleLine;
-        $this->filters       = $filters;
+        $this->allowMixinOverride = $allowMixinOverride;
+        $this->filters = $filters;
     }
 
     public static function strval($val)
@@ -359,7 +364,7 @@ class Compiler
         };
 
         $host = $this;
-        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string) {
+        $handle_recursion = function ($arg, $ns = '') use ($input, &$result, $host, $get_middle_string) {
             list($start,$end) = $arg;
             $str = trim($get_middle_string($start, $end));
 
@@ -367,7 +372,7 @@ class Compiler
                 return '';
             }
 
-            $_code  = $host->handleCode($str, $ns);
+            $_code = $host->handleCode($str, $ns);
 
             if (count($_code) > 1) {
                 $result = array_merge($result, array_slice($_code, 0, -1));
@@ -656,7 +661,15 @@ class Compiler
             }
 
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
-                $code = $this->handleString(trim($arg));
+                try
+                {
+                    $code = $this->handleString(trim($arg));
+                }
+                catch(\Exception $e)
+                {
+                    var_dump($arg);
+                    exit;
+                }
             } else {
                 try
                 {
@@ -743,8 +756,8 @@ class Compiler
     protected function visitNode(Nodes\Node $node)
     {
         $fqn = get_class($node);
-        $parts = explode('\\',$fqn);
-        $name = $parts[count($parts)-1];
+        $parts = explode('\\', $fqn);
+        $name = end($parts);
         $method = 'visit' . ucfirst(strtolower($name));
 
         return $this->$method($node);
@@ -852,6 +865,9 @@ class Compiler
     protected function visitMixin(Nodes\Mixin $mixin)
     {
         $name       = strtr($mixin->name, '-', '_') . '_mixin';
+        if($this->allowMixinOverride) {
+            $name = '$GLOBALS[\'' . $name . '\']';
+        }
         $arguments  = $mixin->arguments;
         $block      = $mixin->block;
         $attributes = $mixin->attributes;
@@ -940,13 +956,23 @@ class Compiler
                     $arg .= ' = null';
                 }
             });
-            $code = $this->createCode("if(!function_exists('{$name}')) { function {$name} (%s) {", implode(',', $arguments));
+            if($this->allowMixinOverride) {
+                $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
 
-            $this->buffer($code);
-            $this->indents++;
-            $this->visit($block);
-            $this->indents--;
-            $this->buffer($this->createCode('} }'));
+                $this->buffer($code);
+                $this->indents++;
+                $this->visit($block);
+                $this->indents--;
+                $this->buffer($this->createCode('};'));
+            } else {
+                $code = $this->createCode("if(!function_exists('{$name}')) { function {$name}(%s) {", implode(',', $arguments));
+
+                $this->buffer($code);
+                $this->indents++;
+                $this->visit($block);
+                $this->indents--;
+                $this->buffer($this->createCode('} }'));
+            }
         }
     }
 
@@ -1179,7 +1205,7 @@ class Compiler
     {
         $items = array();
         $classes = array();
-
+        
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             $value = trim($attr['value']);
@@ -1199,7 +1225,7 @@ class Compiler
                     $this->prettyprint = false;
 
                     if ($key == 'class') {
-                        $value = $this->createCode('echo (is_array(%1$s)) ? implode(" ", %1$s) : %1$s', $value);
+                        $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
                     } else {
                         $value = $this->createCode(static::UNESCAPED, $value);
                     }
