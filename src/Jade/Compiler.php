@@ -9,6 +9,21 @@ namespace Jade;
 class Compiler
 {
     /**
+     * @const string
+     */
+    const VARNAME = '[a-zA-Z\\\\\\x7f-\\xff][a-zA-Z0-9\\\\_\\x7f-\\xff]*';
+
+    /**
+     * @const string
+     */
+    const ESCAPED = 'echo htmlspecialchars(%s)';
+
+    /**
+     * @const string
+     */
+    const UNESCAPED = 'echo \\Jade\\Compiler::strval(%s)';
+
+    /**
      * @var
      */
     protected $xml;
@@ -21,27 +36,31 @@ class Compiler
     /**
      * @var array
      */
-    protected $buffer       = array();
+    protected $buffer        = array();
     /**
      * @var array
      */
-    protected $filters      = array();
+    protected $filters       = array();
     /**
      * @var bool
      */
-    protected $prettyprint  = false;
+    protected $prettyprint   = false;
     /**
      * @var bool
      */
-    protected $terse        = false;
+    protected $phpSingleLine = false;
     /**
      * @var bool
      */
-    protected $withinCase   = false;
+    protected $terse         = false;
+    /**
+     * @var bool
+     */
+    protected $withinCase    = false;
     /**
      * @var int
      */
-    protected $indents      = 0;
+    protected $indents       = 0;
 
     /**
      * @var boolean
@@ -88,10 +107,16 @@ class Compiler
      * @param bool  $prettyprint
      * @param array $filters
      */
-    public function __construct($prettyprint = false, array $filters = array())
+    public function __construct($prettyprint = false, $phpSingleLine = fase, array $filters = array())
     {
-        $this->prettyprint = $prettyprint;
-        $this->filters     = $filters;
+        $this->prettyprint   = $prettyprint;
+        $this->phpSingleLine = $phpSingleLine;
+        $this->filters       = $filters;
+    }
+
+    public static function strval($val)
+    {
+        return is_array($val) ? json_encode($val) : strval($val);
     }
 
     /**
@@ -106,11 +131,10 @@ class Compiler
         $code = implode('', $this->buffer);
 
         // Separate in several lines to get a useable line number in case of an error occurs
-        $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n?>"), $code);
+        if($this->phpSingleLine) {
+            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n?>"), $code);
+        }
         // Remove the $ wich are not needed
-        //$code = preg_replace('#(\$__[0-9]*=)\$#', '$1', $code);
-        //$code = preg_replace('#(\$__[0-9]*=[^;]+;)\s*\}(?!else|\selse)#', '}$1', $code);
-        //$code = preg_replace('#\$((?:[a-zA-Z\\\x7f-\xff][a-zA-Z0-9\\_\x7f-\xff]*::)?[A-Z][A-Z_]+)(?![a-zA-Z0-9\x7f-\xff\[\(_])#', '$1', $code);
         return $code;
     }
 
@@ -222,7 +246,7 @@ class Compiler
         //          0-9             - number constants
         //          \b\b            - matches a empty string: useful for a empty array
         $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|undefined|[0-9]+|\b\b)[ \t]*';
-        $str= trim($str);
+        $str = trim($str);
         $ok = preg_match("/^{$const_regex}$/", $str);
 
         // test agains a array of constants
@@ -246,14 +270,22 @@ class Compiler
         return $ok;
     }
 
-    protected function addDollarIfNeeded($call)
+    /**
+     * @param string $call
+     * @return string
+     * @throws \Exception
+     */
+    protected static function addDollarIfNeeded($call)
     {
-        if ($call === 'Inf')
-        {
-            throw new \Exception("Error Processing Request", 1);
+        if ($call === 'Inf') {
+            throw new \Exception($call . " cannot be read from PHP", 1);
         }
-        if ($call[0] !== '$' && ! preg_match('#^(?:[a-z_\\\\\\x7f-\\xff][a-z0-9:_\\\\\\x7f-\\xff]*\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call))
+        if ($call === 'undefined') {
+            return 'null';
+        }
+        if ($call[0] !== '$' && $call[0] !== '\\' && ! preg_match('#^(?:' . static::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call)) {
             $call = '$' . $call;
+        }
         return $call;
     }
 
@@ -265,6 +297,8 @@ class Compiler
      */
     public function handleCode($input, $ns='')
     {
+        $input = trim(preg_replace('/\bvar\b/','',$input));
+
         // needs to be public because of the closure $handle_recursion
         $result = array();
 
@@ -288,15 +322,14 @@ class Compiler
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
         );
-        $_separators = array();
-        foreach ($separators as $sep) {
-            array_push($_separators, $sep[0]);
-        }
-        $separators = $_separators;
+        array_walk($separators, function (&$sep) {
+            $sep = $sep[0];
+        });
+        reset($separators);
 
         if (count($separators) == 0) {
             if (strchr('0123456789-+("\'$', $input[0]) === FALSE) {
-                $input = $this->addDollarIfNeeded($input);
+                $input = static::addDollarIfNeeded($input);
             }
 
             return array($input);
@@ -310,9 +343,9 @@ class Compiler
         }
 
         // do not add $ if it is not like a variable
-        $varname = substr($input,0,$separators[0][1]);
+        $varname = static::convertVarPath(substr($input,0,$separators[0][1]), '/^%s/');
         if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
-            $varname = $this->addDollarIfNeeded($varname);
+            $varname = static::addDollarIfNeeded($varname);
         }
 
         $get_middle_string = function($start, $end) use ($input) {
@@ -326,8 +359,7 @@ class Compiler
         };
 
         $host = $this;
-        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string)
-        {
+        $handle_recursion = function ($arg, $ns='') use ($input, &$result, $host, $get_middle_string) {
             list($start,$end) = $arg;
             $str = trim($get_middle_string($start, $end));
 
@@ -401,7 +433,7 @@ class Compiler
         while (key($separators) !== null) {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
-            $sep= current($separators);
+            $sep = current($separators);
 
             if ($sep[0] == null) break; // end of string
 
@@ -424,7 +456,7 @@ class Compiler
                     $arguments  = $handle_code_inbetween();
                     $call       = $varname . '(' . implode(', ', $arguments) . ')';
                     $cs = current($separators);
-                    $call = $this->addDollarIfNeeded($call);
+                    $call = static::addDollarIfNeeded($call);
                     while ($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
                         $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
                         $cs = next($separators);
@@ -540,15 +572,50 @@ class Compiler
             // \#{dont_do_interpolation}
             if (mb_strlen($m[1]) == 0) {
                 if ($m[2] == '!') {
-                    $code_str = $this->createCode('echo %s',$m[3]);
+                    $code_str = $this->createCode(static::UNESCAPED,$m[3]);
                 } else {
-                    $code_str = $this->createCode('echo htmlspecialchars(%s)',$m[3]);
+                    $code_str = $this->createCode(static::ESCAPED,$m[3]);
                 }
                 $text = str_replace($m[0], $code_str, $text, $i);
             }
         }
 
         return str_replace('\\#{', '#{', $text);
+    }
+
+    static public function getPropertyFromAnything($anything, $key)
+    {
+        if(is_array($anything)) {
+            return isset($anything[$key]) ? $anything[$key] : null;
+        }
+        if(is_object($anything)) {
+            return isset($anything->$key) ? $anything->$key : (isset($anything[$key]) ? $anything[$key] : null);
+        }
+        return null;
+    }
+
+    static protected function convertVarPath($arg, $regexp = '/^%s|,%s/')
+    {
+        $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
+        return preg_replace_callback(
+            str_replace('%s', $pattern, $regexp),
+            function ($match) {
+                if(empty($match[1])) {
+                    $var = $match[0];
+                } else {
+                    $var = ($match[0] === ',' ? ',' : '') . $match[1];
+                    foreach(explode('.', substr($match[2], 1)) as $name) {
+                        if(!empty($name)) {
+                            $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
+                                static::addDollarIfNeeded($var) .
+                                ', ' . var_export($name, true) . ')';
+                        }
+                    }
+                }
+                return $var;
+            },
+            $arg
+        );
     }
 
     /**
@@ -567,6 +634,13 @@ class Compiler
 
         foreach ($arguments as $arg) {
 
+            $arg = static::convertVarPath($arg);
+
+            // add dollar if missing
+            if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
+                $arg = static::addDollarIfNeeded($arg);
+            }
+
             // shortcut for constants
             if ($this->isConstant($arg)) {
                 if($arg === 'undefined')
@@ -576,29 +650,27 @@ class Compiler
             }
 
             // if we have a php variable assume that the string is good php
-            if (preg_match('/&?\${1,2}[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $arg)) {
+            if (preg_match('/&?\${1,2}' . static::VARNAME . '|::/', $arg)) {
                 array_push($variables, $arg);
                 continue;
             }
 
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
-                $code= $this->handleString(trim($arg));
+                $code = $this->handleString(trim($arg));
             } else {
-                // TODO: move this to handleCode
-                $arg = preg_replace('/\bvar\b/','',$arg);
                 try
                 {
-                    $code = $this->handleCode(trim($arg));
+                    $code = $this->handleCode($arg);
                 }
                 catch(\Exception $e)
                 {
                     try
                     {
-                        $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', trim($arg)));
+                        $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
                     }
                     catch(\Exception $e)
                     {
-                        throw new \Exception("JadePHP do not understand " . trim($arg), 1);
+                        throw new \Exception("JadePHP do not understand " . $arg, 1, $e);
                     }
                 }
             }
@@ -655,7 +727,7 @@ class Compiler
         if (func_num_args()>1) {
             $arguments = func_get_args();
             array_shift($arguments); // remove $code
-            $statements= $this->apply('createStatements', $arguments);
+            $statements = $this->apply('createStatements', $arguments);
 
             return $this->createPhpBlock($code, $statements);
         }
@@ -779,7 +851,7 @@ class Compiler
      */
     protected function visitMixin(Nodes\Mixin $mixin)
     {
-        $name       = preg_replace('/-/', '_', $mixin->name) . '_mixin';
+        $name       = strtr($mixin->name, '-', '_') . '_mixin';
         $arguments  = $mixin->arguments;
         $block      = $mixin->block;
         $attributes = $mixin->attributes;
@@ -859,9 +931,16 @@ class Compiler
                 $arguments = array($arguments);
             }
 
-            //TODO: assign nulls to all varargs for remove php warnings
             array_unshift($arguments, 'attributes');
-            $code = $this->createCode("if(!function_exists('{$name}')) { function {$name} (%s) {", implode(',',$arguments));
+            $arguments = implode(',', $arguments);
+            $arguments = explode(',', $arguments);
+            array_walk($arguments, function (&$arg) {
+                $arg = static::addDollarIfNeeded(trim($arg));
+                if(strpos($arg, '=') === false) {
+                    $arg .= ' = null';
+                }
+            });
+            $code = $this->createCode("if(!function_exists('{$name}')) { function {$name} (%s) {", implode(',', $arguments));
 
             $this->buffer($code);
             $this->indents++;
@@ -996,7 +1075,7 @@ class Compiler
 
         if ($node->buffer) {
 
-            $pattern = $node->escape ? 'echo htmlspecialchars(%s)' : 'echo %s';
+            $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
             $this->buffer($this->createCode($pattern,$code));
         }
         else {
@@ -1121,10 +1200,8 @@ class Compiler
 
                     if ($key == 'class') {
                         $value = $this->createCode('echo (is_array(%1$s)) ? implode(" ", %1$s) : %1$s', $value);
-                    } elseif (static::$jsonEncodeDatas && strpos($key, 'data-') !== false) {
-                        $value = $this->createCode('echo json_encode(%s)', $value);
                     } else {
-                        $value = $this->createCode('echo %s', $value);
+                        $value = $this->createCode(static::UNESCAPED, $value);
                     }
 
                     $this->prettyprint = $pp;

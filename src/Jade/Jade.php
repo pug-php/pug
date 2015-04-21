@@ -18,7 +18,9 @@ class Jade {
         'cache'         => null,
         'stream'        => 'jade.stream',
         'extension'     => '.jade',
-        'prettyprint'   => false
+        'prettyprint'   => false,
+        'phpSingleLine' => false,
+        'keepBaseName'  => false
     );
 
     /**
@@ -79,7 +81,7 @@ class Jade {
     public function compile($input)
     {
         $parser   = new Parser($input, null, $this->options['extension']);
-        $compiler = new Compiler($this->options['prettyprint'], $this->filters);
+        $compiler = new Compiler($this->options['prettyprint'], $this->options['phpSingleLine'], $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }
@@ -151,7 +153,7 @@ class Jade {
             throw new \Exception($cacheFolder . ': Cache directory seem\'s to not exists');
         }
 
-        $path = str_replace('//', '/', $cacheFolder . '/' . md5($input) . '.php');
+        $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
         $cacheTime = ! file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
