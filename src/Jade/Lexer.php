@@ -543,6 +543,7 @@ class Lexer
         if ($this->input[0] === '(') {
             // cant use ^ anchor in the regex because the pattern is recursive
             // but this restriction is asserted by the if above
+            //$this->input = preg_replace('/([a-zA-Z0-9\'"\\]\\}\\)])([\t ]+[a-zA-Z])/', '$1,$2', $this->input);
             preg_match('/\((?:[^()]++|(?R))*+\)/', $this->input, $matches);
             $this->consume($matches[0]);
 
