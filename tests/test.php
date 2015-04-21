@@ -7,7 +7,7 @@ function setup_autoload() {
     set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 
     spl_autoload_register(function($class){
-        require_once(str_replace("\\",DIRECTORY_SEPARATOR,$class).'.php');
+        require_once(dirname(__FILE__).'/../src/'.str_replace("\\",DIRECTORY_SEPARATOR,$class).'.php');
     });
 
 }
@@ -35,17 +35,29 @@ function build_list($test_list) {
 }
 
 function show_php($file) {
-    $jade = new \Jade\Jade(true);
+    $jade = new \Jade\Jade(array(
+        //'cache' => '../cache',
+        'phpSingleLine' => true,
+        'keepBaseName' => true
+    ));
     return $jade->render($file);
 }
 
 mb_internal_encoding('utf-8');
-error_reporting(E_ALL);
+error_reporting(-1);
+set_error_handler(function ($num, $error, $file, $line) {
+    if($num != E_NOTICE) {
+        throw new \ErrorException($error, 0, $num, $file, $line);
+    }
+});
 setup_autoload();
 
 $nav_list = build_list(find_tests());
 
-foreach($nav_list as $type => $arr)
+$success = 0;
+$failures = 0;
+
+foreach($nav_list as $type => $arr) {
     foreach($arr as $e) {
         if($e['name'] == 'index' || (isset($argv[1]) && $e['name'] != $argv[1] && $argv[1] != '.'))
             continue;
@@ -76,11 +88,18 @@ foreach($nav_list as $type => $arr)
             $html = str_replace($from, $to, $html);
             $code = str_replace($from, $to, $code);
             if(strcmp($html, $code)) {
+                $failures++;
                 print "  -$html\n";
                 print "  +$code\n\n";
                 if(isset($argv[1]) && $argv[1] == '.') // render until first difference
                     die;
+            } else {
+                $success++;
             }
         }
     }
+}
 
+print "Success: $success\n";
+print "Failures: $failures\n";
+print "Cover: " . round(100 * $success / ($success + $failures)) . "%\n";
