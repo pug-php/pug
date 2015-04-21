@@ -661,15 +661,7 @@ class Compiler
             }
 
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
-                try
-                {
-                    $code = $this->handleString(trim($arg));
-                }
-                catch(\Exception $e)
-                {
-                    var_dump($arg);
-                    exit;
-                }
+                $code = $this->handleString(trim($arg));
             } else {
                 try
                 {
@@ -677,6 +669,7 @@ class Compiler
                 }
                 catch(\Exception $e)
                 {
+                    // if a bug occur, try to remove comments
                     try
                     {
                         $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
