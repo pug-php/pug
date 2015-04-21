@@ -1198,7 +1198,7 @@ class Compiler
     {
         $items = array();
         $classes = array();
-        
+
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             $value = trim($attr['value']);
