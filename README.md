@@ -18,18 +18,19 @@ and mixins.
 Jade options should be passed to the Jade construction
 
 ```
-$jade = new Jade([
+$jade = new Jade(array(
 	'prettyprint' => true,
 	'extension' => '.jade'
 	'cache' => 'pathto/writable/cachefolder/'
-]);
+);
 ```
 
 #### Supports for local variables
 
 ```
 $data['title'] = 'Hello World';
-$output = (new Jade())->render('file', $data);
+$jade = new Jade();
+$output = $jade->render('file', $data);
 ``` 
 
 #### Supports for custom filters
