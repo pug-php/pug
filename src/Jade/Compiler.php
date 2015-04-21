@@ -594,7 +594,7 @@ class Compiler
             return isset($anything[$key]) ? $anything[$key] : null;
         }
         if(is_object($anything)) {
-            return isset($anything->$key) ? $anything->$key : (isset($anything[$key]) ? $anything[$key] : null);
+            return isset($anything->$key) ? $anything->$key : null;
         }
         return null;
     }
