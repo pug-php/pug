@@ -35,19 +35,12 @@ function build_list($test_list) {
 }
 
 function show_php($file) {
-    $jade = new \Jade\Jade(array(
-        'allowMixinOverride' => true
-    ));
+    $jade = new \Jade\Jade();
     return $jade->render($file);
 }
 
 mb_internal_encoding('utf-8');
-error_reporting(-1);
-set_error_handler(function ($num, $error, $file, $line) {
-    if($num != E_NOTICE) {
-        throw new \ErrorException($error, 0, $num, $file, $line);
-    }
-});
+error_reporting(E_ALL);
 setup_autoload();
 
 $nav_list = build_list(find_tests());
