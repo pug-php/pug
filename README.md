@@ -17,7 +17,7 @@ and mixins.
 
 Jade options should be passed to the Jade construction
 
-```
+```php
 $jade = new Jade(array(
 	'prettyprint' => true,
 	'extension' => '.jade'
@@ -27,7 +27,7 @@ $jade = new Jade(array(
 
 #### Supports for local variables
 
-```
+```php
 $data['title'] = 'Hello World';
 $jade = new Jade();
 $output = $jade->render('file', $data);
@@ -37,7 +37,7 @@ $output = $jade->render('file', $data);
 
 Filters must be callable: It can be a class that implements the __invoke() method, or an anonymous function.
 
-```
+```php
 $jade->filter('escaped', 'My\Callable\Class');
 
 // or
