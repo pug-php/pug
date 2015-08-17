@@ -571,7 +571,7 @@ class Lexer
             $interpolate = function ($attr) use (&$quote) {
                 // the global flag is turned on by default
                 // TODO: check the +, maybe it is better to use . here
-                return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' + $1 + ' . $quote, $attr));
+                return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' . $1 . ' . $quote, $attr));
             };
 
             $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate) {
