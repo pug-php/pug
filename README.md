@@ -20,7 +20,7 @@ Jade options should be passed to the Jade construction
 ```php
 $jade = new Jade(array(
 	'prettyprint' => true,
-	'extension' => '.jade'
+	'extension' => '.jade',
 	'cache' => 'pathto/writable/cachefolder/'
 );
 ```
