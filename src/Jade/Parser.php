@@ -107,8 +107,10 @@ class Parser {
             return $this->lexer->advance();
         }
 
-        $line = $this->line();
-        throw new \Exception(sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $line, array_get(explode("\n", $this->input), $line)));
+        $lineNumber = $this->line();
+        $lines = explode("\n", $this->input);
+        $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
+        throw new \Exception(sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString));
     }
 
     protected function accept($type) {
