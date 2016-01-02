@@ -11,6 +11,9 @@ The fork is a complete rewrite, all the code is ported from the original jade pr
 All the features from the original are supported but undertested, including inheritance
 and mixins.
 
+### Install using composer
+[kylekatarnls/jade-php on packagist.org](https://packagist.org/packages/kylekatarnls/jade-php)
+
 ## What's new ?
 
 #### Jade options
