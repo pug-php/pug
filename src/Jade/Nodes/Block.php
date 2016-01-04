@@ -17,7 +17,7 @@ class Block extends Node {
     }
 
     public function push($node) {
-        return array_push($this->nodes,$node);
+        return array_push($this->nodes, $node);
     }
 
     public function isEmpty() {

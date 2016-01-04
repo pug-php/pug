@@ -349,7 +349,11 @@ class Parser {
             // includeBlock might not be set
             $block = $ast->includeBlock();
             if (is_object($block)) {
-                $block->push($this->block());
+                if(count($block->nodes) === 1) {
+                    $block->nodes[0]->block->push($this->block());
+                } else {
+                    $block->push($this->block());
+                }
             }
         }
 
