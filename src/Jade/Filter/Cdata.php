@@ -9,7 +9,7 @@ class Cdata Extends AbstractFilter {
 
     public function __invoke(Filter $node, Compiler $compiler)
     {
-        return "<!CDATA[\n".$this->getNodeString($node, $compiler)."\n]]>";
+        return "<![CDATA[\n".$this->getNodeString($node, $compiler)."\n]]>";
     }
 
 }
