@@ -490,8 +490,18 @@ class Parser {
 
         while (true) {
 
-            switch ($this->peek()->type) {
+            switch ($type = $this->peek()->type) {
             case 'id':
+                $token = $this->advance();
+                $peek = $this->peek();
+                $escaped = isset($peek->escaped, $peek->escaped[$type]) && $peek->escaped[$type];
+                $value = $escaped || ! isset($peek->attributes, $peek->attributes[$type])
+                    ? "'" . $token->value . "'"
+                    : $peek->attributes[$type];
+                $tag->setAttribute($token->type, $value, $escaped);
+                unset($peek->attributes[$type]);
+                continue;
+
             case 'class':
                 $token = $this->advance();
                 $tag->setAttribute($token->type, "'" . $token->value . "'");
