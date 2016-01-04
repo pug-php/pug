@@ -100,7 +100,7 @@ class Compiler
     /**
      * @var array
      */
-    protected $phpOpenBlock = array('switch','if','elseif','else','while','do','foreach','for','unless');
+    protected $phpOpenBlock = array('switch','if','else if','else','while','do','foreach','for','unless');
 
     /**
      * @var array
