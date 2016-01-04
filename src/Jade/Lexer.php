@@ -471,7 +471,7 @@ class Lexer
      */
     protected function scanConditional()
     {
-        if (preg_match('/^(if|unless|else if|else)\b([^\n]*)/', $this->input, $matches)) {
+        if (preg_match('/^(if|unless|else if|elseif|else)\b([^\n]*)/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
             /*switch ($matches[1]) {
