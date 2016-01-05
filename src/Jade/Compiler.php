@@ -854,6 +854,13 @@ class Compiler
         }
     }
 
+    static protected function initArgToNull(&$arg) {
+        $arg = static::addDollarIfNeeded(trim($arg));
+        if(strpos($arg, '=') === false) {
+            $arg .= ' = null';
+        }
+    }
+
     /**
      * @param Nodes\Mixin $mixin
      */
@@ -945,12 +952,7 @@ class Compiler
             array_unshift($arguments, 'attributes');
             $arguments = implode(',', $arguments);
             $arguments = explode(',', $arguments);
-            array_walk($arguments, function (&$arg) {
-                $arg = static::addDollarIfNeeded(trim($arg));
-                if(strpos($arg, '=') === false) {
-                    $arg .= ' = null';
-                }
-            });
+            array_walk($arguments, array(get_class(), 'initArgToNull'));
             if($this->allowMixinOverride) {
                 $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
 
