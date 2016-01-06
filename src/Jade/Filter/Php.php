@@ -31,6 +31,6 @@ class Php implements FilterInterface {
                 $data .= $n->value . "\n";
             }
         }
-        return $data ? '<?php ' . $data . ' ?>' : $data;
+        return $data ? '<?php ' . $data . ' ?> ' : $data;
     }
 }

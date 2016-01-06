@@ -108,6 +108,11 @@ class Compiler
     protected $phpCloseBlock= array('endswitch','endif','endwhile','endfor','endforeach');
 
     /**
+     * @var string
+     */
+    protected $closingTag;
+
+    /**
      * @param bool  $prettyprint
      * @param array $filters
      */
@@ -117,6 +122,7 @@ class Compiler
         $this->phpSingleLine = $phpSingleLine;
         $this->allowMixinOverride = $allowMixinOverride;
         $this->filters = $filters;
+        $this->closingTag = '?>' . ($prettyprint === true ? ' ' : '');
     }
 
     public static function strval($val)
@@ -137,7 +143,7 @@ class Compiler
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if($this->phpSingleLine) {
-            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n?>"), $code);
+            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n{$this->closingTag}"), $code);
         }
         // Remove the $ wich are not needed
         return $code;
@@ -699,7 +705,7 @@ class Compiler
      */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
-            return '<?php ' . $code . ' ?>';
+            return '<?php ' . $code . " {$this->closingTag}";
         }
 
         $code_format= array_pop($statements);
@@ -708,7 +714,7 @@ class Compiler
         if (count($statements) == 0) {
             $php_string = call_user_func_array('sprintf', $code_format);
 
-            return '<?php ' . $php_string . ' ?>';
+            return '<?php ' . $php_string . " {$this->closingTag}";
         }
 
         $stmt_string= '';
@@ -721,7 +727,7 @@ class Compiler
 
         $php_str = '<?php ';
         $php_str .= $stmt_string;
-        $php_str .= $this->newline() . $this->indent() . ' ?>';
+        $php_str .= $this->newline() . $this->indent() . " {$this->closingTag}";
 
         return $php_str;
     }
