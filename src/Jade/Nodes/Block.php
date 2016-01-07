@@ -28,11 +28,26 @@ class Block extends Node {
         return array_unshift($this->nodes, $node);
     }
 
-    public function includeBlock() {
-        $ret = $this;
+    public function getYield() {
+        if (isset($this->yield)) {
+            return $this;
+        }
         foreach ($this->nodes as $node) {
             if (isset($node->yield)) {
                 return $node;
+            }
+            elseif (isset($node->block) && $yield = $node->block->getYield()) {
+                return $yield;
+            }
+        }
+        return false;
+    }
+
+    public function includeBlock() {
+        $ret = $this;
+        foreach ($this->nodes as $node) {
+            if (isset($node->block) && $yield = $node->block->getYield()) {
+                return $yield;
             }
 
             if (isset($node->textOnly)) {
