@@ -143,7 +143,7 @@ class Compiler
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if($this->phpSingleLine) {
-            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n{$this->closingTag}"), $code);
+            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag), $code);
         }
         // Remove the $ wich are not needed
         return $code;
@@ -705,7 +705,7 @@ class Compiler
      */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
-            return '<?php ' . $code . " {$this->closingTag}";
+            return '<?php ' . $code . '' . $this->closingTag;
         }
 
         $code_format= array_pop($statements);
@@ -714,7 +714,7 @@ class Compiler
         if (count($statements) == 0) {
             $php_string = call_user_func_array('sprintf', $code_format);
 
-            return '<?php ' . $php_string . " {$this->closingTag}";
+            return '<?php ' . $php_string . ' ' . $this->closingTag;
         }
 
         $stmt_string= '';
@@ -727,7 +727,7 @@ class Compiler
 
         $php_str = '<?php ';
         $php_str .= $stmt_string;
-        $php_str .= $this->newline() . $this->indent() . " {$this->closingTag}";
+        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag;
 
         return $php_str;
     }
