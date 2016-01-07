@@ -705,7 +705,7 @@ class Compiler
      */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
-            return '<?php ' . $code . '' . $this->closingTag;
+            return '<?php ' . $code . ' ' . $this->closingTag;
         }
 
         $code_format= array_pop($statements);
