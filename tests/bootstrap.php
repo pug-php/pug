@@ -81,28 +81,29 @@ function get_tests_results($verbose = false) {
 
     foreach($nav_list as $type => $arr) {
         foreach($arr as $e) {
-            if($e['name'] == 'index' || (
+        	$name = $e['name'];
+            if($name == 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
-                $e['name'] != $argv[1] &&
+                $name != $argv[1] &&
                 $argv[1] != '.'
             )) {
                 continue;
             }
 
-            $html = @file_get_contents($e['name'] . '.html');
+            $html = @file_get_contents($name . '.html');
             if($html === FALSE) {
                 if($verbose) {
-                    echo "! sample for test '$e[name]' not found.\n";
+                    echo "! sample for test '$name' not found.\n";
                 }
                 continue;
             }
 
             if($verbose) {
-                echo "* rendering test '$e[name]'\n";
+                echo "* rendering test '$name'\n";
             }
             try {
-                $new = show_php($e['name'] . '.jade');
+                $new = show_php($name . '.jade');
             } catch(Exception $err) {
                 if($verbose) {
                     echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
@@ -119,7 +120,7 @@ function get_tests_results($verbose = false) {
                 $to = array('', '', '', '', "'", '');
                 $html = str_replace($from, $to, $html);
                 $code = str_replace($from, $to, $code);
-                $results[] = array($html, $code);
+                $results[] = array($name, $html, $code);
                 if(strcmp($html, $code)) {
                     $failures++;
                     if($verbose) {
