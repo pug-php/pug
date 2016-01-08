@@ -15,26 +15,28 @@ class JadePHPTest extends PHPUnit_Framework_TestCase {
     );
 
     public function caseProvider() {
-        $array = [];
+
+        $cases = array();
 
         foreach (build_list(find_tests()) as $arr) {
             foreach ($arr as $e) {
                 if ($e['name'] === 'index') {
                     continue;
                 }
-
-                $array[] = [$e['name']];
+                $cases[] = array($e['name']);
             }
         }
 
-        return $array;
+        return $cases;
     }
 
     /**
      * @dataProvider caseProvider
      */
     public function testJadeGeneration($name) {
-        $result = get_test_result($name)[1];
+
+        $result = get_test_result($name);
+        $result = $result[1];
 
         $this->assertSame($result[1], $result[2], $name);
     }
