@@ -1,4 +1,5 @@
 # Jade.php
+[![Build Status](https://travis-ci.org/kylekatarnls/jade-php.svg?branch=master)](https://travis-ci.org/kylekatarnls/jade-php)
 
 Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) template compiler.
 
