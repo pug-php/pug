@@ -29,9 +29,6 @@ class Block extends Node {
     }
 
     public function getYield() {
-        if (isset($this->yield)) {
-            return $this;
-        }
         foreach ($this->nodes as $node) {
             if (isset($node->yield)) {
                 return $node;
@@ -46,6 +43,10 @@ class Block extends Node {
     public function includeBlock() {
         $ret = $this;
         foreach ($this->nodes as $node) {
+            if (isset($node->yield)) {
+                return $node;
+            }
+
             if (isset($node->block) && $yield = $node->block->getYield()) {
                 return $yield;
             }
