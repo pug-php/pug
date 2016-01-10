@@ -127,8 +127,8 @@ class Compiler
             'prettyprint',
             'phpSingleLine',
             'allowMixinOverride'
-        ) as $option => $flag) {
-            $this->$option = !! $options[$flag];
+        ) as $option) {
+            $this->$option = !! $options[$option];
         }
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
