@@ -36,7 +36,7 @@ function build_list($test_list) {
     return $group_list;
 }
 
-function show_php($file) {
+function get_php_code($file) {
     $jade = new \Jade\Jade();
     return $jade->render($file);
 }
@@ -68,6 +68,10 @@ function get_tests_results($verbose = false) {
 
     global $argv;
 
+    if(! (ini_get('allow_url_include') | 0)) {
+        echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
+    }
+
     $initialDirectory = getcwd();
     chdir(dirname(__FILE__));
 
@@ -91,8 +95,8 @@ function get_tests_results($verbose = false) {
                 continue;
             }
 
-            $html = @file_get_contents($name . '.html');
-            if($html === FALSE) {
+            $expectedHtml = @file_get_contents($name . '.html');
+            if($expectedHtml === FALSE) {
                 if($verbose) {
                     echo "! sample for test '$name' not found.\n";
                 }
@@ -103,29 +107,29 @@ function get_tests_results($verbose = false) {
                 echo "* rendering test '$name'\n";
             }
             try {
-                $new = show_php($name . '.jade');
+                $new = get_php_code($name . '.jade');
             } catch(Exception $err) {
                 if($verbose) {
-                    echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
+                    echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
                 }
                 $new = null;
             }
 
             if($new !== null) {
 
-                $code = get_generated_html($new);
+                $actualHtml = get_generated_html($new);
 
                 // automatically compare $code and $html here
                 $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
                 $to = array('', '', '', '', "'", '');
-                $html = str_replace($from, $to, $html);
-                $code = str_replace($from, $to, $code);
-                $results[] = array($name, $html, $code);
-                if(strcmp($html, $code)) {
+                $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
+                $minifiedActualHtml = str_replace($from, $to, $actualHtml);
+                $results[] = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
+                if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
                     $failures++;
                     if($verbose) {
-                        echo "  -$html\n";
-                        echo "  +$code\n\n";
+                        echo "  Expected: $expectedHtml\n";
+                        echo "  Actual:   $actualHtml\n\n";
                     }
                     // render until first difference
                     if(isset($argv[1]) && $argv[1] == '.') {
