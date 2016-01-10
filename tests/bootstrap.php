@@ -37,7 +37,9 @@ function build_list($test_list) {
 }
 
 function get_php_code($file) {
-    $jade = new \Jade\Jade();
+    $jade = new \Jade\Jade(array(
+        'prettyprint' => true
+    ));
     return $jade->render($file);
 }
 
@@ -74,8 +76,6 @@ function get_tests_results($verbose = false) {
 
     $initialDirectory = getcwd();
     chdir(dirname(__FILE__));
-
-    init_tests();
 
     $nav_list = build_list(find_tests());
 
@@ -150,3 +150,5 @@ function get_tests_results($verbose = false) {
         'results' => $results
     );
 }
+
+init_tests();
