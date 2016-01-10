@@ -57,7 +57,7 @@ function init_tests() {
 }
 
 function get_generated_html($contents) {
-    if(ini_get('allow_url_include') | 0) {
+    if(intval(ini_get('allow_url_include')) !== 0) {
         error_reporting(E_ALL & ~E_NOTICE);
         ob_start();
         include "data://text/plain;base64," . base64_encode($contents);
@@ -143,8 +143,8 @@ function get_tests_results($verbose = false) {
             if($name == 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
-                $name != $argv[1] &&
-                $argv[1] != '.'
+                $name !== $argv[1] &&
+                $argv[1] !== '.'
             )) {
                 continue;
             }
