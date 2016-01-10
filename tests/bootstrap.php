@@ -2,12 +2,12 @@
 
 function setup_autoload() {
     // quick setup for autoloading
-    $path = str_replace('/', DIRECTORY_SEPARATOR, dirname(__FILE__) . '/../');
+    $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
     $path = realpath($path);
     set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 
     spl_autoload_register(function ($class) {
-        $file = dirname(__FILE__) . '/../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
+        $file = __DIR__ . '/../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
         if(file_exists($file)) {
             require_once($file);
         }
@@ -16,7 +16,7 @@ function setup_autoload() {
 
 function find_tests() {
     // find the tests
-    $path = str_replace('/', DIRECTORY_SEPARATOR, dirname(__FILE__) . '/');
+    $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/');
     $path = realpath($path);
     return glob($path . DIRECTORY_SEPARATOR . '*.jade');
 }
@@ -69,7 +69,7 @@ function get_tests_results($verbose = false) {
     global $argv;
 
     $initialDirectory = getcwd();
-    chdir(dirname(__FILE__));
+    chdir(__DIR__);
 
     init_tests();
 
