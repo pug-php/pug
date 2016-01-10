@@ -36,7 +36,7 @@ function build_list($test_list) {
     return $group_list;
 }
 
-function show_php($file) {
+function get_php_code($file) {
     $jade = new \Jade\Jade();
     return $jade->render($file);
 }
@@ -73,7 +73,13 @@ function get_generated_html($contents) {
 
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
     $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
-    $html = file_get_contents($path . '.html');
+    $expectedHtml = @file_get_contents($path . '.html');
+    if($expectedHtml === FALSE) {
+        if($verbose) {
+            echo "! sample for test '$name' not found.\n";
+        }
+        return;
+    }
 
     if($verbose) {
         echo "* rendering test '$name'\n";
@@ -88,19 +94,18 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     }
 
     if($new !== null) {
-        $code = get_generated_html($new);
+        $actualHtml = get_generated_html($new);
 
-        // automatically compare $code and $html here
         $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
         $to = array('', '', '', '', "'", '');
-        $html = str_replace($from, $to, $html);
-        $code = str_replace($from, $to, $code);
-        $result = array($name, $html, $code);
+        $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
+        $minifiedActualHtml = str_replace($from, $to, $actualHtml);
+        $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
 
-        if(strcmp($html, $code)) {
+        if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
             if($verbose) {
-                echo "  Expected: $html\n";
-                echo "  Actual  : $code\n\n";
+                echo "  Expected: $expectedHtml\n";
+                echo "  Actual  : $actualHtml\n\n";
             }
             if($moreVerbose) {
                 echo "  PHP     : " . compile_php($name);
@@ -118,6 +123,11 @@ function get_tests_results($verbose = false) {
     if($moreVerbose = in_array('--verbose', $argv)) {
         array_splice($argv, array_search('--verbose', $argv), 1);
     }
+
+    if(! (ini_get('allow_url_include') | 0)) {
+        echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
+    }
+
 
     $initialDirectory = getcwd();
     chdir(__DIR__);
@@ -149,8 +159,6 @@ function get_tests_results($verbose = false) {
                 } else {
                     $failures++;
                 }
-            } else {
-                echo 'Could not render ' . $name . "\n";
             }
         }
     }
