@@ -37,7 +37,9 @@ function build_list($test_list) {
 }
 
 function get_php_code($file) {
-    $jade = new \Jade\Jade();
+    $jade = new \Jade\Jade(array(
+        'prettyprint' => true
+    ));
     return $jade->render($file);
 }
 
@@ -127,10 +129,6 @@ function get_tests_results($verbose = false) {
     if(! (ini_get('allow_url_include') | 0)) {
         echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
     }
-
-
-    $initialDirectory = getcwd();
-    chdir(__DIR__);
 
     $nav_list = build_list(find_tests());
 
