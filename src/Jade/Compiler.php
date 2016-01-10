@@ -113,16 +113,26 @@ class Compiler
     protected $closingTag;
 
     /**
+     * @var string
+     */
+    protected $quote;
+
+    /**
      * @param bool  $prettyprint
      * @param array $filters
      */
-    public function __construct($prettyprint = false, $phpSingleLine = fase, $allowMixinOverride = false, array $filters = array())
+    public function __construct(array $options = array(), array $filters = array())
     {
-        $this->prettyprint = $prettyprint;
-        $this->phpSingleLine = $phpSingleLine;
-        $this->allowMixinOverride = $allowMixinOverride;
+        foreach(array(
+            'prettyprint',
+            'phpSingleLine',
+            'allowMixinOverride'
+        ) as $option => $flag) {
+            $this->$option = !! $options[$flag];
+        }
         $this->filters = $filters;
-        $this->closingTag = '?>' . ($prettyprint === true ? ' ' : '');
+        $this->quote = $options['singleQuote'] ? '\'' : '"';
+        $this->closingTag = '?>' . ($options['prettyprint'] ? ' ' : '');
     }
 
     public static function strval($val)
@@ -321,7 +331,7 @@ class Compiler
             throw new \Exception('Expecting a string of javascript, empty string received.');
         }
 
-        if ($input[0] == '"' && $input[strlen($input) - 1] == '"') {
+        if (false !== strpos('"\'', $input[0]) && substr($input, -1) === $input[0]) {
             return array($input);
         }
 
@@ -543,10 +553,10 @@ class Compiler
             //    isset($separators[$i+1]) ? $separators[$i+1][1] : strlen($input)
             //);
 
-            // handleCode() and the regex bellow dont like spaces
+            // @todo: handleCode() in concat
             $part[0] = trim($part[0]);
 
-            if (preg_match('/^(([\'"]).*?\2)(.*)$/', $part[0], $match)) {
+            if (preg_match('/^(([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\2)(.*)$/', $part[0], $match)) {
                 if (mb_strlen(trim($match[3]))) {
                     throw new \Exception('Unexpected value: ' . $match[3]);
                 }
@@ -582,11 +592,7 @@ class Compiler
 
             // \#{dont_do_interpolation}
             if (mb_strlen($m[1]) == 0) {
-                if ($m[2] == '!') {
-                    $code_str = $this->createCode(static::UNESCAPED,$m[3]);
-                } else {
-                    $code_str = $this->createCode(static::ESCAPED,$m[3]);
-                }
+                $code_str = $this->createCode($m[2] == '!' ? static::UNESCAPED : static::ESCAPED, $m[3]);
                 $text = str_replace($m[0], $code_str, $text, $i);
             }
         }
@@ -1243,15 +1249,15 @@ class Compiler
                 if ($this->terse) {
                     $items[] = $key;
                 } else {
-                    $items[] = "{$key}='{$key}'";
+                    $items[] = $key . '=' . $this->quote . $key . $this->quote;
                 }
             } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                $items[] = "{$key}='{$value}'";
+                $items[] = $key . '=' . $this->quote . $value . $this->quote;
             }
         }
 
         if (count($classes)) {
-            $items[] = 'class=\'' . implode(' ', $classes) . '\'';
+            $items[] = 'class=' . $this->quote . implode(' ', $classes) . $this->quote;
         }
 
         $this->buffer(implode(' ', $items), false);
