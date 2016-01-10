@@ -21,7 +21,8 @@ class Jade {
         'prettyprint'        => false,
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
-        'allowMixinOverride' => true
+        'allowMixinOverride' => true,
+        'singleQuote'        => true
     );
 
     /**
@@ -82,7 +83,7 @@ class Jade {
     public function compile($input)
     {
         $parser   = new Parser($input, null, $this->options['extension']);
-        $compiler = new Compiler($this->options['prettyprint'], $this->options['phpSingleLine'], $this->options['allowMixinOverride'], $this->filters);
+        $compiler = new Compiler($this->options, $this->filters);
 
         return $compiler->compile($parser->parse($input));
     }
