@@ -50,7 +50,7 @@ function init_tests() {
 }
 
 function get_generated_html($contents) {
-    if(ini_get('allow_url_include') | 0) {
+    if(intval(ini_get('allow_url_include')) !== 0) {
         error_reporting(E_ALL & ~E_NOTICE);
         ob_start();
         include "data://text/plain;base64," . base64_encode($contents);
@@ -70,7 +70,7 @@ function get_tests_results($verbose = false) {
 
     global $argv;
 
-    if(! (ini_get('allow_url_include') | 0)) {
+    if(intval(ini_get('allow_url_include')) === 0) {
         echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
     }
 
@@ -86,17 +86,17 @@ function get_tests_results($verbose = false) {
     foreach($nav_list as $type => $arr) {
         foreach($arr as $e) {
         	$name = $e['name'];
-            if($name == 'index' || (
+            if($name === 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
-                $name != $argv[1] &&
-                $argv[1] != '.'
+                $name !== $argv[1] &&
+                $argv[1] !== '.'
             )) {
                 continue;
             }
 
             $expectedHtml = @file_get_contents($name . '.html');
-            if($expectedHtml === FALSE) {
+            if($expectedHtml === false) {
                 if($verbose) {
                     echo "! sample for test '$name' not found.\n";
                 }
@@ -125,14 +125,14 @@ function get_tests_results($verbose = false) {
                 $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
                 $minifiedActualHtml = str_replace($from, $to, $actualHtml);
                 $results[] = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
-                if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
+                if(strcmp($minifiedExpectedHtml, $minifiedActualHtml) !== 0) {
                     $failures++;
                     if($verbose) {
                         echo "  Expected: $expectedHtml\n";
                         echo "  Actual:   $actualHtml\n\n";
                     }
                     // render until first difference
-                    if(isset($argv[1]) && $argv[1] == '.') {
+                    if(isset($argv[1]) && $argv[1] === '.') {
                         exit;
                     }
                 } else {
