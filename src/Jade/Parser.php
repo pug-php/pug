@@ -527,6 +527,11 @@ class Parser {
                 }
                 continue;
 
+            case '&attributes':
+                $this->advance();
+                $tag->setAttribute('&attributes', true);
+                continue;
+
             default:
                 break 2;
             }

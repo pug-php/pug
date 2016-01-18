@@ -831,6 +831,14 @@ class Lexer
     }
 
     /**
+     * @return Object
+     */
+    protected function scanAndAttributes()
+    {
+        return $this->scan('/^&attributes\(attributes\) */', '&attributes');
+    }
+
+    /**
      * @return bool|mixed|null|Object|void
      */
     public function nextToken()
@@ -865,6 +873,7 @@ class Lexer
         or $r = $this->scanIndent()
         or $r = $this->scanComment()
         or $r = $this->scanColon()
+        or $r = $this->scanAndAttributes()
         or $r = $this->scanText();
 
         return $r;
