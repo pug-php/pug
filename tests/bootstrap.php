@@ -87,7 +87,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
         echo "* rendering test '$name'\n";
     }
     try {
-        $new = show_php($path . '.jade');
+        $new = get_php_code($path . '.jade');
     } catch(Exception $err) {
         if($verbose) {
             echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
