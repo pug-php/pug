@@ -1217,42 +1217,46 @@ class Compiler
 
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
-            $value = trim($attr['value']);
-
-            if ($this->isConstant($value, $key == 'class')) {
-                $value = trim($value,' \'"');
-                if($value === 'undefined')
-                    $value = 'null';
+            if($key === '&attributes') {
+                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo $key . \'=\' . htmlspecialchars($value) . \' \'; }');
             } else {
-                $json = json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
+                $value = trim($attr['value']);
 
-                if ($json !== null && is_array($json) && $key == 'class') {
-                    $value = implode(' ', $json);
+                if ($this->isConstant($value, $key == 'class')) {
+                    $value = trim($value,' \'"');
+                    if($value === 'undefined')
+                        $value = 'null';
                 } else {
-                    // inline this in the tag
-                    $pp = $this->prettyprint;
-                    $this->prettyprint = false;
+                    $json = json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
 
-                    if ($key == 'class') {
-                        $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+                    if ($json !== null && is_array($json) && $key == 'class') {
+                        $value = implode(' ', $json);
                     } else {
-                        $value = $this->createCode(static::UNESCAPED, $value);
-                    }
+                        // inline this in the tag
+                        $pp = $this->prettyprint;
+                        $this->prettyprint = false;
 
-                    $this->prettyprint = $pp;
+                        if ($key == 'class') {
+                            $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+                        } else {
+                            $value = $this->createCode(static::UNESCAPED, $value);
+                        }
+
+                        $this->prettyprint = $pp;
+                    }
                 }
-            }
-            if ($key == 'class') {
-                if($value !== 'false' && $value !== 'null' && $value !== 'undefined')
-                    array_push($classes, $value);
-            } elseif ($value == 'true' || $attr['value'] === true) {
-                if ($this->terse) {
-                    $items[] = $key;
-                } else {
-                    $items[] = "{$key}='{$key}'";
+                if ($key == 'class') {
+                    if($value !== 'false' && $value !== 'null' && $value !== 'undefined')
+                        array_push($classes, $value);
+                } elseif ($value == 'true' || $attr['value'] === true) {
+                    if ($this->terse) {
+                        $items[] = $key;
+                    } else {
+                        $items[] = "{$key}='{$key}'";
+                    }
+                } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+                    $items[] = "{$key}='{$value}'";
                 }
-            } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                $items[] = "{$key}='{$value}'";
             }
         }
 
