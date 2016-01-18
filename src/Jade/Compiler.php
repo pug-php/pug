@@ -985,10 +985,10 @@ class Compiler
     protected function visitTag(Nodes\Tag $tag)
     {
         if(isset($tag->buffer)) {
-          if(preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
-            $tag->name = '$' . $tag->name;
-          }
-          $tag->name = $this->createCode('echo ' . $tag->name . ';');
+            if(preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
+                $tag->name = '$' . $tag->name;
+            }
+            $tag->name = $this->createCode('echo ' . $tag->name . ';');
         }
         if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
             $this->visitDoctype();
