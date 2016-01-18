@@ -1252,9 +1252,11 @@ class Compiler
                         $this->prettyprint = $pp;
                     }
                 }
+
                 if ($key == 'class') {
-                    if($value !== 'false' && $value !== 'null' && $value !== 'undefined')
+                    if($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                         array_push($classes, $value);
+                    }
                 } elseif ($value == 'true' || $attr['value'] === true) {
                     if ($this->terse) {
                         $items[] = $key;
