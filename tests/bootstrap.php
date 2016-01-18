@@ -64,14 +64,46 @@ function get_generated_html($contents) {
     return $contents;
 }
 
+function get_test_result($name, $verbose = false) {
+    $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
+    $html = file_get_contents($path . '.html');
+
+    if($verbose) {
+        echo "* rendering test '$name'\n";
+    }
+    try {
+        $new = show_php($path . '.jade');
+    } catch(Exception $err) {
+        if($verbose) {
+            echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
+        }
+        $new = null;
+    }
+
+    if($new !== null) {
+        $code = get_generated_html($new);
+
+        // automatically compare $code and $html here
+        $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
+        $to = array('', '', '', '', "'", '');
+        $html = str_replace($from, $to, $html);
+        $code = str_replace($from, $to, $code);
+        $result = array($name, $html, $code);
+
+        if(strcmp($html, $code)) {
+            if($verbose) {
+                echo "  -$html\n";
+                echo "  +$code\n\n";
+            }
+            return array(false, $result);
+        }
+
+        return array(true, $result);
+    }
+}
+
 function get_tests_results($verbose = false) {
-
     global $argv;
-
-    $initialDirectory = getcwd();
-    chdir(__DIR__);
-
-    init_tests();
 
     $nav_list = build_list(find_tests());
 
@@ -82,6 +114,7 @@ function get_tests_results($verbose = false) {
     foreach($nav_list as $type => $arr) {
         foreach($arr as $e) {
         	$name = $e['name'];
+
             if($name == 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
@@ -91,54 +124,21 @@ function get_tests_results($verbose = false) {
                 continue;
             }
 
-            $html = @file_get_contents($name . '.html');
-            if($html === FALSE) {
-                if($verbose) {
-                    echo "! sample for test '$name' not found.\n";
-                }
-                continue;
+            $result = get_test_result($name, $verbose);
+            $results[] = $result[1];
+
+            if ($result[0]) {
+                $success ++;
             }
+            else {
+                $failures ++;
 
-            if($verbose) {
-                echo "* rendering test '$name'\n";
-            }
-            try {
-                $new = show_php($name . '.jade');
-            } catch(Exception $err) {
-                if($verbose) {
-                    echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
-                }
-                $new = null;
-            }
-
-            if($new !== null) {
-
-                $code = get_generated_html($new);
-
-                // automatically compare $code and $html here
-                $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
-                $to = array('', '', '', '', "'", '');
-                $html = str_replace($from, $to, $html);
-                $code = str_replace($from, $to, $code);
-                $results[] = array($name, $html, $code);
-                if(strcmp($html, $code)) {
-                    $failures++;
-                    if($verbose) {
-                        echo "  -$html\n";
-                        echo "  +$code\n\n";
-                    }
-                    // render until first difference
-                    if(isset($argv[1]) && $argv[1] == '.') {
-                        exit;
-                    }
-                } else {
-                    $success++;
+                if(isset($argv[1]) && $argv[1] == '.') {
+                    exit;
                 }
             }
         }
     }
-
-    chdir($initialDirectory);
 
     return array(
         'success' => $success,
@@ -146,3 +146,5 @@ function get_tests_results($verbose = false) {
         'results' => $results
     );
 }
+
+init_tests();
