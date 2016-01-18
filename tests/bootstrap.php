@@ -36,8 +36,10 @@ function build_list($test_list) {
     return $group_list;
 }
 
-function show_php($file) {
-    $jade = new \Jade\Jade();
+function get_php_code($file) {
+    $jade = new \Jade\Jade(array(
+        'prettyprint' => true
+    ));
     return $jade->render($file);
 }
 
@@ -55,7 +57,7 @@ function init_tests() {
 }
 
 function get_generated_html($contents) {
-    if(ini_get('allow_url_include') | 0) {
+    if(intval(ini_get('allow_url_include')) !== 0) {
         error_reporting(E_ALL & ~E_NOTICE);
         ob_start();
         include "data://text/plain;base64," . base64_encode($contents);
@@ -73,13 +75,19 @@ function get_generated_html($contents) {
 
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
     $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
-    $html = file_get_contents($path . '.html');
+    $expectedHtml = @file_get_contents($path . '.html');
+    if($expectedHtml === FALSE) {
+        if($verbose) {
+            echo "! sample for test '$name' not found.\n";
+        }
+        return;
+    }
 
     if($verbose) {
         echo "* rendering test '$name'\n";
     }
     try {
-        $new = show_php($path . '.jade');
+        $new = get_php_code($path . '.jade');
     } catch(Exception $err) {
         if($verbose) {
             echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
@@ -88,19 +96,18 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     }
 
     if($new !== null) {
-        $code = get_generated_html($new);
+        $actualHtml = get_generated_html($new);
 
-        // automatically compare $code and $html here
         $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
         $to = array('', '', '', '', "'", '');
-        $html = str_replace($from, $to, $html);
-        $code = str_replace($from, $to, $code);
-        $result = array($name, $html, $code);
+        $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
+        $minifiedActualHtml = str_replace($from, $to, $actualHtml);
+        $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
 
-        if(strcmp($html, $code)) {
+        if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
             if($verbose) {
-                echo "  Expected: $html\n";
-                echo "  Actual  : $code\n\n";
+                echo "  Expected: $expectedHtml\n";
+                echo "  Actual  : $actualHtml\n\n";
             }
             if($moreVerbose) {
                 echo "  PHP     : " . compile_php($name);
@@ -119,8 +126,9 @@ function get_tests_results($verbose = false) {
         array_splice($argv, array_search('--verbose', $argv), 1);
     }
 
-    $initialDirectory = getcwd();
-    chdir(__DIR__);
+    if(! (ini_get('allow_url_include') | 0)) {
+        echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
+    }
 
     $nav_list = build_list(find_tests());
 
@@ -135,8 +143,8 @@ function get_tests_results($verbose = false) {
             if($name == 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
-                $name != $argv[1] &&
-                $argv[1] != '.'
+                $name !== $argv[1] &&
+                $argv[1] !== '.'
             )) {
                 continue;
             }
@@ -149,8 +157,6 @@ function get_tests_results($verbose = false) {
                 } else {
                     $failures++;
                 }
-            } else {
-                echo 'Could not render ' . $name . "\n";
             }
         }
     }
