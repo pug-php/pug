@@ -41,6 +41,13 @@ function show_php($file) {
     return $jade->render($file);
 }
 
+function compile_php($file) {
+    $jade = new Jade\Jade(array(
+        'prettyprint' => true
+    ));
+    return $jade->compile(file_get_contents($file . '.jade'));
+}
+
 function init_tests() {
     mb_internal_encoding('utf-8');
     error_reporting(E_ALL);
@@ -95,6 +102,9 @@ function get_test_result($name, $verbose = false) {
                 echo "  -$html\n";
                 echo "  +$code\n\n";
             }
+            if($moreVerbose) {
+                echo "  PHP     : " . compile_php($name);
+            }
             return array(false, $result);
         }
 
@@ -105,6 +115,13 @@ function get_test_result($name, $verbose = false) {
 function get_tests_results($verbose = false) {
     global $argv;
 
+    if($moreVerbose = in_array('--verbose', $argv)) {
+        array_splice($argv, array_search('--verbose', $argv), 1);
+    }
+
+    $initialDirectory = getcwd();
+    chdir(__DIR__);
+
     $nav_list = build_list(find_tests());
 
     $success = 0;
@@ -113,7 +130,7 @@ function get_tests_results($verbose = false) {
 
     foreach($nav_list as $type => $arr) {
         foreach($arr as $e) {
-        	$name = $e['name'];
+            $name = $e['name'];
 
             if($name == 'index' || (
                 isset($argv[1]) &&
@@ -124,18 +141,16 @@ function get_tests_results($verbose = false) {
                 continue;
             }
 
-            $result = get_test_result($name, $verbose);
-            $results[] = $result[1];
+            if($result = get_test_result($name, $verbose)) {
+                $results[] = $result[1];
 
-            if ($result[0]) {
-                $success ++;
-            }
-            else {
-                $failures ++;
-
-                if(isset($argv[1]) && $argv[1] == '.') {
-                    exit;
+                if ($result[0]) {
+                    $success++;
+                } else {
+                    $failures++;
                 }
+            } else {
+                echo 'Could not render ' . $name . "\n";
             }
         }
     }

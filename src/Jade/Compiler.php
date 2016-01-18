@@ -546,7 +546,7 @@ class Compiler
             // handleCode() and the regex bellow dont like spaces
             $part[0] = trim($part[0]);
 
-            if (preg_match('/^(([\'"]).*?\2)(.*)$/', $part[0], $match)) {
+            if (preg_match('/^(([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\2)(.*)$/', $part[0], $match)) {
                 if (mb_strlen(trim($match[3]))) {
                     throw new \Exception('Unexpected value: ' . $match[3]);
                 }
@@ -873,7 +873,7 @@ class Compiler
     protected function visitMixin(Nodes\Mixin $mixin)
     {
         $name       = strtr($mixin->name, '-', '_') . '_mixin';
-        if($this->allowMixinOverride) {
+        if ($this->allowMixinOverride) {
             $name = '$GLOBALS[\'' . $name . '\']';
         }
         $arguments  = $mixin->arguments;
@@ -887,14 +887,15 @@ class Compiler
             } else {
                 $_attr = array();
                 foreach ($attributes as $data) {
-                    if ($data['escaped'] === true) {
-                        $_attr[$data['name']] = htmlspecialchars($data['value']);
-                    } else {
-                        $_attr[$data['name']] = $data['value'];
+                    $quote = substr(ltrim($data['value']), 0, 1);
+                    if(false !== strpos('\'"', $quote)) {
+                        $data['value'] = stripslashes(substr(trim($data['value']), 1, -1));
                     }
+                    $_attr[$data['name']] = $data['escaped'] === true
+                        ? htmlspecialchars($data['value'])
+                        : $data['value'];
                 }
 
-                //TODO: this adds extra escaping, tests mixin.* failed.
                 $attributes = var_export($_attr, true);
                 $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
             }
@@ -915,7 +916,6 @@ class Compiler
                         },
                         $arguments
                     );
-                    //$arguments = array($arguments);
                     $arguments = array_map(
                         function ($arg) use($strings)
                         {
@@ -933,7 +933,7 @@ class Compiler
                 }
 
                 array_unshift($arguments, $attributes);
-                $statements= $this->apply('createStatements', $arguments);
+                $statements = $this->apply('createStatements', $arguments);
 
                 $variables = array_pop($statements);
                 $variables = implode(', ', $variables);
@@ -948,6 +948,7 @@ class Compiler
             $this->buffer($code);
 
         } else {
+
             if ($arguments === null || empty($arguments)) {
                 $arguments = array();
             } else
@@ -959,7 +960,7 @@ class Compiler
             $arguments = implode(',', $arguments);
             $arguments = explode(',', $arguments);
             array_walk($arguments, array(get_class(), 'initArgToNull'));
-            if($this->allowMixinOverride) {
+            if ($this->allowMixinOverride) {
                 $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
 
                 $this->buffer($code);
