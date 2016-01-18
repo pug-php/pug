@@ -71,7 +71,7 @@ function get_generated_html($contents) {
     return $contents;
 }
 
-function get_test_result($name, $verbose = false) {
+function get_test_result($name, $verbose = false, $moreVerbose = false) {
     $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
     $html = file_get_contents($path . '.html');
 
@@ -99,8 +99,8 @@ function get_test_result($name, $verbose = false) {
 
         if(strcmp($html, $code)) {
             if($verbose) {
-                echo "  -$html\n";
-                echo "  +$code\n\n";
+                echo "  Expected: $html\n";
+                echo "  Actual  : $code\n\n";
             }
             if($moreVerbose) {
                 echo "  PHP     : " . compile_php($name);
@@ -141,7 +141,7 @@ function get_tests_results($verbose = false) {
                 continue;
             }
 
-            if($result = get_test_result($name, $verbose)) {
+            if($result = get_test_result($name, $verbose, $moreVerbose)) {
                 $results[] = $result[1];
 
                 if ($result[0]) {
