@@ -1,5 +1,3 @@
-//- fix warnings
-
 mixin centered(title)
   div.centered(id=attributes.id)
     - if (title)
@@ -14,6 +12,9 @@ mixin main(title)
     +centered(title).highlight(attributes)
       block
 
+mixin image(src, width)
+  img(src=src, width=width)
+
 mixin bottom
   div.bottom(attributes)
     block
@@ -24,7 +25,10 @@ body
     p Some important content.
   +centered('Section 2')#Third.foo(href='menu.html', class='bar')
     p Even more important content.
-  +main('Section 3')(href='#')
+  +main('Section 3\' and quote""')(href='#')
     p Last content.
   +bottom.foo(class='bar', name='end', id='Last', data-attr='baz')
     p Some final words.
+  +image('foo.png', 400)
+  - width = 500
+  +image('foo.png', width)

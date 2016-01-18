@@ -277,7 +277,9 @@ class Parser {
         $mode = $block->mode;
         $name = trim($block->value);
 
-        $block = 'indent' == $this->peek()->type ? $this->block() : new Nodes\Block(new Nodes\Literal(''));
+        $block = 'indent' == $this->peek()->type
+            ? $this->block()
+            : new Nodes\Block(new Nodes\Literal(''));
 
         if (isset($this->blocks[$name])) {
             $prev = $this->blocks[$name];
@@ -364,11 +366,9 @@ class Parser {
         $token = $this->expect('call');
         $name = $token->value;
 
-        if (isset($token->arguments)) {
-            $arguments = $token->arguments;
-        }else{
-            $arguments = null;
-        }
+        $arguments = isset($token->arguments)
+            ? $token->arguments
+            : null;
 
         $mixin = new Nodes\Mixin($name, $arguments, new Nodes\Block(), true);
 
@@ -392,7 +392,7 @@ class Parser {
             $this->mixins[$name] = $mixin;
             return $mixin;
             // call
-        }else{
+        } else {
             return new Nodes\Mixin($name, $arguments, null, true);
         }
     }
@@ -445,7 +445,7 @@ class Parser {
 
             if ($this->peek()->type === 'newline') {
                 $this->lexer->advance();
-            }else{
+            } else {
                 $block->push($this->parseExpression());
             }
         }
@@ -462,7 +462,7 @@ class Parser {
     }
 
     protected function parseTag() {
-        $i=2;
+        $i = 2;
 
         if ('attributes' == $this->lookahead($i)->type) {
             $i++;
@@ -480,11 +480,9 @@ class Parser {
         $tag = new Nodes\Tag($token->value);
 
         // tag/
-        if (isset($token->selfClosing)){
-            $tag->selfClosing = $token->selfClosing;
-        }else{
-            $tag->selfClosing = false;
-        }
+        $tag->selfClosing = isset($token->selfClosing)
+            ? $token->selfClosing
+            : false;
 
         return $this->tag($tag);
     }
@@ -585,13 +583,13 @@ class Parser {
                 $this->lexer->pipeless = true;
                 $tag->block = $this->parseTextBlock();
                 $this->lexer->pipeless = false;
-            }else{
+            } else {
                 $block = $this->block();
                 if ($tag->block) {
                     foreach ($block->nodes as $n) {
                         $tag->block->push($n);
                     }
-                }else{
+                } else {
                     $tag->block = $block;
                 }
             }

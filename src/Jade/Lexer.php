@@ -438,7 +438,8 @@ class Lexer
      */
     protected function scanCall()
     {
-        if (preg_match('/^\+([-\w]+)/', $this->input, $matches)) {
+        if (preg_match('/^\+(\w[-\w]*)/', $this->input, $matches)) {
+            static $i = 0;
             $this->consume($matches[0]);
             $token = $this->token('call', $matches[1]);
 
@@ -457,7 +458,7 @@ class Lexer
      */
     protected function scanMixin()
     {
-        if (preg_match('/^mixin +([-\w]+)(?: *\((.*)\))?/', $this->input, $matches)) {
+        if (preg_match('/^mixin +(\w[-\w]*)(?: *\((.*)\))?/', $this->input, $matches)) {
             $this->consume($matches[0]);
             $token            = $this->token('mixin', $matches[1]);
             $token->arguments = isset($matches[2]) ? $matches[2] : null;
