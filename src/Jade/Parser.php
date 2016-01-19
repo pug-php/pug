@@ -282,7 +282,7 @@ class Parser {
             : new Nodes\Block(new Nodes\Literal(''));
 
         if (isset($this->blocks[$name])) {
-            $prev = $this->blocks[$name];
+            $prev = &$this->blocks[$name];
 
             switch ($prev->mode) {
             case 'append':
@@ -299,9 +299,7 @@ class Parser {
             default:
                 break;
             }
-
-            $this->blocks[$name] = $prev;
-        }else{
+        } else {
             $block->mode = $mode;
             $this->blocks[$name] = $block;
         }
