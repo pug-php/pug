@@ -56,7 +56,7 @@ class Compiler
     /**
      * @var bool
      */
-    protected $terse         = false;
+    protected $terse         = true;
     /**
      * @var bool
      */
@@ -132,7 +132,8 @@ class Compiler
         }
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
-        $this->closingTag = '?>' . ($options['prettyprint'] ? ' ' : '');
+        $this->closingTag = '?>'; // . ($options['prettyprint'] ? ' ' : '');
+        // This hack to prettify the output must be fixed because it breaks attributes
     }
 
     public static function strval($val)
@@ -856,9 +857,7 @@ class Compiler
 
         $this->buffer( $str . $this->newline());
 
-        if (strtolower($str) == '<!doctype html>') {
-            $this->terse = true;
-        }
+        $this->terse = (strtolower($str) == '<!doctype html>');
 
         $this->xml = false;
         if ($doc == 'xml') {
@@ -879,6 +878,7 @@ class Compiler
     protected function visitMixin(Nodes\Mixin $mixin)
     {
         $name       = strtr($mixin->name, '-', '_') . '_mixin';
+        $blockName  = '__block_' . $name;
         if ($this->allowMixinOverride) {
             $name = '$GLOBALS[\'' . $name . '\']';
         }
@@ -906,6 +906,12 @@ class Compiler
                 $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
             }
 
+            if($block) {
+                $code = $this->createCode("if(! isset(\$GLOBALS['{$blockName}'])) { \$GLOBALS['{$blockName}'] = array(); } \$GLOBALS['{$blockName}'][] = function () {");
+                $this->buffer($code);
+                $this->visit($block);
+                $this->buffer($this->createCode('};'));
+            }
             if ($arguments === null || empty($arguments)) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
             } else {
@@ -952,9 +958,15 @@ class Compiler
                 $code = $this->apply('createCode', $arguments);
             }
             $this->buffer($code);
+            if($block) {
+                $code = $this->createCode("array_pop(\$GLOBALS['{$blockName}']);");
+                $this->buffer($code);
+            }
 
         } else {
 
+            $previousVisitedMixin = isset($this->visitedMixin) ? $this->visitedMixin : null;
+            $this->visitedMixin = $mixin;
             if ($arguments === null || empty($arguments)) {
                 $arguments = array();
             } else
@@ -983,7 +995,22 @@ class Compiler
                 $this->indents--;
                 $this->buffer($this->createCode('} }'));
             }
+            if(is_null($previousVisitedMixin)) {
+                unset($this->visitedMixin);
+            } else {
+                $this->visitedMixin = $previousVisitedMixin;
+            }
         }
+    }
+
+    /**
+     * @param Nodes\Mixin $mixin
+     */
+    protected function visitMixinBlock(Nodes\MixinBlock $mixinBlock)
+    {
+        $code = $this->createCode("if(!empty(\$GLOBALS['__block_{$this->visitedMixin->name}_mixin']) && (\$func = end(\$GLOBALS['__block_{$this->visitedMixin->name}_mixin']))) { call_user_func(\$func); };");
+
+        $this->buffer($code);
     }
 
     /**
@@ -1008,25 +1035,18 @@ class Compiler
             $this->prettyprint = false;
         }
 
+        $noSlash = (! $self_closing || $this->terse);
+
         if (count($tag->attributes)) {
-            if ($self_closing) {
-                $open = '<' . $tag->name . ' ';
-                $close = ($this->terse) ? '>' : '/>';
-            } else {
-                $open = '<' . $tag->name . ' ';
-                $close = '>';
-            }
+            $open = '<' . $tag->name . ' ';
+            $close = $noSlash ? '>' : '/>';
 
             $this->buffer($this->indent() . $open, false);
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
         } else {
 
-            if ($self_closing) {
-                $html_tag = '<' . $tag->name . (($this->terse) ? '>' : '/>');
-            } else {
-                $html_tag = '<' . $tag->name . '>';
-            }
+            $html_tag = '<' . $tag->name . ($noSlash ? '>' : '/>');
 
             $this->buffer($html_tag);
         }

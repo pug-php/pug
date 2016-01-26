@@ -47,7 +47,7 @@ function compile_php($file) {
     $jade = new Jade\Jade(array(
         'prettyprint' => true
     ));
-    return $jade->compile(file_get_contents($file . '.jade'));
+    return $jade->compile(file_get_contents(__DIR__ . '/' . $file . '.jade'));
 }
 
 function init_tests() {
@@ -98,14 +98,16 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     if($new !== null) {
         $actualHtml = get_generated_html($new);
 
-        $from = array("\n", "\r", "\t", " ", '"', "<!DOCTYPEhtml>");
-        $to = array('', '', '', '', "'", '');
+        $from = array("\n", "\r", "\t", " ", "'", "<!DOCTYPEhtml>");
+        $to = array('', '', '', '', '"', '');
         $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
         $minifiedActualHtml = str_replace($from, $to, $actualHtml);
         $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
 
         if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
             if($verbose) {
+                $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
+                $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
                 echo "  Expected: $expectedHtml\n";
                 echo "  Actual  : $actualHtml\n\n";
             }
