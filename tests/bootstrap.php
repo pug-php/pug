@@ -106,10 +106,14 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
 
         if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
             if($verbose) {
+                include_once __DIR__ . '/diff.php';
                 $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
                 $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
+                echo Diff::toString(Diff::compare($expectedHtml, $actualHtml)) . "\n";
+                /*
                 echo "  Expected: $expectedHtml\n";
                 echo "  Actual  : $actualHtml\n\n";
+                */
             }
             if($moreVerbose) {
                 echo "  PHP     : " . compile_php($name);
