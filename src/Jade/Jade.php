@@ -22,6 +22,7 @@ class Jade {
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
         'allowMixinOverride' => true,
+        'keepNullAttributes' => false,
         'singleQuote'        => true
     );
 
@@ -108,7 +109,7 @@ class Jade {
             ob_end_clean();
             throw $e;
         }
-        
+
         return ob_get_clean();
     }
 

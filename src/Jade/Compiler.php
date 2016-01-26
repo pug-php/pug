@@ -56,6 +56,10 @@ class Compiler
     /**
      * @var bool
      */
+    protected $keepNullAttributes = false;
+    /**
+     * @var bool
+     */
     protected $terse         = true;
     /**
      * @var bool
@@ -126,7 +130,8 @@ class Compiler
         foreach(array(
             'prettyprint',
             'phpSingleLine',
-            'allowMixinOverride'
+            'allowMixinOverride',
+            'keepNullAttributes'
         ) as $option) {
             $this->$option = !! $options[$option];
         }
@@ -136,9 +141,68 @@ class Compiler
         // This hack to prettify the output must be fixed because it breaks attributes
     }
 
+    /**
+     * value treatment if it must not be escaped
+     * @param string  input value
+     *
+     * @return string
+     */
     public static function strval($val)
     {
         return is_array($val) ? json_encode($val) : strval($val);
+    }
+
+    /**
+     * record a closure as a mixin block during execution jade template time
+     * @param string  mixin name
+     * @param string  mixin block treatment
+     */
+    public static function recordMixinBlock($name, $func = null, $terminate = false)
+    {
+        static $mixinBlocks = null;
+        if(is_null($mixinBlocks)) {
+            $mixinBlocks = array();
+        }
+        $isArray = isset($mixinBlocks[$name]) && is_array($mixinBlocks[$name]);
+        if(is_null($func)) {
+            if($isArray) {
+                if($terminate) {
+                    array_pop($mixinBlocks);
+                } elseif(count($mixinBlocks[$name])) {
+                    return $mixinBlocks[$name];
+                }
+            }
+        } else {
+            if(! $isArray) {
+                $mixinBlocks[$name] = array();
+            }
+            array_push($mixinBlocks[$name], $func);
+        }
+    }
+
+    /**
+     * record a closure as a mixin block during execution jade template time
+     * @param string  mixin name
+     * @param string  mixin block treatment
+     */
+    public static function callMixinBlock($name)
+    {
+        $mixinBlocks = static::recordMixinBlock($name);
+        if(is_array($mixinBlocks)) {
+            $func = end($mixinBlocks);
+            if(is_callable($func)) {
+                call_user_func($func);
+            }
+        }
+    }
+
+    /**
+     * end of the record a closure as a mixin block
+     * @param string  mixin name
+     */
+    public static function terminateMixinBlock($name)
+    {
+        static::recordMixinBlock($name, null, true);
     }
 
     /**
@@ -878,7 +942,7 @@ class Compiler
     protected function visitMixin(Nodes\Mixin $mixin)
     {
         $name       = strtr($mixin->name, '-', '_') . '_mixin';
-        $blockName  = '__block_' . $name;
+        $blockName  = var_export($mixin->name, true);
         if ($this->allowMixinOverride) {
             $name = '$GLOBALS[\'' . $name . '\']';
         }
@@ -888,8 +952,23 @@ class Compiler
 
         if ($mixin->call) {
 
+            $defaultAttributes = array();
+            $args = explode(',', $arguments);
+            $modified = false;
+            foreach($args as $key => $arg) {
+                $tab = explode('=', trim($arg), 2);
+                if(count($tab) === 2) {
+                    $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+                    unset($args[$key]);
+                    $modified = true;
+                }
+            }
+            if($modified) {
+                $arguments = implode(',', $args);
+            }
+            $defaultAttributes = implode(', ', $defaultAttributes);
             if (!count($attributes)) {
-                $attributes = "(isset(\$attributes)) ? \$attributes : array()";
+                $attributes = "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
             } else {
                 $_attr = array();
                 foreach ($attributes as $data) {
@@ -903,14 +982,14 @@ class Compiler
                 }
 
                 $attributes = var_export($_attr, true);
-                $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array())";
+                $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
             }
 
             if($block) {
-                $code = $this->createCode("if(! isset(\$GLOBALS['{$blockName}'])) { \$GLOBALS['{$blockName}'] = array(); } \$GLOBALS['{$blockName}'][] = \$includeBlock = function () {");
+                $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function () {");
                 $this->buffer($code);
                 $this->visit($block);
-                $this->buffer($this->createCode('};'));
+                $this->buffer($this->createCode('});'));
             }
             if ($arguments === null || empty($arguments)) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
@@ -959,7 +1038,7 @@ class Compiler
             }
             $this->buffer($code);
             if($block) {
-                $code = $this->createCode("array_pop(\$GLOBALS['{$blockName}']);");
+                $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
                 $this->buffer($code);
             }
 
@@ -1008,7 +1087,8 @@ class Compiler
      */
     protected function visitMixinBlock(Nodes\MixinBlock $mixinBlock)
     {
-        $code = $this->createCode("if(!empty(\$GLOBALS['__block_{$this->visitedMixin->name}_mixin']) && (\$func = end(\$GLOBALS['__block_{$this->visitedMixin->name}_mixin']))) { call_user_func(\$func); };");
+        $name = var_export($this->visitedMixin->name, true);
+        $code = $this->createCode("\\Jade\\Compiler::callMixinBlock({$name});");
 
         $this->buffer($code);
     }
@@ -1245,8 +1325,10 @@ class Compiler
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             if($key === '&attributes') {
-                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo $key . \'=\' . htmlspecialchars($value) . \' \'; }');
+                $quote = var_export($this->quote, true);
+                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . ' . \' \'; }');
             } else {
+                $valueCheck = null;
                 $value = trim($attr['value']);
 
                 if ($this->isConstant($value, $key == 'class')) {
@@ -1265,8 +1347,11 @@ class Compiler
 
                         if ($key == 'class') {
                             $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-                        } else {
+                        } elseif($this->keepNullAttributes) {
                             $value = $this->createCode(static::UNESCAPED, $value);
+                        } else {
+                            $valueCheck = $value;
+                            $value = $this->createCode(static::UNESCAPED, '$value');
                         }
 
                         $this->prettyprint = $pp;
@@ -1284,7 +1369,13 @@ class Compiler
                         $items[] = $key . '=' . $this->quote . $key . $this->quote;
                     }
                 } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                    $items[] = $key . '=' . $this->quote . $value . $this->quote;
+                    if(! is_null($valueCheck)) {
+                        $item = $this->createCode('if(! is_null($value = %s)) {', $valueCheck);
+                        $item .= $key . '=' . $this->quote . $value . $this->quote;
+                        $items[] = $item . $this->createCode('}');
+                    } else {
+                        $items[] = $key . '=' . $this->quote . $value . $this->quote;
+                    }
                 }
             }
         }
