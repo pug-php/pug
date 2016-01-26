@@ -1,12 +1,12 @@
-html
-  body
-    +article('Foo'): p I'm article foo
-
 mixin article(name)
   section.article
     h1= name
-    p
+    article
       block
+
+html
+  body
+    +article('Foo'): p I'm article foo
 
 html
   body
