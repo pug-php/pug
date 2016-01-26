@@ -82,7 +82,7 @@ class Parser {
 
         if ($parser = $this->extending) {
             $this->context($parser);
-            //$parser->blocks = $this->blocks;
+            // $parser->blocks = $this->blocks;
             try
             {
                 $ast = $parser->parse();
@@ -279,7 +279,7 @@ class Parser {
 
         $block = 'indent' == $this->peek()->type
             ? $this->block()
-            : new Nodes\Block(new Nodes\Literal(''));
+            : new Nodes\Block(new Nodes\MixinBlock());
 
         if (isset($this->blocks[$name])) {
             $prev = &$this->blocks[$name];

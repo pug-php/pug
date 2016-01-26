@@ -6,10 +6,7 @@ class JadePHPTest extends PHPUnit_Framework_TestCase {
 
     static private $skipped = array(
         // Here is the remain to implement list
-        'inheritance.extend.mixins',
         'mixin.attrs',
-        'mixin.block-tag-behaviour',
-        'mixin.blocks',
         'mixin.merge',
         'tag.interpolation'
     );
