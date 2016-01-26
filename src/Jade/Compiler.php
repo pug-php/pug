@@ -114,11 +114,6 @@ class Compiler
     /**
      * @var string
      */
-    protected $closingTag;
-
-    /**
-     * @var string
-     */
     protected $quote;
 
     /**
@@ -137,8 +132,10 @@ class Compiler
         }
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
-        $this->closingTag = '?>'; // . ($options['prettyprint'] ? ' ' : '');
-        // This hack to prettify the output must be fixed because it breaks attributes
+    }
+
+    protected function closingTag() {
+        return '?>' . ($this->prettyprint ? ' ' : '');
     }
 
     /**
@@ -218,7 +215,7 @@ class Compiler
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if($this->phpSingleLine) {
-            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag), $code);
+            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag()), $code);
         }
         // Remove the $ wich are not needed
         return $code;
@@ -273,7 +270,7 @@ class Compiler
      * @param      $line
      * @param null $indent
      */
-    protected function buffer($line, $indent=null)
+    protected function buffer($line, $indent = null)
     {
         if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
             $line = $this->indent() . $line . $this->newline();
@@ -776,7 +773,7 @@ class Compiler
      */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
-            return '<?php ' . $code . ' ' . $this->closingTag;
+            return '<?php ' . $code . ' ' . $this->closingTag();
         }
 
         $code_format= array_pop($statements);
@@ -785,7 +782,7 @@ class Compiler
         if (count($statements) == 0) {
             $php_string = call_user_func_array('sprintf', $code_format);
 
-            return '<?php ' . $php_string . ' ' . $this->closingTag;
+            return '<?php ' . $php_string . ' ' . $this->closingTag();
         }
 
         $stmt_string= '';
@@ -798,7 +795,7 @@ class Compiler
 
         $php_str = '<?php ';
         $php_str .= $stmt_string;
-        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag;
+        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag();
 
         return $php_str;
     }
@@ -1102,7 +1099,7 @@ class Compiler
             if(preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
                 $tag->name = '$' . $tag->name;
             }
-            $tag->name = $this->createCode('echo ' . $tag->name . ';');
+            $tag->name = trim($this->createCode('echo ' . $tag->name . ';'));
         }
         if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
             $this->visitDoctype();
@@ -1118,15 +1115,15 @@ class Compiler
         $noSlash = (! $self_closing || $this->terse);
 
         if (count($tag->attributes)) {
-            $open = '<' . $tag->name . ' ';
-            $close = $noSlash ? '>' : '/>';
+            $open = '<' . $tag->name;
+            $close = $noSlash ? '>' : ' />';
 
             $this->buffer($this->indent() . $open, false);
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
         } else {
 
-            $html_tag = '<' . $tag->name . ($noSlash ? '>' : '/>');
+            $html_tag = '<' . $tag->name . ($noSlash ? '>' : ' />');
 
             $this->buffer($html_tag);
         }
@@ -1319,6 +1316,8 @@ class Compiler
      */
     protected function visitAttributes($attributes)
     {
+        $pp = $this->prettyprint;
+        $this->prettyprint = false;
         $items = array();
         $classes = array();
 
@@ -1327,7 +1326,7 @@ class Compiler
             $key = trim($attr['name']);
             if($key === '&attributes') {
                 $quote = var_export($this->quote, true);
-                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . ' . \' \'; }');
+                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
             } else {
                 $valueCheck = null;
                 $value = trim($attr['value']);
@@ -1341,27 +1340,19 @@ class Compiler
 
                     if ($json !== null && is_array($json) && $key == 'class') {
                         $value = implode(' ', $json);
-                    } else {
-                        // inline this in the tag
-                        $pp = $this->prettyprint;
-                        $this->prettyprint = false;
-
-                        if ($key == 'class') {
-                            if($this->keepNullAttributes) {
-                                $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-                            } else {
-                                $statements = $this->createStatements($value);
-                                $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
-                                $value = 'null';
-                            }
-                        } elseif($this->keepNullAttributes) {
-                            $value = $this->createCode(static::UNESCAPED, $value);
+                    } elseif ($key == 'class') {
+                        if($this->keepNullAttributes) {
+                            $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
                         } else {
-                            $valueCheck = $value;
-                            $value = $this->createCode(static::UNESCAPED, '$__value');
+                            $statements = $this->createStatements($value);
+                            $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+                            $value = 'null';
                         }
-
-                        $this->prettyprint = $pp;
+                    } elseif($this->keepNullAttributes) {
+                        $value = $this->createCode(static::UNESCAPED, $value);
+                    } else {
+                        $valueCheck = $value;
+                        $value = $this->createCode(static::UNESCAPED, '$__value');
                     }
                 }
 
@@ -1398,6 +1389,9 @@ class Compiler
             $items[] = $item . $this->createCode('}');
         }
 
-        $this->buffer(implode(' ', $items), false);
+        $this->prettyprint = $pp;
+
+        $items = trim(implode(' ', $items));
+        $this->buffer(empty($items) ? '' : ' ' . $items, false);
     }
 }
