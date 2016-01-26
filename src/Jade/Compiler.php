@@ -1322,6 +1322,7 @@ class Compiler
         $items = array();
         $classes = array();
 
+        $classesCheck = array();
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             if($key === '&attributes') {
@@ -1346,12 +1347,18 @@ class Compiler
                         $this->prettyprint = false;
 
                         if ($key == 'class') {
-                            $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+                            if($this->keepNullAttributes) {
+                                $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+                            } else {
+                                $statements = $this->createStatements($value);
+                                $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+                                $value = 'null';
+                            }
                         } elseif($this->keepNullAttributes) {
                             $value = $this->createCode(static::UNESCAPED, $value);
                         } else {
                             $valueCheck = $value;
-                            $value = $this->createCode(static::UNESCAPED, '$value');
+                            $value = $this->createCode(static::UNESCAPED, '$__value');
                         }
 
                         $this->prettyprint = $pp;
@@ -1370,7 +1377,7 @@ class Compiler
                     }
                 } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                     if(! is_null($valueCheck)) {
-                        $item = $this->createCode('if(! is_null($value = %s)) {', $valueCheck);
+                        $item = $this->createCode('if(! is_null($__value = %1$s)) {', $valueCheck);
                         $item .= $key . '=' . $this->quote . $value . $this->quote;
                         $items[] = $item . $this->createCode('}');
                     } else {
@@ -1381,7 +1388,14 @@ class Compiler
         }
 
         if (count($classes)) {
+            if(count($classesCheck)) {
+                $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
+            }
             $items[] = 'class=' . $this->quote . implode(' ', $classes) . $this->quote;
+        } elseif (count($classesCheck)) {
+            $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
+            $item .= 'class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
+            $items[] = $item . $this->createCode('}');
         }
 
         $this->buffer(implode(' ', $items), false);
