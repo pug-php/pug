@@ -907,7 +907,7 @@ class Compiler
             }
 
             if($block) {
-                $code = $this->createCode("if(! isset(\$GLOBALS['{$blockName}'])) { \$GLOBALS['{$blockName}'] = array(); } \$GLOBALS['{$blockName}'][] = function () {");
+                $code = $this->createCode("if(! isset(\$GLOBALS['{$blockName}'])) { \$GLOBALS['{$blockName}'] = array(); } \$GLOBALS['{$blockName}'][] = \$includeBlock = function () {");
                 $this->buffer($code);
                 $this->visit($block);
                 $this->buffer($this->createCode('};'));
