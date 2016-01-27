@@ -528,8 +528,8 @@ class Parser {
                 continue;
 
             case '&attributes':
-                $this->advance();
-                $tag->setAttribute('&attributes', true);
+                $token = $this->advance();
+                $tag->setAttribute('&attributes', $token->value);
                 continue;
 
             default:

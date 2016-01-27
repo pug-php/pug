@@ -5,8 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 class JadePHPTest extends PHPUnit_Framework_TestCase {
 
     static private $skipped = array(
-        // Here is the remain to implement list
-        'mixin.merge'
+        // Add here tests for future features not yet implemented
     );
 
     public function caseProvider() {
