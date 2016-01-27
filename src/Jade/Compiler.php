@@ -98,17 +98,17 @@ class Compiler
     /**
      * @var array
      */
-    protected $phpKeywords = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
+    protected $phpKeywords = array('true', 'false', 'null', 'switch', 'case', 'default', 'endswitch', 'if', 'elseif', 'else', 'endif', 'while', 'endwhile', 'do', 'for', 'endfor', 'foreach', 'endforeach', 'as', 'unless');
 
     /**
      * @var array
      */
-    protected $phpOpenBlock = array('switch','if','else if','elseif','else','while','do','foreach','for','unless');
+    protected $phpOpenBlock = array('switch', 'if', 'else if', 'elseif', 'else', 'while', 'do', 'foreach', 'for', 'unless');
 
     /**
      * @var array
      */
-    protected $phpCloseBlock = array('endswitch','endif','endwhile','endfor','endforeach');
+    protected $phpCloseBlock = array('endswitch', 'endif', 'endwhile', 'endfor', 'endforeach');
 
     /**
      * @var string
@@ -140,6 +140,7 @@ class Compiler
 
     /**
      * value treatment if it must not be escaped.
+     *
      * @param string  input value
      *
      * @return string
@@ -150,7 +151,8 @@ class Compiler
     }
 
     /**
-     * record a closure as a mixin block during execution jade template time
+     * record a closure as a mixin block during execution jade template time.
+     *
      * @param string  mixin name
      * @param string  mixin block treatment
      */
@@ -179,6 +181,7 @@ class Compiler
 
     /**
      * record a closure as a mixin block during execution jade template time.
+     *
      * @param string  mixin name
      * @param string  mixin block treatment
      */
@@ -195,6 +198,7 @@ class Compiler
 
     /**
      * end of the record a closure as a mixin block.
+     *
      * @param string  mixin name
      */
     public static function terminateMixinBlock($name)
@@ -239,17 +243,16 @@ class Compiler
      * @param $arguments
      *
      * @throws \BadMethodCallException If the 'apply' rely on non existing method
+     *
      * @return mixed
      */
     protected function apply($method, $arguments)
     {
-        if (! method_exists($this, $method))
-        {
+        if (!method_exists($this, $method)) {
            throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
         }
 
-        switch (count($arguments))
-        {
+        switch (count($arguments)) {
             case 0:
                 return $this->{$method}();
 
@@ -299,6 +302,7 @@ class Compiler
     /**
      * @param      $str
      * @param bool $attr
+     *
      * @return bool|int
      */
     protected function isConstant($str, $attr = false)
@@ -334,7 +338,7 @@ class Compiler
         $ok = preg_match("/^{$const_regex}$/", $str);
 
         // test agains a array of constants
-        if (!$attr && !$ok && (0 === strpos($str,'array(') || 0 === strpos($str,'['))) {
+        if (!$attr && !$ok && (0 === strpos($str, 'array(') || 0 === strpos($str, '['))) {
 
             // This pattern matches against array constants: useful for "data-" attributes (see test attrs-data.jade)
             //
@@ -356,30 +360,35 @@ class Compiler
 
     /**
      * @param string $call
-     * @return string
+     *
      * @throws \Exception
+     *
+     * @return string
      */
     protected static function addDollarIfNeeded($call)
     {
         if ($call === 'Inf') {
-            throw new \Exception($call . " cannot be read from PHP", 1);
+            throw new \Exception($call . ' cannot be read from PHP', 1);
         }
         if ($call === 'undefined') {
             return 'null';
         }
-        if ($call[0] !== '$' && $call[0] !== '\\' && ! preg_match('#^(?:' . static::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call)) {
+        if ($call[0] !== '$' && $call[0] !== '\\' && !preg_match('#^(?:' . static::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call)) {
             $call = '$' . $call;
         }
+
         return $call;
     }
 
     /**
      * @param        $input
      * @param string $ns
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
-    public function handleCode($input, $ns='')
+    public function handleCode($input, $ns = '')
     {
         $input = trim(preg_replace('/\bvar\b/','',$input));
 
@@ -401,7 +410,7 @@ class Compiler
         preg_match_all(
             '/(?<![<>=!])=(?!>)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
             preg_replace_callback('#([\'"]).*(?<!\\\\)(?:\\\\{2})*\\1#', function ($match) {
-                return str_repeat(" ", strlen($match[0]));
+                return str_repeat(' ', strlen($match[0]));
             }, $input),
             $separators,
             PREG_SET_ORDER | PREG_OFFSET_CAPTURE
@@ -412,7 +421,7 @@ class Compiler
         reset($separators);
 
         if (count($separators) == 0) {
-            if (strchr('0123456789-+("\'$', $input[0]) === FALSE) {
+            if (strchr('0123456789-+("\'$', $input[0]) === false) {
                 $input = static::addDollarIfNeeded($input);
             }
 
@@ -427,24 +436,24 @@ class Compiler
         }
 
         // do not add $ if it is not like a variable
-        $varname = static::convertVarPath(substr($input,0,$separators[0][1]), '/^%s/');
-        if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === FALSE) {
+        $varname = static::convertVarPath(substr($input, 0, $separators[0][1]), '/^%s/');
+        if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === false) {
             $varname = static::addDollarIfNeeded($varname);
         }
 
-        $get_middle_string = function($start, $end) use ($input) {
+        $get_middle_string = function ($start, $end) use ($input) {
             $offset = $start[1] + strlen($start[0]);
 
             return substr(
                 $input,
                 $offset,
-                isset($end) ? $end[1] - $offset: strlen($input)
+                isset($end) ? $end[1] - $offset : strlen($input)
             );
         };
 
         $host = $this;
         $handle_recursion = function ($arg, $ns = '') use ($input, &$result, $host, $get_middle_string) {
-            list($start,$end) = $arg;
+            list($start, $end) = $arg;
             $str = trim($get_middle_string($start, $end));
 
             if (!strlen($str)) {
@@ -469,9 +478,9 @@ class Compiler
             $start = current($separators);
             $end_pair = array('['=>']', '{'=>'}', '('=>')', ','=>false);
             $open = $start[0];
-            if(!isset($open))
-
+            if(!isset($open)) {
                 return $arguments;
+            }
             $close = $end_pair[$start[0]];
 
             do {
@@ -481,15 +490,19 @@ class Compiler
                 do {
                     $curr = next($separators);
 
-                    if ($curr[0] == $open) $count++;
-                    if ($curr[0] == $close) $count--;
+                    if ($curr[0] == $open) {
+                        $count++;
+                    }
+                    if ($curr[0] == $close) {
+                        $count--;
+                    }
 
                 } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
                 $end = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
-                    $tmp_ns = $ns*10 +count($arguments);
+                    $tmp_ns = $ns * 10 + count($arguments);
                     $arg = $handle_recursion(array($start, $end), $tmp_ns);
 
                     array_push($arguments, $arg);
@@ -501,15 +514,16 @@ class Compiler
                 throw new \Exception($input . "\nMissing closing: " . $close);
             }
 
-            if ($end !== false)
+            if ($end !== false) {
                 next($separators);
+            }
 
             return $arguments;
         };
 
         $get_next = function ($i) use ($separators) {
-            if (isset($separators[$i+1])) {
-                return $separators[$i+1];
+            if (isset($separators[$i + 1])) {
+                return $separators[$i + 1];
             }
         };
 
@@ -519,7 +533,9 @@ class Compiler
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
             $sep = current($separators);
 
-            if ($sep[0] == null) break; // end of string
+            if ($sep[0] == null) {
+                break;
+            } // end of string
 
             $name = $get_middle_string($sep, $get_next(key($separators)));
 
@@ -553,8 +569,9 @@ class Compiler
                 // mixin arguments
                 case ',':
                     $arguments = $handle_code_inbetween();
-                    if($arguments)
+                    if($arguments) {
                         $varname = $varname . ', ' . implode(', ', $arguments);
+                    }
                     //array_push($result, $varname);
 
                     break;
@@ -577,8 +594,9 @@ class Compiler
                     break;
 
                 default:
-                    if(($name !== FALSE && $name !== '') || $sep[0] != ')')
+                    if(($name !== FALSE && $name !== '') || $sep[0] != ')') {
                         $varname = $varname . $sep[0] . $name;
+                    }
                     break;
             }
 
@@ -628,7 +646,7 @@ class Compiler
             } else {
                 $code = $this->handleCode($part[0]);
 
-                $result = array_merge($result, array_slice($code,0,-1));
+                $result = array_merge($result, array_slice($code, 0, -1));
                 array_push($results_string, array_pop($code));
             }
         }
@@ -650,7 +668,7 @@ class Compiler
             return $text;
         }
 
-        $i=1; // str_replace need a pass-by-ref
+        $i = 1; // str_replace need a pass-by-ref
         foreach ($matches as $m) {
 
             // \#{dont_do_interpolation}
@@ -663,24 +681,25 @@ class Compiler
         return str_replace('\\#{', '#{', $text);
     }
 
-    static public function getPropertyFromAnything($anything, $key)
+    public static function getPropertyFromAnything($anything, $key)
     {
-        if(is_array($anything)) {
+        if (is_array($anything)) {
             return isset($anything[$key]) ? $anything[$key] : null;
         }
-        if(is_object($anything)) {
+        if (is_object($anything)) {
             return isset($anything->$key) ? $anything->$key : null;
         }
         return null;
     }
 
-    static protected function convertVarPathCallback($match) {
-        if(empty($match[1])) {
+    protected static function convertVarPathCallback($match)
+    {
+        if (empty($match[1])) {
             $var = $match[0];
         } else {
             $var = ($match[0] === ',' ? ',' : '') . $match[1];
-            foreach(explode('.', substr($match[2], 1)) as $name) {
-                if(!empty($name)) {
+            foreach (explode('.', substr($match[2], 1)) as $name) {
+                if (!empty($name)) {
                     $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
                         static::addDollarIfNeeded($var) .
                         ', ' . var_export($name, true) . ')';
@@ -690,7 +709,7 @@ class Compiler
         return $var;
     }
 
-    static protected function convertVarPath($arg, $regexp = '/^%s|,%s/')
+    protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
     {
         $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
         return preg_replace_callback(
@@ -701,13 +720,14 @@ class Compiler
     }
 
     /**
-     * @return array
      * @throws \Exception
+     *
+     * @return array
      */
     protected function createStatements()
     {
-        if (func_num_args()==0) {
-            throw new \Exception("No Arguments provided");
+        if (func_num_args() == 0) {
+            throw new \Exception('No Arguments provided');
         }
 
         $arguments = func_get_args();
@@ -725,8 +745,9 @@ class Compiler
 
             // shortcut for constants
             if ($this->isConstant($arg)) {
-                if($arg === 'undefined')
+                if ($arg === 'undefined') {
                     $arg = 'null';
+                }
                 array_push($variables, $arg);
                 continue;
             }
@@ -740,25 +761,19 @@ class Compiler
             if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
                 $code = $this->handleString(trim($arg));
             } else {
-                try
-                {
+                try {
                     $code = $this->handleCode($arg);
-                }
-                catch(\Exception $e)
-                {
+                } catch(\Exception $e) {
                     // if a bug occur, try to remove comments
-                    try
-                    {
+                    try {
                         $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
-                    }
-                    catch(\Exception $e)
-                    {
+                    } catch(\Exception $e) {
                         throw new \Exception("JadePHP do not understand " . $arg, 1, $e);
                     }
                 }
             }
 
-            $statements = array_merge($statements, array_slice($code,0,-1));
+            $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));
         }
 
@@ -770,6 +785,7 @@ class Compiler
     /**
      * @param      $code
      * @param null $statements
+     *
      * @return string
      */protected function createPhpBlock($code, $statements = null)
     {
@@ -777,7 +793,7 @@ class Compiler
             return '<?php ' . $code . ' ' . $this->closingTag();
         }
 
-        $code_format= array_pop($statements);
+        $code_format = array_pop($statements);
         array_unshift($code_format, $code);
 
         if (count($statements) == 0) {
@@ -803,11 +819,12 @@ class Compiler
 
     /**
      * @param $code
+     *
      * @return string
      */
     protected function createCode($code)
     {
-        if (func_num_args()>1) {
+        if (func_num_args() > 1) {
             $arguments = func_get_args();
             array_shift($arguments); // remove $code
             $statements = $this->apply('createStatements', $arguments);
@@ -821,6 +838,7 @@ class Compiler
 
     /**
      * @param Nodes\Node $node
+     *
      * @return mixed
      */
     protected function visitNode(Nodes\Node $node)
@@ -841,18 +859,16 @@ class Compiler
         $within = $this->withinCase;
         $this->withinCase = true;
 
-        // TODO: fix the case hack
-        // php expects that the first case statement will be inside the same php block as the switch
-        $code_str = 'switch (%s) { '.$this->newline().$this->indent().'case "__phphackhere__": break;';
-        $code = $this->createCode($code_str,$node->expr);
-        $this->buffer($code);
-
-        $this->indents++;
+        $this->switchNode = $node;
         $this->visit($node->block);
-        $this->indents--;
 
-        $code = $this->createCode('}');
-        $this->buffer($code);
+        if (!isset($this->switchNode)) {
+            unset($this->switchNode);
+            $this->indents--;
+
+            $code = $this->createCode('}');
+            $this->buffer($code);
+        }
         $this->withinCase = $within;
     }
 
@@ -861,13 +877,28 @@ class Compiler
      */
     protected function visitWhen(Nodes\When $node)
     {
-        if ('default' == $node->expr) {
-            $code = $this->createCode('default:');
-            $this->buffer($code);
-        } else {
-            $code = $this->createCode('case %s:',$node->expr);
-            $this->buffer($code);
+        $code = '';
+        $arguments = array();
+
+        if (isset($this->switchNode)) {
+            $code .= 'switch (%s) {';
+            $arguments[] = $this->switchNode->expr;
+            unset($this->switchNode);
+
+            $this->indents++;
         }
+        if ('default' == $node->expr) {
+            $code .= 'default:';
+        } else {
+            $code .= 'case %s:';
+            $arguments[] = $node->expr;
+        }
+
+        array_unshift($arguments, $code);
+
+        $code = call_user_func_array(array($this, 'createCode'), $arguments);
+
+        $this->buffer($code);
 
         $this->visit($node->block);
 
