@@ -1,5 +1,8 @@
 # Jade.php
+[![Latest Stable Version](https://poser.pugx.org/kylekatarnls/jade-php/v/stable.png)](https://packagist.org/packages/kylekatarnls/jade-php)
+[![Total Downloads](https://poser.pugx.org/kylekatarnls/jade-php/downloads.png)](https://packagist.org/packages/kylekatarnls/jade-php)
 [![Build Status](https://travis-ci.org/kylekatarnls/jade-php.svg?branch=master)](https://travis-ci.org/kylekatarnls/jade-php)
+[![codecov.io](https://codecov.io/github/kylekatarnls/jade-php/coverage.svg?branch=master)](https://codecov.io/github/kylekatarnls/jade-php?branch=master)
 
 Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) template compiler.
 
@@ -35,7 +38,7 @@ $jade = new Jade(array(
 $data['title'] = 'Hello World';
 $jade = new Jade();
 $output = $jade->render('file', $data);
-``` 
+```
 
 #### Supports for custom filters
 
