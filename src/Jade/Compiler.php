@@ -480,7 +480,7 @@ class Compiler
                 '[' => ']',
                 '{' => '}',
                 '(' => ')',
-                ',' => false
+                ',' => false,
             );
             $open = $start[0];
             if (!isset($open)) {
@@ -501,7 +501,6 @@ class Compiler
                     if ($curr[0] == $close) {
                         $count--;
                     }
-
                 } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
                 $end = current($separators);
@@ -512,7 +511,6 @@ class Compiler
 
                     array_push($arguments, $arg);
                 }
-
             } while ($curr != null && $count > 0);
 
             if ($close && $count) {
@@ -599,7 +597,7 @@ class Compiler
                     break;
 
                 default:
-                    if (($name !== FALSE && $name !== '') || $sep[0] != ')') {
+                    if (($name !== false && $name !== '') || $sep[0] != ')') {
                         $varname = $varname . $sep[0] . $name;
                     }
                     break;
@@ -649,7 +647,6 @@ class Compiler
                     throw new \Exception('Unexpected value: ' . $match[3]);
                 }
                 array_push($results_string, $match[1]);
-
             } else {
                 $code = $this->handleCode($part[0]);
 
@@ -698,12 +695,15 @@ class Compiler
     public static function getPropertyFromAnything($anything, $key)
     {
         $value = null;
+
         if (is_array($anything)) {
             $value = isset($anything[$key]) ? $anything[$key] : null;
         }
+
         if (is_object($anything)) {
             $value = isset($anything->$key) ? $anything->$key : null;
         }
+
         return $value;
     }
 
@@ -740,6 +740,7 @@ class Compiler
     protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
     {
         $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
+
         return preg_replace_callback(
             str_replace('%s', $pattern, $regexp),
             array(get_class(), 'convertVarPathCallback'),
@@ -831,7 +832,7 @@ class Compiler
             return '<?php ' . $php_string . ' ' . $this->closingTag();
         }
 
-        $stmt_string= '';
+        $stmt_string = '';
         foreach ($statements as $stmt) {
             $stmt_string .= $this->newline() . $this->indent() . $stmt . ';';
         }
@@ -932,7 +933,7 @@ class Compiler
         $this->visit($node->block);
 
         $code = $this->createCode('break;');
-        $this->buffer( $code . $this->newline());
+        $this->buffer($code . $this->newline());
     }
 
     /**
@@ -956,12 +957,13 @@ class Compiler
 
     /**
      * @param Nodes\Doctype $doctype
+     *
      * @throws \Exception
      */
     protected function visitDoctype(Nodes\Doctype $doctype=null)
     {
         if (isset($this->hasCompiledDoctype)) {
-            throw new \Exception ('Revisiting doctype');
+            throw new \Exception('Revisiting doctype');
         }
         $this->hasCompiledDoctype = true;
 
@@ -980,14 +982,16 @@ class Compiler
         $this->xml = ($doc == 'xml');
     }
 
-    static protected function initArgToNull(&$arg) {
+    protected static function initArgToNull(&$arg)
+    {
         $arg = static::addDollarIfNeeded(trim($arg));
         if (strpos($arg, '=') === false) {
             $arg .= ' = null';
         }
     }
 
-    static public function withMixinAttributes($attributes, $mixinAttributes) {
+    public static function withMixinAttributes($attributes, $mixinAttributes)
+    {
         foreach ($mixinAttributes as $attribute) {
             if ($attribute['name'] === 'class') {
                 $value = stripslashes(substr($attribute['value'], 1, -1));
@@ -999,6 +1003,7 @@ class Compiler
         if (isset($attributes['class'])) {
             $attributes['class'] = implode(' ', array_unique(explode(' ', $attributes['class'])));
         }
+
         return $attributes;
     }
 
@@ -1017,19 +1022,18 @@ class Compiler
         $attributes = $mixin->attributes;
 
         if ($mixin->call) {
-
             $defaultAttributes = array();
             $args = explode(',', $arguments);
             $modified = false;
-            foreach($args as $key => $arg) {
+            foreach ($args as $key => $arg) {
                 $tab = explode('=', trim($arg), 2);
-                if(count($tab) === 2) {
+                if (count($tab) === 2) {
                     $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
                     unset($args[$key]);
                     $modified = true;
                 }
             }
-            if($modified) {
+            if ($modified) {
                 $arguments = implode(',', $args);
             }
             $defaultAttributes = implode(', ', $defaultAttributes);
@@ -1061,13 +1065,11 @@ class Compiler
             if ($arguments === null || empty($arguments)) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
             } else {
-
                 if (!empty($arguments) && !is_array($arguments)) {
                     $strings = array();
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
-                        function ($match) use (&$strings)
-                        {
+                        function ($match) use (&$strings) {
                             $return = 'stringToReplaceBy' . count($strings) . 'ThCapture';
                             $strings[] = $match[0];
                             return $return;
@@ -1075,12 +1077,10 @@ class Compiler
                         $arguments
                     );
                     $arguments = array_map(
-                        function ($arg) use ($strings)
-                        {
+                        function ($arg) use ($strings) {
                             return preg_replace_callback(
                                 '#stringToReplaceBy([0-9]+)ThCapture#',
-                                function ($match) use ($strings)
-                                {
+                                function ($match) use ($strings) {
                                     return $strings[intval($match[1])];
                                 },
                                 $arg
@@ -1181,7 +1181,7 @@ class Compiler
             $this->prettyprint = false;
         }
 
-        $noSlash = (! $self_closing || $this->terse);
+        $noSlash = (!$self_closing || $this->terse);
 
         if (count($tag->attributes)) {
             $open = '<' . $tag->name;
@@ -1191,7 +1191,6 @@ class Compiler
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
         } else {
-
             $html_tag = '<' . $tag->name . ($noSlash ? '>' : ' />');
 
             $this->buffer($html_tag);
@@ -1205,7 +1204,7 @@ class Compiler
             $this->visit($tag->block);
             $this->indents--;
 
-            $this->buffer('</'. $tag->name . '>');
+            $this->buffer('</' . $tag->name . '>');
         }
 
         if ($tag->name == 'pre') {
@@ -1215,12 +1214,13 @@ class Compiler
 
     /**
      * @param Nodes\Filter $node
+     *
      * @throws \InvalidArgumentException
      */
     protected function visitFilter(Nodes\Filter $node)
     {
         // Check that filter is registered
-        if (! array_key_exists($node->name, $this->filters)) {
+        if (!array_key_exists($node->name, $this->filters)) {
             throw new \InvalidArgumentException($node->name . ': Filter doesn\'t exists');
         }
 
@@ -1230,7 +1230,7 @@ class Compiler
         if (is_string($filter)) {
             $filter = new $filter();
         }
-        if (! is_callable($filter)) {
+        if (!is_callable($filter)) {
             throw new \InvalidArgumentException($node->name . ': Filter must be callable');
         }
         $this->buffer($filter($node, $this));
@@ -1284,19 +1284,19 @@ class Compiler
         if ($node->buffer) {
 
             $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
-            $this->buffer($this->createCode($pattern,$code));
+            $this->buffer($this->createCode($pattern, $code));
         } else {
 
             $php_open = implode('|', $this->phpOpenBlock);
 
             if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
 
-                $code = trim($matches[2],'; ');
+                $code = trim($matches[2], '; ');
                 while (($len = strlen($code)) > 1 && ($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
                     $code = trim(substr($code, 1, $len - 2));
                 }
 
-                $index = count($this->buffer)-1;
+                $index = count($this->buffer) - 1;
                 $conditional = '';
 
                 if (isset($this->buffer[$index]) && false !== strpos($this->buffer[$index], $this->createCode('}'))) {
@@ -1348,7 +1348,7 @@ class Compiler
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
         if (isset($node->alternative)) {
-            $code = $this->createCode('if (isset(%s) && %s) {',$node->obj, $node->obj);
+            $code = $this->createCode('if (isset(%s) && %s) {', $node->obj, $node->obj);
             $this->buffer($code);
             $this->indents++;
         }
@@ -1376,7 +1376,7 @@ class Compiler
             $this->indents--;
 
             $this->buffer($this->createCode('}'));
-       }
+        }
     }
 
     /**
@@ -1420,8 +1420,8 @@ class Compiler
                 $value = trim($attr['value']);
 
                 if ($this->isConstant($value, $key == 'class')) {
-                    $value = trim($value,' \'"');
-                    if($value === 'undefined') {
+                    $value = trim($value, ' \'"');
+                    if ($value === 'undefined') {
                         $value = 'null';
                     }
                 } else {
@@ -1430,14 +1430,14 @@ class Compiler
                     if ($json !== null && is_array($json) && $key == 'class') {
                         $value = implode(' ', $json);
                     } elseif ($key == 'class') {
-                        if($this->keepNullAttributes) {
+                        if ($this->keepNullAttributes) {
                             $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
                         } else {
                             $statements = $this->createStatements($value);
                             $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
                             $value = 'null';
                         }
-                    } elseif($this->keepNullAttributes) {
+                    } elseif ($this->keepNullAttributes) {
                         $value = $this->createCode(static::UNESCAPED, $value);
                     } else {
                         $valueCheck = $value;
@@ -1446,7 +1446,7 @@ class Compiler
                 }
 
                 if ($key == 'class') {
-                    if($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+                    if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                         array_push($classes, $value);
                     }
                 } elseif ($value == 'true' || $attr['value'] === true) {
@@ -1464,7 +1464,7 @@ class Compiler
         }
 
         if (count($classes)) {
-            if(count($classesCheck)) {
+            if (count($classesCheck)) {
                 $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
             }
             $items[] = 'class=' . $this->quote . implode(' ', $classes) . $this->quote;
