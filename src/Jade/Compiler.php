@@ -3,8 +3,7 @@
 namespace Jade;
 
 /**
- * Class Compiler
- * @package Jade
+ * Class Jade Compiler.
  */
 class Compiler
 {
@@ -36,15 +35,15 @@ class Compiler
     /**
      * @var array
      */
-    protected $buffer        = array();
+    protected $buffer = array();
     /**
      * @var array
      */
-    protected $filters       = array();
+    protected $filters = array();
     /**
      * @var bool
      */
-    protected $prettyprint   = false;
+    protected $prettyprint = false;
     /**
      * @var bool
      */
@@ -60,15 +59,15 @@ class Compiler
     /**
      * @var bool
      */
-    protected $terse         = true;
+    protected $terse = true;
     /**
      * @var bool
      */
-    protected $withinCase    = false;
+    protected $withinCase = false;
     /**
      * @var int
      */
-    protected $indents       = 0;
+    protected $indents = 0;
 
     /**
      * @var boolean
@@ -79,27 +78,27 @@ class Compiler
      * @var array
      */
     protected $doctypes = array(
-        '5'             => '<!DOCTYPE html>',
-        'html'          => '<!DOCTYPE html>',
-        'default'       => '<!DOCTYPE html>',
-        'xml'           => '<?xml version="1.0" encoding="utf-8" ?>',
-        'transitional'  => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-        'strict'        => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
-        'frameset'      => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
-        '1.1'           => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
-        'basic'         => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',
-        'mobile'        => '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">'
+        '5' => '<!DOCTYPE html>',
+        'html' => '<!DOCTYPE html>',
+        'default' => '<!DOCTYPE html>',
+        'xml' => '<?xml version="1.0" encoding="utf-8" ?>',
+        'transitional' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+        'strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+        'frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
+        '1.1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
+        'basic' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',
+        'mobile' => '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',
     );
 
     /**
      * @var array
      */
-    protected $selfClosing  = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
+    protected $selfClosing = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
 
     /**
      * @var array
      */
-    protected $phpKeywords  = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
+    protected $phpKeywords = array('true','false','null','switch','case','default','endswitch','if','elseif','else','endif','while','endwhile','do','for','endfor','foreach','endforeach','as','unless');
 
     /**
      * @var array
@@ -109,7 +108,7 @@ class Compiler
     /**
      * @var array
      */
-    protected $phpCloseBlock= array('endswitch','endif','endwhile','endfor','endforeach');
+    protected $phpCloseBlock = array('endswitch','endif','endwhile','endfor','endforeach');
 
     /**
      * @var string
@@ -122,24 +121,25 @@ class Compiler
      */
     public function __construct(array $options = array(), array $filters = array())
     {
-        foreach(array(
+        foreach (array(
             'prettyprint',
             'phpSingleLine',
             'allowMixinOverride',
-            'keepNullAttributes'
+            'keepNullAttributes',
         ) as $option) {
-            $this->$option = !! $options[$option];
+            $this->$option = (bool) $options[$option];
         }
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
     }
 
-    protected function closingTag() {
+    protected function closingTag()
+    {
         return '?>' . ($this->prettyprint ? ' ' : '');
     }
 
     /**
-     * value treatment if it must not be escaped
+     * value treatment if it must not be escaped.
      * @param string  input value
      *
      * @return string
@@ -157,20 +157,20 @@ class Compiler
     public static function recordMixinBlock($name, $func = null, $terminate = false)
     {
         static $mixinBlocks = null;
-        if(is_null($mixinBlocks)) {
+        if (is_null($mixinBlocks)) {
             $mixinBlocks = array();
         }
         $isArray = isset($mixinBlocks[$name]) && is_array($mixinBlocks[$name]);
-        if(is_null($func)) {
-            if($isArray) {
-                if($terminate) {
+        if (is_null($func)) {
+            if ($isArray) {
+                if ($terminate) {
                     array_pop($mixinBlocks);
-                } elseif(count($mixinBlocks[$name])) {
+                } elseif (count($mixinBlocks[$name])) {
                     return $mixinBlocks[$name];
                 }
             }
         } else {
-            if(! $isArray) {
+            if (!$isArray) {
                 $mixinBlocks[$name] = array();
             }
             array_push($mixinBlocks[$name], $func);
@@ -178,23 +178,23 @@ class Compiler
     }
 
     /**
-     * record a closure as a mixin block during execution jade template time
+     * record a closure as a mixin block during execution jade template time.
      * @param string  mixin name
      * @param string  mixin block treatment
      */
     public static function callMixinBlock($name, $attributes = array())
     {
         $mixinBlocks = static::recordMixinBlock($name);
-        if(is_array($mixinBlocks)) {
+        if (is_array($mixinBlocks)) {
             $func = end($mixinBlocks);
-            if(is_callable($func)) {
+            if (is_callable($func)) {
                 call_user_func($func, $attributes);
             }
         }
     }
 
     /**
-     * end of the record a closure as a mixin block
+     * end of the record a closure as a mixin block.
      * @param string  mixin name
      */
     public static function terminateMixinBlock($name)
@@ -214,7 +214,7 @@ class Compiler
         $code = implode('', $this->buffer);
 
         // Separate in several lines to get a useable line number in case of an error occurs
-        if($this->phpSingleLine) {
+        if ($this->phpSingleLine) {
             $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag()), $code);
         }
         // Remove the $ wich are not needed
@@ -223,6 +223,7 @@ class Compiler
 
     /**
      * @param Nodes\Node $node
+     *
      * @return array
      */
     public function visit(Nodes\Node $node)
@@ -237,7 +238,7 @@ class Compiler
      * @param $method
      * @param $arguments
      *
-     * @throws \BadMethodCallException  If the 'apply' rely on non existing method
+     * @throws \BadMethodCallException If the 'apply' rely on non existing method
      * @return mixed
      */
     protected function apply($method, $arguments)
@@ -462,34 +463,34 @@ class Compiler
         };
 
         $handle_code_inbetween = function() use (&$separators, $ns, $handle_recursion, $input) {
-            $arguments  = array();
-            $count      = 1;
+            $arguments = array();
+            $count = 1;
 
-            $start      = current($separators);
-            $end_pair   = array('['=>']', '{'=>'}', '('=>')', ','=>false);
-            $open       = $start[0];
+            $start = current($separators);
+            $end_pair = array('['=>']', '{'=>'}', '('=>')', ','=>false);
+            $open = $start[0];
             if(!isset($open))
 
                 return $arguments;
-            $close      = $end_pair[$start[0]];
+            $close = $end_pair[$start[0]];
 
             do {
                 // reset start
                 $start = current($separators);
 
                 do {
-                    $curr   = next($separators);
+                    $curr = next($separators);
 
                     if ($curr[0] == $open) $count++;
                     if ($curr[0] == $close) $count--;
 
                 } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
 
-                $end    = current($separators);
+                $end = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
                     $tmp_ns = $ns*10 +count($arguments);
-                    $arg    = $handle_recursion(array($start, $end), $tmp_ns);
+                    $arg = $handle_recursion(array($start, $end), $tmp_ns);
 
                     array_push($arguments, $arg);
                 }
@@ -530,28 +531,28 @@ class Compiler
                     $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
                         $v, $varname, $varname, $name, $varname, $name
                     );
-                    $varname  = $v;
+                    $varname = $v;
                     break;
                 //*/
 
                 // funcall
                 case '(':
-                    $arguments  = $handle_code_inbetween();
-                    $call       = $varname . '(' . implode(', ', $arguments) . ')';
+                    $arguments = $handle_code_inbetween();
+                    $call = $varname . '(' . implode(', ', $arguments) . ')';
                     $cs = current($separators);
                     $call = static::addDollarIfNeeded($call);
                     while ($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
                         $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
                         $cs = next($separators);
                     }
-                    $varname    = $v;
+                    $varname = $v;
                     array_push($result, "{$v}={$call}");
 
                     break;
 
                 // mixin arguments
                 case ',':
-                    $arguments  = $handle_code_inbetween();
+                    $arguments = $handle_code_inbetween();
                     if($arguments)
                         $varname = $varname . ', ' . implode(', ', $arguments);
                     //array_push($result, $varname);
@@ -567,10 +568,10 @@ class Compiler
                 case '=':
                     if (preg_match('/^[[:space:]]*$/', $name)) {
                         next($separators);
-                        $arguments  = $handle_code_inbetween();
-                        $varname    = $varname . ' = ' . implode($arguments);
+                        $arguments = $handle_code_inbetween();
+                        $varname = $varname . ' = ' . implode($arguments);
                     } else {
-                        $varname    = "{$varname} = " . $handle_recursion(array($sep, end($separators)));
+                        $varname = "{$varname} = " . $handle_recursion(array($sep, end($separators)));
                     }
 
                     break;
@@ -595,7 +596,7 @@ class Compiler
      */
     public function handleString($input)
     {
-        $result         = array();
+        $result = array();
         $results_string = array();
 
         $separators = preg_split(
@@ -953,13 +954,13 @@ class Compiler
      */
     protected function visitMixin(Nodes\Mixin $mixin)
     {
-        $name       = strtr($mixin->name, '-', '_') . '_mixin';
-        $blockName  = var_export($mixin->name, true);
+        $name = strtr($mixin->name, '-', '_') . '_mixin';
+        $blockName = var_export($mixin->name, true);
         if ($this->allowMixinOverride) {
             $name = '$GLOBALS[\'' . $name . '\']';
         }
-        $arguments  = $mixin->arguments;
-        $block      = $mixin->block;
+        $arguments = $mixin->arguments;
+        $block = $mixin->block;
         $attributes = $mixin->attributes;
 
         if ($mixin->call) {
@@ -1244,7 +1245,7 @@ class Compiler
                     $code = trim(substr($code, 1, $len - 2));
                 }
 
-                $index       = count($this->buffer)-1;
+                $index = count($this->buffer)-1;
                 $conditional = '';
 
                 if (isset($this->buffer[$index]) && false !== strpos($this->buffer[$index], $this->createCode('}'))) {
