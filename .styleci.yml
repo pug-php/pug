@@ -1,0 +1,8 @@
+finder:
+  exclude:
+    - "tests"
+    - "example"
+
+disabled:
+  - align_double_arrow
+  - short_array_syntax
