@@ -114,11 +114,6 @@ class Compiler
     /**
      * @var string
      */
-    protected $closingTag;
-
-    /**
-     * @var string
-     */
     protected $quote;
 
     /**
@@ -137,8 +132,10 @@ class Compiler
         }
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
-        $this->closingTag = '?>'; // . ($options['prettyprint'] ? ' ' : '');
-        // This hack to prettify the output must be fixed because it breaks attributes
+    }
+
+    protected function closingTag() {
+        return '?>' . ($this->prettyprint ? ' ' : '');
     }
 
     /**
@@ -185,13 +182,13 @@ class Compiler
      * @param string  mixin name
      * @param string  mixin block treatment
      */
-    public static function callMixinBlock($name)
+    public static function callMixinBlock($name, $attributes = array())
     {
         $mixinBlocks = static::recordMixinBlock($name);
         if(is_array($mixinBlocks)) {
             $func = end($mixinBlocks);
             if(is_callable($func)) {
-                call_user_func($func);
+                call_user_func($func, $attributes);
             }
         }
     }
@@ -218,7 +215,7 @@ class Compiler
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if($this->phpSingleLine) {
-            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag), $code);
+            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag()), $code);
         }
         // Remove the $ wich are not needed
         return $code;
@@ -273,7 +270,7 @@ class Compiler
      * @param      $line
      * @param null $indent
      */
-    protected function buffer($line, $indent=null)
+    protected function buffer($line, $indent = null)
     {
         if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
             $line = $this->indent() . $line . $this->newline();
@@ -776,7 +773,7 @@ class Compiler
      */protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
-            return '<?php ' . $code . ' ' . $this->closingTag;
+            return '<?php ' . $code . ' ' . $this->closingTag();
         }
 
         $code_format= array_pop($statements);
@@ -785,7 +782,7 @@ class Compiler
         if (count($statements) == 0) {
             $php_string = call_user_func_array('sprintf', $code_format);
 
-            return '<?php ' . $php_string . ' ' . $this->closingTag;
+            return '<?php ' . $php_string . ' ' . $this->closingTag();
         }
 
         $stmt_string= '';
@@ -798,7 +795,7 @@ class Compiler
 
         $php_str = '<?php ';
         $php_str .= $stmt_string;
-        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag;
+        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag();
 
         return $php_str;
     }
@@ -936,6 +933,21 @@ class Compiler
         }
     }
 
+    static public function withMixinAttributes($attributes, $mixinAttributes) {
+        foreach ($mixinAttributes as $attribute) {
+            if ($attribute['name'] === 'class') {
+                $value = stripslashes(substr($attribute['value'], 1, -1));
+                $attributes['class'] = empty($attributes['class'])
+                    ? $attribute['value']
+                    : $attributes['class'] . ' ' . $value;
+            }
+        }
+        if (isset($attributes['class'])) {
+            $attributes['class'] = implode(' ', array_unique(explode(' ', $attributes['class'])));
+        }
+        return $attributes;
+    }
+
     /**
      * @param Nodes\Mixin $mixin
      */
@@ -982,11 +994,12 @@ class Compiler
                 }
 
                 $attributes = var_export($_attr, true);
-                $attributes = "array_merge({$attributes}, (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
+                $mixinAttributes = var_export($mixin->attributes, true);
+                $attributes = "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
             }
 
             if($block) {
-                $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function () {");
+                $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function (\$attributes) {");
                 $this->buffer($code);
                 $this->visit($block);
                 $this->buffer($this->createCode('});'));
@@ -1088,7 +1101,7 @@ class Compiler
     protected function visitMixinBlock(Nodes\MixinBlock $mixinBlock)
     {
         $name = var_export($this->visitedMixin->name, true);
-        $code = $this->createCode("\\Jade\\Compiler::callMixinBlock({$name});");
+        $code = $this->createCode("\\Jade\\Compiler::callMixinBlock($name, \$attributes);");
 
         $this->buffer($code);
     }
@@ -1102,7 +1115,7 @@ class Compiler
             if(preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
                 $tag->name = '$' . $tag->name;
             }
-            $tag->name = $this->createCode('echo ' . $tag->name . ';');
+            $tag->name = trim($this->createCode('echo ' . $tag->name . ';'));
         }
         if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
             $this->visitDoctype();
@@ -1118,15 +1131,15 @@ class Compiler
         $noSlash = (! $self_closing || $this->terse);
 
         if (count($tag->attributes)) {
-            $open = '<' . $tag->name . ' ';
-            $close = $noSlash ? '>' : '/>';
+            $open = '<' . $tag->name;
+            $close = $noSlash ? '>' : ' />';
 
             $this->buffer($this->indent() . $open, false);
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
         } else {
 
-            $html_tag = '<' . $tag->name . ($noSlash ? '>' : '/>');
+            $html_tag = '<' . $tag->name . ($noSlash ? '>' : ' />');
 
             $this->buffer($html_tag);
         }
@@ -1319,42 +1332,58 @@ class Compiler
      */
     protected function visitAttributes($attributes)
     {
+        $pp = $this->prettyprint;
+        $this->prettyprint = false;
         $items = array();
         $classes = array();
 
+        $classesCheck = array();
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
-            if($key === '&attributes') {
+            if ($key === '&attributes') {
                 $quote = var_export($this->quote, true);
-                $items[] = $this->createCode('foreach($attributes as $key => $value) { echo $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . ' . \' \'; }');
+                $addClasses = '';
+                if (count($classes) || count($classesCheck)) {
+                    foreach ($classes as &$value) {
+                        $value = var_export($value, true);
+                    }
+                    foreach ($classesCheck as $value) {
+                        $classes[] = $this->createStatements($value);
+                    }
+                    $addClasses = '$attributes["class"] = ' .
+                        'implode(", ", array(' . implode(', ', $classes) . ')) . ' .
+                        '(empty($attributes["class"]) ? "" : " " . $attributes["class"]); ';
+                    $classes = array();
+                    $classesCheck = array();
+                }
+                $items[] = $this->createCode($addClasses . 'foreach($attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
             } else {
                 $valueCheck = null;
                 $value = trim($attr['value']);
 
                 if ($this->isConstant($value, $key == 'class')) {
                     $value = trim($value,' \'"');
-                    if($value === 'undefined')
+                    if($value === 'undefined') {
                         $value = 'null';
+                    }
                 } else {
                     $json = json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
 
                     if ($json !== null && is_array($json) && $key == 'class') {
                         $value = implode(' ', $json);
-                    } else {
-                        // inline this in the tag
-                        $pp = $this->prettyprint;
-                        $this->prettyprint = false;
-
-                        if ($key == 'class') {
+                    } elseif ($key == 'class') {
+                        if($this->keepNullAttributes) {
                             $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-                        } elseif($this->keepNullAttributes) {
-                            $value = $this->createCode(static::UNESCAPED, $value);
                         } else {
-                            $valueCheck = $value;
-                            $value = $this->createCode(static::UNESCAPED, '$value');
+                            $statements = $this->createStatements($value);
+                            $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+                            $value = 'null';
                         }
-
-                        $this->prettyprint = $pp;
+                    } elseif($this->keepNullAttributes) {
+                        $value = $this->createCode(static::UNESCAPED, $value);
+                    } else {
+                        $valueCheck = $value;
+                        $value = $this->createCode(static::UNESCAPED, '$__value');
                     }
                 }
 
@@ -1363,27 +1392,33 @@ class Compiler
                         array_push($classes, $value);
                     }
                 } elseif ($value == 'true' || $attr['value'] === true) {
-                    if ($this->terse) {
-                        $items[] = $key;
-                    } else {
-                        $items[] = $key . '=' . $this->quote . $key . $this->quote;
-                    }
+                    $items[] = $this->terse
+                        ? $key
+                        : $key . '=' . $this->quote . $key . $this->quote;
                 } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                    if(! is_null($valueCheck)) {
-                        $item = $this->createCode('if(! is_null($value = %s)) {', $valueCheck);
-                        $item .= $key . '=' . $this->quote . $value . $this->quote;
-                        $items[] = $item . $this->createCode('}');
-                    } else {
-                        $items[] = $key . '=' . $this->quote . $value . $this->quote;
-                    }
+                    $items[] = is_null($valueCheck)
+                        ? $key . '=' . $this->quote . $value . $this->quote
+                        : $this->createCode('if(! is_null($__value = %1$s)) {', $valueCheck)
+                            . $key . '=' . $this->quote . $value . $this->quote
+                            . $this->createCode('}');
                 }
             }
         }
 
         if (count($classes)) {
+            if(count($classesCheck)) {
+                $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
+            }
             $items[] = 'class=' . $this->quote . implode(' ', $classes) . $this->quote;
+        } elseif (count($classesCheck)) {
+            $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
+            $item .= 'class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
+            $items[] = $item . $this->createCode('}');
         }
 
-        $this->buffer(implode(' ', $items), false);
+        $this->prettyprint = $pp;
+
+        $items = trim(implode(' ', $items));
+        $this->buffer(empty($items) ? '' : ' ' . $items, false);
     }
 }

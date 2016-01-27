@@ -9,14 +9,14 @@ mixin centered(title)
 
 mixin main(title)
   div.stretch
-    +centered(title).highlight(attributes)
+    +centered(title).highlight&attributes(attributes)
       block
 
 mixin image(src, width)
   img(src=src, width=width)
 
 mixin bottom
-  div.bottom(attributes)
+  div.bottom&attributes(attributes)
     block
 
 body

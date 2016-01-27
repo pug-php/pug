@@ -19,20 +19,21 @@ class Parser {
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str,$filename = null, $extension = '.jade') {
+    public function __construct($str, $filename = null, $extension = '.jade') {
 
         $this->extension = $extension;
 
         if ($filename == null && file_exists($str)) {
             $this->input = file_get_contents($str);
             $this->filename = $str;
-        }else{
+        } else {
             $this->input = $str;
             $this->filename = $filename;
         }
 
-        if($this->input && $this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf")
+        if ($this->input && $this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf") {
             $this->input = substr($this->input, 3);
+        }
 
         $this->lexer = new Lexer($this->input);
         array_push($this->contexts, $this);
@@ -250,8 +251,8 @@ class Parser {
         $node->line = $this->line();
         $node->block = $this->block();
         if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
-                $this->advance();
-                $node->alternative = $this->block();
+            $this->advance();
+            $node->alternative = $this->block();
         }
         return $node;
     }
@@ -279,7 +280,10 @@ class Parser {
 
         $block = 'indent' == $this->peek()->type
             ? $this->block()
-            : new Nodes\Block(new Nodes\MixinBlock());
+            : new Nodes\Block(empty($name)
+                ? new Nodes\MixinBlock()
+                : new Nodes\Literal('')
+            );
 
         if (isset($this->blocks[$name])) {
             $prev = &$this->blocks[$name];
@@ -389,7 +393,7 @@ class Parser {
             $mixin = new Nodes\Mixin($name, $arguments, $this->block(), false);
             $this->mixins[$name] = $mixin;
             return $mixin;
-            // call
+        // call
         } else {
             return new Nodes\Mixin($name, $arguments, null, true);
         }
