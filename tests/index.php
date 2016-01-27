@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /*
 $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|[0-9]+|\b\b)[ \t]*';
@@ -71,7 +71,7 @@ function show_tokens($jade) {
         }elseif ($token->type == 'id') {
             $result .= str_repeat(' ', $indent * 2) . $token->type . ' value=' . $token->value . "\n";
         }elseif ($token->type == 'attributes') {
-            $result .= str_repeat(' ', $indent * 2) . $token->type . ' attrs='; 
+            $result .= str_repeat(' ', $indent * 2) . $token->type . ' attrs=';
             array_walk($token->attributes,function($v,$k) use (&$result) { $result .= $k.':'.$v.',';});
             $result .= "\n";
         }else{
@@ -162,4 +162,3 @@ if (isset($_REQUEST['test'])) {
 
 $nav_list = build_list(find_tests());
 require('index.jade.php');
-
