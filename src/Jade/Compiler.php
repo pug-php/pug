@@ -726,6 +726,7 @@ class Compiler
                 }
             }
         }
+
         return $var;
     }
 
@@ -764,7 +765,6 @@ class Compiler
         $variables = array();
 
         foreach ($arguments as $arg) {
-
             $arg = static::convertVarPath($arg);
 
             // add dollar if missing
@@ -864,7 +864,6 @@ class Compiler
 
         return $this->createPhpBlock($code);
     }
-
 
     /**
      * @param Nodes\Node $node
