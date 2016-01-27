@@ -70,9 +70,9 @@ class Compiler
     protected $indents = 0;
 
     /**
-     * @var boolean
+     * @var bool
      */
-    static public $jsonEncodeDatas = false;
+    public static $jsonEncodeDatas = false;
 
     /**
      * @var array
@@ -249,7 +249,7 @@ class Compiler
     protected function apply($method, $arguments)
     {
         if (!method_exists($this, $method)) {
-           throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
+            throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
         }
 
         switch (count($arguments)) {
@@ -390,7 +390,7 @@ class Compiler
      */
     public function handleCode($input, $ns = '')
     {
-        $input = trim(preg_replace('/\bvar\b/','',$input));
+        $input = trim(preg_replace('/\bvar\b/', '', $input));
 
         // needs to be public because of the closure $handle_recursion
         $result = array();
@@ -421,7 +421,7 @@ class Compiler
         reset($separators);
 
         if (count($separators) == 0) {
-            if (strchr('0123456789-+("\'$', $input[0]) === false) {
+            if (strstr('0123456789-+("\'$', $input[0]) === false) {
                 $input = static::addDollarIfNeeded($input);
             }
 
@@ -437,7 +437,7 @@ class Compiler
 
         // do not add $ if it is not like a variable
         $varname = static::convertVarPath(substr($input, 0, $separators[0][1]), '/^%s/');
-        if ($separators[0][0] != '(' && strchr('0123456789-+("\'$', $varname[0]) === false) {
+        if ($separators[0][0] != '(' && strstr('0123456789-+("\'$', $varname[0]) === false) {
             $varname = static::addDollarIfNeeded($varname);
         }
 
@@ -471,14 +471,19 @@ class Compiler
             return $_code[0];
         };
 
-        $handle_code_inbetween = function() use (&$separators, $ns, $handle_recursion, $input) {
+        $handle_code_inbetween = function () use (&$separators, $ns, $handle_recursion, $input) {
             $arguments = array();
             $count = 1;
 
             $start = current($separators);
-            $end_pair = array('['=>']', '{'=>'}', '('=>')', ','=>false);
+            $end_pair = array(
+                '[' => ']',
+                '{' => '}',
+                '(' => ')',
+                ',' => false
+            );
             $open = $start[0];
-            if(!isset($open)) {
+            if (!isset($open)) {
                 return $arguments;
             }
             $close = $end_pair[$start[0]];
@@ -569,7 +574,7 @@ class Compiler
                 // mixin arguments
                 case ',':
                     $arguments = $handle_code_inbetween();
-                    if($arguments) {
+                    if ($arguments) {
                         $varname = $varname . ', ' . implode(', ', $arguments);
                     }
                     //array_push($result, $varname);
@@ -594,7 +599,7 @@ class Compiler
                     break;
 
                 default:
-                    if(($name !== FALSE && $name !== '') || $sep[0] != ')') {
+                    if (($name !== FALSE && $name !== '') || $sep[0] != ')') {
                         $varname = $varname . $sep[0] . $name;
                     }
                     break;
@@ -609,8 +614,10 @@ class Compiler
 
     /**
      * @param $input
-     * @return array
+     *
      * @throws \Exception
+     *
+     * @return array
      */
     public function handleString($input)
     {
@@ -658,6 +665,7 @@ class Compiler
 
     /**
      * @param $text
+     *
      * @return mixed
      */
     public function interpolate($text)
@@ -681,17 +689,29 @@ class Compiler
         return str_replace('\\#{', '#{', $text);
     }
 
+    /**
+     * @param $anything object|array
+     * @param $key mixed key to retrive from the object or the array
+     *
+     * @return mixed
+     */
     public static function getPropertyFromAnything($anything, $key)
     {
+        $value = null
         if (is_array($anything)) {
-            return isset($anything[$key]) ? $anything[$key] : null;
+            $value = isset($anything[$key]) ? $anything[$key] : null;
         }
         if (is_object($anything)) {
-            return isset($anything->$key) ? $anything->$key : null;
+            $value = isset($anything->$key) ? $anything->$key : null;
         }
-        return null;
+        return $value;
     }
 
+    /**
+     * @param $match array regex match
+     *
+     * @return string
+     */
     protected static function convertVarPathCallback($match)
     {
         if (empty($match[1])) {
@@ -709,6 +729,14 @@ class Compiler
         return $var;
     }
 
+    /**
+     * Replace var paths in a string.
+     *
+     * @param $arg string 
+     * @param $regexp string
+     *
+     * @return string
+     */
     protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
     {
         $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
@@ -731,7 +759,7 @@ class Compiler
         }
 
         $arguments = func_get_args();
-        $statements= array();
+        $statements = array();
         $variables = array();
 
         foreach ($arguments as $arg) {
@@ -763,12 +791,12 @@ class Compiler
             } else {
                 try {
                     $code = $this->handleCode($arg);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     // if a bug occur, try to remove comments
                     try {
                         $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
-                    } catch(\Exception $e) {
-                        throw new \Exception("JadePHP do not understand " . $arg, 1, $e);
+                    } catch (\Exception $e) {
+                        throw new \Exception('JadePHP do not understand ' . $arg, 1, $e);
                     }
                 }
             }
@@ -787,7 +815,8 @@ class Compiler
      * @param null $statements
      *
      * @return string
-     */protected function createPhpBlock($code, $statements = null)
+     */
+    protected function createPhpBlock($code, $statements = null)
     {
         if ($statements == null) {
             return '<?php ' . $code . ' ' . $this->closingTag();
