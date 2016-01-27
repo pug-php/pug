@@ -1348,15 +1348,21 @@ class Compiler
                         $value = var_export($value, true);
                     }
                     foreach ($classesCheck as $value) {
-                        $classes[] = $this->createStatements($value);
+                        $statements = $this->createStatements($value);
+                        $classes[] = $statements[0][0];
                     }
-                    $addClasses = '$attributes["class"] = ' .
-                        'implode(", ", array(' . implode(', ', $classes) . ')) . ' .
-                        '(empty($attributes["class"]) ? "" : " " . $attributes["class"]); ';
+                    $addClasses = '$__attributes["class"] = ' .
+                        'implode(" ", array(' . implode(', ', $classes) . ')) . ' .
+                        '(empty($__attributes["class"]) ? "" : " " . $__attributes["class"]); ';
                     $classes = array();
                     $classesCheck = array();
                 }
-                $items[] = $this->createCode($addClasses . 'foreach($attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
+                $value = empty($attr['value']) ? 'attributes' : $attr['value'];
+                $statements = $this->createStatements($value);
+                $items[] = $this->createCode(
+                    '$__attributes = ' . $statements[0][0] . '; ' .
+                    $addClasses .
+                    'foreach($__attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
             } else {
                 $valueCheck = null;
                 $value = trim($attr['value']);

@@ -836,7 +836,7 @@ class Lexer
      */
     protected function scanAndAttributes()
     {
-        return $this->scan('/^&attributes\(attributes\) */', '&attributes');
+        return $this->scan('/^&attributes\(([^()]*(?:(?R)[^()]*)*+)\)/', '&attributes');
     }
 
     /**
