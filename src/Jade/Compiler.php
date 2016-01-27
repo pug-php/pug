@@ -697,7 +697,7 @@ class Compiler
      */
     public static function getPropertyFromAnything($anything, $key)
     {
-        $value = null
+        $value = null;
         if (is_array($anything)) {
             $value = isset($anything[$key]) ? $anything[$key] : null;
         }
@@ -940,7 +940,7 @@ class Compiler
      */
     protected function visitLiteral(Nodes\Literal $node)
     {
-        $str = preg_replace('/\\n/','\\\\n',$node->string);
+        $str = preg_replace('/\\n/', '\\\\n', $node->string);
         $this->buffer($str);
     }
 
@@ -965,31 +965,24 @@ class Compiler
         }
         $this->hasCompiledDoctype = true;
 
-        if (empty($doctype->value) || $doctype == null || !isset($doctype->value)) {
-            $doc = 'default';
-        } else {
-            $doc = strtolower($doctype->value);
-        }
+        $doc = (empty($doctype->value) || $doctype == null || !isset($doctype->value))
+            ? 'default'
+            : strtolower($doctype->value);
 
-        if (isset($this->doctypes[$doc])) {
-            $str = $this->doctypes[$doc];
-        } else {
-            $str = "<!DOCTYPE {$doc}>";
-        }
+        $str = isset($this->doctypes[$doc])
+            ? $this->doctypes[$doc]:
+            : "<!DOCTYPE {$doc}>";
 
-        $this->buffer( $str . $this->newline());
+        $this->buffer($str . $this->newline());
 
         $this->terse = (strtolower($str) == '<!doctype html>');
 
-        $this->xml = false;
-        if ($doc == 'xml') {
-            $this->xml = true;
-        }
+        $this->xml = ($doc != 'xml');
     }
 
     static protected function initArgToNull(&$arg) {
         $arg = static::addDollarIfNeeded(trim($arg));
-        if(strpos($arg, '=') === false) {
+        if (strpos($arg, '=') === false) {
             $arg .= ' = null';
         }
     }
@@ -1046,7 +1039,7 @@ class Compiler
                 $_attr = array();
                 foreach ($attributes as $data) {
                     $quote = substr(ltrim($data['value']), 0, 1);
-                    if(false !== strpos('\'"', $quote)) {
+                    if (false !== strpos('\'"', $quote)) {
                         $data['value'] = stripslashes(substr(trim($data['value']), 1, -1));
                     }
                     $_attr[$data['name']] = $data['escaped'] === true
@@ -1059,7 +1052,7 @@ class Compiler
                 $attributes = "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
             }
 
-            if($block) {
+            if ($block) {
                 $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function (\$attributes) {");
                 $this->buffer($code);
                 $this->visit($block);
@@ -1073,7 +1066,7 @@ class Compiler
                     $strings = array();
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
-                        function ($match) use(&$strings)
+                        function ($match) use (&$strings)
                         {
                             $return = 'stringToReplaceBy' . count($strings) . 'ThCapture';
                             $strings[] = $match[0];
@@ -1082,11 +1075,11 @@ class Compiler
                         $arguments
                     );
                     $arguments = array_map(
-                        function ($arg) use($strings)
+                        function ($arg) use ($strings)
                         {
                             return preg_replace_callback(
                                 '#stringToReplaceBy([0-9]+)ThCapture#',
-                                function ($match) use($strings)
+                                function ($match) use ($strings)
                                 {
                                     return $strings[intval($match[1])];
                                 },
@@ -1111,7 +1104,7 @@ class Compiler
                 $code = $this->apply('createCode', $arguments);
             }
             $this->buffer($code);
-            if($block) {
+            if ($block) {
                 $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
                 $this->buffer($code);
             }
@@ -1122,8 +1115,7 @@ class Compiler
             $this->visitedMixin = $mixin;
             if ($arguments === null || empty($arguments)) {
                 $arguments = array();
-            } else
-            if (!is_array($arguments)) {
+            } elseif (!is_array($arguments)) {
                 $arguments = array($arguments);
             }
 
@@ -1148,7 +1140,7 @@ class Compiler
                 $this->indents--;
                 $this->buffer($this->createCode('} }'));
             }
-            if(is_null($previousVisitedMixin)) {
+            if (is_null($previousVisitedMixin)) {
                 unset($this->visitedMixin);
             } else {
                 $this->visitedMixin = $previousVisitedMixin;
@@ -1172,8 +1164,8 @@ class Compiler
      */
     protected function visitTag(Nodes\Tag $tag)
     {
-        if(isset($tag->buffer)) {
-            if(preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
+        if (isset($tag->buffer)) {
+            if (preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
                 $tag->name = '$' . $tag->name;
             }
             $tag->name = trim($this->createCode('echo ' . $tag->name . ';'));
@@ -1228,8 +1220,8 @@ class Compiler
     protected function visitFilter(Nodes\Filter $node)
     {
         // Check that filter is registered
-        if (! array_key_exists($node->name, $this->filters)){
-            throw new \InvalidArgumentException($node->name.': Filter doesn\'t exists');
+        if (! array_key_exists($node->name, $this->filters)) {
+            throw new \InvalidArgumentException($node->name . ': Filter doesn\'t exists');
         }
 
         $filter = $this->filters[$node->name];
@@ -1239,7 +1231,7 @@ class Compiler
             $filter = new $filter();
         }
         if (! is_callable($filter)) {
-            throw new \InvalidArgumentException($node->name.': Filter must be callable');
+            throw new \InvalidArgumentException($node->name . ': Filter must be callable');
         }
         $this->buffer($filter($node, $this));
     }
@@ -1293,8 +1285,7 @@ class Compiler
 
             $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
             $this->buffer($this->createCode($pattern,$code));
-        }
-        else {
+        } else {
 
             $php_open = implode('|', $this->phpOpenBlock);
 
@@ -1363,9 +1354,9 @@ class Compiler
         }
 
         if (isset($node->key) && mb_strlen($node->key) > 0) {
-            $code = $this->createCode('foreach (%s as %s => %s) {',$node->obj,$node->key,$node->value);
+            $code = $this->createCode('foreach (%s as %s => %s) {', $node->obj, $node->key, $node->value);
         } else {
-            $code = $this->createCode('foreach (%s as %s) {',$node->obj,$node->value);
+            $code = $this->createCode('foreach (%s as %s) {', $node->obj, $node->value);
         }
 
         $this->buffer($code);
