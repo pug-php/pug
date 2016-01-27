@@ -970,14 +970,14 @@ class Compiler
             : strtolower($doctype->value);
 
         $str = isset($this->doctypes[$doc])
-            ? $this->doctypes[$doc]:
+            ? $this->doctypes[$doc]
             : "<!DOCTYPE {$doc}>";
 
         $this->buffer($str . $this->newline());
 
         $this->terse = (strtolower($str) == '<!doctype html>');
 
-        $this->xml = ($doc != 'xml');
+        $this->xml = ($doc == 'xml');
     }
 
     static protected function initArgToNull(&$arg) {
