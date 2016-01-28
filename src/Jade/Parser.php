@@ -134,7 +134,7 @@ class Parser
             return $this->$_method();
         }
 
-        switch ($this->peek()->type ) {
+        switch ($this->peek()->type) {
             case 'yield':
                 $this->advance();
                 $block = new Nodes\Block();
@@ -421,11 +421,12 @@ class Parser
         if ('indent' == $this->peek()->type) {
             $mixin = new Nodes\Mixin($name, $arguments, $this->block(), false);
             $this->mixins[$name] = $mixin;
-            return $mixin;
         // call
         } else {
-            return new Nodes\Mixin($name, $arguments, null, true);
+            $mixin = new Nodes\Mixin($name, $arguments, null, true);
         }
+
+        return $mixin;
     }
 
     protected function parseTextBlock()
@@ -475,7 +476,6 @@ class Parser
         $this->expect('indent');
 
         while ($this->peek()->type !== 'outdent' ) {
-
             if ($this->peek()->type === 'newline') {
                 $this->lexer->advance();
             } else {
