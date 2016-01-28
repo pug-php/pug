@@ -252,22 +252,7 @@ class Compiler
             throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
         }
 
-        switch (count($arguments)) {
-            case 0:
-                return $this->{$method}();
-
-            case 1:
-                return $this->{$method}($arguments[0]);
-
-            case 2:
-                return $this->{$method}($arguments[0], $arguments[1]);
-
-            case 3:
-                return $this->{$method}($arguments[0], $arguments[1], $arguments[2]);
-
-            default:
-                return call_user_func_array(array($this, $method), $arguments);
-        }
+        return call_user_func_array(array($this, $method), $arguments);
     }
 
     /**
