@@ -36,4 +36,12 @@ class JadePHPTest extends PHPUnit_Framework_TestCase {
 
         $this->assertSame($result[1], $result[2], $name);
     }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testUnexpectingToken() {
+
+        get_php_code('a(href=="a")');
+    }
 }
