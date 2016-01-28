@@ -2,14 +2,12 @@
 
 namespace Jade;
 
-use Jade\Nodes as Nodes;
-
-class Parser {
-
+class Parser
+{
     public $basepath;
     public $extension;
-    public $textOnly = array('script','style');
-    static public $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
+    public $textOnly = array('script', 'style');
+    public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
     protected $input;
     protected $lexer;
@@ -19,8 +17,8 @@ class Parser {
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str, $filename = null, $extension = '.jade') {
-
+    public function __construct($str, $filename = null, $extension = '.jade')
+    {
         $this->extension = $extension;
 
         if ($filename == null && file_exists($str)) {
@@ -39,44 +37,48 @@ class Parser {
         array_push($this->contexts, $this);
     }
 
-    public function context($parser=null) {
+    public function context($parser=null)
+    {
         if ($parser===null) {
             return array_pop($this->contexts);
         }
         array_push($this->contexts, $parser);
     }
 
-    public function advance() {
+    public function advance()
+    {
         return $this->lexer->advance();
     }
 
-    public function skip($n) {
+    public function skip($n)
+    {
         while($n--) $this->advance();
     }
 
-    public function peek() {
+    public function peek()
+    {
         return $this->lookahead(1);
     }
 
-    public function line() {
+    public function line()
+    {
         return $this->lexer->lineno;
     }
 
-    public function lookahead($n=1) {
+    public function lookahead($n=1)
+    {
         return $this->lexer->lookahead($n);
     }
 
-    public function parse() {
+    public function parse()
+    {
         $block = new Nodes\Block();
         $block->line = $this->line();
 
         while ($this->peek()->type !== 'eos') {
-
             if ($this->peek()->type === 'newline') {
                 $this->advance();
-            }
-            else
-            {
+            } else {
                 $block->push($this->parseExpression());
             }
         }

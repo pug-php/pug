@@ -132,7 +132,6 @@ class Jade
         return $this->options['stream'] . '://data;' . ($compiled ? $input : $this->compile($input));
     }
 
-
     /**
      * @param $input
      *

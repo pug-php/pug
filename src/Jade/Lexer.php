@@ -11,10 +11,12 @@ class Lexer
      * @var int
      */
     public $lineno = 1;
+
     /**
      * @var
      */
     public $pipeless;
+
     /**
      * @var
      */
@@ -195,7 +197,6 @@ class Lexer
     protected function scanEOS()
     {
         if (!$this->length()) {
-
             if (count($this->indentStack)) {
                 array_shift($this->indentStack);
 

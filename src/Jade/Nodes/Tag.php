@@ -30,7 +30,7 @@ class Tag extends Attributes
     public $block;
     public $selfClosing = false;
 
-    public function __construct($name, $block=null)
+    public function __construct($name, $block = null)
     {
         $this->name = $name;
 
