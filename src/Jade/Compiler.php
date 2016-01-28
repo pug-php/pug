@@ -959,7 +959,7 @@ class Compiler
      *
      * @throws \Exception
      */
-    protected function visitDoctype(Nodes\Doctype $doctype=null)
+    protected function visitDoctype(Nodes\Doctype $doctype = null)
     {
         if (isset($this->hasCompiledDoctype)) {
             throw new \Exception('Revisiting doctype');
@@ -1069,9 +1069,10 @@ class Compiler
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
                         function ($match) use (&$strings) {
-                            $return = 'stringToReplaceBy' . count($strings) . 'ThCapture';
+                            $id = count($strings);
                             $strings[] = $match[0];
-                            return $return;
+
+                            return 'stringToReplaceBy' . $id . 'ThCapture';
                         },
                         $arguments
                     );
