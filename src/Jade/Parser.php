@@ -475,7 +475,7 @@ class Parser
         $block->line = $this->line();
         $this->expect('indent');
 
-        while ($this->peek()->type !== 'outdent' ) {
+        while ($this->peek()->type !== 'outdent') {
             if ($this->peek()->type === 'newline') {
                 $this->lexer->advance();
             } else {
