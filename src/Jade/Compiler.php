@@ -733,7 +733,7 @@ class Compiler
     /**
      * Replace var paths in a string.
      *
-     * @param $arg string 
+     * @param $arg string
      * @param $regexp string
      *
      * @return string
@@ -1107,9 +1107,7 @@ class Compiler
                 $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
                 $this->buffer($code);
             }
-
         } else {
-
             $previousVisitedMixin = isset($this->visitedMixin) ? $this->visitedMixin : null;
             $this->visitedMixin = $mixin;
             if ($arguments === null || empty($arguments)) {
@@ -1281,15 +1279,12 @@ class Compiler
         $code = trim($node->value);
 
         if ($node->buffer) {
-
             $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
             $this->buffer($this->createCode($pattern, $code));
         } else {
-
             $php_open = implode('|', $this->phpOpenBlock);
 
             if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
-
                 $code = trim($matches[2], '; ');
                 while (($len = strlen($code)) > 1 && ($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
                     $code = trim(substr($code, 1, $len - 2));
@@ -1320,7 +1315,6 @@ class Compiler
 
                     $this->buffer($this->createCode($conditional));
                 }
-
             } else {
                 $this->buffer($this->createCode('%s', $code));
             }
