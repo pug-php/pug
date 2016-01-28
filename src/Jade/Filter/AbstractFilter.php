@@ -8,13 +8,14 @@ use Jade\Nodes\Filter;
 /**
  * Class Jade\Filter\AbstractFilter.
  */
-abstract class AbstractFilter implements FilterInterface {
+abstract class AbstractFilter implements FilterInterface
+{
     /**
      * Returns the node string value, line by line.
      * If the compiler is present, that means we need
      * to interpolate line contents.
      *
-     * @param Filter $node
+     * @param Filter   $node
      * @param Compiler $compiler
      *
      * @return mixed
@@ -23,6 +24,7 @@ abstract class AbstractFilter implements FilterInterface {
     {
         return array_reduce($node->block->nodes, function (&$result, $line) use ($compiler) {
             $val = $compiler ? $compiler->interpolate($line->value) : $line->value;
+
             return $result .= $val . "\n";
         });
     }

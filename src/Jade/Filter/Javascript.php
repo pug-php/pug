@@ -6,11 +6,10 @@ use Jade\Compiler;
 use Jade\Nodes\Filter;
 
 /**
- * Class Javascript
- * @package Jade\Filter
+ * Class Jade\Filter\Javascript.
  */
-class Javascript extends AbstractFilter {
-
+class Javascript extends AbstractFilter
+{
     /**
      * @param Filter   $node
      * @param Compiler $compiler
@@ -19,6 +18,6 @@ class Javascript extends AbstractFilter {
      */
     public function __invoke(Filter $node, Compiler $compiler)
     {
-        return '<script type="text/javascript">'.$this->getNodeString($node, $compiler).'</script>';
+        return '<script type="text/javascript">' . $this->getNodeString($node, $compiler) . '</script>';
     }
 }
