@@ -1,5 +1,7 @@
 <?php
 
+use Jade\Jade;
+
 function setup_autoload() {
     // quick setup for autoloading
     $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
@@ -37,14 +39,14 @@ function build_list($test_list) {
 }
 
 function get_php_code($file) {
-    $jade = new \Jade\Jade(array(
+    $jade = new Jade(array(
         'prettyprint' => true
     ));
     return $jade->render($file);
 }
 
 function compile_php($file) {
-    $jade = new Jade\Jade(array(
+    $jade = new Jade(array(
         'prettyprint' => true
     ));
     return $jade->compile(file_get_contents(__DIR__ . '/' . $file . '.jade'));
