@@ -2,6 +2,10 @@
 
 use Jade\Jade;
 
+require __DIR__ . '/../../vendor/autoload.php';
+
+define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../templates')));
+
 function setup_autoload() {
     // quick setup for autoloading
     $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
@@ -9,7 +13,7 @@ function setup_autoload() {
     set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 
     spl_autoload_register(function ($class) {
-        $file = __DIR__ . '/../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
+        $file = __DIR__ . '/../../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
         if(file_exists($file)) {
             require_once($file);
         }
@@ -18,9 +22,7 @@ function setup_autoload() {
 
 function find_tests() {
     // find the tests
-    $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/');
-    $path = realpath($path);
-    return glob($path . DIRECTORY_SEPARATOR . '*.jade');
+    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.jade');
 }
 
 function build_list($test_list) {
@@ -49,7 +51,7 @@ function compile_php($file) {
     $jade = new Jade(array(
         'prettyprint' => true
     ));
-    return $jade->compile(file_get_contents(__DIR__ . '/' . $file . '.jade'));
+    return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
 }
 
 function init_tests() {
@@ -76,9 +78,9 @@ function get_generated_html($contents) {
 }
 
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
-    $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
+    $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
-    if($expectedHtml === FALSE) {
+    if($expectedHtml === false) {
         if($verbose) {
             echo "! sample for test '$name' not found.\n";
         }
