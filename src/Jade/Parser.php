@@ -134,7 +134,7 @@ class Parser
             return $this->$_method();
         }
 
-        switch ( $this->peek()->type ) {
+        switch ($this->peek()->type ) {
             case 'yield':
                 $this->advance();
                 $block = new Nodes\Block();
@@ -168,6 +168,7 @@ class Parser
     {
         if (':' == $this->peek()->type) {
             $this->advance();
+
             return new Nodes\Block($this->parseExpression());
         }
 
@@ -212,7 +213,7 @@ class Parser
         }
 
         if ($this->lookahead($i)->type === 'indent') {
-            $this->skip($i-1);
+            $this->skip($i - 1);
             $node->block = $this->block();
         }
 
@@ -221,7 +222,7 @@ class Parser
 
     protected function parseComment()
     {
-        $token  = $this->expect('comment');
+        $token = $this->expect('comment');
 
         if ($this->peek()->type === 'indent') {
             $node = new Nodes\BlockComment($token->value, $this->block(), $token->buffer);
@@ -291,7 +292,7 @@ class Parser
         $path = $dir . DIRECTORY_SEPARATOR . $file . $this->extension;
 
         $string = file_get_contents($path);
-        $parser = new Parser($string, $path);
+        $parser = new static($string, $path);
         // need to be a reference, or be seted after the parse loop
         $parser->blocks = &$this->blocks;
         $parser->contexts = $this->contexts;
@@ -345,12 +346,12 @@ class Parser
         $file = trim($token->value);
         $dir = realpath(dirname($this->filename));
 
-        if (strpos(basename($file), '.') === false ) {
+        if (strpos(basename($file), '.') === false) {
             $file = $file . '.jade';
         }
 
         $path = $dir . DIRECTORY_SEPARATOR . $file;
-        if( file_exists($path)) {
+        if (file_exists($path)) {
             $str = file_get_contents($path);
         } elseif (static::$includeNotFound !== false) {
             $str = static::$includeNotFound;
@@ -358,11 +359,11 @@ class Parser
             throw new \Exception("The included file '$path' does not exists.");
         }
 
-        if ('.jade' != substr($file,-5)) {
+        if ('.jade' != substr($file, -5)) {
             return new Nodes\Literal($str);
         }
 
-        $parser = new Parser($str, $path);
+        $parser = new static($str, $path);
         $parser->blocks = $this->blocks;
         $parser->mixins = $this->mixins;
 
@@ -379,7 +380,7 @@ class Parser
             // includeBlock might not be set
             $block = $ast->includeBlock();
             if (is_object($block)) {
-                if(count($block->nodes) === 1) {
+                if (count($block->nodes) === 1) {
                     $block->nodes[0]->block->push($this->block());
                 } else {
                     $block->push($this->block());
@@ -437,10 +438,9 @@ class Parser
             $this->_spaces = $spaces;
         }
 
-        $indent = str_repeat(' ', $spaces - $this->_spaces+1);
+        $indent = str_repeat(' ', $spaces - $this->_spaces + 1);
 
         while ($this->peek()->type != 'outdent') {
-
             switch ($this->peek()->type) {
                 case 'newline':
                     $this->lexer->advance();
@@ -534,7 +534,7 @@ class Parser
                     $token = $this->advance();
                     $peek = $this->peek();
                     $escaped = isset($peek->escaped, $peek->escaped[$type]) && $peek->escaped[$type];
-                    $value = $escaped || ! isset($peek->attributes, $peek->attributes[$type])
+                    $value = $escaped || !isset($peek->attributes, $peek->attributes[$type])
                         ? "'" . $token->value . "'"
                         : $peek->attributes[$type];
                     $tag->setAttribute($token->type, $value, $escaped);
@@ -607,7 +607,7 @@ class Parser
             $type = $tag->getAttribute('type');
 
             if ($type !== null) {
-                $type = preg_replace('/^[\'\"]|[\'\"]$/','',$type);
+                $type = preg_replace('/^[\'\"]|[\'\"]$/', '', $type);
 
                 if (!$dot && 'text/javascript' != $type['value']) {
                     $tag->textOnly = false;
