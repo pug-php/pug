@@ -9,7 +9,7 @@ class Each extends Node
     public $key;
     public $block;
 
-    function __construct($obj, $value, $key, $block=null)
+    public function __construct($obj, $value, $key, $block = null)
     {
         $this->obj = $obj;
         $this->value = $value;

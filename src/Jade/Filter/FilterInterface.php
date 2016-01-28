@@ -6,8 +6,7 @@ use Jade\Compiler;
 use Jade\Nodes\Filter;
 
 /**
- * Interface FilterInterface
- * @package Jade\Filter
+ * Interface Jade\Filter\FilterInterface.
  */
 interface FilterInterface
 {

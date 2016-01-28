@@ -5,15 +5,15 @@ namespace Jade\Stream;
 /**
  * Creates a wrapper in order to allow the Zend PhpRenderer
  * to include the compiled file.
- * Class Template
- * @package Jade\Stream
+ * Class Jade\Stream\Template.
  */
-class Template {
-
+class Template
+{
     /**
      * @var int
      */
     private $position = 0;
+
     /**
      * @var string
      */
@@ -21,11 +21,13 @@ class Template {
 
     /**
      * @param $path
+     *
      * @return bool
      */
     public function stream_open($path)
     {
         $this->data = substr(strstr($path, ';'), 1);
+
         return true;
     }
 
@@ -34,11 +36,12 @@ class Template {
      */
     public function stream_stat()
     {
-        return null;
+        return;
     }
 
     /**
      * @param $count
+     *
      * @return string
      */
     public function stream_read($count)
@@ -65,15 +68,15 @@ class Template {
         return $this->position >= strlen($this->data);
     }
 
-
     /**
      * Dummy URL stat method to prevent PHP "undefined method" errors.
      *
      * @TODO Return real stat
+     *
      * @return array
      */
     public function url_stat($path, $flags)
     {
-        return array(0,0,0,0,0,0,0,0,0,0,0,0);
+        return array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 }

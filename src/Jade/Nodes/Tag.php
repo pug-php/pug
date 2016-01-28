@@ -2,8 +2,8 @@
 
 namespace Jade\Nodes;
 
-class Tag extends Attributes {
-
+class Tag extends Attributes
+{
     protected static $inline_tags = array(
         'a',
         'abbr',
@@ -23,25 +23,20 @@ class Tag extends Attributes {
         'span',
         'strong',
         'sub',
-        'sup'
+        'sup',
     );
     public $name;
     public $attributes;
     public $block;
     public $selfClosing = false;
 
-    public function __construct($name, $block=null)
+    public function __construct($name, $block = null)
     {
         $this->name = $name;
 
-        if ($block !== null)
-        {
-            $this->block = $block;
-        }
-        else
-        {
-            $this->block = new Block();
-        }
+        $this->block = ($block !== null)
+            ? $block
+            : new Block();
 
         $this->attributes = array();
     }
@@ -55,14 +50,14 @@ class Tag extends Attributes {
     {
         $nodes = $this->block->nodes;
 
-        $isInline = function($node) use (&$isInline)
-        {
+        $isInline = function ($node) use (&$isInline) {
             if ($node->isBlock) {
                 foreach ($node->nodes as $n) {
                     if (!$isInline($n)) {
                         return false;
                     }
                 }
+
                 return true;
             }
 
@@ -101,6 +96,7 @@ class Tag extends Attributes {
                 }
                 $prev = $k;
             }
+
             return true;
         }
 

@@ -2,6 +2,7 @@
 [![Latest Stable Version](https://poser.pugx.org/kylekatarnls/jade-php/v/stable.png)](https://packagist.org/packages/kylekatarnls/jade-php)
 [![Total Downloads](https://poser.pugx.org/kylekatarnls/jade-php/downloads.png)](https://packagist.org/packages/kylekatarnls/jade-php)
 [![Build Status](https://travis-ci.org/kylekatarnls/jade-php.svg?branch=master)](https://travis-ci.org/kylekatarnls/jade-php)
+[![StyleCI](https://styleci.io/repos/17092566/shield?style=flat)](https://styleci.io/repos/17092566)
 [![codecov.io](https://codecov.io/github/kylekatarnls/jade-php/coverage.svg?branch=master)](https://codecov.io/github/kylekatarnls/jade-php?branch=master)
 
 Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) template compiler.

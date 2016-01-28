@@ -2,15 +2,11 @@
 
 namespace Jade;
 
-use Jade\Parser;
-use Jade\Lexer;
-use Jade\Compiler;
-
 /**
- * Class Jade
- * @package Jade
+ * Class Jade\Jade.
  */
-class Jade {
+class Jade
+{
     /**
      * @var array
      */
@@ -23,11 +19,12 @@ class Jade {
         'keepBaseName'       => false,
         'allowMixinOverride' => true,
         'keepNullAttributes' => false,
-        'singleQuote'        => true
+        'singleQuote'        => true,
     );
 
     /**
-     * Built-in filters
+     * Built-in filters.
+     *
      * @var array
      */
     protected $filters = array(
@@ -35,19 +32,21 @@ class Jade {
         'css'        => 'Jade\Filter\Css',
         'cdata'      => 'Jade\Filter\Cdata',
         'escaped'    => 'Jade\Filter\Escaped',
-        'javascript' => 'Jade\Filter\Javascript'
+        'javascript' => 'Jade\Filter\Javascript',
     );
 
     /**
      * Indicate if we registered the stream wrapper,
      * in order to not ask the stream registry each time
-     * We need to render a template
+     * We need to render a template.
+     *
      * @var bool
      */
     protected static $isWrapperRegistered = false;
 
     /**
-     * Merge local options with constructor $options
+     * Merge local options with constructor $options.
+     *
      * @param array $options
      */
     public function __construct(array $options = array())
@@ -60,16 +59,19 @@ class Jade {
      *
      * @param $name
      * @param $filter
+     *
      * @return $this
      */
     public function filter($name, $filter)
     {
         $this->filters[$name] = $filter;
+
         return $this;
     }
 
     /**
      * @param $name
+     *
      * @return bool
      */
     public function hasFilter($name)
@@ -79,11 +81,12 @@ class Jade {
 
     /**
      * @param $input
+     *
      * @return string
      */
     public function compile($input)
     {
-        $parser   = new Parser($input, null, $this->options['extension']);
+        $parser = new Parser($input, null, $this->options['extension']);
         $compiler = new Compiler($this->options, $this->filters);
 
         return $compiler->compile($parser->parse($input));
@@ -92,6 +95,7 @@ class Jade {
     /**
      * @param $input
      * @param array $vars
+     *
      * @return mixed|string
      */
     public function render($input, array $vars = array())
@@ -100,12 +104,9 @@ class Jade {
 
         extract($vars);
         ob_start();
-        try
-        {
+        try {
             include $file;
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
         }
@@ -115,53 +116,51 @@ class Jade {
 
     /**
      * Create a stream wrapper to allow
-     * the possibility to add $scope variables
+     * the possibility to add $scope variables.
+     *
      * @param $input
+     *
      * @return string
      */
     public function stream($input, $compiled = false)
     {
-        if (false === static::$isWrapperRegistered)
-        {
+        if (false === static::$isWrapperRegistered) {
             static::$isWrapperRegistered = true;
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        return $this->options['stream'].'://data;'.($compiled ? $input : $this->compile($input));
+        return $this->options['stream'] . '://data;' . ($compiled ? $input : $this->compile($input));
     }
-
 
     /**
      * @param $input
-     * @return mixed|string
+     *
      * @throws \InvalidArgumentException
      * @throws \Exception
+     *
+     * @return mixed|string
      */
     public function cache($input)
     {
-        if (! is_file($input))
-        {
+        if (!is_file($input)) {
             throw new \InvalidArgumentException('Only files can be cached.');
         }
 
         $cacheFolder = $this->options['cache'];
 
-        if (! is_dir($cacheFolder))
-        {
+        if (!is_dir($cacheFolder)) {
             throw new \Exception($cacheFolder . ': Cache directory seem\'s to not exists');
         }
 
         $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
-        $cacheTime = ! file_exists($path) ? 0 : filemtime($path);
+        $cacheTime = !file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
-        if ($cacheTime && filemtime($input) < $cacheTime)
-        {
+        if ($cacheTime && filemtime($input) < $cacheTime) {
             return $path;
         }
 
-        if (! is_writable($cacheFolder))
-        {
+        if (!is_writable($cacheFolder)) {
             throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
         }
 
