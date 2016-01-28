@@ -2,6 +2,6 @@
 
 namespace Jade\Nodes;
 
-class MixinBlock extends Node {
-
+class MixinBlock extends Node
+{
 }

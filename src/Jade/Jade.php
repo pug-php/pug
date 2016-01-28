@@ -5,7 +5,8 @@ namespace Jade;
 /**
  * Class Jade\Jade.
  */
-class Jade {
+class Jade
+{
     /**
      * @var array
      */
@@ -23,6 +24,7 @@ class Jade {
 
     /**
      * Built-in filters.
+     *
      * @var array
      */
     protected $filters = array(
@@ -37,12 +39,14 @@ class Jade {
      * Indicate if we registered the stream wrapper,
      * in order to not ask the stream registry each time
      * We need to render a template.
+     *
      * @var bool
      */
     protected static $isWrapperRegistered = false;
 
     /**
      * Merge local options with constructor $options.
+     *
      * @param array $options
      */
     public function __construct(array $options = array())
@@ -77,11 +81,12 @@ class Jade {
 
     /**
      * @param $input
+     *
      * @return string
      */
     public function compile($input)
     {
-        $parser   = new Parser($input, null, $this->options['extension']);
+        $parser = new Parser($input, null, $this->options['extension']);
         $compiler = new Compiler($this->options, $this->filters);
 
         return $compiler->compile($parser->parse($input));
@@ -101,7 +106,7 @@ class Jade {
         ob_start();
         try {
             include $file;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
         }
@@ -112,6 +117,7 @@ class Jade {
     /**
      * Create a stream wrapper to allow
      * the possibility to add $scope variables.
+     *
      * @param $input
      *
      * @return string
@@ -123,7 +129,7 @@ class Jade {
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        return $this->options['stream'].'://data;'.($compiled ? $input : $this->compile($input));
+        return $this->options['stream'] . '://data;' . ($compiled ? $input : $this->compile($input));
     }
 
 

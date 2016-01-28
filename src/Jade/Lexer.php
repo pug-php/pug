@@ -46,7 +46,7 @@ class Lexer
     /**
      * Set lexer input.
      *
-     * @param   string $input  input string
+     * @param string $input input string
      */
     public function setInput($input)
     {
@@ -129,7 +129,7 @@ class Lexer
     /**
      * Lookahead token 'n'.
      *
-     * @param integer $number number of tokens to predict
+     * @param int $number number of tokens to predict
      *
      * @return object predicted token
      */
@@ -428,7 +428,7 @@ class Lexer
         if (preg_match('/^(\$?\w+) += *([^;\n]+|\'[^\']+\'|"[^"]+")( *;? *)/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token('code', (substr($matches[1], 0, 1) === '$' ? '' : '$').$matches[1] . ' = ' . $matches[2]);
+            return $this->token('code', (substr($matches[1], 0, 1) === '$' ? '' : '$') . $matches[1] . ' = ' . $matches[2]);
         }
     }
 
@@ -442,7 +442,7 @@ class Lexer
             $this->consume($matches[0]);
             $token = $this->token('call', $matches[1]);
 
-            # check for arguments
+            // check for arguments
             if (preg_match('/^ *\((.*?)\)/', $this->input, $matches_arguments)) {
                 $this->consume($matches_arguments[0]);
                 $token->arguments = $matches_arguments[1];
@@ -566,7 +566,7 @@ class Lexer
                     case ',':
                     case "\n":
                     case "\t":
-                    case " ":
+                    case ' ':
                         switch ($state()) {
                             case 'expr':
                             case 'array':
@@ -579,8 +579,8 @@ class Lexer
                                 if (
                                     ($char === ' ' || $char === "\t") &&
                                     (
-                                        ! preg_match('/^[a-zA-Z0-9_\\x7f-\\xff"\'\\]\\)\\}]$/', $previousNonBlankChar) ||
-                                        ! preg_match('/^[a-zA-Z0-9_]$/', $nextChar)
+                                        !preg_match('/^[a-zA-Z0-9_\\x7f-\\xff"\'\\]\\)\\}]$/', $previousNonBlankChar) ||
+                                        !preg_match('/^[a-zA-Z0-9_]$/', $nextChar)
                                     )
                                 ) {
                                     $val .= $char;
@@ -595,9 +595,7 @@ class Lexer
                                 }
 
                                 $key = preg_replace(
-                                    array('/^[\'\"]|[\'\"]$/', '/\!/')
-                                    , ''
-                                    , $key
+                                    array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
                                 );
                                 $token->escaped[$key] = $escapedAttribute;
                                 $token->attributes[$key] = ('' == $val) ? true : $interpolate($val);
@@ -850,7 +848,6 @@ class Lexer
         or $r = $this->scanCall()
         or $r = $this->scanConditional()
         or $r = $this->scanEach()
-        or $r = $this->scanWhile()
         or $r = $this->scanAssignment()
         or $r = $this->scanTag()
         or $r = $this->scanFilter()

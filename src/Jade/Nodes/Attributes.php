@@ -3,8 +3,7 @@
 namespace Jade\Nodes;
 
 /**
- * Class Attributes
- * @package Jade\Nodes
+ * Class Jade\Nodes\Attributes.
  */
 class Attributes extends Node
 {
@@ -41,6 +40,7 @@ class Attributes extends Node
 
     /**
      * @param $name
+     *
      * @return mixed
      */
     public function getAttribute($name)

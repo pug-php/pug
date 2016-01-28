@@ -2,10 +2,12 @@
 
 namespace Jade\Nodes;
 
-class Doctype extends Node {
+class Doctype extends Node
+{
     public $value;
 
-    public function __construct($value) {
+    public function __construct($value)
+    {
         $this->value = $value;
     }
 }
