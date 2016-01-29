@@ -54,6 +54,10 @@ function compile_php($file) {
     return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
 }
 
+function get_html_code($name) {
+    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.jade'));
+}
+
 function init_tests() {
     mb_internal_encoding('utf-8');
     error_reporting(E_ALL);
@@ -129,12 +133,18 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     }
 }
 
+function array_remove(&$array, $value) {
+    if($found = in_array($value, $array)) {
+        array_splice($array, array_search($value, $array), 1);
+    }
+
+    return $found;
+}
+
 function get_tests_results($verbose = false) {
     global $argv;
 
-    if($moreVerbose = in_array('--verbose', $argv)) {
-        array_splice($argv, array_search('--verbose', $argv), 1);
-    }
+    $moreVerbose = array_remove($argv, '--verbose');
 
     if(! (ini_get('allow_url_include') | 0)) {
         echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";

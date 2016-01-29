@@ -1046,10 +1046,11 @@ class Compiler
                 $this->visit($block);
                 $this->buffer($this->createCode('});'));
             }
-            if ($arguments === null || empty($arguments)) {
+
+            if ($arguments === false || $arguments === null) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
             } else {
-                if (!empty($arguments) && !is_array($arguments)) {
+                if (!is_array($arguments)) {
                     $strings = array();
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
@@ -1361,18 +1362,41 @@ class Compiler
     /**
      * @param $attributes
      */
+    public static function displayAttributes($attributes, $quote)
+    {
+        if (is_array($attributes) || $attributes instanceof Traversable) {
+            foreach ($attributes as $key => $value) {
+                echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
+            }
+        }
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    public static function isDisplayable($value)
+    {
+        return !is_null($value);
+    }
+
+
+    /**
+     * @param $attributes
+     */
     protected function visitAttributes($attributes)
     {
         $pp = $this->prettyprint;
         $this->prettyprint = false;
         $items = array();
         $classes = array();
-
         $classesCheck = array();
+        $quote = var_export($this->quote, true);
+
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             if ($key === '&attributes') {
-                $quote = var_export($this->quote, true);
                 $addClasses = '';
                 if (count($classes) || count($classesCheck)) {
                     foreach ($classes as &$value) {
@@ -1391,9 +1415,9 @@ class Compiler
                 $value = empty($attr['value']) ? 'attributes' : $attr['value'];
                 $statements = $this->createStatements($value);
                 $items[] = $this->createCode(
-                    '$__attributes = ' . $statements[0][0] . '; ' .
+                    '$__attributes = ' . $statements[0][0] . ';' .
                     $addClasses .
-                    'foreach($__attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
+                    '\\Jade\\Compiler::displayAttributes($__attributes, ' . $quote . ');');
             } else {
                 $valueCheck = null;
                 $value = trim($attr['value']);
@@ -1435,7 +1459,7 @@ class Compiler
                 } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                     $items[] = is_null($valueCheck)
                         ? $key . '=' . $this->quote . $value . $this->quote
-                        : $this->createCode('if(! is_null($__value = %1$s)) {', $valueCheck)
+                        : $this->createCode('if (\\Jade\\Compiler::isDisplayable($__value = %1$s)) {', $valueCheck)
                             . $key . '=' . $this->quote . $value . $this->quote
                             . $this->createCode('}');
                 }
