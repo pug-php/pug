@@ -1008,6 +1008,7 @@ class Compiler
     protected static function decodeValue($value)
     {
         $_value = static::parseValue($value);
+        
         return is_null($_value) ? $value : $_value;
     }
 
@@ -1025,6 +1026,7 @@ class Compiler
                 $attribute = static::decodeValue($attribute);
             }
         }
+
         return $attributes;
     }
 
