@@ -1008,7 +1008,7 @@ class Compiler
     protected static function decodeValue($value)
     {
         $_value = static::parseValue($value);
-        
+
         return is_null($_value) ? $value : $_value;
     }
 
@@ -1046,19 +1046,37 @@ class Compiler
 
         if ($mixin->call) {
             $defaultAttributes = array();
-            $args = explode(',', $arguments);
-            $modified = false;
-            foreach ($args as $key => $arg) {
-                $tab = explode('=', trim($arg), 2);
-                if (count($tab) === 2) {
-                    $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
-                    unset($args[$key]);
-                    $modified = true;
+            $newArrayKey = null;
+            $arguments = explode(',', $arguments);
+            $containsOnlyArrays = true;
+            foreach ($arguments as $key => &$argument) {
+                if (preg_match('`^\s*[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
+                    $tab = explode('=', trim($argument), 2);
+                    if (is_null($newArrayKey)) {
+                        $newArrayKey = $key;
+                        $argument = array();
+                    } else {
+                        unset($arguments[$key]);
+                    }
+                    if (count($tab) === 2) {
+                        $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+                        $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
+                    } else {
+                        $arguments[$newArrayKey][$tab[0]] = true;
+                    }
+                } else {
+                    $containsOnlyArrays = false;
+                    $newArrayKey = null;
                 }
             }
-            if ($modified) {
-                $arguments = implode(',', $args);
-            }
+            $arguments = array_map(function ($argument) {
+                if (is_array($argument)) {
+                    $argument = var_export($argument, true);
+                }
+
+                return $argument;
+            }, $arguments);
+
             $defaultAttributes = implode(', ', $defaultAttributes);
             if (!count($attributes)) {
                 $attributes = "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
@@ -1070,9 +1088,9 @@ class Compiler
                     } elseif ($data['value'] === 'false' || is_bool($data['value'])) {
                         $_attr[$data['name']] = false;
                     } else {
-                        $quote = substr(ltrim($data['value']), 0, 1);
-                        if (false !== strpos('\'"', $quote)) {
-                            $data['value'] = stripslashes(substr(trim($data['value']), 1, -1));
+                        $value = trim($data['value']);
+                        if (strlen($value) && false !== strpos('\'"', $quote = substr($value, 0, 1))) {
+                            $data['value'] = stripslashes(substr($value, 1, -1));
                         }
                         $_attr[$data['name']] = $data['escaped'] === true
                             ? htmlspecialchars($data['value'])
@@ -1095,7 +1113,7 @@ class Compiler
             if ($arguments === false || $arguments === null) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
             } else {
-                if (!is_array($arguments)) {
+                if ($mixin->call) {
                     $strings = array();
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
@@ -1117,7 +1135,7 @@ class Compiler
                                 $arg
                             );
                         },
-                        explode(',', $arguments)
+                        $arguments
                     );
                 }
 
@@ -1126,11 +1144,16 @@ class Compiler
                 $statements = $this->apply('createStatements', $arguments);
 
                 $variables = array_pop($statements);
+                if ($mixin->call && $containsOnlyArrays) {
+                    array_splice($variables, 1, 0, array('null'));
+                }
                 $variables = implode(', ', $variables);
                 array_push($statements, $variables);
 
                 $arguments = $statements;
-                $code_format = "{$name}(%s)";
+
+                $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+
                 array_unshift($arguments, $code_format);
 
                 $code = $this->apply('createCode', $arguments);
@@ -1412,7 +1435,9 @@ class Compiler
     {
         if (is_array($attributes) || $attributes instanceof Traversable) {
             foreach ($attributes as $key => $value) {
-                echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
+                if ($value !== false && $value !== 'null') {
+                    echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
+                }
             }
         }
     }
