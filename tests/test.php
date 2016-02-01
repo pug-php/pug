@@ -1,6 +1,6 @@
 <?php
 
-include 'bootstrap.php';
+include __DIR__ . '/lib/bootstrap.php';
 
 extract(get_tests_results($verbose = true));
 

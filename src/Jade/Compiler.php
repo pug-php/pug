@@ -147,7 +147,7 @@ class Compiler
      */
     public static function strval($val)
     {
-        return is_array($val) ? json_encode($val) : strval($val);
+        return is_array($val) || is_null($val) || is_bool($val) || is_int($val) || is_float($val) ? json_encode($val) : strval($val);
     }
 
     /**
@@ -978,14 +978,53 @@ class Compiler
     {
         foreach ($mixinAttributes as $attribute) {
             if ($attribute['name'] === 'class') {
-                $value = stripslashes(substr($attribute['value'], 1, -1));
                 $attributes['class'] = empty($attributes['class'])
                     ? $attribute['value']
-                    : $attributes['class'] . ' ' . $value;
+                    : $attributes['class'] . ' ' . $attribute['value'];
             }
         }
         if (isset($attributes['class'])) {
             $attributes['class'] = implode(' ', array_unique(explode(' ', $attributes['class'])));
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return mixed
+     */
+    protected static function parseValue($value)
+    {
+        return json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return mixed
+     */
+    protected static function decodeValue($value)
+    {
+        $_value = static::parseValue($value);
+
+        return is_null($_value) ? $value : $_value;
+    }
+
+    /**
+     * @param array $attributes
+     *
+     * @return array
+     */
+    protected static function decodeAttributes($attributes)
+    {
+        foreach ($attributes as &$attribute) {
+            if (is_array($attribute)) {
+                $attribute['value'] = static::decodeValue($attribute['value']);
+            } else {
+                $attribute = static::decodeValue($attribute);
+            }
         }
 
         return $attributes;
@@ -1003,40 +1042,64 @@ class Compiler
         }
         $arguments = $mixin->arguments;
         $block = $mixin->block;
-        $attributes = $mixin->attributes;
+        $attributes = static::decodeAttributes($mixin->attributes);
 
         if ($mixin->call) {
             $defaultAttributes = array();
-            $args = explode(',', $arguments);
-            $modified = false;
-            foreach ($args as $key => $arg) {
-                $tab = explode('=', trim($arg), 2);
-                if (count($tab) === 2) {
-                    $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
-                    unset($args[$key]);
-                    $modified = true;
+            $newArrayKey = null;
+            $arguments = explode(',', $arguments);
+            $containsOnlyArrays = true;
+            foreach ($arguments as $key => &$argument) {
+                if (preg_match('`^\s*[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
+                    $tab = explode('=', trim($argument), 2);
+                    if (is_null($newArrayKey)) {
+                        $newArrayKey = $key;
+                        $argument = array();
+                    } else {
+                        unset($arguments[$key]);
+                    }
+                    if (count($tab) === 2) {
+                        $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+                        $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
+                    } else {
+                        $arguments[$newArrayKey][$tab[0]] = true;
+                    }
+                } else {
+                    $containsOnlyArrays = false;
+                    $newArrayKey = null;
                 }
             }
-            if ($modified) {
-                $arguments = implode(',', $args);
-            }
+            $arguments = array_map(function ($argument) {
+                if (is_array($argument)) {
+                    $argument = var_export($argument, true);
+                }
+
+                return $argument;
+            }, $arguments);
+
             $defaultAttributes = implode(', ', $defaultAttributes);
             if (!count($attributes)) {
                 $attributes = "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
             } else {
                 $_attr = array();
                 foreach ($attributes as $data) {
-                    $quote = substr(ltrim($data['value']), 0, 1);
-                    if (false !== strpos('\'"', $quote)) {
-                        $data['value'] = stripslashes(substr(trim($data['value']), 1, -1));
+                    if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
+                        $_attr[$data['name']] = null;
+                    } elseif ($data['value'] === 'false' || is_bool($data['value'])) {
+                        $_attr[$data['name']] = false;
+                    } else {
+                        $value = trim($data['value']);
+                        if (strlen($value) && false !== strpos('\'"', $quote = substr($value, 0, 1))) {
+                            $data['value'] = stripslashes(substr($value, 1, -1));
+                        }
+                        $_attr[$data['name']] = $data['escaped'] === true
+                            ? htmlspecialchars($data['value'])
+                            : $data['value'];
                     }
-                    $_attr[$data['name']] = $data['escaped'] === true
-                        ? htmlspecialchars($data['value'])
-                        : $data['value'];
                 }
 
                 $attributes = var_export($_attr, true);
-                $mixinAttributes = var_export($mixin->attributes, true);
+                $mixinAttributes = var_export(static::decodeAttributes($mixin->attributes), true);
                 $attributes = "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
             }
 
@@ -1046,10 +1109,11 @@ class Compiler
                 $this->visit($block);
                 $this->buffer($this->createCode('});'));
             }
-            if ($arguments === null || empty($arguments)) {
+
+            if ($arguments === false || $arguments === null) {
                 $code = $this->createPhpBlock("{$name}({$attributes})");
             } else {
-                if (!empty($arguments) && !is_array($arguments)) {
+                if ($mixin->call) {
                     $strings = array();
                     $arguments = preg_replace_callback(
                         '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
@@ -1071,19 +1135,25 @@ class Compiler
                                 $arg
                             );
                         },
-                        explode(',', $arguments)
+                        $arguments
                     );
                 }
 
                 array_unshift($arguments, $attributes);
+                $arguments = array_filter($arguments, 'strlen');
                 $statements = $this->apply('createStatements', $arguments);
 
                 $variables = array_pop($statements);
+                if ($mixin->call && $containsOnlyArrays) {
+                    array_splice($variables, 1, 0, array('null'));
+                }
                 $variables = implode(', ', $variables);
                 array_push($statements, $variables);
 
                 $arguments = $statements;
-                $code_format = "{$name}(%s)";
+
+                $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+
                 array_unshift($arguments, $code_format);
 
                 $code = $this->apply('createCode', $arguments);
@@ -1361,18 +1431,42 @@ class Compiler
     /**
      * @param $attributes
      */
+    public static function displayAttributes($attributes, $quote)
+    {
+        if (is_array($attributes) || $attributes instanceof Traversable) {
+            foreach ($attributes as $key => $value) {
+                if ($value !== false && $value !== 'null') {
+                    echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $value
+     *
+     * @return bool
+     */
+    public static function isDisplayable($value)
+    {
+        return !is_null($value) && $value !== false;
+    }
+
+    /**
+     * @param $attributes
+     */
     protected function visitAttributes($attributes)
     {
         $pp = $this->prettyprint;
         $this->prettyprint = false;
         $items = array();
         $classes = array();
-
         $classesCheck = array();
+        $quote = var_export($this->quote, true);
+
         foreach ($attributes as $attr) {
             $key = trim($attr['name']);
             if ($key === '&attributes') {
-                $quote = var_export($this->quote, true);
                 $addClasses = '';
                 if (count($classes) || count($classesCheck)) {
                     foreach ($classes as &$value) {
@@ -1391,9 +1485,9 @@ class Compiler
                 $value = empty($attr['value']) ? 'attributes' : $attr['value'];
                 $statements = $this->createStatements($value);
                 $items[] = $this->createCode(
-                    '$__attributes = ' . $statements[0][0] . '; ' .
+                    '$__attributes = ' . $statements[0][0] . ';' .
                     $addClasses .
-                    'foreach($__attributes as $key => $value) { echo \' \' . $key . \'=\' . ' . $quote . ' . htmlspecialchars($value) . ' . $quote . '; }');
+                    '\\Jade\\Compiler::displayAttributes($__attributes, ' . $quote . ');');
             } else {
                 $valueCheck = null;
                 $value = trim($attr['value']);
@@ -1404,7 +1498,7 @@ class Compiler
                         $value = 'null';
                     }
                 } else {
-                    $json = json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
+                    $json = static::parseValue($value);
 
                     if ($json !== null && is_array($json) && $key == 'class') {
                         $value = implode(' ', $json);
@@ -1429,14 +1523,15 @@ class Compiler
                         array_push($classes, $value);
                     }
                 } elseif ($value == 'true' || $attr['value'] === true) {
-                    $items[] = $this->terse
-                        ? $key
-                        : $key . '=' . $this->quote . $key . $this->quote;
+                    $items[] = ' ' . $key . ($this->terse
+                        ? ''
+                        : '=' . $this->quote . $key . $this->quote
+                    );
                 } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
                     $items[] = is_null($valueCheck)
-                        ? $key . '=' . $this->quote . $value . $this->quote
-                        : $this->createCode('if(! is_null($__value = %1$s)) {', $valueCheck)
-                            . $key . '=' . $this->quote . $value . $this->quote
+                        ? ' ' . $key . '=' . $this->quote . $value . $this->quote
+                        : $this->createCode('if (\\Jade\\Compiler::isDisplayable($__value = %1$s)) { ', $valueCheck)
+                            . ' ' . $key . '=' . $this->quote . $value . $this->quote
                             . $this->createCode('}');
                 }
             }
@@ -1446,16 +1541,15 @@ class Compiler
             if (count($classesCheck)) {
                 $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
             }
-            $items[] = 'class=' . $this->quote . implode(' ', $classes) . $this->quote;
+            $items[] = ' class=' . $this->quote . implode(' ', $classes) . $this->quote;
         } elseif (count($classesCheck)) {
             $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
-            $item .= 'class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
+            $item .= ' class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
             $items[] = $item . $this->createCode('}');
         }
 
         $this->prettyprint = $pp;
 
-        $items = trim(implode(' ', $items));
-        $this->buffer(empty($items) ? '' : ' ' . $items, false);
+        $this->buffer(' ' . trim(implode('', $items)), false);
     }
 }

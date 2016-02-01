@@ -1,8 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-
-class JadePHPTest extends PHPUnit_Framework_TestCase {
+class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
 
     static private $skipped = array(
         // Add here tests for future features not yet implemented
@@ -35,13 +33,5 @@ class JadePHPTest extends PHPUnit_Framework_TestCase {
         $result = $result[1];
 
         $this->assertSame($result[1], $result[2], $name);
-    }
-
-    /**
-     * @expectedException Exception
-     */
-    public function testUnexpectingToken() {
-
-        get_php_code('a(href=="a")');
     }
 }

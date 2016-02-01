@@ -19,6 +19,9 @@ mixin bottom
   div.bottom&attributes(attributes)
     block
 
+mixin field(value, options)
+  input(type='radio' checked=attributes.prefilled value=value)&attributes(options)
+
 body
   +centered#First Hello World
   +centered('Section 1')#Second
@@ -32,3 +35,13 @@ body
   +image('foo.png', 400)
   - width = 500
   +image('foo.png', width)
+  +field(0)(prefilled=0, name="bar")
+  +field('')(prefilled='', title=null)
+  +field(false)(prefilled=false, title="foo")
+  +field(null)(prefilled=null)
+  +field(null)
+  +field(0, foo='bar')(prefilled=0, name="bar")
+  +field('', foo='bar', bar=45)(prefilled='', title=null)
+  +field(false, 32)(prefilled=false, title="foo")
+  +field(null, a=false, b=null, c=0)(prefilled=null)
+  +field(null, a=false, b=null, c=0)

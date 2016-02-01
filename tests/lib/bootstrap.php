@@ -2,6 +2,10 @@
 
 use Jade\Jade;
 
+require __DIR__ . '/../../vendor/autoload.php';
+
+define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../templates')));
+
 function setup_autoload() {
     // quick setup for autoloading
     $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
@@ -9,7 +13,7 @@ function setup_autoload() {
     set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 
     spl_autoload_register(function ($class) {
-        $file = __DIR__ . '/../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
+        $file = __DIR__ . '/../../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
         if(file_exists($file)) {
             require_once($file);
         }
@@ -18,9 +22,7 @@ function setup_autoload() {
 
 function find_tests() {
     // find the tests
-    $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/');
-    $path = realpath($path);
-    return glob($path . DIRECTORY_SEPARATOR . '*.jade');
+    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.jade');
 }
 
 function build_list($test_list) {
@@ -49,7 +51,11 @@ function compile_php($file) {
     $jade = new Jade(array(
         'prettyprint' => true
     ));
-    return $jade->compile(file_get_contents(__DIR__ . '/' . $file . '.jade'));
+    return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
+}
+
+function get_html_code($name) {
+    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.jade'));
 }
 
 function init_tests() {
@@ -76,9 +82,9 @@ function get_generated_html($contents) {
 }
 
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
-    $path = __DIR__ . DIRECTORY_SEPARATOR . $name;
+    $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
-    if($expectedHtml === FALSE) {
+    if($expectedHtml === false) {
         if($verbose) {
             echo "! sample for test '$name' not found.\n";
         }
@@ -127,12 +133,18 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     }
 }
 
+function array_remove(&$array, $value) {
+    if($found = in_array($value, $array)) {
+        array_splice($array, array_search($value, $array), 1);
+    }
+
+    return $found;
+}
+
 function get_tests_results($verbose = false) {
     global $argv;
 
-    if($moreVerbose = in_array('--verbose', $argv)) {
-        array_splice($argv, array_search('--verbose', $argv), 1);
-    }
+    $moreVerbose = array_remove($argv, '--verbose');
 
     if(! (ini_get('allow_url_include') | 0)) {
         echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
