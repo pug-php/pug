@@ -17,4 +17,12 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
 
         get_php_code('a(href="a" . (throw new Exception("Error Processing Request", 1)) . "b")');
     }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testNonParsableExtends() {
+
+        get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.jade');
+    }
 }
