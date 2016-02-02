@@ -21,9 +21,17 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
-    public function testUnexpectingToken() {
+    public function testExpectedIndent() {
 
         get_php_code(':a+()');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testUnexpectingToken() {
+
+        get_php_code('a:' . "\n" . '!!!5');
     }
 
     /**
@@ -40,5 +48,13 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     public function testNonParsableExtends() {
 
         get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.jade');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testBrokenExtends() {
+
+        get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.jade');
     }
 }
