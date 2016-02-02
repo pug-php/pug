@@ -258,19 +258,6 @@ class Parser
         return $node;
     }
 
-    protected function parseASTFilter()
-    {
-        $token = $this->expect('tag');
-        $attributes = $this->accept('attributes');
-        $this->expect(':');
-        $block = $this->block();
-
-        $node = new Nodes\Filter($token->value, $block, $attributes);
-        $node->line = $this->line();
-
-        return $node;
-    }
-
     protected function parseEach()
     {
         $token = $this->expect('each');
