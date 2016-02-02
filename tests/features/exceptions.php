@@ -5,9 +5,25 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
-    public function testUnexpectingToken() {
+    public function testDoNotUnderstand() {
 
         get_php_code('a(href=="a")');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testUnexpectingValue() {
+
+        get_php_code('a(href="foo""bar")');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testUnexpectingToken() {
+
+        get_php_code(':a+()');
     }
 
     /**
