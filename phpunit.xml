@@ -9,6 +9,7 @@
 	<testsuites>
 		<testsuite name="Features">
 			<directory suffix=".php">tests/features</directory>
+			<directory suffix=".php">tests/nodes</directory>
 		</testsuite>
 	</testsuites>
 	<filter>
