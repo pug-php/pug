@@ -9,7 +9,7 @@ abstract class MixinVisitor extends Visitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinCall(Nodes\Mixin $mixin, $name, $blockName, $arguments, $attributes)
+    protected function visitMixinCall(Mixin $mixin, $name, $blockName, $arguments, $attributes)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -136,7 +136,7 @@ abstract class MixinVisitor extends Visitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinDeclaration(Nodes\Mixin $mixin, $name, $blockName, $arguments, $attributes)
+    protected function visitMixinDeclaration(Mixin $mixin, $name, $blockName, $arguments, $attributes)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -179,7 +179,7 @@ abstract class MixinVisitor extends Visitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixin(Nodes\Mixin $mixin)
+    protected function visitMixin(Mixin $mixin)
     {
         $name = strtr($mixin->name, '-', '_') . '_mixin';
         $blockName = var_export($mixin->name, true);
@@ -194,5 +194,4 @@ abstract class MixinVisitor extends Visitor
             $this->visitMixinDeclaration($mixin, $name, $blockName, $arguments, $attributes);
         }
     }
-
 }
