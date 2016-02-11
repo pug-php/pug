@@ -17,7 +17,7 @@ class Filter extends Node
 
         $this->isASTFilter = false;
         foreach ($block->nodes as $node) {
-            if (!isset($node->isText) || false == $node->isText) {
+            if (!isset($node->isText) || !$node->isText) {
                 $this->isASTFilter = true;
                 break;
             }

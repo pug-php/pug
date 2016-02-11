@@ -21,8 +21,8 @@ class Php implements FilterInterface
         $data = '';
 
         foreach ($node->block->nodes as $n) {
-            if (preg_match('/^[[:space:]]*\|(.*)/', $n->value, $m)) {
-                $data = $m[1];
+            if (preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)) {
+                $data .= ' ?> ' . $m[1] . '<?php ';
             } else {
                 $data .= $n->value . "\n";
             }
