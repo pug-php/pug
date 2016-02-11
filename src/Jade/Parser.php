@@ -151,7 +151,7 @@ class Parser
                 return $this->parseExpression();
 
             default:
-                throw new \Exception('Unexpected token "' . $this->peek()->type . '"');
+                throw new \Exception($this->filename . ' (' . $this->line() . ') : Unexpected token "' . $this->peek()->type . '"');
         }
     }
 
