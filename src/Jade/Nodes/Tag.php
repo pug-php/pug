@@ -91,7 +91,7 @@ class Tag extends Attributes
         if ($ret) {
             $prev = null;
             foreach ($nodes as $k => $n) {
-                if ($prev !== null && $nodes[$prev]->isText && $n->isText) {
+                if ($prev !== null && isset($nodes[$prev]->isText) && $nodes[$prev]->isText && isset($n->isText) && $n->isText) {
                     return false;
                 }
                 $prev = $k;

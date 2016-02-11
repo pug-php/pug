@@ -2,6 +2,7 @@
 
 use Jade\Nodes\Block;
 use Jade\Nodes\Tag;
+use Jade\Nodes\Text;
 
 class BlockTest extends PHPUnit_Framework_TestCase {
 
@@ -32,5 +33,10 @@ class BlockTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($foo->nodes[0]->canInline(), 'em tag should can be inline as it only contains a small tag');
         $foo->nodes[0]->block->push(new Tag('blockquote'));
         $this->assertFalse($foo->nodes[0]->canInline(), 'em tag should not can be inline as it contains a blockquote tag');
+        $foo->nodes[0]->block->push(new Block(new Tag('blockquote')));
+        $this->assertFalse($foo->nodes[0]->canInline(), 'em tag should not can be inline as it contains a blockquote tag');
+        $foo->push(new Tag('i'));
+        $foo->nodes[1]->block->push(new Text('Hello'));
+        $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should can be inline as it only contains text');
     }
 }
