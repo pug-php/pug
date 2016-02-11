@@ -124,6 +124,10 @@ class Jade
      */
     public function stream($input, $compiled = false)
     {
+        if (extension_loaded('suhosin') && false === strpos(ini_get('suhosin.executor.include.whitelist'), $this->options['stream'])) {
+            throw new \ErrorException('To run Jade on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.');
+        }
+
         if (false === static::$isWrapperRegistered) {
             static::$isWrapperRegistered = true;
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
@@ -149,7 +153,7 @@ class Jade
         $cacheFolder = $this->options['cache'];
 
         if (!is_dir($cacheFolder)) {
-            throw new \Exception($cacheFolder . ': Cache directory seem\'s to not exists');
+            throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists');
         }
 
         $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
@@ -161,7 +165,7 @@ class Jade
         }
 
         if (!is_writable($cacheFolder)) {
-            throw new \Exception(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
+            throw new \ErrorException(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
         }
 
         $rendered = $this->compile($input);
