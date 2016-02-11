@@ -51,7 +51,7 @@ class Tag extends Attributes
         $nodes = $this->block->nodes;
 
         $isInline = function ($node) use (&$isInline) {
-            if ($node->isBlock) {
+            if (isset($node->isBlock) && $node->isBlock) {
                 foreach ($node->nodes as $n) {
                     if (!$isInline($n)) {
                         return false;
@@ -61,11 +61,11 @@ class Tag extends Attributes
                 return true;
             }
 
-            if ($node->isText) {
+            if (isset($node->isText) && $node->isText) {
                 return true;
             }
 
-            if (isset($node->isInline) && $node->isInline()) {
+            if (method_exists($node, 'isInline') && $node->isInline()) {
                 return true;
             }
 
