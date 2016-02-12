@@ -4,7 +4,7 @@ namespace Jade\Compiler;
 
 use Jade\Nodes\Mixin;
 
-abstract class MixinVisitor extends Visitor
+abstract class MixinVisitor extends CodeVisitor
 {
     /**
      * @param Nodes\Mixin $mixin
