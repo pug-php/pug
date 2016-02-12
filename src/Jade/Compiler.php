@@ -344,7 +344,7 @@ class Compiler extends MixinVisitor
     {
         $input = trim(preg_replace('/\bvar\b/', '', $input));
 
-        // needs to be public because of the closure $handle_recursion
+        // needs to be public because of the closure $handleRecursion
         $result = array();
 
         if (!is_string($input)) {
@@ -404,7 +404,7 @@ class Compiler extends MixinVisitor
         };
 
         $host = $this;
-        $handle_recursion = function ($arg, $ns = '') use ($input, &$result, $host, $get_middle_string) {
+        $handleRecursion = function ($arg, $ns = '') use ($input, &$result, $host, $get_middle_string) {
             list($start, $end) = $arg;
             $str = trim($get_middle_string($start, $end));
 
@@ -423,12 +423,12 @@ class Compiler extends MixinVisitor
             return $_code[0];
         };
 
-        $handle_code_inbetween = function () use (&$separators, $ns, $handle_recursion, $input) {
+        $handleCodeInbetween = function () use (&$separators, $ns, $handleRecursion, $input) {
             $arguments = array();
             $count = 1;
 
             $start = current($separators);
-            $end_pair = array(
+            $endPair = array(
                 '[' => ']',
                 '{' => '}',
                 '(' => ')',
@@ -438,7 +438,7 @@ class Compiler extends MixinVisitor
             if (!isset($open)) {
                 return $arguments;
             }
-            $close = $end_pair[$start[0]];
+            $close = $endPair[$start[0]];
 
             do {
                 // reset start
@@ -459,7 +459,7 @@ class Compiler extends MixinVisitor
 
                 if ($end != false && $start[1] != $end[1]) {
                     $tmp_ns = $ns * 10 + count($arguments);
-                    $arg = $handle_recursion(array($start, $end), $tmp_ns);
+                    $arg = $handleRecursion(array($start, $end), $tmp_ns);
 
                     array_push($arguments, $arg);
                 }
@@ -508,7 +508,7 @@ class Compiler extends MixinVisitor
 
                 // funcall
                 case '(':
-                    $arguments = $handle_code_inbetween();
+                    $arguments = $handleCodeInbetween();
                     $call = $varname . '(' . implode(', ', $arguments) . ')';
                     $cs = current($separators);
                     $call = static::addDollarIfNeeded($call);
@@ -523,7 +523,7 @@ class Compiler extends MixinVisitor
 
                 // mixin arguments
                 case ',':
-                    $arguments = $handle_code_inbetween();
+                    $arguments = $handleCodeInbetween();
                     if ($arguments) {
                         $varname = $varname . ', ' . implode(', ', $arguments);
                     }
@@ -532,7 +532,7 @@ class Compiler extends MixinVisitor
                     break;
 
                 /*case '[':
-                    $arguments = $handle_code_inbetween();
+                    $arguments = $handleCodeInbetween();
                     $varname = $varname . '[' . implode($arguments) . ']';
 
                     break;*/
@@ -540,10 +540,10 @@ class Compiler extends MixinVisitor
                 case '=':
                     if (preg_match('/^[[:space:]]*$/', $name)) {
                         next($separators);
-                        $arguments = $handle_code_inbetween();
+                        $arguments = $handleCodeInbetween();
                         $varname = $varname . ' = ' . implode($arguments);
                     } else {
-                        $varname = "{$varname} = " . $handle_recursion(array($sep, end($separators)));
+                        $varname = "{$varname} = " . $handleRecursion(array($sep, end($separators)));
                     }
 
                     break;
@@ -581,7 +581,7 @@ class Compiler extends MixinVisitor
             PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE
         );
 
-        foreach ($separators as $i => $part) {
+        foreach ($separators as $part) {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
             // @todo: = find original usage of this
@@ -739,7 +739,7 @@ class Compiler extends MixinVisitor
                 continue;
             }
 
-            if (preg_match('/^([\'"]).*?\1/', $arg, $match)) {
+            if (preg_match('/^([\'"]).*?\1/', $arg)) {
                 $code = $this->handleString(trim($arg));
             } else {
                 try {
