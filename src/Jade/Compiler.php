@@ -839,14 +839,6 @@ class Compiler extends MixinVisitor
         return $this->createPhpBlock($code);
     }
 
-    protected static function initArgToNull(&$arg)
-    {
-        $arg = static::addDollarIfNeeded(trim($arg));
-        if (strpos($arg, '=') === false) {
-            $arg .= ' = null';
-        }
-    }
-
     public static function withMixinAttributes($attributes, $mixinAttributes)
     {
         foreach ($mixinAttributes as $attribute) {

@@ -17,6 +17,13 @@ use Jade\Nodes\When;
 
 abstract class Visitor
 {
+    protected static function initArgToNull(&$arg)
+    {
+        $arg = static::addDollarIfNeeded(trim($arg));
+        if (strpos($arg, '=') === false) {
+            $arg .= ' = null';
+        }
+    }
     /**
      * @param Nodes\Node $node
      *

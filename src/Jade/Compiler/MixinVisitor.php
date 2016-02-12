@@ -9,7 +9,7 @@ abstract class MixinVisitor extends CodeVisitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinCall(Mixin $mixin, $name, $blockName, $arguments, $attributes)
+    protected function visitMixinCall(Mixin $mixin, $name, $blockName, $attributes)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -81,31 +81,29 @@ abstract class MixinVisitor extends CodeVisitor
         if ($arguments === false || $arguments === null) {
             $code = $this->createPhpBlock("{$name}({$attributes})");
         } else {
-            if ($mixin->call) {
-                $strings = array();
-                $arguments = preg_replace_callback(
-                    '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
-                    function ($match) use (&$strings) {
-                        $id = count($strings);
-                        $strings[] = $match[0];
+            $strings = array();
+            $arguments = preg_replace_callback(
+                '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
+                function ($match) use (&$strings) {
+                    $id = count($strings);
+                    $strings[] = $match[0];
 
-                        return 'stringToReplaceBy' . $id . 'ThCapture';
-                    },
-                    $arguments
-                );
-                $arguments = array_map(
-                    function ($arg) use ($strings) {
-                        return preg_replace_callback(
-                            '#stringToReplaceBy([0-9]+)ThCapture#',
-                            function ($match) use ($strings) {
-                                return $strings[intval($match[1])];
-                            },
-                            $arg
-                        );
-                    },
-                    $arguments
-                );
-            }
+                    return 'stringToReplaceBy' . $id . 'ThCapture';
+                },
+                $arguments
+            );
+            $arguments = array_map(
+                function ($arg) use ($strings) {
+                    return preg_replace_callback(
+                        '#stringToReplaceBy([0-9]+)ThCapture#',
+                        function ($match) use ($strings) {
+                            return $strings[intval($match[1])];
+                        },
+                        $arg
+                    );
+                },
+                $arguments
+            );
 
             array_unshift($arguments, $attributes);
             $arguments = array_filter($arguments, 'strlen');
@@ -136,7 +134,7 @@ abstract class MixinVisitor extends CodeVisitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinDeclaration(Mixin $mixin, $name, $blockName, $arguments, $attributes)
+    protected function visitMixinDeclaration(Mixin $mixin, $name, $blockName, $attributes)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -189,9 +187,9 @@ abstract class MixinVisitor extends CodeVisitor
         $attributes = static::decodeAttributes($mixin->attributes);
 
         if ($mixin->call) {
-            $this->visitMixinCall($mixin, $name, $blockName, $arguments, $attributes);
+            $this->visitMixinCall($mixin, $name, $blockName, $attributes);
         } else {
-            $this->visitMixinDeclaration($mixin, $name, $blockName, $arguments, $attributes);
+            $this->visitMixinDeclaration($mixin, $name, $blockName, $attributes);
         }
     }
 }
