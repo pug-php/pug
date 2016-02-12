@@ -296,7 +296,7 @@ abstract class Visitor
      */
     protected function visitAttributes($attributes)
     {
-        $pp = $this->prettyprint;
+        $prettyprint = $this->prettyprint;
         $this->prettyprint = false;
         $items = array();
         $classes = array();
@@ -387,7 +387,7 @@ abstract class Visitor
             $items[] = $item . $this->createCode('}');
         }
 
-        $this->prettyprint = $pp;
+        $this->prettyprint = $prettyprint;
 
         $this->buffer(' ' . trim(implode('', $items)), false);
     }
