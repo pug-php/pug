@@ -29,12 +29,12 @@ abstract class CodeVisitor extends Visitor
 
         if (strlen($code) > 0) {
             $conditional .= '(%s) {';
-            if ($matches[1] == 'unless') {
-                $conditional = sprintf($conditional, 'if', '!(%s)');
-            } else {
-                $conditional = sprintf($conditional, $matches[1], '%s');
-            }
-            return $this->buffer($this->createCode($conditional, $code));
+            $conditional = $matches[1] == 'unless'
+                ? sprintf($conditional, 'if', '!(%s)')
+                : sprintf($conditional, $matches[1], '%s');
+            $this->buffer($this->createCode($conditional, $code));
+
+            return;
         }
 
         $conditional .= ' {';
