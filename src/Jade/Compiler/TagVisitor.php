@@ -40,6 +40,19 @@ abstract class TagVisitor extends Visitor
     /**
      * @param Nodes\Tag $tag
      */
+    protected function visitTagContents(Tag $tag)
+    {
+        $this->indents++;
+        if (isset($tag->code)) {
+            $this->visitCode($tag->code);
+        }
+        $this->visit($tag->block);
+        $this->indents--;
+    }
+
+    /**
+     * @param Nodes\Tag $tag
+     */
     protected function visitTag(Tag $tag)
     {
         $this->initTagName($tag);
@@ -58,12 +71,7 @@ abstract class TagVisitor extends Visitor
         $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
 
         if (!$selfClosing) {
-            $this->indents++;
-            if (isset($tag->code)) {
-                $this->visitCode($tag->code);
-            }
-            $this->visit($tag->block);
-            $this->indents--;
+            $this->visitTagContents($tag);
 
             $this->buffer('</' . $tag->name . '>');
         }
