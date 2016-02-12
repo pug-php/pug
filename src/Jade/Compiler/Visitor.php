@@ -2,20 +2,20 @@
 
 namespace Jade\Compiler;
 
-use Jade\Nodes\Node;
-use Jade\Nodes\CaseNode;
-use Jade\Nodes\When;
-use Jade\Nodes\Literal;
-use Jade\Nodes\Block;
-use Jade\Nodes\Doctype;
-use Jade\Nodes\MixinBlock;
-use Jade\Nodes\Tag;
-use Jade\Nodes\Filter;
-use Jade\Nodes\Comment;
-use Jade\Nodes\BlockComment;
-use Jade\Nodes\Code;
-use Jade\Nodes\Each;
 use Jade\Nodes\Attribtues;
+use Jade\Nodes\Block;
+use Jade\Nodes\BlockComment;
+use Jade\Nodes\CaseNode;
+use Jade\Nodes\Code;
+use Jade\Nodes\Comment;
+use Jade\Nodes\Doctype;
+use Jade\Nodes\Each;
+use Jade\Nodes\Filter;
+use Jade\Nodes\Literal;
+use Jade\Nodes\MixinBlock;
+use Jade\Nodes\Node;
+use Jade\Nodes\Tag;
+use Jade\Nodes\When;
 
 abstract class Visitor
 {
