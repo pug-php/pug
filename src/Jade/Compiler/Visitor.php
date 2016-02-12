@@ -2,7 +2,6 @@
 
 namespace Jade\Compiler;
 
-use Jade\Nodes\Attribtues;
 use Jade\Nodes\Block;
 use Jade\Nodes\BlockComment;
 use Jade\Nodes\CaseNode;
