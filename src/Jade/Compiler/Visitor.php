@@ -24,7 +24,6 @@ abstract class Visitor
      */
     public function visit(Node $node)
     {
-        // TODO: set debugging info
         $this->visitNode($node);
 
         return $this->buffer;
