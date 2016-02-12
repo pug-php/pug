@@ -4,7 +4,7 @@ namespace Jade\Compiler;
 
 use Jade\Nodes\Code;
 
-abstract class CodeVisitor extends Visitor
+abstract class CodeVisitor extends TagVisitor
 {
     /**
      * @param Nodes\Code $node
