@@ -173,14 +173,14 @@ abstract class Visitor
             $this->visitDoctype();
         }
 
-        $self_closing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
+        $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
 
         if ($tag->name == 'pre') {
             $pp = $this->prettyprint;
             $this->prettyprint = false;
         }
 
-        $noSlash = (!$self_closing || $this->terse);
+        $noSlash = (!$selfClosing || $this->terse);
 
         if (count($tag->attributes)) {
             $open = '<' . $tag->name;
@@ -195,7 +195,7 @@ abstract class Visitor
             $this->buffer($html_tag);
         }
 
-        if (!$self_closing) {
+        if (!$selfClosing) {
             $this->indents++;
             if (isset($tag->code)) {
                 $this->visitCode($tag->code);
@@ -262,15 +262,13 @@ abstract class Visitor
             return;
         }
 
-        if (strlen($comment->value) && 0 === strpos(trim($comment->value), 'if')) {
-            $this->buffer('<!--[' . trim($comment->value) . ']>');
-            $this->visit($comment->block);
-            $this->buffer('<![endif]-->');
-        } else {
-            $this->buffer('<!--' . $comment->value);
-            $this->visit($comment->block);
-            $this->buffer('-->');
-        }
+        list($open, $close) = strlen($comment->value) && 0 === strpos(trim($comment->value), 'if')
+            ? array('[' . trim($comment->value) . ']>', '<![endif]')
+            : array($comment->value, '');
+
+        $this->buffer('<!--' . $open);
+        $this->visit($comment->block);
+        $this->buffer($close . '-->');
     }
 
     /**
