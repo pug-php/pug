@@ -18,6 +18,11 @@ use Jade\Nodes\When;
 abstract class Visitor
 {
     /**
+     * @const string
+     */
+    const VARNAME = '[a-zA-Z\\\\\\x7f-\\xff][a-zA-Z0-9\\\\_\\x7f-\\xff]*';
+
+    /**
      * @param string $call
      *
      * @throws \Exception

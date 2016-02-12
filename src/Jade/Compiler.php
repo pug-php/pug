@@ -11,8 +11,8 @@ class Compiler extends MixinVisitor
 {
     /**
      * @const string
+     * VARNAME declared in Compiler/Visitor.php
      */
-    const VARNAME = '[a-zA-Z\\\\\\x7f-\\xff][a-zA-Z0-9\\\\_\\x7f-\\xff]*';
 
     /**
      * @const string
