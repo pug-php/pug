@@ -9,14 +9,11 @@ abstract class TagVisitor extends Visitor
     /**
      * @param Nodes\Tag $tag
      */
-    protected function visitTagAttributes(Tag $tag, $selfClosing = false)
+    protected function visitTagAttributes(Tag $tag, $close = '>')
     {
-        $noSlash = (!$selfClosing || $this->terse);
+        $open = '<' . $tag->name;
 
         if (count($tag->attributes)) {
-            $open = '<' . $tag->name;
-            $close = $noSlash ? '>' : ' />';
-
             $this->buffer($this->indent() . $open, false);
             $this->visitAttributes($tag->attributes);
             $this->buffer($close . $this->newline(), false);
@@ -24,15 +21,13 @@ abstract class TagVisitor extends Visitor
             return;
         }
 
-        $htmlTag = '<' . $tag->name . ($noSlash ? '>' : ' />');
-
-        $this->buffer($htmlTag);
+        $this->buffer($open . $close);
     }
 
     /**
      * @param Nodes\Tag $tag
      */
-    protected function visitTag(Tag $tag)
+    protected function initTagName(Tag $tag)
     {
         if (isset($tag->buffer)) {
             if (preg_match('`^[a-z][a-zA-Z0-9]+(?!\()`', $tag->name)) {
@@ -40,6 +35,15 @@ abstract class TagVisitor extends Visitor
             }
             $tag->name = trim($this->createCode('echo ' . $tag->name . ';'));
         }
+    }
+
+    /**
+     * @param Nodes\Tag $tag
+     */
+    protected function visitTag(Tag $tag)
+    {
+        $this->initTagName($tag);
+
         if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
             $this->visitDoctype();
         }
@@ -51,7 +55,7 @@ abstract class TagVisitor extends Visitor
             $this->prettyprint = false;
         }
 
-        $this->visitTagAttributes($tag, $selfClosing);
+        $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
 
         if (!$selfClosing) {
             $this->indents++;
