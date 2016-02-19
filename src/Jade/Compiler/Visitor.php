@@ -14,13 +14,8 @@ use Jade\Nodes\MixinBlock;
 use Jade\Nodes\Node;
 use Jade\Nodes\When;
 
-abstract class Visitor
+abstract class Visitor extends CompilerFacade
 {
-    /**
-     * @const string
-     */
-    const VARNAME = '[a-zA-Z\\\\\\x7f-\\xff][a-zA-Z0-9\\\\_\\x7f-\\xff]*';
-
     /**
      * @param string $call
      *
