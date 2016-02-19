@@ -6,7 +6,7 @@ namespace Jade\Compiler;
  * Class Jade CompilerFacade.
  * Expose methods available from compiled jade tempaltes.
  */
-abstract class CompilerFacade extends CompilerConfig
+abstract class CompilerFacade extends CompilerUtils
 {
     /**
      * value treatment if it must not be escaped.
@@ -150,46 +150,6 @@ abstract class CompilerFacade extends CompilerConfig
         }
         if (isset($attributes['class'])) {
             $attributes['class'] = implode(' ', array_unique(explode(' ', $attributes['class'])));
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return mixed
-     */
-    protected static function parseValue($value)
-    {
-        return json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return mixed
-     */
-    protected static function decodeValue($value)
-    {
-        $_value = static::parseValue($value);
-
-        return is_null($_value) ? $value : $_value;
-    }
-
-    /**
-     * @param array $attributes
-     *
-     * @return array
-     */
-    protected static function decodeAttributes($attributes)
-    {
-        foreach ($attributes as &$attribute) {
-            if (is_array($attribute)) {
-                $attribute['value'] = static::decodeValue($attribute['value']);
-            } else {
-                $attribute = static::decodeValue($attribute);
-            }
         }
 
         return $attributes;

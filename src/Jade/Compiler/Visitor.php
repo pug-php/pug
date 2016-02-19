@@ -17,36 +17,6 @@ use Jade\Nodes\When;
 abstract class Visitor extends CompilerFacade
 {
     /**
-     * @param string $call
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    protected static function addDollarIfNeeded($call)
-    {
-        if ($call === 'Inf') {
-            throw new \Exception($call . ' cannot be read from PHP', 1);
-        }
-        if ($call === 'undefined') {
-            return 'null';
-        }
-        if ($call[0] !== '$' && $call[0] !== '\\' && !preg_match('#^(?:' . static::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call)) {
-            $call = '$' . $call;
-        }
-
-        return $call;
-    }
-
-    protected static function initArgToNull(&$arg)
-    {
-        $arg = static::addDollarIfNeeded(trim($arg));
-        if (strpos($arg, '=') === false) {
-            $arg .= ' = null';
-        }
-    }
-
-    /**
      * @param Nodes\Node $node
      *
      * @return array
