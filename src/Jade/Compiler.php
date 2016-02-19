@@ -10,7 +10,7 @@ use Jade\Compiler\MixinVisitor;
 class Compiler extends MixinVisitor
 {
     /**
-     * Constants and configuration in Compiler/CompilerConfig.php
+     * Constants and configuration in Compiler/CompilerConfig.php.
      */
 
     /**
