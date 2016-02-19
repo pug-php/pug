@@ -124,11 +124,6 @@ abstract class Visitor extends CompilerFacade
      */
     protected function visitDoctype(Doctype $doctype = null)
     {
-        if (isset($this->hasCompiledDoctype)) {
-            throw new \Exception('Revisiting doctype');
-        }
-        $this->hasCompiledDoctype = true;
-
         $doc = (empty($doctype->value) || $doctype == null || !isset($doctype->value))
             ? 'default'
             : strtolower($doctype->value);
