@@ -21,10 +21,14 @@ class Php implements FilterInterface
         $data = '';
 
         foreach ($node->block->nodes as $n) {
-            if (preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)) {
-                $data .= ' ?> ' . $m[1] . '<?php ';
+            if (isset($n->value)) {
+                if (preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)) {
+                    $data .= ' ?> ' . $m[1] . '<?php ';
+                } else {
+                    $data .= $n->value . "\n";
+                }
             } else {
-                $data .= $n->value . "\n";
+                $data .= ' ?> ' . $compiler->subCompiler()->compile($n) . '<?php ';
             }
         }
 

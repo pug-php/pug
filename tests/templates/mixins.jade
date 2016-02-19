@@ -15,5 +15,17 @@ mixin list()
     li bar
     li baz
 
+mixin image(img, width, height)
+  - $ratio = $height / $width * 100
+  div.image(style='background-image: url(' . $img . '); padding-bottom: ' . $ratio . '%')
+
+mixin image2(img, width, height)
+  - $ratio = $height / $width * 100
+  div.image(style='background-image: url(' + img + '); padding-bottom: ' + ratio + '%')
+
 body
   mixin list()
+  +image('foo', 200, 100)
+  +image('bar', 157, 233)
+  +image2('foo', 200, 100)
+  +image2('bar', 157, 233)

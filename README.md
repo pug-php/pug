@@ -17,6 +17,10 @@ All the features from the original are supported but undertested, including inhe
 and mixins.
 
 ### Install using composer
+```sh
+composer require kylekatarnls/jade-php
+composer install
+```
 [kylekatarnls/jade-php on packagist.org](https://packagist.org/packages/kylekatarnls/jade-php)
 
 ## What's new ?

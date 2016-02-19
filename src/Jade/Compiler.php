@@ -41,6 +41,10 @@ class Compiler extends MixinVisitor
     /**
      * @var array
      */
+    protected $options = array();
+    /**
+     * @var array
+     */
     protected $filters = array();
     /**
      * @var bool
@@ -131,10 +135,26 @@ class Compiler extends MixinVisitor
         ) as $option) {
             $this->$option = (bool) $options[$option];
         }
+        $this->options = $options;
         $this->filters = $filters;
         $this->quote = $options['singleQuote'] ? '\'' : '"';
     }
 
+    /**
+     * get a compiler with the same settings.
+     *
+     * @return string
+     */
+    public function subCompiler()
+    {
+        return new static($this->options, $this->filters);
+    }
+
+    /**
+     * php closing tag depanding on the pretty print setting.
+     *
+     * @return string
+     */
     protected function closingTag()
     {
         return '?>' . ($this->prettyprint ? ' ' : '');
