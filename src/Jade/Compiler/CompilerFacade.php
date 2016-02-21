@@ -8,6 +8,8 @@ namespace Jade\Compiler;
  */
 abstract class CompilerFacade extends CompilerUtils
 {
+    protected static $mixinBlocks = array();
+
     /**
      * value treatment if it must not be escaped.
      *
@@ -26,27 +28,15 @@ abstract class CompilerFacade extends CompilerUtils
      * @param string  mixin name
      * @param string  mixin block treatment
      */
-    public static function recordMixinBlock($name, $func = null, $terminate = false)
+    public static function recordMixinBlock($name, $func = null)
     {
-        static $mixinBlocks = null;
-        if (is_null($mixinBlocks)) {
-            $mixinBlocks = array();
+        if (!is_callable($func)) {
+            $func = function (){};
         }
-        $isArray = isset($mixinBlocks[$name]) && is_array($mixinBlocks[$name]);
-        if (is_null($func)) {
-            if ($isArray) {
-                if ($terminate) {
-                    array_pop($mixinBlocks);
-                } elseif (count($mixinBlocks[$name])) {
-                    return $mixinBlocks[$name];
-                }
-            }
-        } else {
-            if (!$isArray) {
-                $mixinBlocks[$name] = array();
-            }
-            array_push($mixinBlocks[$name], $func);
+        if (!isset(static::$mixinBlocks[$name])) {
+            static::$mixinBlocks[$name] = array();
         }
+        array_push(static::$mixinBlocks[$name], $func);
     }
 
     /**
@@ -57,8 +47,7 @@ abstract class CompilerFacade extends CompilerUtils
      */
     public static function callMixinBlock($name, $attributes = array())
     {
-        $mixinBlocks = static::recordMixinBlock($name);
-        if (is_array($mixinBlocks)) {
+        if (isset(static::$mixinBlocks[$name]) && is_array($mixinBlocks = static::$mixinBlocks[$name])) {
             $func = end($mixinBlocks);
             if (is_callable($func)) {
                 call_user_func($func, $attributes);
@@ -73,7 +62,9 @@ abstract class CompilerFacade extends CompilerUtils
      */
     public static function terminateMixinBlock($name)
     {
-        static::recordMixinBlock($name, null, true);
+        if (isset(static::$mixinBlocks[$name])) {
+            array_pop(static::$mixinBlocks);
+        }
     }
 
     /**
@@ -105,15 +96,15 @@ abstract class CompilerFacade extends CompilerUtils
     protected static function convertVarPathCallback($match)
     {
         if (empty($match[1])) {
-            $var = $match[0];
-        } else {
-            $var = ($match[0] === ',' ? ',' : '') . $match[1];
-            foreach (explode('.', substr($match[2], 1)) as $name) {
-                if (!empty($name)) {
-                    $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
-                        static::addDollarIfNeeded($var) .
-                        ', ' . var_export($name, true) . ')';
-                }
+            return $match[0];
+        }
+
+        $var = ($match[0] === ',' ? ',' : '') . $match[1];
+        foreach (explode('.', substr($match[2], 1)) as $name) {
+            if (!empty($name)) {
+                $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
+                    static::addDollarIfNeeded($var) .
+                    ', ' . var_export($name, true) . ')';
             }
         }
 
