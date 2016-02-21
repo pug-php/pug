@@ -3,7 +3,11 @@
 class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
 
     static private $skipped = array(
+        // Not supported in HHVM
+        'xml' => 'hhvm',
+
         // Add here tests for future features not yet implemented
+        'inline-tags',
     );
 
     public function caseProvider() {
@@ -17,6 +21,10 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
                 if ($name === 'index' || in_array($name, self::$skipped)) {
                     continue;
                 }
+                if (defined('HHVM_VERSION') && isset(self::$skipped[$name]) && self::$skipped[$name] === 'hhvm') {
+                    continue;
+                }
+
                 $cases[] = array($name);
             }
         }

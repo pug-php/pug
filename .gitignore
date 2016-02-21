@@ -1,6 +1,9 @@
 .DS_Store
 .idea
 .cache
+
+# Coverage
+/build
 coverage.xml
 
 # Composer
