@@ -23,6 +23,11 @@ class Lexer
     public $input;
 
     /**
+     * @var int
+     */
+    public $lastTagIndent = -2;
+
+    /**
      * @var array
      */
     protected $deferred = array();
@@ -320,7 +325,24 @@ class Lexer
         //      [_a-z0-9-]|{nonascii}|{escape}
         //
         // /^(-?(?!=[0-9-])(?:[_a-z0-9-]|[\240-\377]|\\{h}{1,6}(?:\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])+)/
-        return $this->scan('/^[.]([\w-]+)/', 'class');
+        return $this->scan('/^\.([\w-]+)/', 'class');
+    }
+
+    protected function scanInlineTag()
+    {
+        if (preg_match('/^(?:\| ?| ?)?([^\n]*?)#\[([^\]\n]+)\]/', $this->input, $matches)) {
+            if (mb_substr($matches[0], 0, 1) !== '|') {
+                $this->lastTagIndent = count($this->indentStack) ? $this->indentStack[0] : 0;
+            }
+            $end = mb_substr($this->input, mb_strlen($matches[0]));
+            $indents = $this->lastTagIndent + 2;
+            $newLine = "\n" . str_repeat(' ', $indents);
+            $this->input =
+                $newLine . '| ' . ltrim($matches[1]) .
+                $newLine . ltrim($matches[2]) .
+                $newLine . '| ' . $end;
+            return $this->next();
+        }
     }
 
     /**
@@ -803,6 +825,7 @@ class Lexer
             }
 
             $str = mb_substr($this->input, 0, $i); // do not include the \n char
+
             $this->consume($str);
 
             return $this->token('text', $str);
@@ -860,6 +883,7 @@ class Lexer
         or $r = $this->scanComment()
         or $r = $this->scanColon()
         or $r = $this->scanAndAttributes()
+        or $r = $this->scanInlineTag()
         or $r = $this->scanText();
 
         return $r;

@@ -37,6 +37,16 @@ class Parser
         array_push($this->contexts, $this);
     }
 
+    /**
+     * get a parser with the same settings.
+     *
+     * @return Parser
+     */
+    public function subParser($input)
+    {
+        return new static($input, $this->filename, $this->extension);
+    }
+
     public function context($parser = null)
     {
         if ($parser === null) {
@@ -441,7 +451,20 @@ class Parser
                     break;
 
                 default:
-                    $text = new Nodes\Text($indent . $this->advance()->value);
+                    $str = $indent . $this->advance()->value;
+                    while (preg_match('/^(.*?)#\[([^\]\n]+)\]/', $str, $matches)) {
+                        if (!empty($matches[1])) {
+                            $text = new Nodes\Text($matches[1]);
+                            $text->line = $this->line();
+                            $block->push($text);
+                        }
+                        $parser = $this->subParser($matches[2]);
+                        $tag = $parser->parse();
+                        $tag->line = $this->line();
+                        $block->push($tag);
+                        $str = mb_substr($str, mb_strlen($matches[0]));
+                    }
+                    $text = new Nodes\Text($str);
                     $text->line = $this->line();
                     $block->push($text);
             }
