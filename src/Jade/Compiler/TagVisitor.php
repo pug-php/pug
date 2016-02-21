@@ -59,7 +59,7 @@ abstract class TagVisitor extends Visitor
 
         $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
 
-        if ($isPreTag = ($tag->name == 'pre')) {
+        if ($isPreTag = ($tag->name === 'pre')) {
             $prettyprint = $this->prettyprint;
             $this->prettyprint = false;
         }
@@ -68,7 +68,6 @@ abstract class TagVisitor extends Visitor
 
         if (!$selfClosing) {
             $this->visitTagContents($tag);
-
             $this->buffer('</' . $tag->name . '>');
         }
 

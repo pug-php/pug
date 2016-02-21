@@ -89,7 +89,7 @@ class Jade
         $parser = new Parser($input, null, $this->options['extension']);
         $compiler = new Compiler($this->options, $this->filters);
 
-        return $compiler->compile($parser->parse($input));
+        return $compiler->compile($parser->parse());
     }
 
     /**

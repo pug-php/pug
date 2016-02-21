@@ -91,7 +91,7 @@ class Compiler extends MixinVisitor
     /**
      * get a compiler with the same settings.
      *
-     * @return string
+     * @return Compiler
      */
     public function subCompiler()
     {
