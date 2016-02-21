@@ -106,8 +106,13 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     if($new !== null) {
         $actualHtml = get_generated_html($new);
 
-        $from = array("\n", "\r", "\t", " ", "'", "<!DOCTYPEhtml>");
-        $to = array('', '', '', '', '"', '');
+        if(strpos($name, 'indent.') === false) {
+            $from = array("\n", "\r", "\t", " ", "'", "<!DOCTYPEhtml>");
+            $to = array('', '', '', '', '"', '');
+        } else {
+            $from = array();
+            $to = array();
+        }
         $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
         $minifiedActualHtml = str_replace($from, $to, $actualHtml);
         $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
