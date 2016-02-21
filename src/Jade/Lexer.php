@@ -341,6 +341,7 @@ class Lexer
                 $newLine . '| ' . ltrim($matches[1]) .
                 $newLine . ltrim($matches[2]) .
                 $newLine . '| ' . $end;
+
             return $this->next();
         }
     }
