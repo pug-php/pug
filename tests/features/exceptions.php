@@ -13,6 +13,14 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
+    public function testCannotBeReadFromPhp() {
+
+        get_php_code('- var foo = Inf' . "\n" . 'p=foo');
+    }
+
+    /**
+     * @expectedException Exception
+     */
     public function testUnexpectingValue() {
 
         get_php_code('a(href="foo""bar")');

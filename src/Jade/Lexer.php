@@ -13,12 +13,12 @@ class Lexer
     public $lineno = 1;
 
     /**
-     * @var
+     * @var bool
      */
     public $pipeless;
 
     /**
-     * @var
+     * @var string
      */
     public $input;
 
@@ -263,7 +263,7 @@ class Lexer
                 $this->defer($this->token(':'));
 
                 while (' ' === mb_substr($this->input, 0, 1)) {
-                    $this->consume(mb_substr($this->input, 0, 1));
+                    $this->consume(' ');
                 }
             } else {
                 $token = $this->token('tag', $name);
@@ -609,7 +609,7 @@ class Lexer
                     case '=':
                         switch ($state()) {
                             case 'key char':
-                                $key = $key . $char;
+                                $key .= $char;
                                 break;
 
                             case 'val':
@@ -688,7 +688,7 @@ class Lexer
 
                             default:
                                 array_push($states, 'string');
-                                $val = $val . $char;
+                                $val .= $char;
                                 $quote = $char;
                                 break;
                         }
@@ -701,7 +701,7 @@ class Lexer
                         switch ($state()) {
                             case 'key':
                             case 'key char':
-                                $key = $key . $char;
+                                $key .= $char;
                                 break;
 
                             default:

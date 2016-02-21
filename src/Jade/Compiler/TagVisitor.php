@@ -40,16 +40,6 @@ abstract class TagVisitor extends Visitor
     /**
      * @param Nodes\Tag $tag
      */
-    protected function handleDoctypeFromTag(Tag $tag)
-    {
-        if (!isset($this->hasCompiledDoctype) && 'html' == $tag->name) {
-            $this->visitDoctype();
-        }
-    }
-
-    /**
-     * @param Nodes\Tag $tag
-     */
     protected function visitTagContents(Tag $tag)
     {
         $this->indents++;

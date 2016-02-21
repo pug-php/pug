@@ -10,19 +10,8 @@ use Jade\Compiler\MixinVisitor;
 class Compiler extends MixinVisitor
 {
     /**
-     * @const string
-     * VARNAME declared in Compiler/Visitor.php
+     * Constants and configuration in Compiler/CompilerConfig.php.
      */
-
-    /**
-     * @const string
-     */
-    const ESCAPED = 'echo htmlspecialchars(%s)';
-
-    /**
-     * @const string
-     */
-    const UNESCAPED = 'echo \\Jade\\Compiler::strval(%s)';
 
     /**
      * @var
@@ -76,47 +65,6 @@ class Compiler extends MixinVisitor
     protected $indents = 0;
 
     /**
-     * @var bool
-     */
-    public static $jsonEncodeDatas = false;
-
-    /**
-     * @var array
-     */
-    protected $doctypes = array(
-        '5' => '<!DOCTYPE html>',
-        'html' => '<!DOCTYPE html>',
-        'default' => '<!DOCTYPE html>',
-        'xml' => '<?xml version="1.0" encoding="utf-8" ?>',
-        'transitional' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
-        'strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
-        'frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
-        '1.1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
-        'basic' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',
-        'mobile' => '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',
-    );
-
-    /**
-     * @var array
-     */
-    protected $selfClosing = array('meta', 'img', 'link', 'input', 'source', 'area', 'base', 'col', 'br', 'hr');
-
-    /**
-     * @var array
-     */
-    protected $phpKeywords = array('true', 'false', 'null', 'switch', 'case', 'default', 'endswitch', 'if', 'elseif', 'else', 'endif', 'while', 'endwhile', 'do', 'for', 'endfor', 'foreach', 'endforeach', 'as', 'unless');
-
-    /**
-     * @var array
-     */
-    protected $phpOpenBlock = array('switch', 'if', 'else if', 'elseif', 'else', 'while', 'do', 'foreach', 'for', 'unless');
-
-    /**
-     * @var array
-     */
-    protected $phpCloseBlock = array('endswitch', 'endif', 'endwhile', 'endfor', 'endforeach');
-
-    /**
      * @var string
      */
     protected $quote;
@@ -158,74 +106,6 @@ class Compiler extends MixinVisitor
     protected function closingTag()
     {
         return '?>' . ($this->prettyprint ? ' ' : '');
-    }
-
-    /**
-     * value treatment if it must not be escaped.
-     *
-     * @param string  input value
-     *
-     * @return string
-     */
-    public static function strval($val)
-    {
-        return is_array($val) || is_null($val) || is_bool($val) || is_int($val) || is_float($val) ? json_encode($val) : strval($val);
-    }
-
-    /**
-     * record a closure as a mixin block during execution jade template time.
-     *
-     * @param string  mixin name
-     * @param string  mixin block treatment
-     */
-    public static function recordMixinBlock($name, $func = null, $terminate = false)
-    {
-        static $mixinBlocks = null;
-        if (is_null($mixinBlocks)) {
-            $mixinBlocks = array();
-        }
-        $isArray = isset($mixinBlocks[$name]) && is_array($mixinBlocks[$name]);
-        if (is_null($func)) {
-            if ($isArray) {
-                if ($terminate) {
-                    array_pop($mixinBlocks);
-                } elseif (count($mixinBlocks[$name])) {
-                    return $mixinBlocks[$name];
-                }
-            }
-        } else {
-            if (!$isArray) {
-                $mixinBlocks[$name] = array();
-            }
-            array_push($mixinBlocks[$name], $func);
-        }
-    }
-
-    /**
-     * record a closure as a mixin block during execution jade template time.
-     *
-     * @param string  mixin name
-     * @param string  mixin block treatment
-     */
-    public static function callMixinBlock($name, $attributes = array())
-    {
-        $mixinBlocks = static::recordMixinBlock($name);
-        if (is_array($mixinBlocks)) {
-            $func = end($mixinBlocks);
-            if (is_callable($func)) {
-                call_user_func($func, $attributes);
-            }
-        }
-    }
-
-    /**
-     * end of the record a closure as a mixin block.
-     *
-     * @param string  mixin name
-     */
-    public static function terminateMixinBlock($name)
-    {
-        static::recordMixinBlock($name, null, true);
     }
 
     /**
@@ -659,69 +539,6 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @param $anything object|array
-     * @param $key mixed key to retrive from the object or the array
-     *
-     * @return mixed
-     */
-    public static function getPropertyFromAnything($anything, $key)
-    {
-        $value = null;
-
-        if (is_array($anything)) {
-            $value = isset($anything[$key]) ? $anything[$key] : null;
-        }
-
-        if (is_object($anything)) {
-            $value = isset($anything->$key) ? $anything->$key : null;
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param $match array regex match
-     *
-     * @return string
-     */
-    protected static function convertVarPathCallback($match)
-    {
-        if (empty($match[1])) {
-            $var = $match[0];
-        } else {
-            $var = ($match[0] === ',' ? ',' : '') . $match[1];
-            foreach (explode('.', substr($match[2], 1)) as $name) {
-                if (!empty($name)) {
-                    $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
-                        static::addDollarIfNeeded($var) .
-                        ', ' . var_export($name, true) . ')';
-                }
-            }
-        }
-
-        return $var;
-    }
-
-    /**
-     * Replace var paths in a string.
-     *
-     * @param $arg string
-     * @param $regexp string
-     *
-     * @return string
-     */
-    protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
-    {
-        $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
-
-        return preg_replace_callback(
-            str_replace('%s', $pattern, $regexp),
-            array(get_class(), 'convertVarPathCallback'),
-            $arg
-        );
-    }
-
-    /**
      * @throws \Exception
      *
      * @return array
@@ -835,85 +652,5 @@ class Compiler extends MixinVisitor
         }
 
         return $this->createPhpBlock($code);
-    }
-
-    public static function withMixinAttributes($attributes, $mixinAttributes)
-    {
-        foreach ($mixinAttributes as $attribute) {
-            if ($attribute['name'] === 'class') {
-                $attributes['class'] = empty($attributes['class'])
-                    ? $attribute['value']
-                    : $attributes['class'] . ' ' . $attribute['value'];
-            }
-        }
-        if (isset($attributes['class'])) {
-            $attributes['class'] = implode(' ', array_unique(explode(' ', $attributes['class'])));
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return mixed
-     */
-    protected static function parseValue($value)
-    {
-        return json_decode(preg_replace("/'([^']*?)'/", '"$1"', $value));
-    }
-
-    /**
-     * @param string $value
-     *
-     * @return mixed
-     */
-    protected static function decodeValue($value)
-    {
-        $_value = static::parseValue($value);
-
-        return is_null($_value) ? $value : $_value;
-    }
-
-    /**
-     * @param array $attributes
-     *
-     * @return array
-     */
-    protected static function decodeAttributes($attributes)
-    {
-        foreach ($attributes as &$attribute) {
-            if (is_array($attribute)) {
-                $attribute['value'] = static::decodeValue($attribute['value']);
-            } else {
-                $attribute = static::decodeValue($attribute);
-            }
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param $attributes
-     */
-    public static function displayAttributes($attributes, $quote)
-    {
-        if (is_array($attributes) || $attributes instanceof Traversable) {
-            foreach ($attributes as $key => $value) {
-                if ($value !== false && $value !== 'null') {
-                    echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param $value
-     *
-     * @return bool
-     */
-    public static function isDisplayable($value)
-    {
-        return !is_null($value) && $value !== false;
     }
 }

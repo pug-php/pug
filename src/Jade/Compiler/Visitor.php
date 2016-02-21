@@ -14,43 +14,8 @@ use Jade\Nodes\MixinBlock;
 use Jade\Nodes\Node;
 use Jade\Nodes\When;
 
-abstract class Visitor
+abstract class Visitor extends CompilerFacade
 {
-    /**
-     * @const string
-     */
-    const VARNAME = '[a-zA-Z\\\\\\x7f-\\xff][a-zA-Z0-9\\\\_\\x7f-\\xff]*';
-
-    /**
-     * @param string $call
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    protected static function addDollarIfNeeded($call)
-    {
-        if ($call === 'Inf') {
-            throw new \Exception($call . ' cannot be read from PHP', 1);
-        }
-        if ($call === 'undefined') {
-            return 'null';
-        }
-        if ($call[0] !== '$' && $call[0] !== '\\' && !preg_match('#^(?:' . static::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call)) {
-            $call = '$' . $call;
-        }
-
-        return $call;
-    }
-
-    protected static function initArgToNull(&$arg)
-    {
-        $arg = static::addDollarIfNeeded(trim($arg));
-        if (strpos($arg, '=') === false) {
-            $arg .= ' = null';
-        }
-    }
-
     /**
      * @param Nodes\Node $node
      *
@@ -159,11 +124,6 @@ abstract class Visitor
      */
     protected function visitDoctype(Doctype $doctype = null)
     {
-        if (isset($this->hasCompiledDoctype)) {
-            throw new \Exception('Revisiting doctype');
-        }
-        $this->hasCompiledDoctype = true;
-
         $doc = (empty($doctype->value) || $doctype == null || !isset($doctype->value))
             ? 'default'
             : strtolower($doctype->value);
