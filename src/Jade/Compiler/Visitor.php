@@ -165,7 +165,7 @@ abstract class Visitor extends CompilerFacade
         $filter = $this->filters[$node->name];
 
         // Filters can be either a iFilter implementation, nor a callable
-        if (is_string($filter)) {
+        if (is_string($filter) && class_exists($filter)) {
             $filter = new $filter();
         }
         if (!is_callable($filter)) {

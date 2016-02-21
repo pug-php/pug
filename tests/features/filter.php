@@ -32,4 +32,22 @@ div
 
         $this->assertSame(str_replace(' ', '', $actual), str_replace(' ', '', $expected), 'Custom filter');
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testNonCallableFilter() {
+
+        $jade = new Jade();
+        $this->assertFalse($jade->hasFilter('bar'));
+        $jade->filter('bar', 'nonexists');
+        $this->assertTrue($jade->hasFilter('bar'));
+        $actual = $jade->render('
+div
+    p
+        :bar
+            article <span>foo</span> bar <img title="foo" />
+            <div>section</div>
+');
+    }
 }
