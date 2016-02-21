@@ -57,9 +57,6 @@ abstract class MixinVisitor extends CodeVisitor
                     $_attr[$data['name']] = false;
                 } else {
                     $value = trim($data['value']);
-                    if (strlen($value) && false !== strpos('\'"', $quote = substr($value, 0, 1))) {
-                        $data['value'] = stripslashes(substr($value, 1, -1));
-                    }
                     $_attr[$data['name']] = $data['escaped'] === true
                         ? htmlspecialchars($data['value'])
                         : $data['value'];
