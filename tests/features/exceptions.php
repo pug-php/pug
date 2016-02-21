@@ -65,4 +65,12 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
 
         get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.jade');
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFilterDoesNotExist() {
+
+        get_php_code(':foo' . "\n" . '  | Foo language');
+    }
 }
