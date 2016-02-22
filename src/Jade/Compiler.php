@@ -81,11 +81,13 @@ class Compiler extends MixinVisitor
             'allowMixinOverride',
             'keepNullAttributes',
         ) as $option) {
-            $this->$option = (bool) $options[$option];
+            if (isset($options[$option])) {
+                $this->$option = (bool) $options[$option];
+            }
         }
         $this->options = $options;
         $this->filters = $filters;
-        $this->quote = $options['singleQuote'] ? '\'' : '"';
+        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
     }
 
     /**
@@ -242,18 +244,18 @@ class Compiler extends MixinVisitor
      */
     public function handleCode($input, $ns = '')
     {
+        if (!is_string($input)) {
+            throw new \Exception('Expecting a string of PHP, got: ' . gettype($input));
+        }
+
+        if (strlen($input) == 0) {
+            throw new \Exception('Expecting a string of PHP, empty string received.');
+        }
+
         $input = trim(preg_replace('/\bvar\b/', '', $input));
 
         // needs to be public because of the closure $handleRecursion
         $result = array();
-
-        if (!is_string($input)) {
-            throw new \Exception('Expecting a string of javascript, got: ' . gettype($input));
-        }
-
-        if (strlen($input) == 0) {
-            throw new \Exception('Expecting a string of javascript, empty string received.');
-        }
 
         if (false !== strpos('"\'', $input[0]) && substr($input, -1) === $input[0]) {
             return array($input);
