@@ -2,6 +2,14 @@
 
 use Jade\Compiler;
 
+class BugCompiler extends Compiler {
+
+    public function __construct() {
+
+        $this->createStatements();
+    }
+}
+
 class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase {
 
     /**
@@ -20,5 +28,22 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase {
 
         $compiler = new Compiler();
         $compiler->handleCode(array());
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testMissingClosure() {
+
+        $compiler = new Compiler();
+        $compiler->handleCode('["foo"');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testCreateEmptyStatement() {
+
+        new BugCompiler();
     }
 }
