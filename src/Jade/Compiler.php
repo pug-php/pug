@@ -178,7 +178,7 @@ class Compiler extends MixinVisitor
     /**
      * Test agains a array of constants.
      *
-     * @param      $str
+     * @param string $str
      *
      * @return bool|int
      */
@@ -195,7 +195,7 @@ class Compiler extends MixinVisitor
             // arrray\(\)                   - matches against the old array construct
             // []                           - matches against the new/shorter array construct
             // (const=>)?const(,recursion)  - matches against the value list, values can be a constant or a new array built of constants
-            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|(" . static::CONSTANT_VALUE . "=>)?" . static::CONSTANT_VALUE . "(,(?R))?/", $str, $matches)) {
+            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|(" . static::CONSTANT_VALUE . '=>)?' . static::CONSTANT_VALUE . "(,(?R))?/", $str, $matches)) {
                 // cant use ^ and $ because the patter is recursive
                 if (strlen($matches[0]) == strlen($str)) {
                     return true;
@@ -207,7 +207,7 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @param      $str
+     * @param string $str
      *
      * @return bool|int
      */
