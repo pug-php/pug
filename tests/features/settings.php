@@ -79,4 +79,36 @@ mixin centered(title)
 
         $this->assertSame($actual, $expected, 'Pretty print disabled');
     }
+
+    /**
+     * allowMixinOverride setting test
+     */
+    public function testAllowMixinOverride() {
+
+        $template = '
+mixin foo()
+  h1 Hello
+
+mixin foo()
+  h2 Hello
+
++foo
+';
+
+        $jade = new Jade(array(
+            'allowMixinOverride' => true,
+        ));
+        $actual = $jade->render($template);
+        $expected = '<h2>Hello</h2>';
+
+        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override enabled');
+
+        $jade = new Jade(array(
+            'allowMixinOverride' => false,
+        ));
+        $actual = $jade->render($template);
+        $expected = '<h1>Hello</h1>';
+
+        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override disabled');
+    }
 }
