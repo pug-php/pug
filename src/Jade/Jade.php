@@ -157,10 +157,9 @@ class Jade
         }
 
         $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
-        $cacheTime = !file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
-        if ($cacheTime && filemtime($input) < $cacheTime) {
+        if (file_exists($path) && filemtime($input) < filemtime($path)) {
             return $path;
         }
 
