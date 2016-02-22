@@ -763,7 +763,7 @@ class Lexer
         if (isset($this->identRE)) {
             $ok = preg_match($this->identRE, $this->input, $matches);
         } else {
-            $re = "/^\n(\t*) */";
+            $re = "/^\n(\t*)/";
             $ok = preg_match($re, $this->input, $matches);
 
             if ($ok && mb_strlen($matches[1]) == 0) {
@@ -787,6 +787,7 @@ class Lexer
             }
 
             if ($this->length() && $this->input[0] === "\n") {
+            	exit('yep');
                 return $this->token('newline');
             }
 

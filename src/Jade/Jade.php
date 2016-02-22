@@ -18,6 +18,7 @@ class Jade
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
         'allowMixinOverride' => true,
+        'allowMixedIdent'    => true,
         'keepNullAttributes' => false,
         'singleQuote'        => true,
     );
@@ -86,7 +87,7 @@ class Jade
      */
     public function compile($input)
     {
-        $parser = new Parser($input, null, $this->options['extension']);
+        $parser = new Parser($input, null, $this->options);
         $compiler = new Compiler($this->options, $this->filters);
 
         return $compiler->compile($parser->parse());

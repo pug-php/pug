@@ -6,6 +6,7 @@ class Parser
 {
     public $basepath;
     public $extension;
+    public $allowMixedIdent;
     public $textOnly = array('script', 'style');
     public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
@@ -17,9 +18,15 @@ class Parser
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str, $filename = null, $extension = '.jade')
+    public function __construct($str, $filename = null, array $options = array())
     {
-        $this->extension = $extension;
+        $defaultOptions = array(
+            'allowMixedIdent' => true,
+            'extension' => '.jade',
+        );
+        foreach ($defaultOptions as $key => $default) {
+            $this->$key = isset($options[$key]) ? $options[$key] : $default;
+        }
 
         if ($filename == null && file_exists($str)) {
             $this->input = file_get_contents($str);
