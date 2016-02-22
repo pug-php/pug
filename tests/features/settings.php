@@ -62,7 +62,7 @@ mixin centered(title)
             'prettyprint' => true,
         ));
         $actual = trim(preg_replace('`[ \t]+`', ' ', preg_replace('`\n( +\n)+`', "\n", str_replace("\r", '', $jade->render($template)))));
-        $expected = trim('
+        $expected = str_replace("\r", '', trim('
  <div id=\'Second\' class=\'centered\'>
  <h1 >
  Section 1 ' . '
@@ -71,15 +71,15 @@ mixin centered(title)
  Some important content.
 </p>
  </div>
-');
+'));
 
         $this->assertSame($actual, $expected, 'Pretty print enabled');
 
         $jade = new Jade(array(
             'prettyprint' => false,
         ));
-        $actual = preg_replace('`(<[a-z][a-z:_0-9]*) (?=[\s>])`', '$1', $jade->render($template));
-        $expected = '<div id=\'Second\' class=\'centered\'><h1>Section 1</h1><p>Some important content.</p></div>';
+        $actual =  str_replace("\r", '', preg_replace('`(<[a-z][a-z:_0-9]*) (?=[\s>])`', '$1', $jade->render($template)));
+        $expected =  str_replace("\r", '', '<div id=\'Second\' class=\'centered\'><h1>Section 1</h1><p>Some important content.</p></div>');
 
         $this->assertSame($actual, $expected, 'Pretty print disabled');
     }
@@ -154,8 +154,8 @@ p(class=$foo)=$bar
         $jade = new Jade(array(
             'phpSingleLine' => true,
         ));
-        $actual = $jade->compile($template);
-        $expected = '<?php
+        $actual =  str_replace("\r", '', $jade->compile($template));
+        $expected = str_replace("\r", '', '<?php
  $foo = "bar" ' . '
 ?><?php
  $bar = 42 ' . '
@@ -167,15 +167,15 @@ p(class=$foo)=$bar
  } ' . '
 ?>><?php
  echo htmlspecialchars($bar) ' . '
-?></p>';
+?></p>');
 
         $this->assertSame($actual, $expected, 'PHP single line enabled');
 
         $jade = new Jade(array(
             'phpSingleLine' => false,
         ));
-        $actual = $jade->compile($template);
-        $expected = '<?php $foo = "bar" ?><?php $bar = 42 ?><p <?php if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ?> class=\'<?php echo $__classes ?>\'<?php } ?>><?php echo htmlspecialchars($bar) ?></p>';
+        $actual = str_replace("\r", '', $jade->compile($template));
+        $expected = str_replace("\r", '', '<?php $foo = "bar" ?><?php $bar = 42 ?><p <?php if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ?> class=\'<?php echo $__classes ?>\'<?php } ?>><?php echo htmlspecialchars($bar) ?></p>');
 
         $this->assertSame($actual, $expected, 'PHP single line disabled');
     }
