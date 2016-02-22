@@ -139,4 +139,44 @@ mixin foo()
 
         $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote disabled');
     }
+
+    /**
+     * phpSingleLine setting test
+     */
+    public function testPhpSingleLine() {
+
+        $template = '
+- $foo = "bar"
+- $bar = 42
+p(class=$foo)=$bar
+';
+
+        $jade = new Jade(array(
+            'phpSingleLine' => true,
+        ));
+        $actual = $jade->compile($template);
+        $expected = '<?php
+ $foo = "bar" ' . '
+?><?php
+ $bar = 42 ' . '
+?><p <?php
+ if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ' . '
+?> class=\'<?php
+ echo $__classes ' . '
+?>\'<?php
+ } ' . '
+?>><?php
+ echo htmlspecialchars($bar) ' . '
+?></p>';
+
+        $this->assertSame($actual, $expected, 'PHP single line enabled');
+
+        $jade = new Jade(array(
+            'phpSingleLine' => false,
+        ));
+        $actual = $jade->compile($template);
+        $expected = '<?php $foo = "bar" ?><?php $bar = 42 ?><p <?php if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ?> class=\'<?php echo $__classes ?>\'<?php } ?>><?php echo htmlspecialchars($bar) ?></p>';
+
+        $this->assertSame($actual, $expected, 'PHP single line disabled');
+    }
 }
