@@ -4,9 +4,13 @@ use Jade\Jade;
 
 class JadeSettingsTest extends PHPUnit_Framework_TestCase {
 
-    static private function rawHtml($html) {
+    static private function rawHtml($html, $convertSingleQuote = true) {
 
-        return trim(preg_replace('`\n{2,}`', "\n", strtr(str_replace(array("\r", ' '), '', $html), "'", '"')));
+        $html = str_replace(array("\r", ' '), '', $html);
+        if ($convertSingleQuote) {
+            $html = strtr($html, "'", '"');
+        }
+        return trim(preg_replace('`\n{2,}`', "\n", $html));
     }
 
     /**
@@ -110,5 +114,29 @@ mixin foo()
         $expected = '<h1>Hello</h1>';
 
         $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override disabled');
+    }
+
+    /**
+     * singleQuote setting test
+     */
+    public function testSingleQuote() {
+
+        $template = 'h1#foo.bar(style="color: red;") Hello';
+
+        $jade = new Jade(array(
+            'singleQuote' => true,
+        ));
+        $actual = $jade->render($template);
+        $expected = "<h1 id='foo' style='color: red;' class='bar'>Hello</h1>";
+
+        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote enabled');
+
+        $jade = new Jade(array(
+            'singleQuote' => false,
+        ));
+        $actual = $jade->render($template);
+        $expected = '<h1 id="foo" style="color: red;" class="bar">Hello</h1>';
+
+        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote disabled');
     }
 }
