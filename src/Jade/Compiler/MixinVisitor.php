@@ -15,8 +15,8 @@ abstract class MixinVisitor extends CodeVisitor
         $block = $mixin->block;
         $defaultAttributes = array();
         $newArrayKey = null;
-        $arguments = explode(',', $arguments);
         $containsOnlyArrays = true;
+        $arguments = is_null($arguments) ? array() : explode(',', $arguments);
         foreach ($arguments as $key => &$argument) {
             if (preg_match('`^\s*[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
                 $tab = explode('=', trim($argument), 2);
@@ -75,53 +75,49 @@ abstract class MixinVisitor extends CodeVisitor
             $this->buffer($this->createCode('});'));
         }
 
-        if ($arguments === false || $arguments === null) {
-            $code = $this->createPhpBlock("{$name}({$attributes})");
-        } else {
-            $strings = array();
-            $arguments = preg_replace_callback(
-                '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
-                function ($match) use (&$strings) {
-                    $id = count($strings);
-                    $strings[] = $match[0];
+        $strings = array();
+        $arguments = preg_replace_callback(
+            '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
+            function ($match) use (&$strings) {
+                $id = count($strings);
+                $strings[] = $match[0];
 
-                    return 'stringToReplaceBy' . $id . 'ThCapture';
-                },
-                $arguments
-            );
-            $arguments = array_map(
-                function ($arg) use ($strings) {
-                    return preg_replace_callback(
-                        '#stringToReplaceBy([0-9]+)ThCapture#',
-                        function ($match) use ($strings) {
-                            return $strings[intval($match[1])];
-                        },
-                        $arg
-                    );
-                },
-                $arguments
-            );
+                return 'stringToReplaceBy' . $id . 'ThCapture';
+            },
+            $arguments
+        );
+        $arguments = array_map(
+            function ($arg) use ($strings) {
+                return preg_replace_callback(
+                    '#stringToReplaceBy([0-9]+)ThCapture#',
+                    function ($match) use ($strings) {
+                        return $strings[intval($match[1])];
+                    },
+                    $arg
+                );
+            },
+            $arguments
+        );
 
-            array_unshift($arguments, $attributes);
-            $arguments = array_filter($arguments, 'strlen');
-            $statements = $this->apply('createStatements', $arguments);
+        array_unshift($arguments, $attributes);
+        $arguments = array_filter($arguments, 'strlen');
+        $statements = $this->apply('createStatements', $arguments);
 
-            $variables = array_pop($statements);
-            if ($mixin->call && $containsOnlyArrays) {
-                array_splice($variables, 1, 0, array('null'));
-            }
-            $variables = implode(', ', $variables);
-            array_push($statements, $variables);
-
-            $arguments = $statements;
-
-            $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
-
-            array_unshift($arguments, $code_format);
-
-            $code = $this->apply('createCode', $arguments);
+        $variables = array_pop($statements);
+        if ($mixin->call && $containsOnlyArrays) {
+            array_splice($variables, 1, 0, array('null'));
         }
-        $this->buffer($code);
+        $variables = implode(', ', $variables);
+        array_push($statements, $variables);
+
+        $arguments = $statements;
+
+        $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+
+        array_unshift($arguments, $code_format);
+
+        $this->buffer($this->apply('createCode', $arguments));
+
         if ($block) {
             $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
             $this->buffer($code);
