@@ -43,7 +43,19 @@ class BlockTest extends PHPUnit_Framework_TestCase {
         $foo->nodes[1]->block->nodes[1] = new Tag('small');
         $foo->nodes[1]->block->nodes[1]->block->push(new Tag('small'));
         $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should can be inline with nested block as it only contains text and inline tags');
-        $foo->nodes[1]->block->nodes[1]->block->push(new Tag('div'));
-        $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should not can be inline with nested block if it contains div');
+        $foo->nodes[1]->block->nodes[1]->block->nodes[0] = new Text('Hello');
+        $foo->nodes[1]->block->nodes[1]->block->nodes[1] = new Text('Hello');
+        $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should can be inline with nested block as it only contains text');
+        $foo->nodes[1] = new Tag('div');
+        $foo->nodes[1]->block->push(new Tag('i'));
+        $foo->nodes[1]->block->push(new Block());
+        $this->assertTrue($foo->nodes[1]->canInline(), 'block should not can be inline with nested block if it contains just an i tag');
+        $foo->nodes[1]->block->nodes[0] = new Tag('div');
+        $this->assertFalse($foo->nodes[1]->canInline(), 'block should not can be inline with nested block if it contains div');
+        $foo->nodes[1]->block->nodes[0] = new Tag('i');
+        $foo->nodes[1]->block->nodes[1]->push(new Tag('i'));
+        $this->assertTrue($foo->nodes[1]->canInline(), 'block should not can be inline with nested block if it contains just i tags');
+        $foo->nodes[1]->block->nodes[1]->push(new Tag('p'));
+        $this->assertFalse($foo->nodes[1]->canInline(), 'block should not can be inline with nested block if it contains inline and block tags');
     }
 }
