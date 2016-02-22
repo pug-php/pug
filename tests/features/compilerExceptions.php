@@ -41,10 +41,10 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
-    public function testMissingClosure() {
+    public function testMissingClosing() {
 
         $compiler = new Compiler();
-        $compiler->handleCode('["foo"');
+        $compiler->handleCode('$a = [$b, c(d$e]');
     }
 
     /**
