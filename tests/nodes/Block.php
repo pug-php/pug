@@ -40,5 +40,10 @@ class BlockTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should can be inline as it only contains text');
         $foo->nodes[1]->block->push(new Tag('blockquote'));
         $this->assertFalse($foo->nodes[1]->canInline(), 'i tag should not can be inline if it contains blockquote');
+        $foo->nodes[1]->block->nodes[1] = new Tag('small');
+        $foo->nodes[1]->block->nodes[1]->block->push(new Tag('small'));
+        $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should can be inline with nested block as it only contains text and inline tags');
+        $foo->nodes[1]->block->nodes[1]->block->push(new Tag('div'));
+        $this->assertTrue($foo->nodes[1]->canInline(), 'i tag should not can be inline with nested block if it contains div');
     }
 }
