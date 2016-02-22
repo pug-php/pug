@@ -2,11 +2,19 @@
 
 use Jade\Compiler;
 
-class BugCompiler extends Compiler {
+class StatementsBugCompiler extends Compiler {
 
     public function __construct() {
 
         $this->createStatements();
+    }
+}
+
+class ApplyBugCompiler extends Compiler {
+
+    public function __construct() {
+
+        $this->apply('foo', array());
     }
 }
 
@@ -44,6 +52,14 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase {
      */
     public function testCreateEmptyStatement() {
 
-        new BugCompiler();
+        new StatementsBugCompiler();
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testBadMethodApply() {
+
+        new ApplyBugCompiler();
     }
 }
