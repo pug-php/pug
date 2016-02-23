@@ -18,7 +18,7 @@ class Jade
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
         'allowMixinOverride' => true,
-        'allowMixedIdent'    => true,
+        'allowMixedIndent'   => true,
         'keepNullAttributes' => false,
         'singleQuote'        => true,
     );

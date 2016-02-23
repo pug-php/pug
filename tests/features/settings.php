@@ -181,12 +181,12 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException Exception
+     * Return HTML if mixed indent is allowed
      */
     public function testAllowMixedIndentEnabled() {
 
         $jade = new Jade(array(
-            'allowMixedIndent' => false,
+            'allowMixedIndent' => true,
         ));
         $actual = $jade->render('p' . "\n\t    " . 'i Hi');
         $expected = '<p><i>Hi</i></p>';
@@ -200,7 +200,7 @@ p(class=$foo)=$bar
     public function testAllowMixedIndentDisabled() {
 
         $jade = new Jade(array(
-            'allowMixedIndent' => true,
+            'allowMixedIndent' => false,
         ));
 
         $jade->render('p' . "\n\t    " . 'i Hi');
