@@ -205,4 +205,47 @@ p(class=$foo)=$bar
 
         $jade->render('p' . "\n\t    " . 'i Hi');
     }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testIncludeNotFoundDisabled() {
+
+        $save = \Jade\Parser::$includeNotFound;
+        $jade = new Jade();
+        \Jade\Parser::$includeNotFound = false;
+
+        $error = null;
+
+        try {
+            $actual = $jade->render('include does-not-exists');
+        } catch (\Exception $e) {
+            $error = $e;
+        }
+
+        \Jade\Parser::$includeNotFound = $save;
+
+        if ($error) {
+            throw $error;
+        }
+    }
+
+    /**
+     * includeNotFound return a error included if a file miss.
+     */
+    public function testIncludeNotFoundEnabled() {
+
+        $jade = new Jade();
+        $this->assertTrue(!empty(\Jade\Parser::$includeNotFound), 'includeNotFound should be set by default.');
+
+        $actual = $jade->render('include does-not-exists');
+        $notFound = $jade->render(\Jade\Parser::$includeNotFound);
+        $this->assertSame($actual, $notFound, 'A file not found when included should return includeNotFound value if set.');
+
+        $save = \Jade\Parser::$includeNotFound;
+        \Jade\Parser::$includeNotFound = 'h1 Hello';
+        $actual = $jade->render('include does-not-exists');
+        $this->assertSame($actual, '<h1>Hello</h1>', 'A file not found when included should return includeNotFound value if set.');
+        \Jade\Parser::$includeNotFound = $save;
+    }
 }
