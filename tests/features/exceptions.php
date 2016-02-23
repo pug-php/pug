@@ -2,8 +2,14 @@
 
 use Jade\Parser;
 
+class EmulateBugException extends \Exception {}
+
 class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
 
+    static public function emulateBug() {
+
+        throw new EmulateBugException("Error Processing Request", 1);
+    }
     /**
      * @expectedException Exception
      */
@@ -45,11 +51,11 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException EmulateBugException
      */
     public function testExceptionThroughtJade() {
 
-        get_php_code('a(href="a" . (throw new Exception("Error Processing Request", 1)) . "b")');
+        get_php_code('a(href=\JadeExceptionsTest::emulateBug())');
     }
 
     /**
@@ -61,7 +67,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException EmulateBugException
      */
     public function testBrokenExtends() {
 
@@ -74,5 +80,13 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     public function testFilterDoesNotExist() {
 
         get_php_code(':foo' . "\n" . '  | Foo language');
+    }
+
+    /**
+     * @expectedException EmulateBugException
+     */
+    public function testBrokenInclude() {
+
+        get_php_code(__DIR__ . '/../templates/auxiliary/include-exception.jade');
     }
 }
