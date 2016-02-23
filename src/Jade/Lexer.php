@@ -52,7 +52,7 @@ class Lexer
      */
     public function __construct($input, array $options = array())
     {
-    	$this->allowMixedIndent = isset($options['allowMixedIndent']) && $options['allowMixedIndent'];
+        $this->allowMixedIndent = isset($options['allowMixedIndent']) && $options['allowMixedIndent'];
         $this->setInput($input);
     }
 
