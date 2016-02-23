@@ -1,5 +1,7 @@
 <?php
 
+use Jade\Parser;
+
 class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
 
     /**

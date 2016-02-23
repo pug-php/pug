@@ -18,6 +18,11 @@ class Lexer
     public $pipeless;
 
     /**
+     * @var bool
+     */
+    public $allowMixedIndent;
+
+    /**
      * @var string
      */
     public $input;
@@ -45,8 +50,9 @@ class Lexer
     /**
      * @param $input
      */
-    public function __construct($input)
+    public function __construct($input, array $options = array())
     {
+        $this->allowMixedIndent = isset($options['allowMixedIndent']) && $options['allowMixedIndent'];
         $this->setInput($input);
     }
 
@@ -763,7 +769,7 @@ class Lexer
         if (isset($this->identRE)) {
             $ok = preg_match($this->identRE, $this->input, $matches);
         } else {
-            $re = "/^\n(\t*) */";
+            $re = "/^\n(\t*)" . ($this->allowMixedIndent ? ' *' : '') . '/';
             $ok = preg_match($re, $this->input, $matches);
 
             if ($ok && mb_strlen($matches[1]) == 0) {

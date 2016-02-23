@@ -4,7 +4,7 @@ use Jade\Stream\Template;
 
 class JadeStreamTest extends PHPUnit_Framework_TestCase {
 
-	protected $stream;
+    protected $stream;
 
     /**
      * Test stream methods.

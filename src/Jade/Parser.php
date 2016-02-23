@@ -6,9 +6,11 @@ class Parser
 {
     public $basepath;
     public $extension;
+    public $allowMixedIndent;
     public $textOnly = array('script', 'style');
     public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
+    protected $options = array();
     protected $input;
     protected $lexer;
     protected $filename;
@@ -17,9 +19,16 @@ class Parser
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str, $filename = null, $extension = '.jade')
+    public function __construct($str, $filename = null, array $options = array())
     {
-        $this->extension = $extension;
+        $defaultOptions = array(
+            'allowMixedIndent' => true,
+            'extension' => '.jade',
+        );
+        foreach ($defaultOptions as $key => $default) {
+            $this->$key = isset($options[$key]) ? $options[$key] : $default;
+            $this->options[$key] = $this->$key;
+        }
 
         if ($filename == null && file_exists($str)) {
             $this->input = file_get_contents($str);
@@ -33,7 +42,7 @@ class Parser
             $this->input = substr($this->input, 3);
         }
 
-        $this->lexer = new Lexer($this->input);
+        $this->lexer = new Lexer($this->input, $this->options);
         array_push($this->contexts, $this);
     }
 
@@ -44,7 +53,7 @@ class Parser
      */
     public function subParser($input)
     {
-        return new static($input, $this->filename, $this->extension);
+        return new static($input, $this->filename, $this->options);
     }
 
     public function context($parser = null)

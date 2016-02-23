@@ -291,7 +291,7 @@ abstract class Visitor extends CompilerFacade
                 $valueCheck = null;
                 $value = trim($attr['value']);
 
-                if ($this->isConstant($value, $key == 'class')) {
+                if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
                     $value = trim($value, ' \'"');
                     if ($value === 'undefined') {
                         $value = 'null';

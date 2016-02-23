@@ -179,4 +179,30 @@ p(class=$foo)=$bar
 
         $this->assertSame($actual, $expected, 'PHP single line disabled');
     }
+
+    /**
+     * Return HTML if mixed indent is allowed
+     */
+    public function testAllowMixedIndentEnabled() {
+
+        $jade = new Jade(array(
+            'allowMixedIndent' => true,
+        ));
+        $actual = $jade->render('p' . "\n\t    " . 'i Hi');
+        $expected = '<p><i>Hi</i></p>';
+
+        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
+    }
+
+    /**
+     * @expectedException Exception
+     */
+    public function testAllowMixedIndentDisabled() {
+
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n\t    " . 'i Hi');
+    }
 }

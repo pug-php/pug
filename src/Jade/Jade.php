@@ -18,6 +18,7 @@ class Jade
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
         'allowMixinOverride' => true,
+        'allowMixedIndent'   => true,
         'keepNullAttributes' => false,
         'singleQuote'        => true,
     );
@@ -86,7 +87,7 @@ class Jade
      */
     public function compile($input)
     {
-        $parser = new Parser($input, null, $this->options['extension']);
+        $parser = new Parser($input, null, $this->options);
         $compiler = new Compiler($this->options, $this->filters);
 
         return $compiler->compile($parser->parse());
@@ -157,10 +158,9 @@ class Jade
         }
 
         $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
-        $cacheTime = !file_exists($path) ? 0 : filemtime($path);
 
         // Do not re-parse file if original is older
-        if ($cacheTime && filemtime($input) < $cacheTime) {
+        if (file_exists($path) && filemtime($input) < filemtime($path)) {
             return $path;
         }
 

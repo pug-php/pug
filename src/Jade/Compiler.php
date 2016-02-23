@@ -176,45 +176,17 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @param      $str
-     * @param bool $attr
+     * Test agains a array of constants.
+     *
+     * @param string $str
      *
      * @return bool|int
      */
-    protected function isConstant($str, $attr = false)
+    protected function isArrayOfConstants($str)
     {
-        //  This pattern matches against string constants, some php keywords, number constants and a empty string
-        //
-        //  the pattern without php escaping:
-        //
-        //      [ \t]*((['"])(?:\\.|[^'"\\])*\g{-1}|true|false|null|[0-9]+|\b\b)[ \t]*
-        //
-        //  pattern explained:
-        //
-        //      [ \t]* - we ignore spaces at the beginning and at the end: useful for the recursive pattern bellow
-        //
-        //      the first part of the unamed subpattern matches strings:
-        //          (['"]) - matches a string opening, inside a group because we use a backreference
-        //
-        //          unamed group to catch the string content:
-        //              \\.     - matches any escaped character, including ', " and \
-        //              [^'"\\] - matches any character, except the ones that have a meaning
-        //
-        //          \g{-1}  - relative backreference - http://codesaway.info/RegExPlus/backreferences.html#relative
-        //                  - used for two reasons:
-        //                      1. reference the same character used to open the string
-        //                      2. the pattern is used twice inside the array regex, so cant used absolute or named
-        //
-        //      the rest of the pattern:
-        //          true|false|null - language constants
-        //          0-9             - number constants
-        //          \b\b            - matches a empty string: useful for a empty array
-        $const_regex = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|undefined|[0-9]+|\b\b)[ \t]*';
         $str = trim($str);
-        $ok = preg_match("/^{$const_regex}$/", $str);
 
-        // test agains a array of constants
-        if (!$attr && !$ok && (0 === strpos($str, 'array(') || 0 === strpos($str, '['))) {
+        if (0 === strpos($str, 'array(') || 0 === strpos($str, '[')) {
 
             // This pattern matches against array constants: useful for "data-" attributes (see test attrs-data.jade)
             //
@@ -223,15 +195,25 @@ class Compiler extends MixinVisitor
             // arrray\(\)                   - matches against the old array construct
             // []                           - matches against the new/shorter array construct
             // (const=>)?const(,recursion)  - matches against the value list, values can be a constant or a new array built of constants
-            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|({$const_regex}=>)?{$const_regex}(,(?R))?/", $str, $matches)) {
+            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|(" . static::CONSTANT_VALUE . '=>)?' . static::CONSTANT_VALUE . '(,(?R))?/', $str, $matches)) {
                 // cant use ^ and $ because the patter is recursive
                 if (strlen($matches[0]) == strlen($str)) {
-                    $ok = true;
+                    return true;
                 }
             }
         }
 
-        return $ok;
+        return false;
+    }
+
+    /**
+     * @param string $str
+     *
+     * @return bool|int
+     */
+    protected function isConstant($str)
+    {
+        return preg_match('/^' . static::CONSTANT_VALUE . '$/', trim($str));
     }
 
     /**
