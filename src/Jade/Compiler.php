@@ -409,7 +409,7 @@ class Compiler extends MixinVisitor
                 case ',':
                     $arguments = $handleCodeInbetween();
                     if ($arguments) {
-                        $varname = $varname . ', ' . implode(', ', $arguments);
+                        $varname .= ', ' . implode(', ', $arguments);
                     }
                     //array_push($result, $varname);
 
@@ -417,7 +417,7 @@ class Compiler extends MixinVisitor
 
                 /*case '[':
                     $arguments = $handleCodeInbetween();
-                    $varname = $varname . '[' . implode($arguments) . ']';
+                    $varname .= '[' . implode($arguments) . ']';
 
                     break;*/
 
@@ -425,16 +425,16 @@ class Compiler extends MixinVisitor
                     if (preg_match('/^[[:space:]]*$/', $name)) {
                         next($separators);
                         $arguments = $handleCodeInbetween();
-                        $varname = $varname . ' = ' . implode($arguments);
+                        $varname .= ' = ' . implode($arguments);
                     } else {
-                        $varname = "{$varname} = " . $handleRecursion(array($sep, end($separators)));
+                        $varname .= ' = ' . $handleRecursion(array($sep, end($separators)));
                     }
 
                     break;
 
                 default:
                     if (($name !== false && $name !== '') || $sep[0] != ')') {
-                        $varname = $varname . $sep[0] . $name;
+                        $varname .= $sep[0] . $name;
                     }
                     break;
             }
