@@ -5,6 +5,8 @@
 [![StyleCI](https://styleci.io/repos/17092566/shield?style=flat)](https://styleci.io/repos/17092566)
 [![codecov.io](https://codecov.io/github/kylekatarnls/jade-php/coverage.svg?branch=master)](https://codecov.io/github/kylekatarnls/jade-php?branch=master)
 [![Code Climate](https://codeclimate.com/github/kylekatarnls/jade-php/badges/gpa.svg)](https://codeclimate.com/github/kylekatarnls/jade-php)
+[![Reference Status](https://www.versioneye.com/php/kylekatarnls:jade-php/reference_badge.svg?style=flat)](https://www.versioneye.com/php/kylekatarnls:jade-php/references)
+
 
 Jade.php adds inline PHP scripting support to the [Jade](http://jade-lang.com) template compiler.
 
