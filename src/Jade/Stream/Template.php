@@ -36,7 +36,6 @@ class Template
      */
     public function stream_stat()
     {
-        return;
     }
 
     /**
