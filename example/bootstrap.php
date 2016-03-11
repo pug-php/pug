@@ -6,13 +6,13 @@ ini_set('display_errors', 1);
 
 class Application {
     protected $route;
-    public function __construct($srcPath)
+    public function __construct($srcPath, $pathInfo)
     {
-        if (! isset($_SERVER['PATH_INFO'])){
+        if (! isset($pathInfo)){
             $this->route = '/';
         }
         else {
-            $this->route = ltrim($_SERVER['PATH_INFO'], '/');
+            $this->route = ltrim($pathInfo, '/');
         }
         spl_autoload_register(function($class) use($srcPath) {
             if (! strstr($class, 'Jade')) return;
@@ -28,4 +28,4 @@ class Application {
         }
     }
 }
-$app = new Application('../src/');
+$app = new Application('../src/', $_SERVER['PATH_INFO']);
