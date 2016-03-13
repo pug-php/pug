@@ -6,6 +6,8 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../templates')));
 
+define('IGNORE_INDENT', true);
+
 function setup_autoload() {
     // quick setup for autoloading
     $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
@@ -98,7 +100,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
         $new = get_php_code($path . '.jade');
     } catch(Exception $err) {
         if($verbose) {
-            echo "! FATAL: php exception: ".str_replace("\n", "\n\t", $err)."\n";
+            echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
         }
         $new = null;
     }
@@ -106,12 +108,11 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     if($new !== null) {
         $actualHtml = get_generated_html($new);
 
-        if(strpos($name, 'indent.') === false) {
-            $from = array("\n", "\r", "\t", " ", "'", "<!DOCTYPEhtml>");
-            $to = array('', '', '', '', '"', '');
-        } else {
-            $from = array();
-            $to = array();
+        $from = array("\r\n", "'", "<!DOCTYPEhtml>");
+        $to = array("\n", '"', '');
+        if (IGNORE_INDENT && strpos($name, 'indent.') !== false) {
+            array_push($from, "\n", "\t", " ");
+            array_push($to, '', '', '');
         }
         $minifiedExpectedHtml = str_replace($from, $to, $expectedHtml);
         $minifiedActualHtml = str_replace($from, $to, $actualHtml);

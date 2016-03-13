@@ -38,10 +38,6 @@ class Compiler extends MixinVisitor
     /**
      * @var bool
      */
-    protected $prettyprint = false;
-    /**
-     * @var bool
-     */
     protected $phpSingleLine = false;
     /**
      * @var bool
@@ -59,10 +55,6 @@ class Compiler extends MixinVisitor
      * @var bool
      */
     protected $withinCase = false;
-    /**
-     * @var int
-     */
-    protected $indents = 0;
 
     /**
      * @var string
@@ -157,22 +149,6 @@ class Compiler extends MixinVisitor
         }
 
         $this->buffer[] = $line;
-    }
-
-    /**
-     * @return string
-     */
-    protected function indent()
-    {
-        return $this->prettyprint ? str_repeat('  ', $this->indents) : '';
-    }
-
-    /**
-     * @return string
-     */
-    protected function newline()
-    {
-        return $this->prettyprint ? "\n" : '';
     }
 
     /**

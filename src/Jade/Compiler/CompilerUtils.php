@@ -6,7 +6,7 @@ namespace Jade\Compiler;
  * Class Jade CompilerUtils.
  * Internal static methods of the compiler.
  */
-abstract class CompilerUtils extends CompilerConfig
+abstract class CompilerUtils extends Indenter
 {
     /**
      * @param string $call

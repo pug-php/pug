@@ -177,6 +177,12 @@ class Parser
     protected function parseText()
     {
         $token = $this->expect('text');
+        if (preg_match('/^(.*?)#\[([^\]\n]+)\]/', $token->value)) {
+            $block = new Nodes\Block();
+            $this->parseInlineTags($block, $token->value);
+
+            return $block;
+        }
         $node = new Nodes\Text($token->value);
         $node->line = $this->line();
 
@@ -460,22 +466,7 @@ class Parser
                     break;
 
                 default:
-                    $str = $indent . $this->advance()->value;
-                    while (preg_match('/^(.*?)#\[([^\]\n]+)\]/', $str, $matches)) {
-                        if (!empty($matches[1])) {
-                            $text = new Nodes\Text($matches[1]);
-                            $text->line = $this->line();
-                            $block->push($text);
-                        }
-                        $parser = $this->subParser($matches[2]);
-                        $tag = $parser->parse();
-                        $tag->line = $this->line();
-                        $block->push($tag);
-                        $str = mb_substr($str, mb_strlen($matches[0]));
-                    }
-                    $text = new Nodes\Text($str);
-                    $text->line = $this->line();
-                    $block->push($text);
+                    $this->parseInlineTags($block, $indent . $this->advance()->value);
             }
         }
 
@@ -555,6 +546,25 @@ class Parser
         return $this->tag($tag);
     }
 
+    public function parseInlineTags($block, $str)
+    {
+        while (preg_match('/^(.*?)#\[([^\]\n]+)\]/', $str, $matches)) {
+            if (!empty($matches[1])) {
+                $text = new Nodes\Text($matches[1]);
+                $text->line = $this->line();
+                $block->push($text);
+            }
+            $parser = $this->subParser($matches[2]);
+            $tag = $parser->parse();
+            $tag->line = $this->line();
+            $block->push($tag);
+            $str = mb_substr($str, mb_strlen($matches[0]));
+        }
+        $text = new Nodes\Text($str);
+        $text->line = $this->line();
+        $block->push($text);
+    }
+
     protected function tag($tag)
     {
         $tag->line = $this->line();
@@ -612,7 +622,7 @@ class Parser
 
         switch ($this->peek()->type) {
             case 'text':
-                $tag->block->push($this->parseText());
+                $this->parseInlineTags($tag->block, $this->expect('text')->value);
                 break;
 
             case 'code':
