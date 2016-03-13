@@ -30,7 +30,7 @@ class Parser
             $this->options[$key] = $this->$key;
         }
 
-        if ($filename == null && file_exists($str)) {
+        if ($filename === null && file_exists($str)) {
             $this->input = file_get_contents($str);
             $this->filename = $str;
         } else {
@@ -38,7 +38,7 @@ class Parser
             $this->filename = $filename;
         }
 
-        if ($this->input && $this->input[0] == "\xef" && $this->input[1] == "\xbb" && $this->input[2] == "\xbf") {
+        if ($this->input && $this->input[0] === "\xef" && $this->input[1] === "\xbb" && $this->input[2] === "\xbf") {
             $this->input = substr($this->input, 3);
         }
 
@@ -99,9 +99,9 @@ class Parser
         while ($this->peek()->type !== 'eos') {
             if ($this->peek()->type === 'newline') {
                 $this->advance();
-            } else {
-                $block->push($this->parseExpression());
+                continue;
             }
+            $block->push($this->parseExpression());
         }
 
         if ($parser = $this->extending) {
@@ -133,7 +133,7 @@ class Parser
         $lineNumber = $this->line();
         $lines = explode("\n", $this->input);
         $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
-        throw new \Exception(sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString));
+        throw new \Exception("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString) . "\n");
     }
 
     protected function accept($type)
@@ -242,12 +242,7 @@ class Parser
     protected function parseComment()
     {
         $token = $this->expect('comment');
-
-        if ($this->peek()->type === 'indent') {
-            $node = new Nodes\BlockComment($token->value, $this->block(), $token->buffer);
-        } else {
-            $node = new Nodes\Comment($token->value, $token->buffer);
-        }
+        $node = new Nodes\Comment($token->value, $token->buffer);
         $node->line = $this->line();
 
         return $node;
@@ -338,12 +333,14 @@ class Parser
                 default:
                     break;
             }
-        } else {
-            $block->mode = $mode;
-            $this->blocks[$name] = $block;
+
+            return $this->blocks[$name];
         }
 
-        return $this->blocks[$name];
+        $block->mode = $mode;
+        $this->blocks[$name] = $block;
+
+        return $block;
     }
 
     protected function parseInclude()
@@ -365,7 +362,7 @@ class Parser
             throw new \Exception("The included file '$path' does not exists.");
         }
 
-        if ('.jade' != substr($file, -5)) {
+        if ('.jade' !== substr($file, -5)) {
             return new Nodes\Literal($str);
         }
 
@@ -382,7 +379,7 @@ class Parser
         $this->context();
         $ast->filename = $path;
 
-        if ('indent' == $this->peek()->type) {
+        if ('indent' === $this->peek()->type) {
             // includeBlock might not be set
             $block = $ast->includeBlock();
             if (is_object($block)) {
@@ -424,15 +421,15 @@ class Parser
         $arguments = $token->arguments;
 
         // definition
-        if ('indent' == $this->peek()->type) {
+        if ('indent' === $this->peek()->type) {
             $mixin = new Nodes\Mixin($name, $arguments, $this->block(), false);
             $this->mixins[$name] = $mixin;
-        // call
-        } else {
-            $mixin = new Nodes\Mixin($name, $arguments, null, true);
+
+            return $mixin;
         }
 
-        return $mixin;
+        // call
+        return new Nodes\Mixin($name, $arguments, null, true);
     }
 
     protected function parseTextBlock()
