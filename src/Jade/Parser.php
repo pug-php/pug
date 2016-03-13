@@ -133,7 +133,7 @@ class Parser
         $lineNumber = $this->line();
         $lines = explode("\n", $this->input);
         $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
-        throw new \Exception("\n".sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString)."\n");
+        throw new \Exception("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString) . "\n");
     }
 
     protected function accept($type)
