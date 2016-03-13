@@ -242,9 +242,14 @@ class Lexer
      */
     protected function scanComment()
     {
-        if (preg_match('/^ *\/\/(-)?([^\n]*)/', $this->input, $matches)) {
+        $indent = count($this->indentStack) ? end($this->indentStack) : 0;
+        if (preg_match('/^ *\/\/(-)?([^\n]*(\n+[ \t]{' . ($indent + 1) . ',}[^\n]*)*)/', $this->input, $matches)) {
             $this->consume($matches[0]);
-            $token = $this->token('comment', isset($matches[2]) ? $matches[2] : '');
+            $value = isset($matches[2]) ? $matches[2] : '';
+            if (isset($matches[3])) {
+                $value .= "\n";
+            }
+            $token = $this->token('comment', $value);
             $token->buffer = '-' !== $matches[1];
 
             return $token;
