@@ -64,12 +64,13 @@ abstract class TagVisitor extends Visitor
             (!$tag->canInline() && $this->prettyprint && !$tag->isInline())
         );
 
-        $this->tempPrettyPrint($prettyprint, function () use ($tag, $selfClosing) {
-            $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
+        $visitor = $this;
+        $this->tempPrettyPrint($prettyprint, function () use ($visitor, $tag, $selfClosing) {
+            $visitor->visitTagAttributes($tag, (!$selfClosing || $visitor->terse) ? '>' : ' />');
 
             if (!$selfClosing) {
-                $this->visitTagContents($tag);
-                $this->buffer('</' . $tag->name . '>');
+                $visitor->visitTagContents($tag);
+                $visitor->buffer('</' . $tag->name . '>');
             }
         });
 
