@@ -42,14 +42,11 @@ abstract class Indenter extends CompilerConfig
      *
      * @return mixed
      */
-    protected function tempPrettyPrint($newSetting, $callback)
+    protected function tempPrettyPrint($newSetting, $method)
     {
-        if ($newSetting === $this->prettyprint) {
-            return call_user_func($callback);
-        }
         $previousSetting = $this->prettyprint;
         $this->prettyprint = $newSetting;
-        $result = call_user_func($callback);
+        $result = call_user_func_array(array($this, $method), array_slice(func_get_args(), 2));
         $this->prettyprint = $previousSetting;
 
         return $result;

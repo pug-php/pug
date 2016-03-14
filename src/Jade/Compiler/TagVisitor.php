@@ -53,26 +53,30 @@ abstract class TagVisitor extends Visitor
     /**
      * @param Nodes\Tag $tag
      */
+    protected function compileTag(Tag $tag)
+    {
+        $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
+        $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
+
+        if (!$selfClosing) {
+            $this->visitTagContents($tag);
+            $this->buffer('</' . $tag->name . '>');
+        }
+    }
+
+    /**
+     * @param Nodes\Tag $tag
+     */
     protected function visitTag(Tag $tag)
     {
         $this->initTagName($tag);
-
-        $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
 
         $prettyprint = (
             $tag->keepWhiteSpaces() ||
             (!$tag->canInline() && $this->prettyprint && !$tag->isInline())
         );
 
-        $visitor = $this;
-        $this->tempPrettyPrint($prettyprint, function () use ($visitor, $tag, $selfClosing) {
-            $visitor->visitTagAttributes($tag, (!$selfClosing || $visitor->terse) ? '>' : ' />');
-
-            if (!$selfClosing) {
-                $visitor->visitTagContents($tag);
-                $visitor->buffer('</' . $tag->name . '>');
-            }
-        });
+        $this->tempPrettyPrint($prettyprint, 'compileTag', $tag);
 
         if (!$prettyprint && $this->prettyprint && !$tag->isInline()) {
             $this->buffer($this->newline());
