@@ -4,7 +4,7 @@ namespace Jade\Nodes;
 
 class Tag extends Attributes
 {
-    protected static $inline_tags = array(
+    protected static $inlineTags = array(
         'a',
         'abbr',
         'acronym',
@@ -25,6 +25,11 @@ class Tag extends Attributes
         'sub',
         'sup',
     );
+    protected static $whiteSpacesTags = array(
+        'pre',
+        'script',
+        'textarea',
+    );
     public $name;
     public $attributes;
     public $block;
@@ -43,7 +48,12 @@ class Tag extends Attributes
 
     public function isInline()
     {
-        return in_array($this->name, static::$inline_tags);
+        return in_array($this->name, static::$inlineTags);
+    }
+
+    public function keepWhiteSpaces()
+    {
+        return in_array($this->name, static::$whiteSpacesTags);
     }
 
     public function canInline()

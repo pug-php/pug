@@ -817,7 +817,7 @@ class Lexer
 
             $this->consume($str);
 
-            return $this->token('text', $str);
+            return $this->token('text', ltrim($str));
         }
     }
 

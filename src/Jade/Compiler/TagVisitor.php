@@ -42,15 +42,12 @@ abstract class TagVisitor extends Visitor
      */
     protected function visitTagContents(Tag $tag)
     {
-        $prettyprint = !$tag->canInline() && $this->prettyprint && $tag-isInline();
-        $this->tempPrettyPrint($prettyprint, function () use ($tag) {
-            $this->indents++;
-            if (isset($tag->code)) {
-                $this->visitCode($tag->code);
-            }
-            $this->visit($tag->block);
-            $this->indents--;
-        });
+        $this->indents++;
+        if (isset($tag->code)) {
+            $this->visitCode($tag->code);
+        }
+        $this->visit($tag->block);
+        $this->indents--;
     }
 
     /**
@@ -62,7 +59,12 @@ abstract class TagVisitor extends Visitor
 
         $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
 
-        $this->tempPrettyPrint($tag->name === 'pre', function () use ($tag, $selfClosing) {
+        $prettyprint = (
+            $tag->keepWhiteSpaces() ||
+            (!$tag->canInline() && $this->prettyprint && !$tag->isInline())
+        );
+
+        $this->tempPrettyPrint($prettyprint, function () use ($tag, $selfClosing) {
             $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
 
             if (!$selfClosing) {
@@ -70,5 +72,9 @@ abstract class TagVisitor extends Visitor
                 $this->buffer('</' . $tag->name . '>');
             }
         });
+
+        if (!$prettyprint && $this->prettyprint && !$tag->isInline()) {
+            $this->buffer($this->newline());
+        }
     }
 }
