@@ -254,10 +254,8 @@ abstract class Visitor extends CompilerFacade
     /**
      * @param $attributes
      */
-    protected function visitAttributes($attributes)
+    protected function compileAttributes($attributes)
     {
-        $prettyprint = $this->prettyprint;
-        $this->prettyprint = false;
         $items = array();
         $classes = array();
         $classesCheck = array();
@@ -347,8 +345,15 @@ abstract class Visitor extends CompilerFacade
             $items[] = $item . $this->createCode('}');
         }
 
-        $this->prettyprint = $prettyprint;
-
         $this->buffer(' ' . trim(implode('', $items)), false);
+    }
+
+    /**
+     * @param $attributes
+     */
+    protected function visitAttributes($attributes)
+    {
+        $visitor = $this;
+        $this->tempPrettyPrint(false, 'compileAttributes', $attributes);
     }
 }

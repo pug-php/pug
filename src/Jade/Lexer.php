@@ -339,24 +339,6 @@ class Lexer
         return $this->scan('/^\.([\w-]+)/', 'class');
     }
 
-    protected function scanInlineTag()
-    {
-        if (preg_match('/^(?:\| ?| ?)?([^\n]*?)#\[([^\]\n]+)\]/', $this->input, $matches)) {
-            if (mb_substr($matches[0], 0, 1) !== '|') {
-                $this->lastTagIndent = count($this->indentStack) ? $this->indentStack[0] : 0;
-            }
-            $end = mb_substr($this->input, mb_strlen($matches[0]));
-            $indents = $this->lastTagIndent + 2;
-            $newLine = "\n" . str_repeat(' ', $indents);
-            $this->input =
-                $newLine . '| ' . ltrim($matches[1]) .
-                $newLine . ltrim($matches[2]) .
-                $newLine . '| ' . $end;
-
-            return $this->next();
-        }
-    }
-
     /**
      * @return object
      */
@@ -840,7 +822,7 @@ class Lexer
 
             $this->consume($str);
 
-            return $this->token('text', $str);
+            return $this->token('text', ltrim($str));
         }
     }
 
@@ -895,7 +877,6 @@ class Lexer
         or $r = $this->scanComment()
         or $r = $this->scanColon()
         or $r = $this->scanAndAttributes()
-        or $r = $this->scanInlineTag()
         or $r = $this->scanText();
 
         return $r;

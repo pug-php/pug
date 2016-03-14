@@ -61,16 +61,12 @@ mixin centered(title)
         $jade = new Jade(array(
             'prettyprint' => true,
         ));
-        $actual = trim(preg_replace('`[ \t]+`', ' ', preg_replace('`\n( +\n)+`', "\n", str_replace("\r", '', $jade->render($template)))));
-        $expected = str_replace("\r", '', trim('
- <div id=\'Second\' class=\'centered\'>
- <h1 >
- Section 1 ' . '
- </h1>
-<p>
- Some important content.
-</p>
- </div>
+        $actual = trim(preg_replace('`[ \t]+`', ' ', preg_replace('`\n\s*`', "\n", str_replace("\r\n", "\n", $jade->render($template)))));
+        $expected = str_replace("\r\n", "\n", trim('
+<div id=\'Second\' class=\'centered\'>
+<h1 >Section 1</h1> ' . '
+<p>Some important content.</p>
+</div>
 '));
 
         $this->assertSame($actual, $expected, 'Pretty print enabled');
