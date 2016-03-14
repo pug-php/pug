@@ -51,6 +51,7 @@ abstract class Indenter extends CompilerConfig
         $this->prettyprint = $newSetting;
         $result = call_user_func($callback);
         $this->prettyprint = $previousSetting;
+
         return $result;
     }
 }
