@@ -2,8 +2,6 @@
 
 namespace Jade\Nodes;
 
-use Jade\Compiler;
-
 class Tag extends Attributes
 {
     protected static $inlineTags = array(

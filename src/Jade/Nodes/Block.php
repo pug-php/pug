@@ -2,8 +2,6 @@
 
 namespace Jade\Nodes;
 
-use Jade\Compiler;
-
 class Block extends Node
 {
     public $isBlock = true;
