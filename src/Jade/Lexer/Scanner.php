@@ -277,9 +277,9 @@ abstract class Scanner extends InputHandler
             $token = $this->token('call', $matches[1]);
 
             // check for arguments
-            if (preg_match('/^ *\((.*?)\)/', $this->input, $matches_arguments)) {
-                $this->consume($matches_arguments[0]);
-                $token->arguments = $matches_arguments[1];
+            if (preg_match('/^ *\((.*?)\)/', $this->input, $matchesArguments)) {
+                $this->consume($matchesArguments[0]);
+                $token->arguments = $matchesArguments[1];
             }
 
             return $token;
@@ -390,8 +390,6 @@ abstract class Scanner extends InputHandler
             };
 
             $interpolate = function ($attr) use (&$quote) {
-                // the global flag is turned on by default
-                // TODO: check the +, maybe it is better to use . here
                 return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' . $1 . ' . $quote, $attr));
             };
 

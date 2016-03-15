@@ -67,18 +67,18 @@ abstract class InputHandler
             return preg_match($this->identRE, $this->input, $matches) ? $matches : null;
         }
 
-        $re = "/^\n(" . ($this->allowMixedIndent ? '[\t ]*' : '\t*') . ')/';
-        $ok = preg_match($re, $this->input, $matches);
+        $indent = "/^\n(" . ($this->allowMixedIndent ? '[\t ]*' : '\t*') . ')/';
+        $found = preg_match($indent, $this->input, $matches);
 
-        if ($ok && mb_strlen($matches[1]) == 0) {
-            $re = "/^\n( *)/";
-            $ok = preg_match($re, $this->input, $matches);
+        if ($found && mb_strlen($matches[1]) == 0) {
+            $indent = "/^\n( *)/";
+            $found = preg_match($indent, $this->input, $matches);
         }
 
-        if ($ok && mb_strlen($matches[1]) != 0) {
-            $this->identRE = $re;
+        if ($found && mb_strlen($matches[1]) != 0) {
+            $this->identRE = $indent;
         }
 
-        return $ok ? $matches : null;
+        return $found ? $matches : null;
     }
 }
