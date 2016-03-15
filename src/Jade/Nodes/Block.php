@@ -77,15 +77,4 @@ class Block extends Node
 
         return $ret;
     }
-
-    public function interpolate(Compiler $compiler = null)
-    {
-        return array_reduce($this->nodes, function ($result, $line) use ($compiler) {
-            $val = isset($line->value)
-                ? ($compiler ? $compiler->interpolate($line->value) : $line->value)
-                : $line->interpolate($compiler);
-
-            return $result . $val . "\n";
-        });
-    }
 }

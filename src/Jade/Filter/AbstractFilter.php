@@ -22,6 +22,11 @@ abstract class AbstractFilter implements FilterInterface
      */
     protected function getNodeString(Filter $node, Compiler $compiler = null)
     {
-        return $node->block->interpolate($compiler);
+        return array_reduce($node->block->nodes, function ($result, $line) use ($compiler) {
+            return $result . ($compiler
+                ? $compiler->interpolate($line->value)
+                : $line->value
+            ) . "\n";
+        });
     }
 }

@@ -114,11 +114,4 @@ class Tag extends Attributes
 
         return false;
     }
-
-    public function interpolate(Compiler $compiler = null)
-    {
-        return isset($this->block)
-            ? $this->block->interpolate($compiler)
-            : '';
-    }
 }
