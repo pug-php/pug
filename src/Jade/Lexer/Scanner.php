@@ -272,7 +272,6 @@ abstract class Scanner extends InputHandler
     protected function scanCall()
     {
         if (preg_match('/^\+(\w[-\w]*)/', $this->input, $matches)) {
-            static $i = 0;
             $this->consume($matches[0]);
             $token = $this->token('call', $matches[1]);
 
@@ -613,13 +612,13 @@ abstract class Scanner extends InputHandler
     protected function scanPipelessText()
     {
         if ($this->pipeless && "\n" != $this->input[0]) {
-            $i = mb_strpos($this->input, "\n");
+            $pos = mb_strpos($this->input, "\n");
 
-            if ($i === false) {
-                $i = $this->length();
+            if ($pos === false) {
+                $pos = $this->length();
             }
 
-            $str = mb_substr($this->input, 0, $i); // do not include the \n char
+            $str = mb_substr($this->input, 0, $pos); // do not include the \n char
 
             $this->consume($str);
 
