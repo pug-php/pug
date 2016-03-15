@@ -26,6 +26,12 @@ composer install
 ```
 [kylekatarnls/jade-php on packagist.org](https://packagist.org/packages/kylekatarnls/jade-php)
 
+### Jade in your favorite framework
+
+Phalcon: https://github.com/kylekatarnls/jade-phalcon
+Symfony: https://github.com/kylekatarnls/jade-symfony
+CodeIgniter: https://github.com/kylekatarnls/ci-jade
+
 ## What's new ?
 
 #### Jade options
