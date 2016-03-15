@@ -92,16 +92,6 @@ class Compiler extends MixinVisitor
      *
      * @return bool
      */
-    protected function getFilterClassName($name)
-    {
-        return 'Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
-    }
-
-    /**
-     * @param $name
-     *
-     * @return bool
-     */
     protected function getFilter($name)
     {
         // Check that filter is registered
