@@ -21,6 +21,7 @@ class Jade
         'allowMixedIndent'   => true,
         'keepNullAttributes' => false,
         'singleQuote'        => true,
+        'filterAutoLoad'     => true,
     );
 
     /**
@@ -77,7 +78,10 @@ class Jade
      */
     public function hasFilter($name)
     {
-        return array_key_exists($name, $this->filters);
+        return array_key_exists($name, $this->filters) || (
+            $this->options['filterAutoLoad'] &&
+            class_exists('Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name))))
+        );
     }
 
     /**

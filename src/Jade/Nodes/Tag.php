@@ -2,6 +2,8 @@
 
 namespace Jade\Nodes;
 
+use Jade\Compiler;
+
 class Tag extends Attributes
 {
     protected static $inlineTags = array(
@@ -111,5 +113,12 @@ class Tag extends Attributes
         }
 
         return false;
+    }
+
+    public function interpolate(Compiler $compiler = null)
+    {
+        return isset($this->block)
+            ? $this->block->interpolate($compiler)
+            : '';
     }
 }

@@ -50,6 +50,10 @@ class Compiler extends MixinVisitor
     /**
      * @var bool
      */
+    protected $filterAutoLoad = true;
+    /**
+     * @var bool
+     */
     protected $terse = true;
     /**
      * @var bool
@@ -72,6 +76,7 @@ class Compiler extends MixinVisitor
             'phpSingleLine',
             'allowMixinOverride',
             'keepNullAttributes',
+            'filterAutoLoad',
         ) as $option) {
             if (isset($options[$option])) {
                 $this->$option = (bool) $options[$option];
@@ -80,6 +85,37 @@ class Compiler extends MixinVisitor
         $this->options = $options;
         $this->filters = $filters;
         $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    protected function getFilterClassName($name)
+    {
+        return 'Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    protected function getFilter($name)
+    {
+        // Check that filter is registered
+        if (array_key_exists($name, $this->filters)) {
+            return $this->filters[$name];
+        }
+
+        // Else check if a class with a name that match can be loaded
+        $filter = 'Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
+        if (class_exists($filter)) {
+            return $filter;
+        }
+
+        throw new \InvalidArgumentException($name . ': Filter doesn\'t exists');
     }
 
     /**

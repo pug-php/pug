@@ -113,7 +113,7 @@ abstract class Scanner extends InputHandler
      */
     protected function scanFilter()
     {
-        return $this->scan('/^(?<!:):(?!:)(\w+)/', 'filter');
+        return $this->scan('/^(?<!:):(?!:)(\w+(?:-\w+)*)/', 'filter');
     }
 
     /**
