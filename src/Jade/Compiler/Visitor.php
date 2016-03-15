@@ -157,12 +157,7 @@ abstract class Visitor extends CompilerFacade
      */
     protected function visitFilter(Filter $node)
     {
-        // Check that filter is registered
-        if (!array_key_exists($node->name, $this->filters)) {
-            throw new \InvalidArgumentException($node->name . ': Filter doesn\'t exists');
-        }
-
-        $filter = $this->filters[$node->name];
+        $filter = $this->getFilter($node->name);
 
         // Filters can be either a iFilter implementation, nor a callable
         if (is_string($filter) && class_exists($filter)) {

@@ -30,7 +30,7 @@ div
 ');
         $expected = '<div><p>article foo bar section</p>form em strong quote code</div>';
 
-        $this->assertSame(str_replace(' ', '', $actual), str_replace(' ', '', $expected), 'Custom filter');
+        $this->assertSame(str_replace(' ', '', $expected), str_replace(' ', '', $actual), 'Custom filter');
     }
 
     /**
@@ -46,6 +46,45 @@ div
 div
     p
         :bar
+            article <span>foo</span> bar <img title="foo" />
+            <div>section</div>
+');
+    }
+
+    public function testFilterAutoload() {
+
+        $jade = new Jade();
+        $this->assertFalse($jade->hasFilter('foo-bar'));
+        spl_autoload_register(function ($name) {
+            $name = explode('\\', $name);
+            $file = __DIR__ . '/../lib/' . end($name) . 'Filter.php';
+            if (file_exists($file)) {
+                include $file;
+            }
+        });
+        $this->assertTrue($jade->hasFilter('foo-bar'));
+        $actual = $jade->render('
+div
+    p
+        :foo-bar
+            I\'m so small :(
+');
+        $expected = '<div><p>I\'M SO TALL :)</p></div>';
+
+        $this->assertSame(preg_replace('`\s`', '', $expected), preg_replace('`\s`', '', $actual), 'Autoloaded filter');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFilterAutoloadWhenClassDoNotExist() {
+
+        $jade = new Jade();
+        $this->assertFalse($jade->hasFilter('bar-foo'));
+        $actual = $jade->render('
+div
+    p
+        :bar-foo
             article <span>foo</span> bar <img title="foo" />
             <div>section</div>
 ');
