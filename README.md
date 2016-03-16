@@ -32,9 +32,7 @@ Phalcon: https://github.com/kylekatarnls/jade-phalcon
 Symfony: https://github.com/kylekatarnls/jade-symfony
 CodeIgniter: https://github.com/kylekatarnls/ci-jade
 
-## What's new ?
-
-#### Jade options
+### Jade options
 
 Jade options should be passed to the Jade construction
 
@@ -46,15 +44,16 @@ $jade = new Jade(array(
 );
 ```
 
-#### Supports for local variables
+### Supports for local variables
 
 ```php
-$data['title'] = 'Hello World';
 $jade = new Jade();
-$output = $jade->render('file', $data);
+$output = $jade->render('file', array(
+	'title' => 'Hello World'
+));
 ```
 
-#### Supports for custom filters
+### Supports for custom filters
 
 Filters must be callable: It can be a class that implements the __invoke() method, or an anonymous function.
 
@@ -70,10 +69,19 @@ $jade->filter('escaped', function($node, $compiler){
 	return htmlentities(implode("\n", $output));
 });
 ```
-**Built-in filters**:
+
+#### Built-in filters
 
 * :css
 * :php
 * :javascript
 * :escaped
 * :cdata
+
+#### Install other filters with composer
+
+http://jade-filters.selfbuild.fr/
+
+#### Publish your own filter
+
+https://github.com/kylekatarnls/jade-filter-base#readme
