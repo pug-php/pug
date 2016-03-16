@@ -362,9 +362,9 @@ class Compiler extends MixinVisitor
             return $arguments;
         };
 
-        $get_next = function ($i) use ($separators) {
-            if (isset($separators[$i + 1])) {
-                return $separators[$i + 1];
+        $getNext = function ($index) use ($separators) {
+            if (isset($separators[$index + 1])) {
+                return $separators[$index + 1];
             }
         };
 
@@ -378,17 +378,17 @@ class Compiler extends MixinVisitor
                 break;
             } // end of string
 
-            $name = $get_middle_string($sep, $get_next(key($separators)));
+            $name = $get_middle_string($sep, $getNext(key($separators)));
 
-            $v = "\$__{$ns}";
+            $var = "\$__{$ns}";
             switch ($sep[0]) {
                 // translate the javascript's obj.attr into php's obj->attr or obj['attr']
                 /*
                 case '.':
                     $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
-                        $v, $varname, $varname, $name, $varname, $name
+                        $var, $varname, $varname, $name, $varname, $name
                     );
-                    $varname = $v;
+                    $varname = $var;
                     break;
                 //*/
 
@@ -399,11 +399,11 @@ class Compiler extends MixinVisitor
                     $cs = current($separators);
                     $call = static::addDollarIfNeeded($call);
                     while ($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
-                        $call .= $cs[0] . $get_middle_string(current($separators), $get_next(key($separators)));
+                        $call .= $cs[0] . $get_middle_string(current($separators), $getNext(key($separators)));
                         $cs = next($separators);
                     }
-                    $varname = $v;
-                    array_push($result, "{$v}={$call}");
+                    $varname = $var;
+                    array_push($result, "{$var}={$call}");
 
                     break;
 
@@ -511,13 +511,12 @@ class Compiler extends MixinVisitor
             return $text;
         }
 
-        $i = 1; // str_replace need a pass-by-ref
-        foreach ($matches as $m) {
+        foreach ($matches as $match) {
 
             // \#{dont_do_interpolation}
-            if (mb_strlen($m[1]) == 0) {
-                $code_str = $this->createCode($m[2] == '!' ? static::UNESCAPED : static::ESCAPED, $m[3]);
-                $text = str_replace($m[0], $code_str, $text, $i);
+            if (mb_strlen($match[1]) == 0) {
+                $code_str = $this->createCode($match[2] == '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
+                $text = str_replace($match[0], $code_str, $text);
             }
         }
 
