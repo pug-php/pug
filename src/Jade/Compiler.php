@@ -220,13 +220,13 @@ class Compiler extends MixinVisitor
 
     /**
      * @param        $input
-     * @param string $ns
+     * @param string $name
      *
      * @throws \Exception
      *
      * @return array
      */
-    public function handleCode($input, $ns = '')
+    public function handleCode($input, $name = '')
     {
         if (!is_string($input)) {
             throw new \Exception('Expecting a string of PHP, got: ' . gettype($input));
@@ -279,7 +279,7 @@ class Compiler extends MixinVisitor
             $varname = static::addDollarIfNeeded($varname);
         }
 
-        $get_middle_string = function ($start, $end) use ($input) {
+        $getMiddleString = function ($start, $end) use ($input) {
             $offset = $start[1] + strlen($start[0]);
 
             return substr(
@@ -290,15 +290,15 @@ class Compiler extends MixinVisitor
         };
 
         $host = $this;
-        $handleRecursion = function ($arg, $ns = '') use ($input, &$result, $host, $get_middle_string) {
+        $handleRecursion = function ($arg, $name = '') use ($input, &$result, $host, $getMiddleString) {
             list($start, $end) = $arg;
-            $str = trim($get_middle_string($start, $end));
+            $str = trim($getMiddleString($start, $end));
 
             if (!strlen($str)) {
                 return '';
             }
 
-            $_code = $host->handleCode($str, $ns);
+            $_code = $host->handleCode($str, $name);
 
             if (count($_code) > 1) {
                 $result = array_merge($result, array_slice($_code, 0, -1));
@@ -309,7 +309,7 @@ class Compiler extends MixinVisitor
             return $_code[0];
         };
 
-        $handleCodeInbetween = function () use (&$separators, $ns, $handleRecursion, $input) {
+        $handleCodeInbetween = function () use (&$separators, $name, $handleRecursion, $input) {
             $arguments = array();
             $count = 1;
 
@@ -344,8 +344,8 @@ class Compiler extends MixinVisitor
                 $end = current($separators);
 
                 if ($end != false && $start[1] != $end[1]) {
-                    $tmp_ns = $ns * 10 + count($arguments);
-                    $arg = $handleRecursion(array($start, $end), $tmp_ns);
+                    $tmpName = $name * 10 + count($arguments);
+                    $arg = $handleRecursion(array($start, $end), $tmpName);
 
                     array_push($arguments, $arg);
                 }
@@ -378,15 +378,15 @@ class Compiler extends MixinVisitor
                 break;
             } // end of string
 
-            $name = $get_middle_string($sep, $getNext(key($separators)));
+            $_name = $getMiddleString($sep, $getNext(key($separators)));
 
-            $var = "\$__{$ns}";
+            $var = "\$__{$name}";
             switch ($sep[0]) {
                 // translate the javascript's obj.attr into php's obj->attr or obj['attr']
                 /*
                 case '.':
                     $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
-                        $var, $varname, $varname, $name, $varname, $name
+                        $var, $varname, $varname, $_name, $varname, $_name
                     );
                     $varname = $var;
                     break;
@@ -396,11 +396,11 @@ class Compiler extends MixinVisitor
                 case '(':
                     $arguments = $handleCodeInbetween();
                     $call = $varname . '(' . implode(', ', $arguments) . ')';
-                    $cs = current($separators);
+                    $currentSeparator = current($separators);
                     $call = static::addDollarIfNeeded($call);
-                    while ($cs && ($cs[0] == '->' || $cs[0] == '(' || $cs[0] == ')')) {
-                        $call .= $cs[0] . $get_middle_string(current($separators), $getNext(key($separators)));
-                        $cs = next($separators);
+                    while ($currentSeparator && ($currentSeparator[0] == '->' || $currentSeparator[0] == '(' || $currentSeparator[0] == ')')) {
+                        $call .= $currentSeparator[0] . $getMiddleString(current($separators), $getNext(key($separators)));
+                        $currentSeparator = next($separators);
                     }
                     $varname = $var;
                     array_push($result, "{$var}={$call}");
@@ -424,7 +424,7 @@ class Compiler extends MixinVisitor
                     break;*/
 
                 case '=':
-                    if (preg_match('/^[[:space:]]*$/', $name)) {
+                    if (preg_match('/^[[:space:]]*$/', $_name)) {
                         next($separators);
                         $arguments = $handleCodeInbetween();
                         $varname .= ' = ' . implode($arguments);
@@ -435,8 +435,8 @@ class Compiler extends MixinVisitor
                     break;
 
                 default:
-                    if (($name !== false && $name !== '') || $sep[0] != ')') {
-                        $varname .= $sep[0] . $name;
+                    if (($_name !== false && $_name !== '') || $sep[0] != ')') {
+                        $varname .= $sep[0] . $_name;
                     }
                     break;
             }
@@ -458,7 +458,7 @@ class Compiler extends MixinVisitor
     public function handleString($input)
     {
         $result = array();
-        $results_string = array();
+        $resultsString = array();
 
         $separators = preg_split(
             '/[+](?!\\()/', // concatenation operator - only js
@@ -484,16 +484,16 @@ class Compiler extends MixinVisitor
                 if (mb_strlen(trim($match[3]))) {
                     throw new \Exception('Unexpected value: ' . $match[3]);
                 }
-                array_push($results_string, $match[1]);
+                array_push($resultsString, $match[1]);
             } else {
                 $code = $this->handleCode($part[0]);
 
                 $result = array_merge($result, array_slice($code, 0, -1));
-                array_push($results_string, array_pop($code));
+                array_push($resultsString, array_pop($code));
             }
         }
 
-        array_push($result, implode(' . ', $results_string));
+        array_push($result, implode(' . ', $resultsString));
 
         return $result;
     }
@@ -505,9 +505,9 @@ class Compiler extends MixinVisitor
      */
     public function interpolate($text)
     {
-        $ok = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
+        $count = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
 
-        if (!$ok) {
+        if (!$count) {
             return $text;
         }
 
@@ -515,8 +515,8 @@ class Compiler extends MixinVisitor
 
             // \#{dont_do_interpolation}
             if (mb_strlen($match[1]) == 0) {
-                $code_str = $this->createCode($match[2] == '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
-                $text = str_replace($match[0], $code_str, $text);
+                $code = $this->createCode($match[2] == '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
+                $text = str_replace($match[0], $code, $text);
             }
         }
 
@@ -597,28 +597,28 @@ class Compiler extends MixinVisitor
             return '<?php ' . $code . ' ' . $this->closingTag();
         }
 
-        $code_format = array_pop($statements);
-        array_unshift($code_format, $code);
+        $codeFormat = array_pop($statements);
+        array_unshift($codeFormat, $code);
 
         if (count($statements) == 0) {
-            $php_string = call_user_func_array('sprintf', $code_format);
+            $phpString = call_user_func_array('sprintf', $codeFormat);
 
-            return '<?php ' . $php_string . ' ' . $this->closingTag();
+            return '<?php ' . $phpString . ' ' . $this->closingTag();
         }
 
-        $stmt_string = '';
+        $stmtString = '';
         foreach ($statements as $stmt) {
-            $stmt_string .= $this->newline() . $this->indent() . $stmt . ';';
+            $stmtString .= $this->newline() . $this->indent() . $stmt . ';';
         }
 
-        $stmt_string .= $this->newline() . $this->indent();
-        $stmt_string .= call_user_func_array('sprintf', $code_format);
+        $stmtString .= $this->newline() . $this->indent();
+        $stmtString .= call_user_func_array('sprintf', $codeFormat);
 
-        $php_str = '<?php ';
-        $php_str .= $stmt_string;
-        $php_str .= $this->newline() . $this->indent() . ' ' . $this->closingTag();
+        $phpString = '<?php ';
+        $phpString .= $stmtString;
+        $phpString .= $this->newline() . $this->indent() . ' ' . $this->closingTag();
 
-        return $php_str;
+        return $phpString;
     }
 
     /**
