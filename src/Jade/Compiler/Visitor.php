@@ -10,7 +10,6 @@ use Jade\Nodes\Doctype;
 use Jade\Nodes\Each;
 use Jade\Nodes\Filter;
 use Jade\Nodes\Literal;
-use Jade\Nodes\MixinBlock;
 use Jade\Nodes\Node;
 use Jade\Nodes\When;
 
@@ -142,7 +141,7 @@ abstract class Visitor extends AttributesCompiler
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinBlock(MixinBlock $mixinBlock)
+    protected function visitMixinBlock()
     {
         $name = var_export($this->visitedMixin->name, true);
         $code = $this->createCode("\\Jade\\Compiler::callMixinBlock($name, \$attributes);");
@@ -250,7 +249,6 @@ abstract class Visitor extends AttributesCompiler
      */
     protected function visitAttributes($attributes)
     {
-        $visitor = $this;
         $this->tempPrettyPrint(false, 'compileAttributes', $attributes);
     }
 }
