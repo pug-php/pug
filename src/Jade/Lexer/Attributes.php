@@ -16,7 +16,7 @@ class Attributes extends InputHandler
 
     public function parseQuote(&$states, $state, &$val, &$quote, $char)
     {
-		switch ($state()) {
+        switch ($state()) {
             case 'key':
                 array_push($states, 'key char');
                 break;
@@ -42,7 +42,7 @@ class Attributes extends InputHandler
 
     public function parseSpace(&$states, $state, $interpolate, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
     {
-    	switch ($state()) {
+        switch ($state()) {
             case 'expr':
             case 'array':
             case 'string':
