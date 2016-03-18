@@ -68,6 +68,7 @@ abstract class AttributesCompiler extends CompilerFacade
 
             $statements = $this->createStatements($value);
             $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+
             return 'null';
         }
 
@@ -76,6 +77,7 @@ abstract class AttributesCompiler extends CompilerFacade
         }
 
         $valueCheck = $value;
+
         return $this->createCode(static::UNESCAPED, '$__value');
     }
 
