@@ -5,7 +5,7 @@ namespace Jade\Lexer;
 /**
  * Class Jade\Lexer\Scanner.
  */
-abstract class Scanner extends InputHandler
+abstract class Scanner extends IndentScanner
 {
     /**
      *  Helper to create tokens.
@@ -16,41 +16,6 @@ abstract class Scanner extends InputHandler
             $this->consume($matches[0]);
 
             return $this->token($type, isset($matches[1]) && mb_strlen($matches[1]) > 0 ? $matches[1] : '');
-        }
-    }
-
-    /**
-     * Scan EOS from input & return it if found.
-     *
-     * @return object|null
-     */
-    protected function scanEOS()
-    {
-        if (!$this->length()) {
-            if (count($this->indentStack)) {
-                array_shift($this->indentStack);
-
-                return $this->token('outdent');
-            }
-
-            return $this->token('eos');
-        }
-    }
-
-    /**
-     * @return object
-     */
-    protected function scanBlank()
-    {
-        if (preg_match('/^\n *\n/', $this->input, $matches)) {
-            $this->consume(mb_substr($matches[0], 0, -1)); // do not cosume the last \r
-            $this->lineno++;
-
-            if ($this->pipeless) {
-                return $this->token('text', '');
-            }
-
-            return $this->next();
         }
     }
 
@@ -383,52 +348,6 @@ abstract class Scanner extends InputHandler
             }
 
             return $token;
-        }
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @return mixed|object
-     */
-    protected function scanIndent()
-    {
-        $matches = $this->getNextIndent();
-
-        if ($matches !== null) {
-            $indents = mb_strlen($matches[1]);
-
-            $this->lineno++;
-            $this->consume($matches[0]);
-
-            if ($this->length() && (' ' == $this->input[0] || "\t" == $this->input[0])) {
-                throw new \Exception('Invalid indentation, you can use tabs or spaces but not both');
-            }
-
-            if ($this->length() && $this->input[0] === "\n") {
-                return $this->token('newline');
-            }
-
-            if (count($this->indentStack) && $indents < $this->indentStack[0]) {
-                while (count($this->indentStack) && $indents < $this->indentStack[0]) {
-                    array_push($this->stash, $this->token('outdent'));
-                    array_shift($this->indentStack);
-                }
-
-                return array_pop($this->stash);
-            }
-
-            if ($indents && count($this->indentStack) && $indents == $this->indentStack[0]) {
-                return $this->token('newline');
-            }
-
-            if ($indents) {
-                array_unshift($this->indentStack, $indents);
-
-                return $this->token('indent', $indents);
-            }
-
-            return $this->token('newline');
         }
     }
 
