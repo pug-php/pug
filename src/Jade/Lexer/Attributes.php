@@ -88,7 +88,6 @@ class Attributes extends InputHandler
     public function parseWith($str)
     {
         $parser = $this;
-        $token = $this->token;
 
         $key = '';
         $val = '';
@@ -106,7 +105,7 @@ class Attributes extends InputHandler
             return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' . $1 . ' . $quote, $attr));
         };
 
-        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$token, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
+        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
             switch ($char) {
                 case ',':
                 case "\n":
