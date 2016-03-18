@@ -14,7 +14,7 @@ use Jade\Nodes\MixinBlock;
 use Jade\Nodes\Node;
 use Jade\Nodes\When;
 
-abstract class Visitor extends CompilerFacade
+abstract class Visitor extends AttributesCompiler
 {
     /**
      * @param Nodes\Node $node
@@ -243,103 +243,6 @@ abstract class Visitor extends CompilerFacade
 
             $this->buffer($this->createCode('}'));
         }
-    }
-
-    /**
-     * @param $attributes
-     */
-    protected function compileAttributes($attributes)
-    {
-        $items = array();
-        $classes = array();
-        $classesCheck = array();
-        $quote = var_export($this->quote, true);
-
-        foreach ($attributes as $attr) {
-            $key = trim($attr['name']);
-            if ($key === '&attributes') {
-                $addClasses = '';
-                if (count($classes) || count($classesCheck)) {
-                    foreach ($classes as &$value) {
-                        $value = var_export($value, true);
-                    }
-                    foreach ($classesCheck as $value) {
-                        $statements = $this->createStatements($value);
-                        $classes[] = $statements[0][0];
-                    }
-                    $addClasses = '$__attributes["class"] = ' .
-                        'implode(" ", array(' . implode(', ', $classes) . ')) . ' .
-                        '(empty($__attributes["class"]) ? "" : " " . $__attributes["class"]); ';
-                    $classes = array();
-                    $classesCheck = array();
-                }
-                $value = empty($attr['value']) ? 'attributes' : $attr['value'];
-                $statements = $this->createStatements($value);
-                $items[] = $this->createCode(
-                    '$__attributes = ' . $statements[0][0] . ';' .
-                    $addClasses .
-                    '\\Jade\\Compiler::displayAttributes($__attributes, ' . $quote . ');');
-            } else {
-                $valueCheck = null;
-                $value = trim($attr['value']);
-
-                if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
-                    $value = trim($value, ' \'"');
-                    if ($value === 'undefined') {
-                        $value = 'null';
-                    }
-                } else {
-                    $json = static::parseValue($value);
-
-                    if ($json !== null && is_array($json) && $key == 'class') {
-                        $value = implode(' ', $json);
-                    } elseif ($key == 'class') {
-                        if ($this->keepNullAttributes) {
-                            $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-                        } else {
-                            $statements = $this->createStatements($value);
-                            $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
-                            $value = 'null';
-                        }
-                    } elseif ($this->keepNullAttributes) {
-                        $value = $this->createCode(static::UNESCAPED, $value);
-                    } else {
-                        $valueCheck = $value;
-                        $value = $this->createCode(static::UNESCAPED, '$__value');
-                    }
-                }
-
-                if ($key == 'class') {
-                    if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                        array_push($classes, $value);
-                    }
-                } elseif ($value == 'true' || $attr['value'] === true) {
-                    $items[] = ' ' . $key . ($this->terse
-                        ? ''
-                        : '=' . $this->quote . $key . $this->quote
-                    );
-                } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                    $items[] = is_null($valueCheck)
-                        ? ' ' . $key . '=' . $this->quote . $value . $this->quote
-                        : $this->createCode('if (\\Jade\\Compiler::isDisplayable($__value = %1$s)) { ', $valueCheck)
-                            . ' ' . $key . '=' . $this->quote . $value . $this->quote
-                            . $this->createCode('}');
-                }
-            }
-        }
-
-        if (count($classes)) {
-            if (count($classesCheck)) {
-                $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
-            }
-            $items[] = ' class=' . $this->quote . implode(' ', $classes) . $this->quote;
-        } elseif (count($classesCheck)) {
-            $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
-            $item .= ' class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
-            $items[] = $item . $this->createCode('}');
-        }
-
-        $this->buffer(' ' . trim(implode('', $items)), false);
     }
 
     /**

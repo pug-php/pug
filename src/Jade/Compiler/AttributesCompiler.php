@@ -40,6 +40,7 @@ abstract class AttributesCompiler extends CompilerFacade
         }
         $value = empty($attr['value']) ? 'attributes' : $attr['value'];
         $statements = $this->createStatements($value);
+
         return $this->createCode(
             '$__attributes = ' . $statements[0][0] . ';' .
             $addClasses .
