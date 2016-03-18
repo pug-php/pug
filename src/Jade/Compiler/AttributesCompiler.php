@@ -131,6 +131,7 @@ abstract class AttributesCompiler extends CompilerFacade
         if (count($classesCheck)) {
             $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
             $item .= ' class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
+
             return $item . $this->createCode('}');
         }
 
