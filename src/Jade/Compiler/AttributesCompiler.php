@@ -47,6 +47,38 @@ abstract class AttributesCompiler extends CompilerFacade
             '\\Jade\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ');');
     }
 
+    protected function getAttributeValue($key, $value, &$classesCheck, &$valueCheck)
+    {
+        if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
+            $value = trim($value, ' \'"');
+
+            return $value === 'undefined' ? 'null' : $value;
+        }
+
+        $json = static::parseValue($value);
+
+        if ($json !== null && is_array($json) && $key == 'class') {
+            return implode(' ', $json);
+        }
+
+        if ($key == 'class') {
+            if ($this->keepNullAttributes) {
+                return $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+            }
+
+            $statements = $this->createStatements($value);
+            $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+            return 'null';
+        }
+
+        if ($this->keepNullAttributes) {
+            return $this->createCode(static::UNESCAPED, $value);
+        }
+
+        $valueCheck = $value;
+        return $this->createCode(static::UNESCAPED, '$__value');
+    }
+
     /**
      * @param $attributes
      */
@@ -65,31 +97,7 @@ abstract class AttributesCompiler extends CompilerFacade
             $valueCheck = null;
             $value = trim($attr['value']);
 
-            if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
-                $value = trim($value, ' \'"');
-                if ($value === 'undefined') {
-                    $value = 'null';
-                }
-            } else {
-                $json = static::parseValue($value);
-
-                if ($json !== null && is_array($json) && $key == 'class') {
-                    $value = implode(' ', $json);
-                } elseif ($key == 'class') {
-                    if ($this->keepNullAttributes) {
-                        $value = $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-                    } else {
-                        $statements = $this->createStatements($value);
-                        $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
-                        $value = 'null';
-                    }
-                } elseif ($this->keepNullAttributes) {
-                    $value = $this->createCode(static::UNESCAPED, $value);
-                } else {
-                    $valueCheck = $value;
-                    $value = $this->createCode(static::UNESCAPED, '$__value');
-                }
-            }
+            $value = $this->getAttributeValue($key, $value, $classesCheck, $valueCheck);
 
             if ($key == 'class') {
                 if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
