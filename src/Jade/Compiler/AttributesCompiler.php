@@ -47,6 +47,18 @@ abstract class AttributesCompiler extends CompilerFacade
             '\\Jade\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ');');
     }
 
+    protected function getClassAttribute($value, &$classesCheck)
+    {
+        if ($this->keepNullAttributes) {
+            return $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
+        }
+
+        $statements = $this->createStatements($value);
+        $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+
+        return 'null';
+    }
+
     protected function getAttributeValue($key, $value, &$classesCheck, &$valueCheck)
     {
         if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
@@ -62,14 +74,7 @@ abstract class AttributesCompiler extends CompilerFacade
         }
 
         if ($key == 'class') {
-            if ($this->keepNullAttributes) {
-                return $this->createCode('echo (is_array($_a = %1$s)) ? implode(" ", $_a) : $_a', $value);
-            }
-
-            $statements = $this->createStatements($value);
-            $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
-
-            return 'null';
+            return $this->getClassAttribute($value, $classesCheck);
         }
 
         if ($this->keepNullAttributes) {
@@ -81,48 +86,73 @@ abstract class AttributesCompiler extends CompilerFacade
         return $this->createCode(static::UNESCAPED, '$__value');
     }
 
+    protected function getAttributeCode($attr, &$classes, &$classesCheck)
+    {
+        $key = trim($attr['name']);
+
+        if ($key === '&attributes') {
+            return $this->getAndAttributeCode($attr, $classes, $classesCheck);
+        }
+
+        $valueCheck = null;
+        $value = trim($attr['value']);
+
+        $value = $this->getAttributeValue($key, $value, $classesCheck, $valueCheck);
+
+        if ($key == 'class') {
+            if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+                array_push($classes, $value);
+            }
+
+            return '';
+        }
+
+        if ($value == 'true' || $attr['value'] === true) {
+            return $this->getBooleanAttributeDisplayCode($key);
+        }
+
+        if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+            return $this->getAttributeDisplayCode($key, $value, $valueCheck);
+        }
+
+        return '';
+    }
+
+    protected function getClassesCode(&$classes, &$classesCheck)
+    {
+        if (count($classes)) {
+            if (count($classesCheck)) {
+                $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
+            }
+
+            return ' class=' . $this->quote . implode(' ', $classes) . $this->quote;
+        }
+
+        if (count($classesCheck)) {
+            $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
+            $item .= ' class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
+
+            return $item . $this->createCode('}');
+        }
+
+        return '';
+    }
+
     /**
      * @param $attributes
      */
     protected function compileAttributes($attributes)
     {
-        $items = array();
+        $items = '';
         $classes = array();
         $classesCheck = array();
 
         foreach ($attributes as $attr) {
-            $key = trim($attr['name']);
-            if ($key === '&attributes') {
-                $items[] = $this->getAndAttributeCode($attr, $classes, $classesCheck);
-                continue;
-            }
-            $valueCheck = null;
-            $value = trim($attr['value']);
-
-            $value = $this->getAttributeValue($key, $value, $classesCheck, $valueCheck);
-
-            if ($key == 'class') {
-                if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                    array_push($classes, $value);
-                }
-            } elseif ($value == 'true' || $attr['value'] === true) {
-                $items[] = $this->getBooleanAttributeDisplayCode($key);
-            } elseif ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-                $items[] = $this->getAttributeDisplayCode($key, $value, $valueCheck);
-            }
+            $items .= $this->getAttributeCode($attr, $classes, $classesCheck);
         }
 
-        if (count($classes)) {
-            if (count($classesCheck)) {
-                $classes[] = $this->createCode('echo implode(" ", array(' . implode(', ', $classesCheck) . '))');
-            }
-            $items[] = ' class=' . $this->quote . implode(' ', $classes) . $this->quote;
-        } elseif (count($classesCheck)) {
-            $item = $this->createCode('if("" !== ($__classes = implode(" ", array(' . implode(', ', $classesCheck) . ')))) {');
-            $item .= ' class=' . $this->quote . $this->createCode('echo $__classes') . $this->quote;
-            $items[] = $item . $this->createCode('}');
-        }
+        $items .= $this->getClassesCode($classes, $classesCheck);
 
-        $this->buffer(' ' . trim(implode('', $items)), false);
+        $this->buffer(' ' . trim($items), false);
     }
 }
