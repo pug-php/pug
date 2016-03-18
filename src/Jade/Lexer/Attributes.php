@@ -13,6 +13,7 @@ class Attributes extends InputHandler
     {
         $this->token = $token;
     }
+
     /**
      * @return object
      */
