@@ -210,7 +210,6 @@ abstract class Visitor extends CompilerFacade
      */
     protected function visitEach(Each $node)
     {
-
         //if (is_numeric($node->obj)) {
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
