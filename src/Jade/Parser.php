@@ -110,7 +110,7 @@ class Parser
             try {
                 $ast = $parser->parse();
             } catch (\Exception $e) {
-                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage());
+                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 1, $e);
             }
             $this->context();
 

@@ -54,28 +54,26 @@ mixin centered(title)
       .footer
         a(href=attributes.href) Back
 
-+centered(\'Section 1\')#Second
++centered(\'Section 1\')#Second.foo
   p Some important content.
 ';
 
         $jade = new Jade(array(
             'prettyprint' => true,
         ));
-        $actual = trim(preg_replace('`[ \t]+`', ' ', preg_replace('`\n\s*`', "\n", str_replace("\r\n", "\n", $jade->render($template)))));
-        $expected = str_replace("\r\n", "\n", trim('
-<div id=\'Second\' class=\'centered\'>
-<h1 >Section 1</h1> ' . '
+        $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $jade->render($template)))));
+        $expected = str_replace("\r", '', '<div id=\'Second\' class=\'centered\'>
+<h1 class=\'foo\'>Section 1</h1>
 <p>Some important content.</p>
-</div>
-'));
+</div>');
 
         $this->assertSame($actual, $expected, 'Pretty print enabled');
 
         $jade = new Jade(array(
             'prettyprint' => false,
         ));
-        $actual =  str_replace("\r", '', preg_replace('`(<[a-z][a-z:_0-9]*) (?=[\s>])`', '$1', $jade->render($template)));
-        $expected =  str_replace("\r", '', '<div id=\'Second\' class=\'centered\'><h1>Section 1</h1><p>Some important content.</p></div>');
+        $actual = preg_replace('`[ \t]+`', ' ', $jade->render($template));
+        $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
 
         $this->assertSame($actual, $expected, 'Pretty print disabled');
     }

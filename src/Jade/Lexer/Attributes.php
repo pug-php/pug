@@ -5,39 +5,13 @@ namespace Jade\Lexer;
 /**
  * Class Jade\Lexer\Attributes.
  */
-class Attributes extends InputHandler
+class Attributes
 {
     protected $token;
 
     public function __construct($token = null)
     {
         $this->token = $token;
-    }
-
-    public function parseQuote(&$states, $state, &$val, &$quote, $char)
-    {
-        switch ($state()) {
-            case 'key':
-                array_push($states, 'key char');
-                break;
-
-            case 'key char':
-                array_pop($states);
-                break;
-
-            case 'string':
-                if ($char === $quote) {
-                    array_pop($states);
-                }
-                $val .= $char;
-                break;
-
-            default:
-                array_push($states, 'string');
-                $val .= $char;
-                $quote = $char;
-                break;
-        }
     }
 
     public function parseSpace(&$states, $state, $interpolate, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
@@ -180,7 +154,8 @@ class Attributes extends InputHandler
 
                 case '"':
                 case "'":
-                    $parser->parseQuote($states, $state, $val, $quote, $char);
+                    $stringParser = new StringAttribute($state, $char);
+                    $stringParser->parse($states, $val, $quote);
                     break;
 
                 case '':
