@@ -3,9 +3,9 @@
 namespace Jade\Lexer;
 
 /**
- * Class Jade\Lexer\String.
+ * Class Jade\Lexer\StringAttribute.
  */
-class String
+class StringAttribute
 {
     protected $state;
     protected $char;

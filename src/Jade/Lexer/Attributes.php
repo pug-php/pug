@@ -154,7 +154,7 @@ class Attributes
 
                 case '"':
                 case "'":
-                    $stringParser = new String($state, $char);
+                    $stringParser = new StringAttribute($state, $char);
                     $stringParser->parse($states, $val, $quote);
                     break;
 
