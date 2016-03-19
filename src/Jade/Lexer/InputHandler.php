@@ -81,4 +81,32 @@ abstract class InputHandler
 
         return $found ? $matches : null;
     }
+
+    protected function getTokenFromIndent($firstChar, $indents)
+    {
+        if ($this->length() && $firstChar === "\n") {
+            return $this->token('newline');
+        }
+
+        if (count($this->indentStack) && $indents < $this->indentStack[0]) {
+            while (count($this->indentStack) && $indents < $this->indentStack[0]) {
+                array_push($this->stash, $this->token('outdent'));
+                array_shift($this->indentStack);
+            }
+
+            return array_pop($this->stash);
+        }
+
+        if ($indents && count($this->indentStack) && $indents == $this->indentStack[0]) {
+            return $this->token('newline');
+        }
+
+        if ($indents) {
+            array_unshift($this->indentStack, $indents);
+
+            return $this->token('indent', $indents);
+        }
+
+        return $this->token('newline');
+    }
 }
