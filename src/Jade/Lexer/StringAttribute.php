@@ -18,7 +18,7 @@ class StringAttribute
 
     public function parse(&$states, &$val, &$quote)
     {
-    	$state = $this->state;
+        $state = $this->state;
         switch ($state()) {
             case 'key':
                 array_push($states, 'key char');
