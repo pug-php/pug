@@ -82,6 +82,21 @@ abstract class InputHandler
         return $found ? $matches : null;
     }
 
+    protected function getWhiteSpacesTokens($indents)
+    {
+        if ($indents && count($this->indentStack) && $indents == $this->indentStack[0]) {
+            return $this->token('newline');
+        }
+
+        if ($indents) {
+            array_unshift($this->indentStack, $indents);
+
+            return $this->token('indent', $indents);
+        }
+
+        return $this->token('newline');
+    }
+
     protected function getTokenFromIndent($firstChar, $indents)
     {
         if ($this->length() && $firstChar === "\n") {
@@ -97,16 +112,6 @@ abstract class InputHandler
             return array_pop($this->stash);
         }
 
-        if ($indents && count($this->indentStack) && $indents == $this->indentStack[0]) {
-            return $this->token('newline');
-        }
-
-        if ($indents) {
-            array_unshift($this->indentStack, $indents);
-
-            return $this->token('indent', $indents);
-        }
-
-        return $this->token('newline');
+        return $this->getWhiteSpacesTokens($indents);
     }
 }

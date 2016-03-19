@@ -137,7 +137,7 @@ class Compiler extends MixinVisitor
     {
         $this->visit($node);
 
-        $code = implode('', $this->buffer);
+        $code = ltrim(implode('', $this->buffer));
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if ($this->phpSingleLine) {

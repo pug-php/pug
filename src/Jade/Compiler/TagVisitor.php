@@ -9,7 +9,7 @@ abstract class TagVisitor extends Visitor
     /**
      * @param Nodes\Tag $tag
      */
-    protected function visitTagAttributes(Tag $tag, $close = '>')
+    protected function visitTagAttributes(Tag $tag, $newLinePrettyPrint, $close = '>')
     {
         $open = '<' . $tag->name;
 
@@ -21,7 +21,7 @@ abstract class TagVisitor extends Visitor
             return;
         }
 
-        $this->buffer($open . $close);
+        $this->buffer($open . $close, $newLinePrettyPrint ? null : false);
     }
 
     /**
@@ -56,7 +56,7 @@ abstract class TagVisitor extends Visitor
     protected function compileTag(Tag $tag)
     {
         $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
-        $this->visitTagAttributes($tag, (!$selfClosing || $this->terse) ? '>' : ' />');
+        $this->visitTagAttributes($tag, $this->prettyprint, (!$selfClosing || $this->terse) ? '>' : ' />');
 
         if (!$selfClosing) {
             $this->visitTagContents($tag);
@@ -71,15 +71,17 @@ abstract class TagVisitor extends Visitor
     {
         $this->initTagName($tag);
 
-        $prettyprint = (
-            $tag->keepWhiteSpaces() ||
-            (!$tag->canInline() && $this->prettyprint && !$tag->isInline())
-        );
+        $insidePrettyprint = !$tag->canInline() && $this->prettyprint && !$tag->isInline();
+        $prettyprint = $tag->keepWhiteSpaces() || $insidePrettyprint;
+
+        if ($this->prettyprint && !$insidePrettyprint) {
+            $this->buffer[] = $this->indent();
+        }
 
         $this->tempPrettyPrint($prettyprint, 'compileTag', $tag);
 
         if (!$prettyprint && $this->prettyprint && !$tag->isInline()) {
-            $this->buffer($this->newline());
+            $this->buffer[] = $this->newline();
         }
     }
 }

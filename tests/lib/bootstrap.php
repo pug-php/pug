@@ -123,7 +123,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
                 include_once __DIR__ . '/diff.php';
                 $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
                 $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
-                echo Diff::toString(Diff::compare($expectedHtml, $actualHtml)) . "\n";
+                echo Diff::toString(Diff::compare($actualHtml, $expectedHtml)) . "\n";
                 /*
                 echo "  Expected: $expectedHtml\n";
                 echo "  Actual  : $actualHtml\n\n";
