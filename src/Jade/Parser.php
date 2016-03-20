@@ -380,7 +380,7 @@ class Parser
         try {
             $ast = $parser->parse();
         } catch (\Exception $e) {
-            throw new \Exception($path . ' (' . $parser->blocks->line . ') : ' . $e->getMessage());
+            throw new \Exception($path . ' (' . $parser->lexer->lineno . ') : ' . $e->getMessage());
         }
         $this->context();
         $ast->filename = $path;
@@ -672,6 +672,8 @@ class Parser
                 return $tag;
             }
 
+            var_dump($tag->name);
+            exit;
             $tag->block = $block;
         }
 
