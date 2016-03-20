@@ -141,38 +141,46 @@ class Lexer extends Scanner
      */
     public function nextToken()
     {
-        $r = $this->deferred()
-        or $r = $this->scanBlank()
-        or $r = $this->scanEOS()
-        or $r = $this->scanPipelessText()
-        or $r = $this->scanYield()
-        or $r = $this->scanDoctype()
-        or $r = $this->scanInterpolation()
-        or $r = $this->scanCase()
-        or $r = $this->scanWhen()
-        or $r = $this->scanDefault()
-        or $r = $this->scanExtends()
-        or $r = $this->scanAppend()
-        or $r = $this->scanPrepend()
-        or $r = $this->scanBlock()
-        or $r = $this->scanInclude()
-        or $r = $this->scanMixin()
-        or $r = $this->scanCall()
-        or $r = $this->scanConditional()
-        or $r = $this->scanEach()
-        or $r = $this->scanAssignment()
-        or $r = $this->scanTag()
-        or $r = $this->scanFilter()
-        or $r = $this->scanCode()
-        or $r = $this->scanId()
-        or $r = $this->scanClassName()
-        or $r = $this->scanAttributes()
-        or $r = $this->scanIndent()
-        or $r = $this->scanComment()
-        or $r = $this->scanColon()
-        or $r = $this->scanAndAttributes()
-        or $r = $this->scanText();
+        if ($token = $this->deferred()) {
+        	return $token;
+        }
+        foreach (array(
+            'Blank',
+            'EOS',
+            'PipelessText',
+            'Yield',
+            'Doctype',
+            'Interpolation',
+            'Case',
+            'When',
+            'Default',
+            'Extends',
+            'Append',
+            'Prepend',
+            'Block',
+            'Include',
+            'Mixin',
+            'Call',
+            'Conditional',
+            'Each',
+            'Assignment',
+            'Tag',
+            'Filter',
+            'Code',
+            'Id',
+            'ClassName',
+            'Attributes',
+            'Indent',
+            'Comment',
+            'Colon',
+            'AndAttributes',
+            'Text',
+        ) as $tokenType) {
+        	if ($token = $this->{'scan' . $tokenType}()) {
+        		return $token;
+        	}
+        }
 
-        return $r;
+        return $token;
     }
 }
