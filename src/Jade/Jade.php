@@ -153,21 +153,48 @@ class Jade
      */
     public function cache($input)
     {
-        if (!is_file($input)) {
-            throw new \InvalidArgumentException('Only files can be cached.');
-        }
-
         $cacheFolder = $this->options['cache'];
 
         if (!is_dir($cacheFolder)) {
             throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists');
         }
 
-        $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
+        if (is_file($input)) {
+            $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
 
-        // Do not re-parse file if original is older
-        if (file_exists($path) && filemtime($input) < filemtime($path)) {
-            return $path;
+            // Do not re-parse file if original is older
+            if (file_exists($path) && filemtime($input) < filemtime($path)) {
+                return $path;
+            }
+        } else {
+            // Get the stronger hashing algorithm available to minimize collision risks
+            $algos = hash_algos();
+            $algo = $algos[0];
+            $number = 0;
+            foreach ($algos as $hashAlgorithm) {
+                if (strpos($hashAlgorithm, 'md') === 0) {
+                    $hashNumber = substr($hashAlgorithm, 2);
+                    if ($hashNumber > $number) {
+                        $number = $hashNumber;
+                        $algo = $hashAlgorithm;
+                    }
+                    continue;
+                }
+                if (strpos($hashAlgorithm, 'sha') === 0) {
+                    $hashNumber = substr($hashAlgorithm, 3);
+                    if ($hashNumber > $number) {
+                        $number = $hashNumber;
+                        $algo = $hashAlgorithm;
+                    }
+                    continue;
+                }
+            }
+            $path = str_replace('//', '/', $cacheFolder . '/' . rtrim(strtr(base64_encode(hash($algo, $input, true)), '+/', '-_'), '='));
+
+            // Do not re-parse file if the same hash exists
+            if (file_exists($path)) {
+                return $path;
+            }
         }
 
         if (!is_writable($cacheFolder)) {

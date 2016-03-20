@@ -2,7 +2,37 @@
 
 use Jade\Jade;
 
+class JadeTest extends Jade{
+
+    protected $compilationsCount = 0;
+
+    public function getCompilationsCount()
+    {
+        return $this->compilationsCount;
+    }
+
+    public function compile($input)
+    {
+        $this->compilationsCount++;
+        return parent::compile($input);
+    }
+}
+
 class JadeCacheTest extends PHPUnit_Framework_TestCase {
+
+    protected function emptyDirectory($dir)
+    {
+        foreach (scandir($dir) as $file) {
+            if ($file !== '.' && $file !== '..') {
+                $path = $dir . '/' . $file;
+                if (is_dir($path)) {
+                    $this->emptyDirectory($path);
+                } else {
+                    unlink($path);
+                }
+            }
+        }
+    }
 
     /**
      * @expectedException ErrorException
@@ -12,18 +42,35 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
         $jade = new Jade(array(
             'cache' => 'does/not/exists'
         ));
-        $jade->cache(__DIR__ . '/../templates/attrs.jade');
+        $jade->render(__DIR__ . '/../templates/attrs.jade');
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * Cache from string input
      */
-    public function testMissingFile() {
+    public function testStringInputCache() {
 
-        $jade = new Jade(array(
-            'cache' => sys_get_temp_dir()
+        $dir = sys_get_temp_dir() . '/jade';
+        if (file_exists($dir)) {
+            if (is_file($dir)) {
+                unlink($dir);
+                mkdir($dir);
+                $this->emptyDirectory($dir);
+            }
+        } else {
+            mkdir($dir);
+        }
+        $jade = new JadeTest(array(
+            'cache' => $dir
         ));
-        $jade->cache('not-an-existing-file');
+        $this->assertSame(0, $jade->getCompilationsCount(), 'Should have done no compilations yet');
+        $jade->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $jade->getCompilationsCount(), 'Should have done 1 compilation');
+        $jade->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $jade->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
+        $jade->render("header\n  h1#foo Hello World?\nfooter");
+        $this->assertSame(2, $jade->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        $this->emptyDirectory($dir);
     }
 
     /**
