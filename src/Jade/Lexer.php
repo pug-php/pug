@@ -180,7 +180,5 @@ class Lexer extends Scanner
                 return $token;
             }
         }
-
-        return $token;
     }
 }
