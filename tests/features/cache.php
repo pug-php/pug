@@ -113,7 +113,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
         $start = 'jade.stream://data;';
         $this->assertTrue(mb_strpos($stream, $start) === 0, 'Fresh content should be a stream.');
         $this->assertTrue(file_exists($cachedFile), 'The cached file should now exist.');
-        $this->assertSame($stream, $jade->stream($file), 'Should return the stream of attrs.jade.');
+        $this->assertSame($stream, $jade->stream($jade->compile($file)), 'Should return the stream of attrs.jade.');
         $this->assertSame(mb_substr($stream, mb_strlen($start)), file_get_contents($cachedFile), 'The cached file should contains the same contents.');
         touch($file, time() - 3600);
         $path = $jade->cache($file);
@@ -121,7 +121,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
         copy(__DIR__ . '/../templates/mixins.jade', $file);
         touch($file, time() + 3600);
         $stream = $jade->cache($file);
-        $this->assertSame($stream, $jade->stream(__DIR__ . '/../templates/mixins.jade'), 'The cached file should be the stream of mixins.jade.');
+        $this->assertSame($stream, $jade->stream($jade->compile(__DIR__ . '/../templates/mixins.jade')), 'The cached file should be the stream of mixins.jade.');
         unlink($file);
     }
 
