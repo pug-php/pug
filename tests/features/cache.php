@@ -55,6 +55,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
             if (is_file($dir)) {
                 unlink($dir);
                 mkdir($dir);
+            } else {
                 $this->emptyDirectory($dir);
             }
         } else {
@@ -63,6 +64,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
         $jade = new JadeTest(array(
             'cache' => $dir
         ));
+        $this->assertSame(0, $jade->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->assertSame(0, $jade->getCompilationsCount(), 'Should have done no compilations yet');
         $jade->render("header\n  h1#foo Hello World!\nfooter");
         $this->assertSame(1, $jade->getCompilationsCount(), 'Should have done 1 compilation');

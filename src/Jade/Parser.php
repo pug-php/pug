@@ -19,7 +19,7 @@ class Parser
     protected $mixins = array();
     protected $contexts = array();
 
-    public function __construct($str, $filename = null, array $options = array())
+    public function __construct($input, $filename = null, array $options = array())
     {
         $defaultOptions = array(
             'allowMixedIndent' => true,
@@ -30,13 +30,7 @@ class Parser
             $this->options[$key] = $this->$key;
         }
 
-        if ($filename === null && file_exists($str)) {
-            $this->input = file_get_contents($str);
-            $this->filename = $str;
-        } else {
-            $this->input = $str;
-            $this->filename = $filename;
-        }
+        $this->setInput($filename, $input);
 
         if ($this->input && $this->input[0] === "\xef" && $this->input[1] === "\xbb" && $this->input[2] === "\xbf") {
             $this->input = substr($this->input, 3);
@@ -44,6 +38,19 @@ class Parser
 
         $this->lexer = new Lexer($this->input, $this->options);
         array_push($this->contexts, $this);
+    }
+
+    protected function setInput($filename, $input)
+    {
+        if ($filename === null && file_exists($input)) {
+            $this->input = file_get_contents($input);
+            $this->filename = $input;
+
+            return;
+        }
+
+        $this->input = $input;
+        $this->filename = $filename;
     }
 
     /**
@@ -664,7 +671,7 @@ class Parser
 
             $block = $this->block();
 
-            if ($tag->block) {
+            if ($tag->block && !$tag->block->isEmpty()) {
                 foreach ($block->nodes as $n) {
                     $tag->block->push($n);
                 }
@@ -672,8 +679,6 @@ class Parser
                 return $tag;
             }
 
-            var_dump($tag->name);
-            exit;
             $tag->block = $block;
         }
 
