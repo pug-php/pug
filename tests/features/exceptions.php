@@ -6,13 +6,25 @@ use Jade\Jade;
 class EmulateBugException extends \Exception {}
 class OnlyOnceException extends \Exception {}
 
-class OverParser extends Parser
-{
-    public function parse()
-    {
+class ExtendParser extends Parser {
+
+    public function parse() {
+
         static $i = 0;
         if ($i++) {
-            throw new OnlyOnceException("Works only once", 1);
+            throw new OnlyOnceException("E: Works only once", 1);
+        }
+        parent::parse();
+    }
+}
+
+class IncludeParser extends Parser {
+
+    public function parse() {
+
+        static $i = 0;
+        if ($i++) {
+            throw new OnlyOnceException("I: Works only once", 1);
         }
         parent::parse();
     }
@@ -105,15 +117,31 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
      */
     public function testExtendsWithParserException() {
 
-        $parser = new OverParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.jade');
+        $parser = new ExtendParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.jade');
         $message = null;
         try {
             $parser->parse();
         } catch (\Exception $e) {
             $message = $e->getMessage();
         }
-        $this->assertTrue($message !== null, 'Extends with OverParser should throw an exception');
-        $this->assertTrue(strpos($message, 'Works only once') !== false, 'Extends with OverParser should throw an exception with the initial message of the exception inside');
+        $this->assertTrue($message !== null, 'Extends with ExtendParser should throw an exception');
+        $this->assertTrue(strpos($message, 'E: Works only once') !== false, 'Extends with ExtendParser should throw an exception with the initial message of the exception inside');
+    }
+
+    /**
+     * Test OnlyOnceException
+     */
+    public function testIncludesWithParserException() {
+
+        $parser = new IncludeParser(__DIR__ . '/../templates/auxiliary/include-exception-filter.jade');
+        $message = null;
+        try {
+            $parser->parse();
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+        }
+        $this->assertTrue($message !== null, 'Extends with IncludeParser should throw an exception');
+        $this->assertTrue(strpos($message, 'I: Works only once') !== false, 'Include with IncludeParser should throw an exception with the initial message of the exception inside');
     }
 
     /**

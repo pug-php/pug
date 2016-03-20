@@ -107,7 +107,9 @@ class Jade
      */
     public function render($input, array $vars = array())
     {
-        $file = $this->options['cache'] ? $this->cache($input) : $this->stream($input);
+        $file = $this->options['cache']
+            ? $this->cache($input)
+            : $this->stream($this->compile($input));
 
         extract($vars);
         ob_start();
@@ -129,7 +131,7 @@ class Jade
      *
      * @return string
      */
-    public function stream($input, $compiled = false)
+    public function stream($input)
     {
         if (extension_loaded('suhosin') && false === strpos(ini_get('suhosin.executor.include.whitelist'), $this->options['stream'])) {
             throw new \ErrorException('To run Jade on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.');
@@ -140,7 +142,7 @@ class Jade
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
-        return $this->options['stream'] . '://data;' . ($compiled ? $input : $this->compile($input));
+        return $this->options['stream'] . '://data;' . $input;
     }
 
     /**
@@ -204,6 +206,6 @@ class Jade
         $rendered = $this->compile($input);
         file_put_contents($path, $rendered);
 
-        return $this->stream($rendered, true);
+        return $this->stream($rendered);
     }
 }

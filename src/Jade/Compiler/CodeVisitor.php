@@ -46,22 +46,34 @@ abstract class CodeVisitor extends TagVisitor
     /**
      * @param Nodes\Code $node
      */
-    protected function visitCode(Code $node)
+    protected function visitCodeOpening(Code $node)
     {
         $code = trim($node->value);
 
         if ($node->buffer) {
             $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
             $this->buffer($this->createCode($pattern, $code));
-        } else {
-            $php_open = implode('|', $this->phpOpenBlock);
 
-            if (preg_match("/^[[:space:]]*({$php_open})(.*)/", $code, $matches)) {
-                $this->visitCodeConditional($matches);
-            } else {
-                $this->buffer($this->createCode('%s', $code));
-            }
+            return;
         }
+
+        $phpOpen = implode('|', $this->phpOpenBlock);
+
+        if (preg_match("/^[[:space:]]*({$phpOpen})(.*)/", $code, $matches)) {
+            $this->visitCodeConditional($matches);
+
+            return;
+        }
+
+        $this->buffer($this->createCode('%s', $code));
+    }
+
+    /**
+     * @param Nodes\Code $node
+     */
+    protected function visitCode(Code $node)
+    {
+        $this->visitCodeOpening($node);
 
         if (isset($node->block)) {
             $this->indents++;

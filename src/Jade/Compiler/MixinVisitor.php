@@ -79,10 +79,10 @@ abstract class MixinVisitor extends CodeVisitor
         $arguments = preg_replace_callback(
             '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
             function ($match) use (&$strings) {
-                $id = count($strings);
+                $nextIndex = count($strings);
                 $strings[] = $match[0];
 
-                return 'stringToReplaceBy' . $id . 'ThCapture';
+                return 'stringToReplaceBy' . $nextIndex . 'ThCapture';
             },
             $arguments
         );

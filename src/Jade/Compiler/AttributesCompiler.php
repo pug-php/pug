@@ -59,6 +59,17 @@ abstract class AttributesCompiler extends CompilerFacade
         return 'null';
     }
 
+    protected function getUnescapedValueCode($value, &$valueCheck)
+    {
+        if ($this->keepNullAttributes) {
+            return $this->createCode(static::UNESCAPED, $value);
+        }
+
+        $valueCheck = $value;
+
+        return $this->createCode(static::UNESCAPED, '$__value');
+    }
+
     protected function getAttributeValue($key, $value, &$classesCheck, &$valueCheck)
     {
         if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
@@ -77,13 +88,20 @@ abstract class AttributesCompiler extends CompilerFacade
             return $this->getClassAttribute($value, $classesCheck);
         }
 
-        if ($this->keepNullAttributes) {
-            return $this->createCode(static::UNESCAPED, $value);
+        return $this->getUnescapedValueCode($value, $valueCheck);
+    }
+
+    protected function compileAttributeValue($key, $value, $attr, $valueCheck)
+    {
+        if ($value == 'true' || $attr['value'] === true) {
+            return $this->getBooleanAttributeDisplayCode($key);
         }
 
-        $valueCheck = $value;
+        if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+            return $this->getAttributeDisplayCode($key, $value, $valueCheck);
+        }
 
-        return $this->createCode(static::UNESCAPED, '$__value');
+        return '';
     }
 
     protected function getAttributeCode($attr, &$classes, &$classesCheck)
@@ -107,15 +125,7 @@ abstract class AttributesCompiler extends CompilerFacade
             return '';
         }
 
-        if ($value == 'true' || $attr['value'] === true) {
-            return $this->getBooleanAttributeDisplayCode($key);
-        }
-
-        if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
-            return $this->getAttributeDisplayCode($key, $value, $valueCheck);
-        }
-
-        return '';
+        return $this->compileAttributeValue($key, $value, $attr, $valueCheck);
     }
 
     protected function getClassesCode(&$classes, &$classesCheck)
