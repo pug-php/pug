@@ -38,7 +38,7 @@ abstract class MixinVisitor extends CodeVisitor
             $containsOnlyArrays = false;
             $newArrayKey = null;
         }
-        
+
         return array_map(function ($argument) {
             if (is_array($argument)) {
                 $argument = var_export($argument, true);
