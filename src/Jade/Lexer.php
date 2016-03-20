@@ -142,7 +142,7 @@ class Lexer extends Scanner
     public function nextToken()
     {
         if ($token = $this->deferred()) {
-        	return $token;
+            return $token;
         }
         foreach (array(
             'Blank',
@@ -176,9 +176,9 @@ class Lexer extends Scanner
             'AndAttributes',
             'Text',
         ) as $tokenType) {
-        	if ($token = $this->{'scan' . $tokenType}()) {
-        		return $token;
-        	}
+            if ($token = $this->{'scan' . $tokenType}()) {
+                return $token;
+            }
         }
 
         return $token;
