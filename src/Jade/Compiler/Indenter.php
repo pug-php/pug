@@ -16,13 +16,21 @@ abstract class Indenter extends CompilerConfig
      * @var int
      */
     protected $indents = 0;
+    /**
+     * @var int
+     */
+    protected $indentSize = 2;
+    /**
+     * @var string (chr)
+     */
+    protected $indentChar = ' ';
 
     /**
      * @return string
      */
     protected function indent()
     {
-        return $this->prettyprint ? str_repeat('  ', $this->indents) : '';
+        return $this->prettyprint ? str_repeat(str_repeat($this->indentChar, $this->indentSize), $this->indents) : '';
     }
 
     /**

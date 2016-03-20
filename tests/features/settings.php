@@ -242,4 +242,58 @@ p(class=$foo)=$bar
         $this->assertSame($actual, '<h1>Hello</h1>', 'A file not found when included should return includeNotFound value if set.');
         \Jade\Parser::$includeNotFound = $save;
     }
+
+    /**
+     * indentChar and indentSize allow to configure the indentation.
+     */
+    public function testIndent() {
+
+        $template = '
+body
+  header
+    h1#foo Hello!
+  section
+    article
+      p Bye!';
+
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'prettyprint' => true,
+            'indentSize' => 2,
+            'indentChar' => ' ',
+        ));
+        $actual = str_replace("\r", '', $jade->render($template));
+        $expected = str_replace("\r", '', '<body>
+  <header>
+    <h1 id="foo">Hello!</h1>
+  </header>
+  <section>
+    <article>
+      <p>Bye!</p>
+    </article>
+  </section>
+</body>
+');
+        $this->assertSame($expected, $actual);
+
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'prettyprint' => true,
+            'indentSize' => 4,
+            'indentChar' => ' ',
+        ));
+        $actual = str_replace("\r", '', $jade->render($template));
+        $expected = str_replace('  ', '    ', $expected);
+        $this->assertSame($expected, $actual);
+
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'prettyprint' => true,
+            'indentSize' => 1,
+            'indentChar' => "\t",
+        ));
+        $actual = str_replace("\r", '', $jade->render($template));
+        $expected = str_replace('    ', "\t", $expected);
+        $this->assertSame($expected, $actual);
+    }
 }

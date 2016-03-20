@@ -22,6 +22,8 @@ class Jade
         'keepNullAttributes' => false,
         'singleQuote'        => true,
         'filterAutoLoad'     => true,
+        'indentSize'         => 2,
+        'indentChar'         => ' ',
     );
 
     /**
