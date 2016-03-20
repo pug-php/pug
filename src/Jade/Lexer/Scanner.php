@@ -5,7 +5,7 @@ namespace Jade\Lexer;
 /**
  * Class Jade\Lexer\Scanner.
  */
-abstract class Scanner extends BlockScanner
+abstract class Scanner extends MixinScanner
 {
     /**
      *  Helper to create tokens.
@@ -132,69 +132,12 @@ abstract class Scanner extends BlockScanner
     /**
      * @return object
      */
-    protected function scanCase()
-    {
-        return $this->scan('/^case +([^\n]+)/', 'case');
-    }
-
-    /**
-     * @return object
-     */
-    protected function scanWhen()
-    {
-        return $this->scan('/^when +((::|[^\n:]+)+)/', 'when');
-    }
-
-    /**
-     * @return object
-     */
-    protected function scanDefault()
-    {
-        return $this->scan('/^default */', 'default');
-    }
-
-    /**
-     * @return object
-     */
     protected function scanAssignment()
     {
         if (preg_match('/^(\$?\w+) += *([^;\n]+|\'[^\']+\'|"[^"]+")( *;? *)/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
             return $this->token('code', (substr($matches[1], 0, 1) === '$' ? '' : '$') . $matches[1] . ' = ' . $matches[2]);
-        }
-    }
-
-    /**
-     * @return object
-     */
-    protected function scanCall()
-    {
-        if (preg_match('/^\+(\w[-\w]*)/', $this->input, $matches)) {
-            $this->consume($matches[0]);
-            $token = $this->token('call', $matches[1]);
-
-            // check for arguments
-            if (preg_match('/^ *\((.*?)\)/', $this->input, $matchesArguments)) {
-                $this->consume($matchesArguments[0]);
-                $token->arguments = $matchesArguments[1];
-            }
-
-            return $token;
-        }
-    }
-
-    /**
-     * @return object
-     */
-    protected function scanMixin()
-    {
-        if (preg_match('/^mixin +(\w[-\w]*)(?: *\((.*)\))?/', $this->input, $matches)) {
-            $this->consume($matches[0]);
-            $token = $this->token('mixin', $matches[1]);
-            $token->arguments = isset($matches[2]) ? $matches[2] : null;
-
-            return $token;
         }
     }
 
