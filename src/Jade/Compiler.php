@@ -72,16 +72,17 @@ class Compiler extends MixinVisitor
     public function __construct(array $options = array(), array $filters = array())
     {
         foreach (array(
-            'prettyprint' => 'bool',
-            'phpSingleLine' => 'bool',
-            'allowMixinOverride' => 'bool',
-            'keepNullAttributes' => 'bool',
-            'filterAutoLoad' => 'bool',
-            'indentSize' => 'int',
-            'indentChar' => 'str',
+            'prettyprint' => 'boolean',
+            'phpSingleLine' => 'boolean',
+            'allowMixinOverride' => 'boolean',
+            'keepNullAttributes' => 'boolean',
+            'filterAutoLoad' => 'boolean',
+            'indentSize' => 'integer',
+            'indentChar' => 'string',
         ) as $option => $type) {
             if (isset($options[$option])) {
-                $this->$option = call_user_func($type . 'val', $options[$option]);
+                $this->$option = $options[$option];
+                settype($this->$option, $type);
             }
         }
         $this->options = $options;
