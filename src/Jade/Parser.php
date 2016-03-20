@@ -658,16 +658,21 @@ class Parser
                 $this->lexer->pipeless = true;
                 $tag->block = $this->parseTextBlock();
                 $this->lexer->pipeless = false;
-            } else {
-                $block = $this->block();
-                if ($tag->block) {
-                    foreach ($block->nodes as $n) {
-                        $tag->block->push($n);
-                    }
-                } else {
-                    $tag->block = $block;
-                }
+
+                return $tag;
             }
+
+            $block = $this->block();
+
+            if ($tag->block) {
+                foreach ($block->nodes as $n) {
+                    $tag->block->push($n);
+                }
+
+                return $tag;
+            }
+
+            $tag->block = $block;
         }
 
         return $tag;
