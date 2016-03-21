@@ -127,4 +127,25 @@ abstract class CompilerUtils extends Indenter
 
         return $attributes;
     }
+
+    /**
+     * @param $name
+     *
+     * @return callable
+     */
+    protected function getFilter($name)
+    {
+        // Check that filter is registered
+        if (array_key_exists($name, $this->filters)) {
+            return $this->filters[$name];
+        }
+
+        // Else check if a class with a name that match can be loaded
+        $filter = 'Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
+        if (class_exists($filter)) {
+            return $filter;
+        }
+
+        throw new \InvalidArgumentException($name . ': Filter doesn\'t exists');
+    }
 }

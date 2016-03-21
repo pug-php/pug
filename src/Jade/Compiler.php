@@ -92,27 +92,6 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @param $name
-     *
-     * @return bool
-     */
-    protected function getFilter($name)
-    {
-        // Check that filter is registered
-        if (array_key_exists($name, $this->filters)) {
-            return $this->filters[$name];
-        }
-
-        // Else check if a class with a name that match can be loaded
-        $filter = 'Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
-        if (class_exists($filter)) {
-            return $filter;
-        }
-
-        throw new \InvalidArgumentException($name . ': Filter doesn\'t exists');
-    }
-
-    /**
      * get a compiler with the same settings.
      *
      * @return Compiler
@@ -274,12 +253,13 @@ class Compiler extends MixinVisitor
                     throw new \Exception('Unexpected value: ' . $match[3]);
                 }
                 array_push($resultsString, $match[1]);
-            } else {
-                $code = $this->handleCode($part[0]);
-
-                $result = array_merge($result, array_slice($code, 0, -1));
-                array_push($resultsString, array_pop($code));
+                continue;
             }
+
+            $code = $this->handleCode($part[0]);
+
+            $result = array_merge($result, array_slice($code, 0, -1));
+            array_push($resultsString, array_pop($code));
         }
 
         array_push($result, implode(' . ', $resultsString));
@@ -337,9 +317,6 @@ class Compiler extends MixinVisitor
 
             // shortcut for constants
             if ($this->isConstant($arg)) {
-                if ($arg === 'undefined') {
-                    $arg = 'null';
-                }
                 array_push($variables, $arg);
                 continue;
             }
@@ -350,20 +327,7 @@ class Compiler extends MixinVisitor
                 continue;
             }
 
-            if (preg_match('/^([\'"]).*?\1/', $arg)) {
-                $code = $this->handleString(trim($arg));
-            } else {
-                try {
-                    $code = $this->handleCode($arg);
-                } catch (\Exception $e) {
-                    // if a bug occur, try to remove comments
-                    try {
-                        $code = $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
-                    } catch (\Exception $e) {
-                        throw new \Exception('JadePHP do not understand ' . $arg, 1, $e);
-                    }
-                }
-            }
+            $code = $this->handleArgumentValue($arg);
 
             $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));
@@ -372,6 +336,24 @@ class Compiler extends MixinVisitor
         array_push($statements, $variables);
 
         return $statements;
+    }
+
+    protected function handleArgumentValue($arg)
+    {
+        if (preg_match('/^([\'"]).*?\1/', $arg)) {
+            return $this->handleString(trim($arg));
+        }
+
+        try {
+            return $this->handleCode($arg);
+        } catch (\Exception $e) {
+            // if a bug occur, try to remove comments
+            try {
+                return $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
+            } catch (\Exception $e) {
+                throw new \Exception('JadePHP do not understand ' . $arg, 1, $e);
+            }
+        }
     }
 
     /**
