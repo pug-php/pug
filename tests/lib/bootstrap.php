@@ -45,7 +45,6 @@ function build_list($test_list) {
 function get_php_code($file) {
     $jade = new Jade(array(
         'prettyprint' => true,
-        'keepNullAttributes' => true,
     ));
     return $jade->render($file);
 }
