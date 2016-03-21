@@ -1,0 +1,6 @@
+mixin foo(selected)
+  h1&attributes(attributes)
+    =selected
+- var selected = "a"
++foo(selected)
++foo()(selected)

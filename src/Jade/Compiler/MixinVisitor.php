@@ -6,15 +6,13 @@ use Jade\Nodes\Mixin;
 
 abstract class MixinVisitor extends CodeVisitor
 {
-    protected function getMixinArgumentValueFromAssign($tab, &$defaultAttributes)
+    protected function getMixinArgumentAssign($argument)
     {
-        if (count($tab) === 2) {
-            $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+        $argument = trim($argument);
 
-            return static::decodeValue($tab[1]);
+        if (preg_match('`^[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
+            return explode('=', $argument, 2);
         }
-
-        return true;
     }
 
     protected function parseMixinArguments(&$arguments, &$containsOnlyArrays, &$defaultAttributes)
@@ -22,8 +20,7 @@ abstract class MixinVisitor extends CodeVisitor
         $newArrayKey = null;
         $arguments = is_null($arguments) ? array() : explode(',', $arguments);
         foreach ($arguments as $key => &$argument) {
-            if (preg_match('`^\s*[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
-                $tab = explode('=', trim($argument), 2);
+            if ($tab = $this->getMixinArgumentAssign($argument)) {
                 if (is_null($newArrayKey)) {
                     $newArrayKey = $key;
                     $argument = array();
@@ -31,7 +28,8 @@ abstract class MixinVisitor extends CodeVisitor
                     unset($arguments[$key]);
                 }
 
-                $arguments[$newArrayKey][$tab[0]] = $this->getMixinArgumentValueFromAssign($tab, $defaultAttributes);
+                $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+                $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
                 continue;
             }
 
@@ -136,9 +134,9 @@ abstract class MixinVisitor extends CodeVisitor
 
         $arguments = $statements;
 
-        $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+        $codeFormat = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
 
-        array_unshift($arguments, $code_format);
+        array_unshift($arguments, $codeFormat);
 
         $this->buffer($this->apply('createCode', $arguments));
 
