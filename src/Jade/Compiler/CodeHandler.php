@@ -3,7 +3,7 @@
 namespace Jade\Compiler;
 
 /**
- * Class Jade\Compiler\CodeHandler
+ * Class Jade\Compiler\CodeHandler.
  */
 class CodeHandler extends CompilerUtils
 {

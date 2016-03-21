@@ -2,8 +2,8 @@
 
 namespace Jade;
 
-use Jade\Compiler\MixinVisitor;
 use Jade\Compiler\CodeHandler;
+use Jade\Compiler\MixinVisitor;
 
 /**
  * Class Jade Compiler.
