@@ -31,6 +31,48 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * @param $match array regex match
+     *
+     * @return string
+     */
+    protected static function convertVarPathCallback($match)
+    {
+        if (empty($match[1])) {
+            return $match[0];
+        }
+
+        $var = ($match[0] === ',' ? ',' : '') . $match[1];
+        foreach (explode('.', substr($match[2], 1)) as $name) {
+            if (!empty($name)) {
+                $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
+                    static::addDollarIfNeeded($var) .
+                    ', ' . var_export($name, true) . ')';
+            }
+        }
+
+        return $var;
+    }
+
+    /**
+     * Replace var paths in a string.
+     *
+     * @param $arg string
+     * @param $regexp string
+     *
+     * @return string
+     */
+    protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
+    {
+        $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
+
+        return preg_replace_callback(
+            str_replace('%s', $pattern, $regexp),
+            array(get_class(), 'convertVarPathCallback'),
+            $arg
+        );
+    }
+
+    /**
      * Concat " = null" to initializations to simulate the JS "var foo;".
      *
      * @param &string reference of an argument containing an expression
