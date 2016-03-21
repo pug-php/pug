@@ -6,6 +6,76 @@ use Jade\Nodes\Mixin;
 
 abstract class MixinVisitor extends CodeVisitor
 {
+    protected function getMixinArgumentAssign($argument)
+    {
+        $argument = trim($argument);
+
+        if (preg_match('`^[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
+            return explode('=', $argument, 2);
+        }
+    }
+
+    protected function parseMixinArguments(&$arguments, &$containsOnlyArrays, &$defaultAttributes)
+    {
+        $newArrayKey = null;
+        $arguments = is_null($arguments) ? array() : explode(',', $arguments);
+        foreach ($arguments as $key => &$argument) {
+            if ($tab = $this->getMixinArgumentAssign($argument)) {
+                if (is_null($newArrayKey)) {
+                    $newArrayKey = $key;
+                    $argument = array();
+                } else {
+                    unset($arguments[$key]);
+                }
+
+                $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
+                $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
+                continue;
+            }
+
+            $containsOnlyArrays = false;
+            $newArrayKey = null;
+        }
+
+        return array_map(function ($argument) {
+            if (is_array($argument)) {
+                $argument = var_export($argument, true);
+            }
+
+            return $argument;
+        }, $arguments);
+    }
+
+    protected function parseMixinAttributes($attributes, $defaultAttributes, $mixinAttributes)
+    {
+        if (!count($attributes)) {
+            return "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
+        }
+
+        $parsedAttributes = array();
+        foreach ($attributes as $data) {
+            if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
+                $parsedAttributes[$data['name']] = null;
+                continue;
+            }
+
+            if ($data['value'] === 'false' || is_bool($data['value'])) {
+                $parsedAttributes[$data['name']] = false;
+                continue;
+            }
+
+            $value = trim($data['value']);
+            $parsedAttributes[$data['name']] = $data['escaped'] === true
+                ? htmlspecialchars($value)
+                : $value;
+        }
+
+        $attributes = var_export($parsedAttributes, true);
+        $mixinAttributes = var_export(static::decodeAttributes($mixinAttributes), true);
+
+        return "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
+    }
+
     /**
      * @param Nodes\Mixin $mixin
      */
@@ -14,59 +84,11 @@ abstract class MixinVisitor extends CodeVisitor
         $arguments = $mixin->arguments;
         $block = $mixin->block;
         $defaultAttributes = array();
-        $newArrayKey = null;
         $containsOnlyArrays = true;
-        $arguments = is_null($arguments) ? array() : explode(',', $arguments);
-        foreach ($arguments as $key => &$argument) {
-            if (preg_match('`^\s*[a-zA-Z][a-zA-Z0-9:_-]*\s*=`', $argument)) {
-                $tab = explode('=', trim($argument), 2);
-                if (is_null($newArrayKey)) {
-                    $newArrayKey = $key;
-                    $argument = array();
-                } else {
-                    unset($arguments[$key]);
-                }
-                if (count($tab) === 2) {
-                    $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
-                    $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
-                } else {
-                    $arguments[$newArrayKey][$tab[0]] = true;
-                }
-            } else {
-                $containsOnlyArrays = false;
-                $newArrayKey = null;
-            }
-        }
-        $arguments = array_map(function ($argument) {
-            if (is_array($argument)) {
-                $argument = var_export($argument, true);
-            }
-
-            return $argument;
-        }, $arguments);
+        $arguments = $this->parseMixinArguments($mixin->arguments, $containsOnlyArrays, $defaultAttributes);
 
         $defaultAttributes = implode(', ', $defaultAttributes);
-        if (!count($attributes)) {
-            $attributes = "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
-        } else {
-            $_attr = array();
-            foreach ($attributes as $data) {
-                if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
-                    $_attr[$data['name']] = null;
-                } elseif ($data['value'] === 'false' || is_bool($data['value'])) {
-                    $_attr[$data['name']] = false;
-                } else {
-                    $value = trim($data['value']);
-                    $_attr[$data['name']] = $data['escaped'] === true
-                        ? htmlspecialchars($data['value'])
-                        : $data['value'];
-                }
-            }
-
-            $attributes = var_export($_attr, true);
-            $mixinAttributes = var_export(static::decodeAttributes($mixin->attributes), true);
-            $attributes = "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
-        }
+        $attributes = $this->parseMixinAttributes($attributes, $defaultAttributes, $mixin->attributes);
 
         if ($block) {
             $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function (\$attributes) {");
@@ -112,9 +134,9 @@ abstract class MixinVisitor extends CodeVisitor
 
         $arguments = $statements;
 
-        $code_format = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+        $codeFormat = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
 
-        array_unshift($arguments, $code_format);
+        array_unshift($arguments, $codeFormat);
 
         $this->buffer($this->apply('createCode', $arguments));
 
@@ -124,10 +146,33 @@ abstract class MixinVisitor extends CodeVisitor
         }
     }
 
+    protected function visitMixinCodeAndBlock($name, $block, $arguments)
+    {
+        if ($this->allowMixinOverride) {
+            $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
+
+            $this->buffer($code);
+            $this->indents++;
+            $this->visit($block);
+            $this->indents--;
+            $this->buffer($this->createCode('};'));
+
+            return;
+        }
+
+        $code = $this->createCode("if(!function_exists('{$name}')) { function {$name}(%s) {", implode(',', $arguments));
+
+        $this->buffer($code);
+        $this->indents++;
+        $this->visit($block);
+        $this->indents--;
+        $this->buffer($this->createCode('} }'));
+    }
+
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinDeclaration(Mixin $mixin, $name, $blockName, $attributes)
+    protected function visitMixinDeclaration(Mixin $mixin, $name, $attributes)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -143,28 +188,15 @@ abstract class MixinVisitor extends CodeVisitor
         $arguments = implode(',', $arguments);
         $arguments = explode(',', $arguments);
         array_walk($arguments, array(get_class(), 'initArgToNull'));
-        if ($this->allowMixinOverride) {
-            $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
+        $this->visitMixinCodeAndBlock($name, $block, $arguments);
 
-            $this->buffer($code);
-            $this->indents++;
-            $this->visit($block);
-            $this->indents--;
-            $this->buffer($this->createCode('};'));
-        } else {
-            $code = $this->createCode("if(!function_exists('{$name}')) { function {$name}(%s) {", implode(',', $arguments));
-
-            $this->buffer($code);
-            $this->indents++;
-            $this->visit($block);
-            $this->indents--;
-            $this->buffer($this->createCode('} }'));
-        }
         if (is_null($previousVisitedMixin)) {
             unset($this->visitedMixin);
-        } else {
-            $this->visitedMixin = $previousVisitedMixin;
+
+            return;
         }
+
+        $this->visitedMixin = $previousVisitedMixin;
     }
 
     /**
@@ -181,8 +213,10 @@ abstract class MixinVisitor extends CodeVisitor
 
         if ($mixin->call) {
             $this->visitMixinCall($mixin, $name, $blockName, $attributes);
-        } else {
-            $this->visitMixinDeclaration($mixin, $name, $blockName, $attributes);
+
+            return;
         }
+
+        $this->visitMixinDeclaration($mixin, $name, $attributes);
     }
 }

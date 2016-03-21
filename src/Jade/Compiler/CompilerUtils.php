@@ -76,10 +76,11 @@ abstract class CompilerUtils extends Indenter
     {
         foreach ($attributes as &$attribute) {
             if (is_array($attribute)) {
-                $attribute['value'] = static::decodeValue($attribute['value']);
-            } else {
-                $attribute = static::decodeValue($attribute);
+                $attribute['value'] = $attribute['value'] === true ? $attribute['name'] : static::decodeValue($attribute['value']);
+                continue;
             }
+
+            $attribute = static::decodeValue($attribute);
         }
 
         return $attributes;
