@@ -317,9 +317,6 @@ class Compiler extends MixinVisitor
 
             // shortcut for constants
             if ($this->isConstant($arg)) {
-                if ($arg === 'undefined') {
-                    $arg = 'null';
-                }
                 array_push($variables, $arg);
                 continue;
             }

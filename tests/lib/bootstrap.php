@@ -44,14 +44,15 @@ function build_list($test_list) {
 
 function get_php_code($file) {
     $jade = new Jade(array(
-        'prettyprint' => true
+        'prettyprint' => true,
+        'keepNullAttributes' => true,
     ));
     return $jade->render($file);
 }
 
 function compile_php($file) {
     $jade = new Jade(array(
-        'prettyprint' => true
+        'prettyprint' => true,
     ));
     return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
 }
