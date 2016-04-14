@@ -29,7 +29,9 @@ composer install
 ### Jade in your favorite framework
 
 Phalcon: https://github.com/kylekatarnls/jade-phalcon
+
 Symfony: https://github.com/kylekatarnls/jade-symfony
+
 CodeIgniter: https://github.com/kylekatarnls/ci-jade
 
 ### Jade options
