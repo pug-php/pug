@@ -43,13 +43,11 @@ class Parser
     protected function setInput($filename, $input)
     {
         if ($filename === null && file_exists($input)) {
-            $this->input = file_get_contents($input);
-            $this->filename = $input;
-
-            return;
+            $filename = $input;
+            $input = file_get_contents($input);
         }
 
-        $this->input = $input;
+        $this->input = preg_replace('`\r\n|\r`', "\n", $input);
         $this->filename = $filename;
     }
 

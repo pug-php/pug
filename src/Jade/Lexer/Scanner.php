@@ -26,7 +26,7 @@ abstract class Scanner extends MixinScanner
      */
     protected function scanComment()
     {
-        $indent = count($this->indentStack) ? end($this->indentStack) : 0;
+        $indent = count($this->indentStack) ? $this->indentStack[0] : 0;
         if (preg_match('/^ *\/\/(-)?([^\n]*(\n+[ \t]{' . ($indent + 1) . ',}[^\n]*)*)/', $this->input, $matches)) {
             $this->consume($matches[0]);
             $value = isset($matches[2]) ? $matches[2] : '';
