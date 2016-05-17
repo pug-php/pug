@@ -120,6 +120,22 @@ mixin centered(title)
     }
 
     /**
+     * setOptions test
+     */
+    public function testSetOptions() {
+
+        $jade = new Jade();
+        $jade->setOptions(array(
+            'prettyprint' => true,
+            'cache' => 'abc',
+            'indentChar' => '-',
+        ));
+        $this->assertTrue($jade->getOption('prettyprint'));
+        $this->assertSame($jade->getOption('cache'), 'abc');
+        $this->assertSame($jade->getOption('indentChar'), '-');
+    }
+
+    /**
      * setCustomOption test
      */
     public function testSetCustomOption() {
@@ -127,6 +143,20 @@ mixin centered(title)
         $jade = new Jade();
         $jade->setCustomOption('i-do-not-exists', 'right');
         $this->assertSame($jade->getOption('i-do-not-exists'), 'right', 'getOption should return custom setting');
+    }
+
+    /**
+     * setOptions test
+     */
+    public function testSetCustomOptions() {
+
+        $jade = new Jade();
+        $jade->setCustomOptions(array(
+            'prettyprint' => false,
+            'foo' => 'bar',
+        ));
+        $this->assertFalse($jade->getOption('prettyprint'));
+        $this->assertSame($jade->getOption('foo'), 'bar');
     }
 
     /**

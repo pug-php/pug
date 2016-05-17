@@ -78,9 +78,21 @@ class Jade
         $this->options[$name] = $value;
     }
 
+    public function setOptions($options)
+    {
+        foreach ($options as $name => $value) {
+            $this->setOption($name, $value);
+        }
+    }
+
     public function setCustomOption($name, $value)
     {
         $this->options[$name] = $value;
+    }
+
+    public function setCustomOptions(array $options)
+    {
+        $this->options = array_merge($this->options, $options);
     }
 
     /**
