@@ -23,7 +23,7 @@ class Parser
     {
         $defaultOptions = array(
             'allowMixedIndent' => true,
-            'extension' => '.jade',
+            'extension' => array('.pug', '.jade'),
         );
         foreach ($defaultOptions as $key => $default) {
             $this->$key = isset($options[$key]) ? $options[$key] : $default;
@@ -38,6 +38,48 @@ class Parser
 
         $this->lexer = new Lexer($this->input, $this->options);
         array_push($this->contexts, $this);
+    }
+
+    protected function hasValidTemplateExtension($path)
+    {
+        $extensions = is_string($this->extension)
+            ? array($this->extension)
+            : $this->extension;
+        foreach (array_unique($extensions) as $extension) {
+            if (substr($path, -strlen($extension)) === $extension) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getTemplatePath($path)
+    {
+        $extensions = is_string($this->extension)
+            ? array($this->extension)
+            : $this->extension;
+        $extensions[] = '';
+        foreach (array_unique($extensions) as $extension) {
+            if (file_exists($path . $extension)) {
+                return $path . $extension;
+            }
+        }
+
+        throw new \InvalidArgumentException("The included file '$path' does not exists.");
+    }
+
+    protected function getTemplateContents($path)
+    {
+        try {
+            return file_get_contents($this->getTemplatePath($path));
+        } catch (\InvalidArgumentException $e) {
+            if (static::$includeNotFound === false) {
+                throw $e;
+            }
+        }
+
+        return static::$includeNotFound;
     }
 
     protected function setInput($filename, $input)
@@ -301,9 +343,9 @@ class Parser
     {
         $file = $this->expect('extends')->value;
         $dir = realpath(dirname($this->filename));
-        $path = $dir . DIRECTORY_SEPARATOR . $file . $this->extension;
+        $path = $this->getTemplatePath($dir . DIRECTORY_SEPARATOR . $file);
 
-        $string = file_get_contents($path);
+        $string = $this->getTemplateContents($path);
         $parser = new static($string, $path);
         // need to be a reference, or be seted after the parse loop
         $parser->blocks = &$this->blocks;
@@ -359,25 +401,19 @@ class Parser
         $token = $this->expect('include');
         $file = trim($token->value);
         $dir = realpath(dirname($this->filename));
-
-        if (strpos(basename($file), '.') === false) {
-            $file = $file . '.jade';
-        }
-
         $path = $dir . DIRECTORY_SEPARATOR . $file;
-        if (file_exists($path)) {
-            $str = file_get_contents($path);
-        } elseif (static::$includeNotFound !== false) {
-            $str = static::$includeNotFound;
-        } else {
-            throw new \Exception("The included file '$path' does not exists.");
+
+        if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($path)) {
+            if (!file_exists($path)) {
+                throw new \Exception($file . ' not found at ' . $this->filename . ' (' . $parser->lexer->lineno . ')');
+            }
+
+            return new Nodes\Literal(file_get_contents($str));
         }
 
-        if ('.jade' !== substr($file, -5)) {
-            return new Nodes\Literal($str);
-        }
+        $string = $this->getTemplateContents($dir . DIRECTORY_SEPARATOR . $file);
 
-        $parser = new static($str, $path);
+        $parser = new static($string, $path);
         $parser->blocks = $this->blocks;
         $parser->mixins = $this->mixins;
 
@@ -394,11 +430,10 @@ class Parser
             // includeBlock might not be set
             $block = $ast->includeBlock();
             if (is_object($block)) {
-                if (count($block->nodes) === 1) {
-                    $block->nodes[0]->block->push($this->block());
-                } else {
-                    $block->push($this->block());
-                }
+                (count($block->nodes) === 1
+                    ? $block->nodes[0]->block
+                    : $block
+                )->push($this->block());
             }
         }
 

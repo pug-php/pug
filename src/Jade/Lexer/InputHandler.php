@@ -56,9 +56,9 @@ abstract class InputHandler
      */
     protected function normalizeCode($code)
     {
-        // everzet's implementation used ':' at the end of the code line as in php's alternative syntax
-        // this implementation tries to be compatible with both, js-jade and jade.php, so, remove the colon here
-        return $code = (substr($code, -1) === ':' && substr($code, -2, 1) !== ':') ? substr($code, 0, -1) : $code;
+        return $code = (substr($code, -1) === ':' && substr($code, -2, 1) !== ':')
+            ? substr($code, 0, -1)
+            : $code;
     }
 
     protected function getNextIndent()

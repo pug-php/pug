@@ -59,7 +59,7 @@ div
             $name = explode('\\', $name);
             $file = __DIR__ . '/../lib/' . end($name) . 'Filter.php';
             if (file_exists($file)) {
-                include $file;
+                include_once $file;
             }
         });
         $this->assertTrue($jade->hasFilter('foo-bar'));

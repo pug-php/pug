@@ -351,7 +351,7 @@ class Compiler extends MixinVisitor
             try {
                 return $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
             } catch (\Exception $e) {
-                throw new \Exception('JadePHP do not understand ' . $arg, 1, $e);
+                throw new \Exception('Pug.php did not understand ' . $arg, 1, $e);
             }
         }
     }

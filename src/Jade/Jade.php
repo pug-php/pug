@@ -2,18 +2,25 @@
 
 namespace Jade;
 
+use Jade\Compiler\FilterHelper;
+
 /**
  * Class Jade\Jade.
  */
 class Jade
 {
     /**
+     * @var string
+     */
+    protected $streamName = 'jade';
+
+    /**
      * @var array
      */
     protected $options = array(
         'cache'              => null,
-        'stream'             => 'jade.stream',
-        'extension'          => '.jade',
+        'stream'             => null,
+        'extension'          => array('.pug', '.jade'),
         'prettyprint'        => false,
         'phpSingleLine'      => false,
         'keepBaseName'       => false,
@@ -46,7 +53,7 @@ class Jade
      *
      * @var bool
      */
-    protected static $isWrapperRegistered = false;
+    protected static $wrappersRegistered = array();
 
     /**
      * Merge local options with constructor $options.
@@ -55,6 +62,9 @@ class Jade
      */
     public function __construct(array $options = array())
     {
+        if (is_null($this->options['stream'])) {
+            $this->options['stream'] = $this->streamName . '.stream';
+        }
         $this->options = array_merge($this->options, $options);
     }
 
@@ -93,6 +103,18 @@ class Jade
         $this->options = array_merge($this->options, $options);
     }
 
+    public function getExtension()
+    {
+        $extension = $this->getOption('extension');
+
+        return is_string($extension)
+            ? $extension
+            : (isset($extension[0])
+                ? $extension[0]
+                : ''
+            );
+    }
+
     /**
      * register / override new filter.
      *
@@ -115,10 +137,21 @@ class Jade
      */
     public function hasFilter($name)
     {
-        return array_key_exists($name, $this->filters) || (
-            $this->options['filterAutoLoad'] &&
-            class_exists('Jade\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name))))
-        );
+        $helper = new FilterHelper($this->filters, $this->options['filterAutoLoad']);
+
+        return $helper->hasFilter($name);
+    }
+
+    /**
+     * @param $name
+     *
+     * @return callable
+     */
+    public function getFilter($name)
+    {
+        $helper = new FilterHelper($this->filters, $this->options['filterAutoLoad']);
+
+        return $helper->getFilter($name);
     }
 
     /**
@@ -169,11 +202,11 @@ class Jade
     public function stream($input)
     {
         if (extension_loaded('suhosin') && false === strpos(ini_get('suhosin.executor.include.whitelist'), $this->options['stream'])) {
-            throw new \ErrorException('To run Jade on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.');
+            throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.');
         }
 
-        if (false === static::$isWrapperRegistered) {
-            static::$isWrapperRegistered = true;
+        if (!in_array($this->options['stream'], static::$wrappersRegistered)) {
+            static::$wrappersRegistered[] = $this->options['stream'];
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 

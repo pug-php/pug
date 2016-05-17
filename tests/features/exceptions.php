@@ -36,6 +36,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
 
         throw new EmulateBugException("Error Processing Request", 1);
     }
+
     /**
      * @expectedException Exception
      */
