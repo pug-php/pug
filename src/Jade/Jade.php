@@ -62,7 +62,6 @@ class Jade
     {
         if (!array_key_exists($name, $this->options)) {
             throw new \InvalidArgumentException("$name is not a valid option name.", 1);
-
         }
 
         return $this->options[$name];
@@ -72,7 +71,6 @@ class Jade
     {
         if (!array_key_exists($name, $this->options)) {
             throw new \InvalidArgumentException("$name is not a valid option name.", 1);
-
         }
 
         $this->options[$name] = $value;
