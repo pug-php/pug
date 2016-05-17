@@ -22,14 +22,12 @@ class Php implements FilterInterface
 
         foreach ($node->block->nodes as $n) {
             if (isset($n->value)) {
-                if (preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)) {
-                    $data .= ' ?> ' . $m[1] . '<?php ';
-                } else {
-                    $data .= $n->value . "\n";
-                }
-            } else {
-                $data .= ' ?> ' . $compiler->subCompiler()->compile($n) . '<?php ';
+                $data .= preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)
+                    ? ' ?> ' . $m[1] . '<?php '
+                    : $n->value . "\n";
+                continue;
             }
+            $data .= ' ?> ' . $compiler->subCompiler()->compile($n) . '<?php ';
         }
 
         return $data ? '<?php ' . $data . ' ?> ' : $data;

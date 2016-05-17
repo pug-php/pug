@@ -12,6 +12,13 @@ engines:
     enabled: true
   phpmd:
     enabled: true
+    exclude_fingerprints:
+    - bfc9d4bcb17b7370187b6188eb667c32
+    - e26083ecb05f3489ef1afc03151e5d72
+    - 89e3aa3801675c411ff895b35b97a410
+    - 3187e2b8251fa9b85b98ebd74e1595f2
+    - 22b8a69d4867ec56276c9c98777ffb38
+    - aaeb3d11f939d1619d64131aa16357e5
 ratings:
   paths:
   - "**.inc"

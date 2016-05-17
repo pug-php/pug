@@ -104,9 +104,9 @@ abstract class CompilerUtils extends Indenter
      */
     protected static function decodeValue($value)
     {
-        $_value = static::parseValue($value);
+        $parsedValue = static::parseValue($value);
 
-        return is_null($_value) ? $value : $_value;
+        return is_null($parsedValue) ? $value : $parsedValue;
     }
 
     /**
