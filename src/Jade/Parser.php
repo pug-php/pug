@@ -430,7 +430,7 @@ class Parser
             // includeBlock might not be set
             $block = $ast->includeBlock();
             if (is_object($block)) {
-                $handler =count($block->nodes) === 1
+                $handler = count($block->nodes) === 1
                     ? $block->nodes[0]->block
                     : $block;
                 $handler->push($this->block());
