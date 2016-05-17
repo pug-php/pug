@@ -101,6 +101,24 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetInvalidOption() {
+
+        $jade = new Jade();
+        $jade->setOption('i-do-not-exists', 'wrong');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetInvalidOption() {
+
+        $jade = new Jade();
+        $jade->getOption('i-do-not-exists');
+    }
+
+    /**
      * @expectedException EmulateBugException
      */
     public function testExtendsWithFilterException() {

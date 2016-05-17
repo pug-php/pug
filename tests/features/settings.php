@@ -79,6 +79,57 @@ mixin centered(title)
     }
 
     /**
+     * setOption test
+     */
+    public function testSetOption() {
+
+        $template = '
+mixin centered(title)
+  div.centered(id=attributes.id)
+    - if (title)
+      h1(class=attributes.class)= title
+    block
+    - if (attributes.href)
+      .footer
+        a(href=attributes.href) Back
+
++centered(\'Section 1\')#Second.foo
+  p Some important content.
+';
+
+        $jade = new Jade(array(
+            'prettyprint' => false,
+        ));
+        $this->assertFalse($jade->getOption('prettyprint'), 'getOption should return current setting');
+        $jade->setOption('prettyprint', true);
+        $this->assertTrue($jade->getOption('prettyprint'), 'getOption should return current setting');
+        $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $jade->render($template)))));
+        $expected = str_replace("\r", '', '<div id=\'Second\' class=\'centered\'>
+<h1 class=\'foo\'>Section 1</h1>
+<p>Some important content.</p>
+</div>');
+
+        $this->assertSame($actual, $expected, 'Pretty print enabled');
+
+        $jade->setOption('prettyprint', false);
+        $this->assertFalse($jade->getOption('prettyprint'), 'getOption should return current setting');
+        $actual = preg_replace('`[ \t]+`', ' ', $jade->render($template));
+        $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
+
+        $this->assertSame($actual, $expected, 'Pretty print disabled');
+    }
+
+    /**
+     * setCustomOption test
+     */
+    public function testSetCustomOption() {
+
+        $jade = new Jade();
+        $jade->setCustomOption('i-do-not-exists', 'right');
+        $this->assertSame($jade->getOption('i-do-not-exists'), 'right', 'getOption should return custom setting');
+    }
+
+    /**
      * allowMixinOverride setting test
      */
     public function testAllowMixinOverride() {

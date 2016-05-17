@@ -58,6 +58,31 @@ class Jade
         $this->options = array_merge($this->options, $options);
     }
 
+    public function getOption($name)
+    {
+        if (!array_key_exists($name, $this->options)) {
+            throw new \InvalidArgumentException("$name is not a valid option name.", 1);
+
+        }
+
+        return $this->options[$name];
+    }
+
+    public function setOption($name, $value)
+    {
+        if (!array_key_exists($name, $this->options)) {
+            throw new \InvalidArgumentException("$name is not a valid option name.", 1);
+
+        }
+
+        $this->options[$name] = $value;
+    }
+
+    public function setCustomOption($name, $value)
+    {
+        $this->options[$name] = $value;
+    }
+
     /**
      * register / override new filter.
      *
