@@ -405,10 +405,10 @@ class Parser
 
         if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($path)) {
             if (!file_exists($path)) {
-                throw new \Exception($file . ' not found at ' . $this->filename . ' (' . $parser->lexer->lineno . ')');
+                throw new \Exception($file . ' not found at ' . $this->filename . ' (line ' . $token->line . ')');
             }
 
-            return new Nodes\Literal(file_get_contents($str));
+            return new Nodes\Literal(file_get_contents($path));
         }
 
         $string = $this->getTemplateContents($dir . DIRECTORY_SEPARATOR . $file);

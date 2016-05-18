@@ -7,6 +7,8 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
         'xml' => 'hhvm',
 
         // Add here tests for future features not yet implemented
+        'vars.mixins',
+        'attrs-data.complex',
     );
 
     public function caseProvider() {

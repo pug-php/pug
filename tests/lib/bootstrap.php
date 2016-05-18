@@ -90,7 +90,8 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
         if($verbose) {
             echo "! sample for test '$name' not found.\n";
         }
-        return;
+
+        return array(false, array($name, null, "! sample for test '$name' not found.\n"));
     }
 
     if($verbose) {
@@ -102,41 +103,45 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
         if($verbose) {
             echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
         }
-        $new = null;
+
+        return array(false, array($name, null, "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n"));
     }
 
-    if($new !== null) {
-        $actualHtml = get_generated_html($new);
-
-        $from = array("'", "\r", "<!DOCTYPEhtml>");
-        $to = array('"', '', '');
-        if (IGNORE_INDENT && strpos($name, 'indent.') === false) {
-            array_push($from, "\n", "\t", " ");
-            array_push($to, '', '', '');
-        }
-        $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
-        $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
-        $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
-
-        if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
-            if($verbose) {
-                include_once __DIR__ . '/diff.php';
-                $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
-                $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
-                echo Diff::toString(Diff::compare($expectedHtml, $actualHtml)) . "\n";
-                /*
-                echo "  Expected: $expectedHtml\n";
-                echo "  Actual  : $actualHtml\n\n";
-                */
-            }
-            if($moreVerbose) {
-                echo "  PHP     : " . compile_php($name);
-            }
-            return array(false, $result);
-        }
-
-        return array(true, $result);
+    if(is_null($new)) {
+        return array(false, array($name, null, "! FATAL: " . $path . ".jade returns null\n"));
     }
+
+    $actualHtml = get_generated_html($new);
+
+    $from = array("'", "\r", "<!DOCTYPEhtml>");
+    $to = array('"', '', '');
+    if (IGNORE_INDENT && strpos($name, 'indent.') === false) {
+        array_push($from, "\n", "\t", " ");
+        array_push($to, '', '', '');
+    }
+    $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
+    $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
+    $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
+
+    if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
+        if($verbose) {
+            include_once __DIR__ . '/diff.php';
+            $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
+            $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
+            echo Diff::toString(Diff::compare($expectedHtml, $actualHtml)) . "\n";
+            /*
+            echo "  Expected: $expectedHtml\n";
+            echo "  Actual  : $actualHtml\n\n";
+            */
+        }
+        if($moreVerbose) {
+            echo "  PHP     : " . compile_php($name);
+        }
+
+        return array(false, $result);
+    }
+
+    return array(true, $result);
 }
 
 function array_remove(&$array, $value) {

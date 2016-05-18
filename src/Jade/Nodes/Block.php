@@ -63,7 +63,7 @@ class Block extends Node
                 continue;
             }
 
-            if (isset($node->includeBlock)) {
+            if (method_exists($node, 'includeBlock')) {
                 $ret = $node->includeBlock();
             } elseif (isset($node->block) && !$node->block->isEmpty()) {
                 $ret = $node->block->includeBlock();
