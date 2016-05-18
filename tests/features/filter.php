@@ -10,6 +10,7 @@ class JadeFilterTest extends PHPUnit_Framework_TestCase {
     public function testFilter() {
 
         $jade = new Jade();
+        $this->assertSame($jade->getFilter('php'), 'Jade\Filter\Php');
         $this->assertFalse($jade->hasFilter('text'));
         $jade->filter('text', function($node, $compiler){
             foreach ($node->block->nodes as $line) {
@@ -62,7 +63,12 @@ div
                 include_once $file;
             }
         });
+        $jade->setOption('filterAutoLoad', false);
+        $this->assertFalse($jade->hasFilter('foo-bar'));
+        $this->assertSame($jade->getFilter('foo-bar'), null);
+        $jade->setOption('filterAutoLoad', true);
         $this->assertTrue($jade->hasFilter('foo-bar'));
+        $this->assertSame($jade->getFilter('foo-bar'), 'Jade\Filter\FooBar');
         $actual = $jade->render('
 div
     p
