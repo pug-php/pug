@@ -24,7 +24,7 @@ class FilterHelper
      */
     public function hasFilter($name)
     {
-        return boolval($this->getFilter($name));
+        return !is_null($this->getFilter($name));
     }
 
     /**
