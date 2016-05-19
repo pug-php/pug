@@ -426,8 +426,7 @@ class Parser
         $this->context();
         $ast->filename = $path;
 
-        if ('indent' === $this->peek()->type) {
-            // includeBlock might not be set
+        if ('indent' === $this->peek()->type && method_exists($ast, 'includeBlock')) {
             $block = $ast->includeBlock();
             if (is_object($block)) {
                 $handler = count($block->nodes) === 1
