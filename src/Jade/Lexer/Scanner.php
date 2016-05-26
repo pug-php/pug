@@ -10,12 +10,12 @@ abstract class Scanner extends MixinScanner
     /**
      *  Helper to create tokens.
      */
-    protected function scan($regex, $type)
+    protected function scan($regex, $type, $captureIndex = 1)
     {
         if (preg_match($regex, $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token($type, isset($matches[1]) && mb_strlen($matches[1]) > 0 ? $matches[1] : '');
+            return $this->token($type, isset($matches[$captureIndex]) && mb_strlen($matches[$captureIndex]) > 0 ? $matches[$captureIndex] : '');
         }
     }
 
@@ -261,6 +261,6 @@ abstract class Scanner extends MixinScanner
      */
     protected function scanAndAttributes()
     {
-        return $this->scan('/^&attributes\(([^()]*(?:(?R)[^()]*)*+)\)/', '&attributes');
+        return $this->scan('/^&attributes(\(((?>[^()]+|(?1))*)\))/', '&attributes', 2);
     }
 }

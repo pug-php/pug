@@ -88,13 +88,21 @@ abstract class CompilerFacade extends CompilerUtils
         return $value;
     }
 
+    protected static function joinAny($value)
+    {
+        return is_array($value)
+            ? implode(' ', $value)
+            : $value;
+    }
+
     public static function withMixinAttributes($attributes, $mixinAttributes)
     {
         foreach ($mixinAttributes as $attribute) {
             if ($attribute['name'] === 'class') {
+                $value = static::joinAny($attribute['value']);
                 $attributes['class'] = empty($attributes['class'])
-                    ? $attribute['value']
-                    : $attributes['class'] . ' ' . $attribute['value'];
+                    ? $value
+                    : static::joinAny($attributes['class']) . ' ' . $value;
             }
         }
         if (isset($attributes['class'])) {
@@ -111,7 +119,7 @@ abstract class CompilerFacade extends CompilerUtils
     {
         if (is_array($attributes) || $attributes instanceof Traversable) {
             foreach ($attributes as $key => $value) {
-                if ($value !== false && $value !== 'null') {
+                if ($key !== 'class' && $value !== false && $value !== 'null') {
                     echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
                 }
             }

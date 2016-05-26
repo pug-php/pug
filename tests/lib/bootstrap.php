@@ -83,6 +83,17 @@ function get_generated_html($contents) {
     return $contents;
 }
 
+function orderWords($words) {
+    if (is_array($words)) {
+        return 'class=' . $words[1] . orderWords($words[2]) . $words[1];
+    }
+
+    $words = preg_split('`\s+`', $words);
+    sort($words);
+
+    return implode(' ', $words);
+}
+
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
     $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
@@ -119,6 +130,10 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
         array_push($from, "\n", "\t", " ");
         array_push($to, '', '', '');
     }
+    $expectedHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $expectedHtml);
+    $actualHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $actualHtml);
+    $expectedHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $expectedHtml);
+    $actualHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $actualHtml);
     $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
     $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
     $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);

@@ -64,9 +64,14 @@ abstract class MixinVisitor extends CodeVisitor
                 continue;
             }
 
-            $value = trim($data['value']);
+            $value = is_array($data['value'])
+                ? preg_split('`\s+`', trim(implode(' ', $data['value'])))
+                : trim($data['value']);
             $parsedAttributes[$data['name']] = $data['escaped'] === true
-                ? htmlspecialchars($value)
+                ? (is_array($value)
+                    ? array_map('htmlspecialchars', $value)
+                    : htmlspecialchars($value)
+                )
                 : $value;
         }
 

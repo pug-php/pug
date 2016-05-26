@@ -67,7 +67,7 @@ mixin centered(title)
 <p>Some important content.</p>
 </div>');
 
-        $this->assertSame($actual, $expected, 'Pretty print enabled');
+        $this->assertSame($expected, $actual, 'Pretty print enabled');
 
         $jade = new Jade(array(
             'prettyprint' => false,
@@ -75,7 +75,7 @@ mixin centered(title)
         $actual = preg_replace('`[ \t]+`', ' ', $jade->render($template));
         $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
 
-        $this->assertSame($actual, $expected, 'Pretty print disabled');
+        $this->assertSame($expected, $actual, 'Pretty print disabled');
     }
 
     /**
@@ -229,30 +229,19 @@ p(class=$foo)=$bar
         $jade = new Jade(array(
             'phpSingleLine' => true,
         ));
-        $actual =  str_replace("\r", '', $jade->compile($template));
-        $expected = str_replace("\r", '', '<?php
- $foo = "bar" ' . '
-?><?php
- $bar = 42 ' . '
-?><p <?php
- if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ' . '
-?> class=\'<?php
- echo $__classes ' . '
-?>\'<?php
- } ' . '
-?>><?php
- echo htmlspecialchars($bar) ' . '
-?></p>');
+        $compile = $jade->compile($template);
+        $actual = substr_count($compile, "\n");
+        $expected = substr_count($compile, '<?php') * 2;
 
-        $this->assertSame($actual, $expected, 'PHP single line enabled');
+        $this->assertSame($expected, $actual, 'PHP single line enabled');
+        $this->assertGreaterThan(5, $actual, 'PHP single line enabled');
 
         $jade = new Jade(array(
             'phpSingleLine' => false,
         ));
-        $actual = str_replace("\r", '', $jade->compile($template));
-        $expected = str_replace("\r", '', '<?php $foo = "bar" ?><?php $bar = 42 ?><p <?php if("" !== ($__classes = implode(" ", array((is_array($_a = $foo) ? implode(" ", $_a) : $_a))))) { ?> class=\'<?php echo $__classes ?>\'<?php } ?>><?php echo htmlspecialchars($bar) ?></p>');
+        $actual = substr_count(trim($jade->compile($template)), "\n");
 
-        $this->assertSame($actual, $expected, 'PHP single line disabled');
+        $this->assertEquals(0, $actual,'PHP single line disabled');
     }
 
     /**

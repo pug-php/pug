@@ -22,6 +22,9 @@ mixin bottom
 mixin field(value, options)
   input(type='radio' checked=attributes.prefilled value=value)&attributes(options)
 
+mixin classy
+  a.b.c(class=["d", "e"])&attributes(attributes)&attributes(array('class' => 'j', 'id' => "a"))
+
 body
   +centered#First Hello World
   +centered('Section 1')#Second
@@ -45,3 +48,4 @@ body
   +field(false, 32)(prefilled=false, title="foo")
   +field(null, a=false, b=null, c=0)(prefilled=null)
   +field(null, a=false, b=null, c=0)
+  +classy().g(class=['h', 'i']).f
