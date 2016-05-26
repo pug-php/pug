@@ -105,48 +105,48 @@ class Attributes
                             break;
 
                         default:
-                            $escapedAttribute = '!' != $previousChar;
+                            $escapedAttribute = '!' !== $previousChar;
                             array_push($states, 'val');
                     }
                     break;
 
                 case '(':
-                    if ($state() == 'val' || $state() == 'expr') {
+                    if ($state() === 'val' || $state() === 'expr') {
                         array_push($states, 'expr');
                     }
                     $val .= $char;
                     break;
 
                 case ')':
-                    if ($state() == 'val' || $state() == 'expr') {
+                    if ($state() === 'val' || $state() === 'expr') {
                         array_pop($states);
                     }
                     $val .= $char;
                     break;
 
                 case '{':
-                    if ($state() == 'val') {
+                    if ($state() === 'val') {
                         array_push($states, 'object');
                     }
                     $val .= $char;
                     break;
 
                 case '}':
-                    if ($state() == 'object') {
+                    if ($state() === 'object') {
                         array_pop($states);
                     }
                     $val .= $char;
                     break;
 
                 case '[':
-                    if ($state() == 'val') {
+                    if ($state() === 'val') {
                         array_push($states, 'array');
                     }
                     $val .= $char;
                     break;
 
                 case ']':
-                    if ($state() == 'array') {
+                    if ($state() === 'array') {
                         array_pop($states);
                     }
                     $val .= $char;

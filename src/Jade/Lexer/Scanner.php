@@ -233,7 +233,7 @@ abstract class Scanner extends MixinScanner
      */
     protected function scanPipelessText()
     {
-        if ($this->pipeless && "\n" != $this->input[0]) {
+        if ($this->pipeless && "\n" !== substr($this->input, 0, 1)) {
             $pos = mb_strpos($this->input, "\n");
 
             if ($pos === false) {
