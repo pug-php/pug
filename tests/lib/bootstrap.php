@@ -95,6 +95,7 @@ function orderWords($words) {
 }
 
 function get_test_result($name, $verbose = false, $moreVerbose = false) {
+    $mergeSpace = IGNORE_INDENT && strpos($name, 'indent.') === false;
     $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
     if($expectedHtml === false) {
@@ -126,14 +127,16 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
 
     $from = array("'", "\r", "<!DOCTYPEhtml>");
     $to = array('"', '', '');
-    if (IGNORE_INDENT && strpos($name, 'indent.') === false) {
+    if ($mergeSpace) {
         array_push($from, "\n", "\t", " ");
         array_push($to, '', '', '');
     }
     $expectedHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $expectedHtml);
     $actualHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $actualHtml);
-    $expectedHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $expectedHtml);
-    $actualHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $actualHtml);
+    if ($mergeSpace) {
+        $expectedHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $expectedHtml);
+        $actualHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $actualHtml);
+    }
     $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
     $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
     $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);

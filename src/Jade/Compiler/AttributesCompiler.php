@@ -175,6 +175,6 @@ abstract class AttributesCompiler extends CompilerFacade
 
         $items .= $this->getClassesCode($classes, $classesCheck);
 
-        $this->buffer(' ' . trim($items), false);
+        $this->buffer($items, false);
     }
 }
