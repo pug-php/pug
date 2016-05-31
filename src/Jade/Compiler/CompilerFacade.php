@@ -30,9 +30,6 @@ abstract class CompilerFacade extends CompilerUtils
      */
     public static function recordMixinBlock($name, $func = null)
     {
-        if (!is_callable($func)) {
-            $func = function () {};
-        }
         if (!isset(static::$mixinBlocks[$name])) {
             static::$mixinBlocks[$name] = array();
         }
