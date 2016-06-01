@@ -26,7 +26,7 @@ and mixins.
 composer require pug-php/pug
 composer install
 ```
-[pug-php/pug on packagist.org](https://packagist.org/packages/kylekatarnls/pug)
+[pug-php/pug on packagist.org](https://packagist.org/packages/pug-php/pug)
 
 ### Pug in your favorite framework
 
