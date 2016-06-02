@@ -137,7 +137,7 @@ abstract class Scanner extends MixinScanner
         if (preg_match('/^(\$?\w+) += *([^;\n]+|\'[^\']+\'|"[^"]+")( *;? *)/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token('code', (substr($matches[1], 0, 1) === '$' ? '' : '$') . $matches[1] . ' = ' . $matches[2]);
+            return $this->token('code', (substr($matches[1], 0, 1) === '$' ? '' : '$') . $matches[1] . '=' . $matches[2]);
         }
     }
 

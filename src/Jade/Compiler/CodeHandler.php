@@ -236,10 +236,10 @@ class CodeHandler extends CompilerUtils
                     if (preg_match('/^[[:space:]]*$/', $innerName)) {
                         next($separators);
                         $arguments = $handleCodeInbetween();
-                        $varname .= ' = ' . implode($arguments);
+                        $varname .= '=' . implode($arguments);
                         break;
                     }
-                    $varname .= ' = ' . $handleRecursion(array($sep, end($separators)));
+                    $varname .= '=' . $handleRecursion(array($sep, end($separators)));
                     break;
 
                 default:
