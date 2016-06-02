@@ -47,9 +47,6 @@ abstract class Visitor extends AttributesCompiler
      */
     protected function visitCasenode(CaseNode $node)
     {
-        $within = $this->withinCase;
-        $this->withinCase = true;
-
         $this->switchNode = $node;
         $this->visit($node->block);
 
@@ -60,7 +57,6 @@ abstract class Visitor extends AttributesCompiler
             $code = $this->createCode('}');
             $this->buffer($code);
         }
-        $this->withinCase = $within;
     }
 
     /**

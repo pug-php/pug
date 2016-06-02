@@ -56,10 +56,6 @@ class Compiler extends MixinVisitor
      * @var bool
      */
     protected $terse = true;
-    /**
-     * @var bool
-     */
-    protected $withinCase = false;
 
     /**
      * @var string
