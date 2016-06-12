@@ -56,6 +56,10 @@ class Compiler extends MixinVisitor
      * @var bool
      */
     protected $terse = true;
+    /**
+     * @var bool
+     */
+    protected $restrictedScope = false;
 
     /**
      * @var string
@@ -74,6 +78,7 @@ class Compiler extends MixinVisitor
             'allowMixinOverride' => 'boolean',
             'keepNullAttributes' => 'boolean',
             'filterAutoLoad' => 'boolean',
+            'restrictedScope' => 'boolean',
             'indentSize' => 'integer',
             'indentChar' => 'string',
         ) as $option => $type) {
@@ -82,6 +87,7 @@ class Compiler extends MixinVisitor
                 settype($this->$option, $type);
             }
         }
+
         $this->options = $options;
         $this->filters = $filters;
         $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';

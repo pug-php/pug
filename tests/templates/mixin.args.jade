@@ -1,6 +1,6 @@
-mixin foo(selected)
+mixin foo(text)
   h1&attributes(attributes)
-    =selected
+    =text
 - var selected = "a"
 +foo(selected)
 +foo()(selected)

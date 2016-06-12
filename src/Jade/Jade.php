@@ -27,6 +27,7 @@ class Jade
         'allowMixinOverride' => true,
         'allowMixedIndent'   => true,
         'keepNullAttributes' => false,
+        'restrictedScope'    => false,
         'singleQuote'        => true,
         'filterAutoLoad'     => true,
         'indentSize'         => 2,

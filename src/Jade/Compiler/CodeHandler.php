@@ -40,7 +40,7 @@ class CodeHandler extends CompilerUtils
         }
 
         preg_match_all(
-            '/(?<![<>=!])=(?!>)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
+            '/(?<![<>=!])=(?!>|=)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
             preg_replace_callback('#([\'"]).*(?<!\\\\)(?:\\\\{2})*\\1#', function ($match) {
                 return str_repeat(' ', strlen($match[0]));
             }, $this->input),

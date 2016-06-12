@@ -47,7 +47,25 @@ abstract class CompilerFacade extends CompilerUtils
         if (isset(static::$mixinBlocks[$name]) && is_array($mixinBlocks = static::$mixinBlocks[$name])) {
             $func = end($mixinBlocks);
             if (is_callable($func)) {
-                call_user_func($func, $attributes);
+                $func($attributes);
+            }
+        }
+    }
+
+    /**
+     * record a closure as a mixin block during execution jade template time
+     * and propagate variables.
+     *
+     * @param string  mixin name
+     * @param &array  variables handler propagated from parent scope
+     * @param string  mixin block treatment
+     */
+    public static function callMixinBlockWithVars($name, &$varHandler, $attributes = array())
+    {
+        if (isset(static::$mixinBlocks[$name]) && is_array($mixinBlocks = static::$mixinBlocks[$name])) {
+            $func = end($mixinBlocks);
+            if (is_callable($func)) {
+                $func($varHandler, $attributes);
             }
         }
     }

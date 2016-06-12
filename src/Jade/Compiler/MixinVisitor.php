@@ -68,10 +68,9 @@ abstract class MixinVisitor extends CodeVisitor
                 ? preg_split('`\s+`', trim(implode(' ', $data['value'])))
                 : trim($data['value']);
             $parsedAttributes[$data['name']] = $data['escaped'] === true
-                ? (is_array($value)
+                ? is_array($value)
                     ? array_map('htmlspecialchars', $value)
                     : htmlspecialchars($value)
-                )
                 : $value;
         }
 
@@ -79,6 +78,44 @@ abstract class MixinVisitor extends CodeVisitor
         $mixinAttributes = var_export(static::decodeAttributes($mixinAttributes), true);
 
         return "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
+    }
+
+    protected function renderClosureOpenning()
+    {
+        $arguments = func_get_args();
+        $begin = array_shift($arguments);
+        $begin = is_array($begin)
+            ? $begin[0] . 'function ' . $begin[1]
+            : $begin . 'function ';
+        $params = implode(', ', array_map(function ($name) {
+            return (substr($name, 0, 1) === '$' ? '' : '$') . $name;
+        }, $arguments));
+
+        if ($this->restrictedScope) {
+            return $this->buffer($this->createCode($begin . '(' . $params . ') {'));
+        }
+
+        $params = '&$__varHandler, ' . $params;
+
+        $this->buffer(
+            $this->createCode($begin . '(' . $params . ') {') .
+            $this->createCode($this->indent() . 'extract($__varHandler, EXTR_SKIP);')
+        );
+    }
+
+    protected function renderClosureClosing($code)
+    {
+        if (!$this->restrictedScope) {
+            $this->buffer($this->createCode(
+                'foreach ($__varHandler as $key => &$val) {' .
+                'if ($key !== \'__varHandler\') {' .
+                '$val = ${$key};' .
+                '}' .
+                '}'
+            ));
+        }
+
+        $this->buffer($this->createCode($code));
     }
 
     /**
@@ -96,10 +133,9 @@ abstract class MixinVisitor extends CodeVisitor
         $attributes = $this->parseMixinAttributes($attributes, $defaultAttributes, $mixin->attributes);
 
         if ($block) {
-            $code = $this->createCode("\\Jade\\Compiler::recordMixinBlock($blockName, function (\$attributes) {");
-            $this->buffer($code);
+            $this->renderClosureOpenning("\\Jade\\Compiler::recordMixinBlock($blockName, ", 'attributes');
             $this->visit($block);
-            $this->buffer($this->createCode('});'));
+            $this->renderClosureClosing('});');
         }
 
         $strings = array();
@@ -139,11 +175,23 @@ abstract class MixinVisitor extends CodeVisitor
 
         $arguments = $statements;
 
-        $codeFormat = str_repeat('%s;', count($arguments) - 1) . "{$name}(%s)";
+        $paramsPrefix = '';
+        if (!$this->restrictedScope) {
+            $this->buffer($this->createCode('$__varHandler = get_defined_vars();'));
+            $paramsPrefix = '$__varHandler, ';
+        }
+        $codeFormat = str_repeat('%s;', count($arguments) - 1) . "{$name}({$paramsPrefix}%s)";
 
         array_unshift($arguments, $codeFormat);
 
         $this->buffer($this->apply('createCode', $arguments));
+        if (!$this->restrictedScope) {
+            $this->buffer(
+                $this->createCode(
+                    'extract(array_diff_key($__varHandler, array(\'__varHandler\' => 1, \'attributes\' => 1)));'
+                )
+            );
+        }
 
         if ($block) {
             $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
@@ -153,25 +201,16 @@ abstract class MixinVisitor extends CodeVisitor
 
     protected function visitMixinCodeAndBlock($name, $block, $arguments)
     {
-        if ($this->allowMixinOverride) {
-            $code = $this->createCode("{$name} = function (%s) { ", implode(',', $arguments));
-
-            $this->buffer($code);
-            $this->indents++;
-            $this->visit($block);
-            $this->indents--;
-            $this->buffer($this->createCode('};'));
-
-            return;
-        }
-
-        $code = $this->createCode("if(!function_exists('{$name}')) { function {$name}(%s) {", implode(',', $arguments));
-
-        $this->buffer($code);
+        $this->renderClosureOpenning(
+            $this->allowMixinOverride
+                ? "{$name} = "
+                : array("if(!function_exists('{$name}')) { ", $name),
+            implode(',', $arguments)
+        );
         $this->indents++;
         $this->visit($block);
         $this->indents--;
-        $this->buffer($this->createCode('} }'));
+        $this->renderClosureClosing($this->allowMixinOverride ? '};' : '} }');
     }
 
     /**

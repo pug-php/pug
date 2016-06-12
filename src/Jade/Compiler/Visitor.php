@@ -140,9 +140,12 @@ abstract class Visitor extends AttributesCompiler
     protected function visitMixinBlock()
     {
         $name = var_export($this->visitedMixin->name, true);
-        $code = $this->createCode("\\Jade\\Compiler::callMixinBlock($name, \$attributes);");
 
-        $this->buffer($code);
+        $code = $this->restrictedScope
+            ? "\\Jade\\Compiler::callMixinBlock($name, \$attributes);"
+            : "\$__varHandler = get_defined_vars(); \\Jade\\Compiler::callMixinBlockWithVars($name, \$__varHandler, \$attributes); extract(array_diff_key(\$__varHandler, array('__varHandler' => 1)));";
+
+        $this->buffer($this->createCode($code));
     }
 
     /**

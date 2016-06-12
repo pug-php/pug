@@ -192,6 +192,43 @@ mixin foo()
     }
 
     /**
+     * allowMixinOverride setting test
+     */
+    public function testRestrictedScope() {
+
+        $template = '
+mixin foo()
+  if isset($bar)
+    h1=bar
+  else
+    h1 Not found
+  block
+
+- bar="Hello"
+
++foo
+  if isset($bar)
+    h2=bar
+  else
+    h2 Not found
+';
+
+        $jade = new Jade(array(
+            'restrictedScope' => true,
+        ));
+        $actual = $jade->render($template);
+        $expected = '<h1>Not found</h1><h2>Not found</h2>';
+
+        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Restricted scope enabled');
+
+        $jade->setOption('restrictedScope', false);
+        $actual = $jade->render($template);
+        $expected = '<h1>Hello</h1><h2>Hello</h2>';
+
+        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Restricted scope disabled');
+    }
+
+    /**
      * singleQuote setting test
      */
     public function testSingleQuote() {
