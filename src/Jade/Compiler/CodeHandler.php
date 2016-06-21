@@ -39,6 +39,10 @@ class CodeHandler extends CompilerUtils
             return array($this->input);
         }
 
+        if (strpos('=])},;?', substr($this->input, 0, 1)) !== false) {
+            throw new \Exception('Expecting a variable name or an expression, got: ' . $this->input);
+        }
+
         preg_match_all(
             '/(?<![<>=!])=(?!>|=)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
             preg_replace_callback('#([\'"]).*(?<!\\\\)(?:\\\\{2})*\\1#', function ($match) {
@@ -50,7 +54,7 @@ class CodeHandler extends CompilerUtils
 
         $this->separators = $separators[0];
 
-        if (count($this->separators) == 0) {
+        if (count($this->separators) === 0) {
             if (strstr('0123456789-+("\'$', substr($this->input, 0, 1)) === false) {
                 $this->input = static::addDollarIfNeeded($this->input);
             }
@@ -60,10 +64,6 @@ class CodeHandler extends CompilerUtils
 
         // add a pseudo separator for the end of the input
         array_push($this->separators, array(null, strlen($this->input)));
-
-        if ($this->separators[0][1] == 0) {
-            throw new \Exception('Expecting a variable name got: ' . $this->input);
-        }
 
         return $this->parseBetweenSeparators();
     }
@@ -87,7 +87,7 @@ class CodeHandler extends CompilerUtils
 
         // do not add $ if it is not like a variable
         $varname = static::convertVarPath(substr($input, 0, $separators[0][1]), '/^%s/');
-        if ($separators[0][0] != '(' && strstr('0123456789-+("\'$', $varname[0]) === false) {
+        if ($separators[0][0] !== '(' && $varname !== '' && strstr('0123456789-+("\'$', substr($varname, 0, 1)) === false) {
             $varname = static::addDollarIfNeeded($varname);
         }
 
@@ -226,11 +226,84 @@ class CodeHandler extends CompilerUtils
                     }
                     break;
 
-                /*case '[':
-                    $arguments = $handleCodeInbetween();
-                    $varname .= '[' . implode($arguments) . ']';
+                case '[':
+                case '{':
+                    $input = $handleCodeInbetween();
 
-                    break;*/
+                    $output = array();
+                    $key = '';
+                    $value = null;
+                    $addToOutput = function () use (&$output, &$key, &$value) {
+                        foreach (array('key', 'value') as $var) {
+                            ${$var} = trim(${$var});
+                            if (empty(${$var})) {
+                                continue;
+                            }
+                            if (preg_match('/^\d*[a-zA-Z_]/', ${$var})) {
+                                ${$var} = var_export(${$var}, true);
+                            }
+                            $quote = substr(${$var}, 0, 1);
+                        }
+                        $output[] = empty($value)
+                            ? $key
+                            : $key . ' => ' . $value;
+                        $key = '';
+                        $value = null;
+                    };
+                    $consume = function (&$argument, $start) {
+                        $argument = substr($argument, strlen($start));
+                    };
+                    foreach ($input as $argument) {
+                        $argument = ltrim($argument, '$');
+                        $quote = null;
+                        while (preg_match('/^(.*?)(=>|[\'",:])/', $argument, $match)) {
+                            switch ($match[2]) {
+                                case '"':
+                                case "'":
+                                    if ($quote) {
+                                        if (CommonUtils::escapedEnd($match[1])) {
+                                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                            $consume($argument, $match[0]);
+                                            break;
+                                        }
+                                        $quote = null;
+                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                        $consume($argument, $match[0]);
+                                        break;
+                                    }
+                                    $quote = $match[2];
+                                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                    $consume($argument, $match[0]);
+                                    break;
+                                case ':':
+                                case '=>':
+                                    if ($quote) {
+                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                        $consume($argument, $match[0]);
+                                        break;
+                                    }
+                                    if (!is_null($value)) {
+                                        throw new \Exception('Parse error on ' . substr($argument, strlen($match[1])), 1);
+                                    }
+                                    $key .= $match[1];
+                                    $value = '';
+                                    $consume($argument, $match[0]);
+                                    break;
+                                case ',':
+                                    $consume($argument, $match[0]);
+                                    if ($quote) {
+                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                        break;
+                                    }
+                                    ${is_null($value) ? 'key' : 'value'} .= $match[1];
+                                    $addToOutput();
+                                    break;
+                            }
+                        }
+                        $addToOutput();
+                    }
+                    $varname .= 'array(' . implode(', ', $output) . ')';
+                    break;
 
                 case '=':
                     if (preg_match('/^[[:space:]]*$/', $innerName)) {

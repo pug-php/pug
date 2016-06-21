@@ -48,6 +48,14 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
+    public function testDoubleDoubleArrow() {
+
+        get_php_code('a(href=["a" => "b" => "c"])');
+    }
+
+    /**
+     * @expectedException Exception
+     */
     public function testBadInclude() {
 
         get_php_code('include a/file/with/an.extension');

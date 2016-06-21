@@ -559,14 +559,14 @@ class Parser
     {
         $i = 2;
 
-        if ('attributes' == $this->lookahead($i)->type) {
+        if ('attributes' === $this->lookahead($i)->type) {
             $i++;
         }
 
-        if (':' == $this->lookahead($i)->type) {
+        if (':' === $this->lookahead($i)->type) {
             $i++;
 
-            if ('indent' == $this->lookahead($i)->type) {
+            if ('indent' === $this->lookahead($i)->type) {
                 return $this->parseASTFilter();
             }
         }
@@ -574,7 +574,6 @@ class Parser
         $token = $this->advance();
         $tag = new Nodes\Tag($token->value);
 
-        // tag/
         $tag->selfClosing = isset($token->selfClosing)
             ? $token->selfClosing
             : false;
@@ -627,13 +626,13 @@ class Parser
                     $token = $this->advance();
                     $obj = $token->attributes;
                     $escaped = $token->escaped;
-                    $name_list = array_keys($obj);
+                    $nameList = array_keys($obj);
 
                     if ($token->selfClosing) {
                         $tag->selfClosing = true;
                     }
 
-                    foreach ($name_list as $name) {
+                    foreach ($nameList as $name) {
                         $value = $obj[$name];
                         $tag->setAttribute($name, $value, $escaped[$name]);
                     }

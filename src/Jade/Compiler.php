@@ -270,28 +270,27 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @param $text
+     * @param string $text
      *
      * @return mixed
      */
     public function interpolate($text)
     {
-        $count = preg_match_all('/(\\\\)?([#!]){(.*?)}/', $text, $matches, PREG_SET_ORDER);
+        return preg_replace_callback('/(\\\\)?([#!]){(.*?)}/', array($this, 'interpolateFromCapture'), $text);
+    }
 
-        if (!$count) {
-            return $text;
+    /**
+     * @param array $match
+     *
+     * @return string
+     */
+    protected function interpolateFromCapture($match)
+    {
+        if ($match[1] === '') {
+            return $this->createCode($match[2] === '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
         }
 
-        foreach ($matches as $match) {
-
-            // \#{dont_do_interpolation}
-            if (mb_strlen($match[1]) == 0) {
-                $code = $this->createCode($match[2] == '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
-                $text = str_replace($match[0], $code, $text);
-            }
-        }
-
-        return str_replace('\\#{', '#{', $text);
+        return substr($match[0], 1);
     }
 
     /**
@@ -324,7 +323,7 @@ class Compiler extends MixinVisitor
             }
 
             // if we have a php variable assume that the string is good php
-            if (preg_match('/&?\${1,2}' . static::VARNAME . '|::/', $arg)) {
+            if (strpos('{[', substr($arg, 0, 1)) === false && preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)) {
                 array_push($variables, $arg);
                 continue;
             }

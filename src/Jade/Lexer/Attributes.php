@@ -2,6 +2,8 @@
 
 namespace Jade\Lexer;
 
+use Jade\Compiler\CommonUtils;
+
 /**
  * Class Jade\Lexer\Attributes.
  */
@@ -47,6 +49,7 @@ class Attributes
                     array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
                 );
                 $this->token->escaped[$key] = $escapedAttribute;
+
                 $this->token->attributes[$key] = ('' === $val) ? true : $interpolate($val);
 
                 $key = '';
@@ -75,8 +78,14 @@ class Attributes
             return $states[count($states) - 1];
         };
 
-        $interpolate = function ($attr) use (&$quote) {
-            return str_replace('\\#{', '#{', preg_replace('/(?<!\\\\)#{([^}]+)}/', $quote . ' . $1 . ' . $quote, $attr));
+        $interpolate = function ($attr) {
+            return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', function ($match) {
+                $quote = $match[1];
+
+                return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
+                    return $quote . ' . ' . CommonUtils::addDollarIfNeeded($match[1]) . ' . ' . $quote;
+                }, $match[0]));
+            }, $attr);
         };
 
         $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
@@ -152,14 +161,16 @@ class Attributes
                     $val .= $char;
                     break;
 
-                case '"':
-                case "'":
-                    $stringParser = new StringAttribute($state, $char);
-                    $stringParser->parse($states, $val, $quote);
-                    break;
-
                 case '':
                     break;
+
+                case '"':
+                case "'":
+                    if (!CommonUtils::escapedEnd($val)) {
+                        $stringParser = new StringAttribute($state, $char);
+                        $stringParser->parse($states, $val, $quote);
+                        break;
+                    }
 
                 default:
                     switch ($state()) {
