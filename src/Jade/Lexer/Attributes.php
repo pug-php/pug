@@ -161,9 +161,6 @@ class Attributes
                     $val .= $char;
                     break;
 
-                case '':
-                    break;
-
                 case '"':
                 case "'":
                     if (!CommonUtils::escapedEnd($val)) {
