@@ -59,7 +59,7 @@ $output = $pug->render('file', array(
 
 ### Supports for custom filters
 
-Filters must be callable: It can be a class that implements the __invoke() method, or an anonymous function.
+Filters must be callable: It can be a class that implements the *__invoke()* method, or an anonymous function.
 
 ```php
 $pug->filter('escaped', 'My\Callable\Class');
@@ -89,3 +89,11 @@ http://pug-filters.selfbuild.fr/
 #### Publish your own filter
 
 https://github.com/kylekatarnls/jade-filter-base#readme
+
+## Contributing
+
+All contributions are welcome, please report any bug or issue you had at https://github.com/pug-php/pug/issues
+
+You can also send pull-request to https://github.com/pug-php/pug/pulls
+
+Please add some tests with your pull-requests, for example a pug file and the expected HTML file in /tests/templates
