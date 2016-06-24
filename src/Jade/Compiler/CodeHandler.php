@@ -145,23 +145,23 @@ class CodeHandler extends CompilerUtils
                 do {
                     $curr = next($separators);
 
-                    if ($curr[0] == $open) {
+                    if ($curr[0] === $open) {
                         $count++;
                     }
-                    if ($curr[0] == $close) {
+                    if ($curr[0] === $close) {
                         $count--;
                     }
-                } while ($curr[0] != null && $count > 0 && $curr[0] != ',');
+                } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
 
                 $end = current($separators);
 
-                if ($end != false && $start[1] != $end[1]) {
+                if ($end !== false && $start[1] !== $end[1]) {
                     $tmpName = $name * 10 + count($arguments);
                     $arg = $handleRecursion(array($start, $end), $tmpName);
 
                     array_push($arguments, $arg);
                 }
-            } while ($curr != null && $count > 0);
+            } while ($curr !== false && $count > 0);
 
             if ($close && $count) {
                 throw new \Exception($input . "\nMissing closing: " . $close);
@@ -186,7 +186,7 @@ class CodeHandler extends CompilerUtils
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
             $sep = current($separators);
 
-            if ($sep[0] == null) {
+            if ($sep[0] === null) {
                 break;
             } // end of string
 
@@ -227,6 +227,10 @@ class CodeHandler extends CompilerUtils
                     break;
 
                 case '[':
+                    if (preg_match('/[a-zA-Z0-9\\\\_\\x7f-\\xff]$/', $varname)) {
+                        $varname .= $sep[0] . $innerName;
+                        break;
+                    }
                 case '{':
                     $input = $handleCodeInbetween();
 
