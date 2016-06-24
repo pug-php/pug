@@ -1,0 +1,9 @@
+:php
+    class FooClass {
+        public function met() {
+            return 42;
+        }
+    }
+    $ob = (object) array('foo' => array());
+    $ob->foo['bar'] = new FooClass();
+p(answear=ob->foo["bar"]->met())
