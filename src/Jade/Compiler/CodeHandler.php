@@ -97,7 +97,9 @@ class CodeHandler extends CompilerUtils
             return substr(
                 $input,
                 $offset,
-                isset($end) ? $end[1] - $offset : strlen($input)
+                isset($end)
+                    ? $end[1] - $offset
+                    : strlen($input)
             );
         };
 

@@ -3,7 +3,6 @@
 namespace Jade\Compiler;
 
 use Jade\Nodes\Block;
-use Jade\Nodes\BlockComment;
 use Jade\Nodes\CaseNode;
 use Jade\Nodes\Comment;
 use Jade\Nodes\Doctype;
@@ -183,24 +182,6 @@ abstract class Visitor extends AttributesCompiler
         if ($comment->buffer) {
             $this->buffer('<!--' . $comment->value . '-->');
         }
-    }
-
-    /**
-     * @param Nodes\BlockComment $comment
-     */
-    protected function visitBlockComment(BlockComment $comment)
-    {
-        if (!$comment->buffer) {
-            return;
-        }
-
-        list($open, $close) = strlen($comment->value) && 0 === strpos(trim($comment->value), 'if')
-            ? array('[' . trim($comment->value) . ']>', '<![endif]')
-            : array($comment->value, '');
-
-        $this->buffer('<!--' . $open);
-        $this->visit($comment->block);
-        $this->buffer($close . '-->');
     }
 
     /**
