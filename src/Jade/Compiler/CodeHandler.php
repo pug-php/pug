@@ -189,7 +189,6 @@ class CodeHandler extends CompilerUtils
             $sep = current($separators);
 
             if ($sep[0] === null) {
-                //exit('ici : ' . __LINE__);
                 break;
             } // end of string
 
@@ -223,7 +222,6 @@ class CodeHandler extends CompilerUtils
 
                 // mixin arguments
                 case ',':
-                    exit('ici : ' . __LINE__);
                     $arguments = $handleCodeInbetween();
                     if ($arguments) {
                         $varname .= ', ' . implode(', ', $arguments);
@@ -317,7 +315,6 @@ class CodeHandler extends CompilerUtils
                     if (preg_match('/^[[:space:]]*$/', $innerName)) {
                         next($separators);
                         $arguments = $handleCodeInbetween();
-                        exit('ici : ' . __LINE__);
                         $varname .= '=' . implode($arguments);
                         break;
                     }
