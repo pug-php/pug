@@ -17,9 +17,27 @@ abstract class CompilerFacade extends CompilerUtils
      *
      * @return string
      */
-    public static function strval($val)
+    public static function getUnescapedValue($val)
     {
-        return is_array($val) || is_null($val) || is_bool($val) || is_int($val) || is_float($val) ? json_encode($val) : strval($val);
+        if (is_null($val) || $val === false || $val === '') {
+            return '';
+        }
+
+        return is_array($val) || is_bool($val) || is_int($val) || is_float($val) ? json_encode($val) : strval($val);
+    }
+
+    /**
+     * value treatment if it must not be escaped.
+     *
+     * @param string  input value
+     *
+     * @return string
+     */
+    public static function getEscapedValue($val, $quote)
+    {
+        $val = htmlspecialchars(static::getUnescapedValue($val), ENT_NOQUOTES);
+
+        return str_replace($quote, $quote === '"' ? '&quot;' : '&apos;', $val);
     }
 
     /**

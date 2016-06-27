@@ -44,6 +44,7 @@ function build_list($test_list) {
 
 function get_php_code($file) {
     $jade = new Jade(array(
+        'singleQuote' => false,
         'prettyprint' => true,
     ));
     return $jade->render($file);
@@ -51,6 +52,7 @@ function get_php_code($file) {
 
 function compile_php($file) {
     $jade = new Jade(array(
+        'singleQuote' => false,
         'prettyprint' => true,
     ));
     return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));

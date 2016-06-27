@@ -69,18 +69,18 @@ abstract class AttributesCompiler extends CompilerFacade
         return $this->keepNullAttributes ? '' : 'null';
     }
 
-    protected function getUnescapedValueCode($value, &$valueCheck)
+    protected function getValueCode($escaped, $value, &$valueCheck)
     {
         if ($this->keepNullAttributes) {
-            return $this->createCode(static::UNESCAPED, $value);
+            return $this->escapeIfNeeded($escaped, $value);
         }
 
         $valueCheck = $value;
 
-        return $this->createCode(static::UNESCAPED, '$__value');
+        return $this->escapeIfNeeded($escaped, '$__value');
     }
 
-    protected function getAttributeValue($key, $value, &$classesCheck, &$valueCheck)
+    protected function getAttributeValue($escaped, $key, $value, &$classesCheck, &$valueCheck)
     {
         if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
             $value = trim($value, ' \'"');
@@ -98,7 +98,7 @@ abstract class AttributesCompiler extends CompilerFacade
             return $this->getClassAttribute($value, $classesCheck);
         }
 
-        return $this->getUnescapedValueCode($value, $valueCheck);
+        return $this->getValueCode($escaped, $value, $valueCheck);
     }
 
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
@@ -125,7 +125,7 @@ abstract class AttributesCompiler extends CompilerFacade
         $valueCheck = null;
         $value = trim($attr['value']);
 
-        $value = $this->getAttributeValue($key, $value, $classesCheck, $valueCheck);
+        $value = $this->getAttributeValue($attr['escaped'], $key, $value, $classesCheck, $valueCheck);
 
         if ($key === 'class') {
             if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {

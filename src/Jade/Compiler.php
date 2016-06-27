@@ -287,7 +287,7 @@ class Compiler extends MixinVisitor
     protected function interpolateFromCapture($match)
     {
         if ($match[1] === '') {
-            return $this->createCode($match[2] === '!' ? static::UNESCAPED : static::ESCAPED, $match[3]);
+            return $this->escapeIfNeeded($match[2] === '!', $match[3]);
         }
 
         return substr($match[0], 1);

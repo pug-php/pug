@@ -9,7 +9,7 @@ namespace Jade\Compiler;
 abstract class CompilerUtils extends Indenter
 {
     /**
-     * @param string $call
+     * @param $call string
      *
      * @throws \Exception
      *
@@ -78,7 +78,7 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
-     * @param string $value
+     * @param $value string
      *
      * @return mixed
      */
@@ -88,7 +88,7 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
-     * @param string $value
+     * @param $value string
      *
      * @return mixed
      */
@@ -100,7 +100,7 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
-     * @param array $attributes
+     * @param $attributes array
      *
      * @return array
      */
@@ -119,7 +119,7 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
-     * @param $name
+     * @param $name string
      *
      * @return callable
      */
@@ -128,5 +128,20 @@ abstract class CompilerUtils extends Indenter
         $helper = new FilterHelper($this->filters, $this->filterAutoLoad);
 
         return $helper->getValidFilter($name);
+    }
+
+    /**
+     * @param $escaped bool need to be escaped
+     * @param $value mixed to be escaped if $escaped is true
+     *
+     * @return callable
+     */
+    protected function escapeIfNeeded($escaped, $value)
+    {
+        if ($escaped) {
+            return $this->createCode(static::ESCAPED, $value, var_export($this->quote, true));
+        }
+
+        return $this->createCode(static::UNESCAPED, $value);
     }
 }

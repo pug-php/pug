@@ -51,8 +51,7 @@ abstract class CodeVisitor extends TagVisitor
         $code = trim($node->value);
 
         if ($node->buffer) {
-            $pattern = $node->escape ? static::ESCAPED : static::UNESCAPED;
-            $this->buffer($this->createCode($pattern, $code));
+            $this->buffer($this->escapeIfNeeded($node->escape, $code));
 
             return;
         }

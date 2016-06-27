@@ -39,7 +39,7 @@ class CodeHandler extends CompilerUtils
             return array($this->input);
         }
 
-        if (strpos('=])},;?', substr($this->input, 0, 1)) !== false) {
+        if (strpos('=,;?', substr($this->input, 0, 1)) !== false) {
             throw new \Exception('Expecting a variable name or an expression, got: ' . $this->input);
         }
 
@@ -94,13 +94,7 @@ class CodeHandler extends CompilerUtils
         $getMiddleString = function ($start, $end) use ($input) {
             $offset = $start[1] + strlen($start[0]);
 
-            return substr(
-                $input,
-                $offset,
-                isset($end)
-                    ? $end[1] - $offset
-                    : strlen($input)
-            );
+            return substr($input, $offset, isset($end) ? $end[1] - $offset : strlen($input));
         };
 
         $host = $this;
@@ -153,7 +147,7 @@ class CodeHandler extends CompilerUtils
                     if ($curr[0] === $close) {
                         $count--;
                     }
-                } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
+                } while ($curr[0] !== null && $count >= 0 && $curr[0] !== ',');
 
                 $end = current($separators);
 
@@ -165,7 +159,7 @@ class CodeHandler extends CompilerUtils
                 }
             } while ($curr !== false && $count > 0);
 
-            if ($close && $count) {
+            if ($close && $count > 0) {
                 throw new \Exception($input . "\nMissing closing: " . $close);
             }
 
@@ -218,14 +212,6 @@ class CodeHandler extends CompilerUtils
                     }
                     $varname = $var;
                     array_push($result, "{$var}={$call}");
-                    break;
-
-                // mixin arguments
-                case ',':
-                    $arguments = $handleCodeInbetween();
-                    if ($arguments) {
-                        $varname .= ', ' . implode(', ', $arguments);
-                    }
                     break;
 
                 case '[':

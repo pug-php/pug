@@ -40,6 +40,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
     public function testMissingDirectory() {
 
         $jade = new Jade(array(
+            'singleQuote' => false,
             'cache' => 'does/not/exists'
         ));
         $jade->render(__DIR__ . '/../templates/attrs.jade');
@@ -93,6 +94,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
             $dir = $parent;
         }
         $jade = new Jade(array(
+            'singleQuote' => false,
             'cache' => $dir
         ));
         $jade->cache(__DIR__ . '/../templates/attrs.jade');
@@ -102,6 +104,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
 
         $file = tempnam(sys_get_temp_dir(), 'jade-test-');
         $jade = new Jade(array(
+            'singleQuote' => false,
             'keepBaseName' => $keepBaseName,
             'cache' => sys_get_temp_dir(),
         ));
