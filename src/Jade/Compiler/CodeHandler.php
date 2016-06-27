@@ -220,14 +220,6 @@ class CodeHandler extends CompilerUtils
                     array_push($result, "{$var}={$call}");
                     break;
 
-                // mixin arguments
-                case ',':
-                    $arguments = $handleCodeInbetween();
-                    if ($arguments) {
-                        $varname .= ', ' . implode(', ', $arguments);
-                    }
-                    break;
-
                 case '[':
                     if (preg_match('/[a-zA-Z0-9\\\\_\\x7f-\\xff]$/', $varname)) {
                         $varname .= $sep[0] . $innerName;
