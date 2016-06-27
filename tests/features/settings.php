@@ -13,12 +13,18 @@ class JadeSettingsTest extends PHPUnit_Framework_TestCase {
         return trim(preg_replace('`\n{2,}`', "\n", $html));
     }
 
+    static private function simpleHtml($html) {
+
+        return trim(preg_replace('`\r\n|\r`', "\n", $html));
+    }
+
     /**
      * keepNullAttributes setting test
      */
     public function testKeepNullAttributes() {
 
         $jade = new Jade(array(
+            'singleQuote' => false,
             'keepNullAttributes' => false,
             'prettyprint' => true,
         ));
@@ -29,6 +35,7 @@ class JadeSettingsTest extends PHPUnit_Framework_TestCase {
         $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Keep null attributes disabled');
 
         $jade = new Jade(array(
+            'singleQuote' => false,
             'keepNullAttributes' => true,
             'prettyprint' => true,
         ));
@@ -59,6 +66,7 @@ mixin centered(title)
 ';
 
         $jade = new Jade(array(
+            'singleQuote' => true,
             'prettyprint' => true,
         ));
         $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $jade->render($template)))));
@@ -70,6 +78,7 @@ mixin centered(title)
         $this->assertSame($expected, $actual, 'Pretty print enabled');
 
         $jade = new Jade(array(
+            'singleQuote' => true,
             'prettyprint' => false,
         ));
         $actual = preg_replace('`[ \t]+`', ' ', $jade->render($template));
@@ -98,6 +107,7 @@ mixin centered(title)
 ';
 
         $jade = new Jade(array(
+            'singleQuote' => true,
             'prettyprint' => false,
         ));
         $this->assertFalse($jade->getOption('prettyprint'), 'getOption should return current setting');
@@ -175,6 +185,7 @@ mixin foo()
 ';
 
         $jade = new Jade(array(
+            'singleQuote' => false,
             'allowMixinOverride' => true,
         ));
         $actual = $jade->render($template);
@@ -183,6 +194,7 @@ mixin foo()
         $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override enabled');
 
         $jade = new Jade(array(
+            'singleQuote' => false,
             'allowMixinOverride' => false,
         ));
         $actual = $jade->render($template);
@@ -236,20 +248,30 @@ mixin foo()
         $template = 'h1#foo.bar(style="color: red;") Hello';
 
         $jade = new Jade(array(
+            'prettyprint' => true,
             'singleQuote' => true,
         ));
         $actual = $jade->render($template);
         $expected = "<h1 id='foo' style='color: red;' class='bar'>Hello</h1>";
 
         $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote enabled');
+        $file = __DIR__ . '/../templates/attrs-data.complex';
+        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled');
+        $file = __DIR__ . '/../templates/attrs-data';
+        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled');
 
         $jade = new Jade(array(
+            'prettyprint' => true,
             'singleQuote' => false,
         ));
         $actual = $jade->render($template);
         $expected = '<h1 id="foo" style="color: red;" class="bar">Hello</h1>';
 
         $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote disabled');
+        $file = __DIR__ . '/../templates/attrs-data.complex';
+        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote enabled');
+        $file = __DIR__ . '/../templates/attrs-data';
+        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote enabled');
     }
 
     /**

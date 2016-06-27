@@ -47,12 +47,12 @@ abstract class CompilerConfig
     /**
      * @const string
      */
-    const ESCAPED = 'echo htmlspecialchars(%s)';
+    const ESCAPED = 'echo \\Jade\\Compiler::getEscapedValue(%s, %s)';
 
     /**
      * @const string
      */
-    const UNESCAPED = 'echo \\Jade\\Compiler::strval(%s)';
+    const UNESCAPED = 'echo \\Jade\\Compiler::getUnescapedValue(%s)';
 
     /**
      * @var array

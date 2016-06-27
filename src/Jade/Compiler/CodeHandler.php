@@ -94,13 +94,7 @@ class CodeHandler extends CompilerUtils
         $getMiddleString = function ($start, $end) use ($input) {
             $offset = $start[1] + strlen($start[0]);
 
-            return substr(
-                $input,
-                $offset,
-                isset($end)
-                    ? $end[1] - $offset
-                    : strlen($input)
-            );
+            return substr($input, $offset, isset($end) ? $end[1] - $offset : strlen($input));
         };
 
         $host = $this;

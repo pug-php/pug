@@ -6,6 +6,10 @@ abstract class AttributesCompiler extends CompilerFacade
 {
     protected function getAttributeDisplayCode($key, $value, $valueCheck)
     {
+        if ($key === 'style') {
+            $value = preg_replace('/::get(Escaped|Unescaped)Value/', '::get$1Style', $value, 1);
+        }
+
         return is_null($valueCheck)
             ? ' ' . $key . '=' . $this->quote . $value . $this->quote
             : $this->createCode('if (\\Jade\\Compiler::isDisplayable($__value = %1$s)) { ', $valueCheck)
@@ -69,18 +73,18 @@ abstract class AttributesCompiler extends CompilerFacade
         return $this->keepNullAttributes ? '' : 'null';
     }
 
-    protected function getUnescapedValueCode($value, &$valueCheck)
+    protected function getValueCode($escaped, $value, &$valueCheck)
     {
         if ($this->keepNullAttributes) {
-            return $this->createCode(static::UNESCAPED, $value);
+            return $this->escapeIfNeeded($escaped, $value);
         }
 
         $valueCheck = $value;
 
-        return $this->createCode(static::UNESCAPED, '$__value');
+        return $this->escapeIfNeeded($escaped, '$__value');
     }
 
-    protected function getAttributeValue($key, $value, &$classesCheck, &$valueCheck)
+    protected function getAttributeValue($escaped, $key, $value, &$classesCheck, &$valueCheck)
     {
         if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
             $value = trim($value, ' \'"');
@@ -98,7 +102,7 @@ abstract class AttributesCompiler extends CompilerFacade
             return $this->getClassAttribute($value, $classesCheck);
         }
 
-        return $this->getUnescapedValueCode($value, $valueCheck);
+        return $this->getValueCode($escaped, $value, $valueCheck);
     }
 
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
@@ -125,7 +129,7 @@ abstract class AttributesCompiler extends CompilerFacade
         $valueCheck = null;
         $value = trim($attr['value']);
 
-        $value = $this->getAttributeValue($key, $value, $classesCheck, $valueCheck);
+        $value = $this->getAttributeValue($attr['escaped'], $key, $value, $classesCheck, $valueCheck);
 
         if ($key === 'class') {
             if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
