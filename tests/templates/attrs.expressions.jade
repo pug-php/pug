@@ -8,5 +8,5 @@
     $ob->foo['bar'] = new FooClass();
 p(answear=ob->foo["bar"]->met())
 p(answear=(ob->foo["bar"]->met()))
-p(answear=substr("foobar", strlen("foo")))
-p(answear=substr("foobar", strlen(strtoupper("F") . "oo")))
+p(answear=substr("foo-bar", strlen("foo") + 1))
+p(answear=substr("foo-bar", strlen(strtoupper("F") . "oo") + 1))

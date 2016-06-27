@@ -39,7 +39,7 @@ class CodeHandler extends CompilerUtils
             return array($this->input);
         }
 
-        if (strpos('=])},;?', substr($this->input, 0, 1)) !== false) {
+        if (strpos('=,;?', substr($this->input, 0, 1)) !== false) {
             throw new \Exception('Expecting a variable name or an expression, got: ' . $this->input);
         }
 
@@ -153,7 +153,7 @@ class CodeHandler extends CompilerUtils
                     if ($curr[0] === $close) {
                         $count--;
                     }
-                } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
+                } while ($curr[0] !== null && $count >= 0 && $curr[0] !== ',');
 
                 $end = current($separators);
 
@@ -165,7 +165,7 @@ class CodeHandler extends CompilerUtils
                 }
             } while ($curr !== false && $count > 0);
 
-            if ($close && $count) {
+            if ($close && $count > 0) {
                 throw new \Exception($input . "\nMissing closing: " . $close);
             }
 
