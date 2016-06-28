@@ -2,15 +2,15 @@
 
 use Jade\Stream\Template;
 
-class JadeStreamTest extends PHPUnit_Framework_TestCase {
-
+class JadeStreamTest extends PHPUnit_Framework_TestCase
+{
     protected $stream;
 
     /**
      * Test stream methods.
      */
-    public function testStreamMethods() {
-
+    public function testStreamMethods()
+    {
         $this->stream = new Template();
         $this->assertTrue($this->stream->stream_open('data:text/plain;base64,foobar'));
         $this->assertTrue(is_array($this->stream->url_stat('/foo', 1)));

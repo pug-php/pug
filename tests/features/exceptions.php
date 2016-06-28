@@ -6,10 +6,10 @@ use Jade\Jade;
 class EmulateBugException extends \Exception {}
 class OnlyOnceException extends \Exception {}
 
-class ExtendParser extends Parser {
-
-    public function parse() {
-
+class ExtendParser extends Parser
+{
+    public function parse()
+    {
         static $i = 0;
         if ($i++) {
             throw new OnlyOnceException("E: Works only once", 1);
@@ -18,10 +18,10 @@ class ExtendParser extends Parser {
     }
 }
 
-class IncludeParser extends Parser {
-
-    public function parse() {
-
+class IncludeParser extends Parser
+{
+    public function parse()
+    {
         static $i = 0;
         if ($i++) {
             throw new OnlyOnceException("I: Works only once", 1);
@@ -30,106 +30,106 @@ class IncludeParser extends Parser {
     }
 }
 
-class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
-
-    static public function emulateBug() {
-
+class JadeExceptionsTest extends PHPUnit_Framework_TestCase
+{
+    static public function emulateBug()
+    {
         throw new EmulateBugException("Error Processing Request", 1);
     }
 
     /**
      * @expectedException Exception
      */
-    public function testDoNotUnderstand() {
-
+    public function testDoNotUnderstand()
+    {
         get_php_code('a(href=="a")');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testDoubleDoubleArrow() {
-
+    public function testDoubleDoubleArrow()
+    {
         get_php_code('a(href=["a" => "b" => "c"])');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testBadInclude() {
-
+    public function testBadInclude()
+    {
         get_php_code('include a/file/with/an.extension');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testCannotBeReadFromPhp() {
-
+    public function testCannotBeReadFromPhp()
+    {
         get_php_code('- var foo = Inf' . "\n" . 'p=foo');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testUnexpectingValue() {
-
+    public function testUnexpectingValue()
+    {
         get_php_code('a(href="foo""bar")');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testUnableToFindAttributesClosingParenthesis() {
-
+    public function testUnableToFindAttributesClosingParenthesis()
+    {
         get_php_code('a(href=');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testExpectedIndent() {
-
+    public function testExpectedIndent()
+    {
         get_php_code(':a+()');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testUnexpectingToken() {
-
+    public function testUnexpectingToken()
+    {
         get_php_code('a:' . "\n" . '!!!5');
     }
 
     /**
      * @expectedException EmulateBugException
      */
-    public function testExceptionThroughtJade() {
-
+    public function testExceptionThroughtJade()
+    {
         get_php_code('a(href=\JadeExceptionsTest::emulateBug())');
     }
 
     /**
      * @expectedException Exception
      */
-    public function testNonParsableExtends() {
-
+    public function testNonParsableExtends()
+    {
         get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.jade');
     }
 
     /**
      * @expectedException EmulateBugException
      */
-    public function testBrokenExtends() {
-
+    public function testBrokenExtends()
+    {
         get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.jade');
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testSetInvalidOption() {
-
+    public function testSetInvalidOption()
+    {
         $jade = new Jade();
         $jade->setOption('i-do-not-exists', 'wrong');
     }
@@ -137,8 +137,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testSetInvalidOptions() {
-
+    public function testSetInvalidOptions()
+    {
         $jade = new Jade();
         $jade->setOptions(array(
             'prettyprint' => true,
@@ -149,8 +149,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testGetInvalidOption() {
-
+    public function testGetInvalidOption()
+    {
         $jade = new Jade();
         $jade->getOption('i-do-not-exists');
     }
@@ -158,8 +158,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException EmulateBugException
      */
-    public function testExtendsWithFilterException() {
-
+    public function testExtendsWithFilterException()
+    {
         $jade = new Jade();
         $jade->filter('throw-exception', function () {
             throw new EmulateBugException("Bad filter", 1);
@@ -170,8 +170,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test OnlyOnceException
      */
-    public function testExtendsWithParserException() {
-
+    public function testExtendsWithParserException()
+    {
         $parser = new ExtendParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.jade');
         $message = null;
         try {
@@ -186,8 +186,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test OnlyOnceException
      */
-    public function testIncludesWithParserException() {
-
+    public function testIncludesWithParserException()
+    {
         $parser = new IncludeParser(__DIR__ . '/../templates/auxiliary/include-exception-filter.jade');
         $message = null;
         try {
@@ -202,16 +202,16 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFilterDoesNotExist() {
-
+    public function testFilterDoesNotExist()
+    {
         get_php_code(':foo' . "\n" . '  | Foo language');
     }
 
     /**
      * @expectedException EmulateBugException
      */
-    public function testBrokenInclude() {
-
+    public function testBrokenInclude()
+    {
         get_php_code(__DIR__ . '/../templates/auxiliary/include-exception.jade');
     }
 }

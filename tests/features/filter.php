@@ -2,13 +2,13 @@
 
 use Jade\Jade;
 
-class JadeFilterTest extends PHPUnit_Framework_TestCase {
-
+class JadeFilterTest extends PHPUnit_Framework_TestCase
+{
     /**
      * custom filter test
      */
-    public function testFilter() {
-
+    public function testFilter()
+    {
         $jade = new Jade();
         $this->assertSame($jade->getFilter('php'), 'Jade\Filter\Php');
         $this->assertFalse($jade->hasFilter('text'));
@@ -37,8 +37,8 @@ div
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testNonCallableFilter() {
-
+    public function testNonCallableFilter()
+    {
         $jade = new Jade();
         $this->assertFalse($jade->hasFilter('bar'));
         $jade->filter('bar', 'nonexists');
@@ -52,8 +52,8 @@ div
 ');
     }
 
-    public function testFilterAutoload() {
-
+    public function testFilterAutoload()
+    {
         $jade = new Jade();
         $this->assertFalse($jade->hasFilter('foo-bar'));
         spl_autoload_register(function ($name) {
@@ -83,8 +83,8 @@ div
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFilterAutoloadWhenClassDoNotExist() {
-
+    public function testFilterAutoloadWhenClassDoNotExist()
+    {
         $jade = new Jade();
         $this->assertFalse($jade->hasFilter('bar-foo'));
         $actual = $jade->render('

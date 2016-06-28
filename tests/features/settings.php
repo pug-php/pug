@@ -2,10 +2,10 @@
 
 use Jade\Jade;
 
-class JadeSettingsTest extends PHPUnit_Framework_TestCase {
-
-    static private function rawHtml($html, $convertSingleQuote = true) {
-
+class JadeSettingsTest extends PHPUnit_Framework_TestCase
+{
+    static private function rawHtml($html, $convertSingleQuote = true)
+    {
         $html = str_replace(array("\r", ' '), '', $html);
         if ($convertSingleQuote) {
             $html = strtr($html, "'", '"');
@@ -13,16 +13,16 @@ class JadeSettingsTest extends PHPUnit_Framework_TestCase {
         return trim(preg_replace('`\n{2,}`', "\n", $html));
     }
 
-    static private function simpleHtml($html) {
-
+    static private function simpleHtml($html)
+    {
         return trim(preg_replace('`\r\n|\r`', "\n", $html));
     }
 
     /**
      * keepNullAttributes setting test
      */
-    public function testKeepNullAttributes() {
-
+    public function testKeepNullAttributes()
+    {
         $jade = new Jade(array(
             'singleQuote' => false,
             'keepNullAttributes' => false,
@@ -49,8 +49,8 @@ class JadeSettingsTest extends PHPUnit_Framework_TestCase {
     /**
      * prettyprint setting test
      */
-    public function testPrettyprint() {
-
+    public function testPrettyprint()
+    {
         $template = '
 mixin centered(title)
   div.centered(id=attributes.id)
@@ -90,8 +90,8 @@ mixin centered(title)
     /**
      * setOption test
      */
-    public function testSetOption() {
-
+    public function testSetOption()
+    {
         $template = '
 mixin centered(title)
   div.centered(id=attributes.id)
@@ -132,8 +132,8 @@ mixin centered(title)
     /**
      * setOptions test
      */
-    public function testSetOptions() {
-
+    public function testSetOptions()
+    {
         $jade = new Jade();
         $jade->setOptions(array(
             'prettyprint' => true,
@@ -148,8 +148,8 @@ mixin centered(title)
     /**
      * setCustomOption test
      */
-    public function testSetCustomOption() {
-
+    public function testSetCustomOption()
+    {
         $jade = new Jade();
         $jade->setCustomOption('i-do-not-exists', 'right');
         $this->assertSame($jade->getOption('i-do-not-exists'), 'right', 'getOption should return custom setting');
@@ -158,8 +158,8 @@ mixin centered(title)
     /**
      * setOptions test
      */
-    public function testSetCustomOptions() {
-
+    public function testSetCustomOptions()
+    {
         $jade = new Jade();
         $jade->setCustomOptions(array(
             'prettyprint' => false,
@@ -172,8 +172,8 @@ mixin centered(title)
     /**
      * allowMixinOverride setting test
      */
-    public function testAllowMixinOverride() {
-
+    public function testAllowMixinOverride()
+    {
         $template = '
 mixin foo()
   h1 Hello
@@ -206,8 +206,8 @@ mixin foo()
     /**
      * allowMixinOverride setting test
      */
-    public function testRestrictedScope() {
-
+    public function testRestrictedScope()
+    {
         $template = '
 mixin foo()
   if isset($bar)
@@ -243,8 +243,8 @@ mixin foo()
     /**
      * singleQuote setting test
      */
-    public function testSingleQuote() {
-
+    public function testSingleQuote()
+    {
         $template = 'h1#foo.bar(style="color: red;") Hello';
 
         $jade = new Jade(array(
@@ -281,8 +281,8 @@ mixin foo()
     /**
      * phpSingleLine setting test
      */
-    public function testPhpSingleLine() {
-
+    public function testPhpSingleLine()
+    {
         $template = '
 - $foo = "bar"
 - $bar = 42
@@ -310,8 +310,8 @@ p(class=$foo)=$bar
     /**
      * Return HTML if mixed indent is allowed
      */
-    public function testAllowMixedIndentEnabled() {
-
+    public function testAllowMixedIndentEnabled()
+    {
         $jade = new Jade(array(
             'allowMixedIndent' => true,
         ));
@@ -324,8 +324,8 @@ p(class=$foo)=$bar
     /**
      * @expectedException Exception
      */
-    public function testAllowMixedIndentDisabled() {
-
+    public function testAllowMixedIndentDisabled()
+    {
         $jade = new Jade(array(
             'allowMixedIndent' => false,
         ));
@@ -336,8 +336,8 @@ p(class=$foo)=$bar
     /**
      * @expectedException Exception
      */
-    public function testIncludeNotFoundDisabled() {
-
+    public function testIncludeNotFoundDisabled()
+    {
         $save = \Jade\Parser::$includeNotFound;
         $jade = new Jade();
         \Jade\Parser::$includeNotFound = false;
@@ -360,8 +360,8 @@ p(class=$foo)=$bar
     /**
      * includeNotFound return a error included if a file miss.
      */
-    public function testIncludeNotFoundEnabled() {
-
+    public function testIncludeNotFoundEnabled()
+    {
         $jade = new Jade();
         $this->assertTrue(!empty(\Jade\Parser::$includeNotFound), 'includeNotFound should be set by default.');
 
@@ -379,8 +379,8 @@ p(class=$foo)=$bar
     /**
      * indentChar and indentSize allow to configure the indentation.
      */
-    public function testIndent() {
-
+    public function testIndent()
+    {
         $template = '
 body
   header

@@ -1,7 +1,7 @@
 <?php
 
-class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
-
+class JadeTemplatesTest extends PHPUnit_Framework_TestCase
+{
     static private $skipped = array(
         // Not supported in HHVM
         'xml' => 'hhvm',
@@ -9,8 +9,8 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
         // Add here tests for future features not yet implemented
     );
 
-    public function caseProvider() {
-
+    public function caseProvider()
+    {
         $cases = array();
 
         foreach (build_list(find_tests()) as $arr) {
@@ -34,8 +34,8 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider caseProvider
      */
-    public function testJadeGeneration($name) {
-
+    public function testJadeGeneration($name)
+    {
         $result = get_test_result($name);
         $result = $result[1];
 
