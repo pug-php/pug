@@ -239,9 +239,6 @@ class CodeHandler extends CompilerUtils
                             }
                             $quote = substr(${$var}, 0, 1);
                         }
-                        if ($key === '') {
-                            return;
-                        }
                         $output[] = empty($value)
                             ? $key
                             : $key . ' => ' . $value;
