@@ -80,6 +80,14 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException Exception
      */
+    public function testUnableToFindAttributesClosingParenthesis() {
+
+        get_php_code('a(href=');
+    }
+
+    /**
+     * @expectedException Exception
+     */
     public function testExpectedIndent() {
 
         get_php_code(':a+()');

@@ -133,9 +133,6 @@ class CodeHandler extends CompilerUtils
                 ',' => false,
             );
             $open = $start[0];
-            if (!isset($open)) {
-                return $arguments;
-            }
             $close = $endPair[$start[0]];
 
             do {
