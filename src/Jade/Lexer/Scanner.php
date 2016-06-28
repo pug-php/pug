@@ -206,7 +206,9 @@ abstract class Scanner extends MixinScanner
             // cant use ^ anchor in the regex because the pattern is recursive
             // but this restriction is asserted by the if above
             //$this->input = preg_replace('/([a-zA-Z0-9\'"\\]\\}\\)])([\t ]+[a-zA-Z])/', '$1,$2', $this->input);
-            preg_match('/\((?:[^()]++|(?R))*+\)/', $this->input, $matches);
+            if (!preg_match('/\((?:[^()]++|(?R))*+\)/', $this->input, $matches)) {
+                throw new \Exception('Unable to find attributes closing parenthesis.', 1);
+            }
             $this->consume($matches[0]);
 
             //$str = preg_replace('/()([a-zA-Z0-9_\\x7f-\\xff\\)\\]\\}"\'])(\s+[a-zA-Z_])/', '$1,$2', $str);
