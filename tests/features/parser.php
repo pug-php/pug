@@ -1,7 +1,7 @@
 <?php
 
-class Lexer extends \Jade\Lexer {
-
+class Lexer extends \Jade\Lexer
+{
     public function nextToken()
     {
         static $i = 0;
@@ -18,8 +18,8 @@ class Lexer extends \Jade\Lexer {
     }
 }
 
-class Parser extends \Jade\Parser {
-
+class Parser extends \Jade\Parser
+{
     public function __construct($input, $filename = null, array $options = array())
     {
         parent::__construct($input, $filename, $options);
@@ -33,8 +33,8 @@ class Parser extends \Jade\Parser {
     }
 }
 
-class JadeParserTest extends PHPUnit_Framework_TestCase {
-
+class JadeParserTest extends PHPUnit_Framework_TestCase
+{
     public function testAccept()
     {
         $parser = new Parser('', 'file.jade', array());
@@ -50,5 +50,10 @@ class JadeParserTest extends PHPUnit_Framework_TestCase {
         $token = $parser->peek();
         $this->assertSame($token->type, 'text', 'The next token must be a text');
         $this->assertSame($token->value, 'Hello', 'The next token must has the value Hello');
+    }
+
+    public function testGoodInclude()
+    {
+        $this->assertSame('<div class="alert alert-danger"> Page not found.</div>', trim(get_php_code('include a/file/with/a.pug')));
     }
 }

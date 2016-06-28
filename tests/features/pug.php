@@ -3,13 +3,13 @@
 use Jade\Jade;
 use Pug\Pug;
 
-class PugAliasTest extends PHPUnit_Framework_TestCase {
-
+class PugAliasTest extends PHPUnit_Framework_TestCase
+{
     /**
      * test the Pug alias
      */
-    public function testPugAlias() {
-
+    public function testPugAlias()
+    {
         $jade = new Jade();
         $pug = new Pug();
 

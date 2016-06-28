@@ -2,8 +2,8 @@
 
 use Jade\Jade;
 
-class JadeTest extends Jade{
-
+class JadeTest extends Jade
+{
     protected $compilationsCount = 0;
 
     public function getCompilationsCount()
@@ -18,8 +18,8 @@ class JadeTest extends Jade{
     }
 }
 
-class JadeCacheTest extends PHPUnit_Framework_TestCase {
-
+class JadeCacheTest extends PHPUnit_Framework_TestCase
+{
     protected function emptyDirectory($dir)
     {
         foreach (scandir($dir) as $file) {
@@ -37,8 +37,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException ErrorException
      */
-    public function testMissingDirectory() {
-
+    public function testMissingDirectory()
+    {
         $jade = new Jade(array(
             'singleQuote' => false,
             'cache' => 'does/not/exists'
@@ -49,8 +49,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
     /**
      * Cache from string input
      */
-    public function testStringInputCache() {
-
+    public function testStringInputCache()
+    {
         $dir = sys_get_temp_dir() . '/jade';
         if (file_exists($dir)) {
             if (is_file($dir)) {
@@ -79,8 +79,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
     /**
      * @expectedException ErrorException
      */
-    public function testReadOnlyDirectory() {
-
+    public function testReadOnlyDirectory()
+    {
         $dir = __DIR__;
         while (is_writeable($dir)) {
             $parent = realpath($dir . '/..');
@@ -100,8 +100,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
         $jade->cache(__DIR__ . '/../templates/attrs.jade');
     }
 
-    private function cacheSystem($keepBaseName) {
-
+    private function cacheSystem($keepBaseName)
+    {
         $file = tempnam(sys_get_temp_dir(), 'jade-test-');
         $jade = new Jade(array(
             'singleQuote' => false,
@@ -133,16 +133,16 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase {
     /**
      * Normal function
      */
-    public function testCache() {
-
+    public function testCache()
+    {
         $this->cacheSystem(false);
     }
 
     /**
      * Test option keepBaseName
      */
-    public function testCacheWithKeepBaseName() {
-
+    public function testCacheWithKeepBaseName()
+    {
         $this->cacheSystem(true);
     }
 }
