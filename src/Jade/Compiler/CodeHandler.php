@@ -206,10 +206,6 @@ class CodeHandler extends CompilerUtils
                     $call = $varname . '(' . implode(', ', $arguments) . ')';
                     $currentSeparator = current($separators);
                     $call = static::addDollarIfNeeded($call);
-                    while ($currentSeparator && in_array($currentSeparator[0], array('->', '(', ')'))) {
-                        $call .= $currentSeparator[0] . $getMiddleString(current($separators), $getNext(key($separators)));
-                        $currentSeparator = next($separators);
-                    }
                     $varname = $var;
                     array_push($result, "{$var}={$call}");
                     break;
@@ -283,12 +279,7 @@ class CodeHandler extends CompilerUtils
                                     break;
                                 case ',':
                                     $consume($argument, $match[0]);
-                                    if ($quote) {
-                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                        break;
-                                    }
-                                    ${is_null($value) ? 'key' : 'value'} .= $match[1];
-                                    $addToOutput();
+                                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
                                     break;
                             }
                         }
