@@ -207,7 +207,7 @@ abstract class Scanner extends MixinScanner
             // but this restriction is asserted by the if above
             //$this->input = preg_replace('/([a-zA-Z0-9\'"\\]\\}\\)])([\t ]+[a-zA-Z])/', '$1,$2', $this->input);
             if (!preg_match('/\((?:[^()]++|(?R))*+\)/', $this->input, $matches)) {
-                throw new \Exception("Unable to find attributes closing parenthesis.", 1);
+                throw new \Exception('Unable to find attributes closing parenthesis.', 1);
             }
             $this->consume($matches[0]);
 
