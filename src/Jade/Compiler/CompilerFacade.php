@@ -27,7 +27,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * value treatment if it must not be escaped.
+     * value treatment if it must be escaped.
      *
      * @param string  input value
      *
@@ -76,9 +76,9 @@ abstract class CompilerFacade extends CompilerUtils
      *
      * @return string
      */
-    public static function getUnescapedStyle($val, $quote)
+    public static function getUnescapedStyle($val)
     {
-        return static::getUnescapedValue(static::styleValue($val), $quote);
+        return static::getUnescapedValue(static::styleValue($val));
     }
 
     /**

@@ -7,7 +7,7 @@ abstract class AttributesCompiler extends CompilerFacade
     protected function getAttributeDisplayCode($key, $value, $valueCheck)
     {
         if ($key === 'style') {
-            $value = preg_replace('/::get(Escaped|Unescaped)Value/', '::get$1Style', $value, 1);
+            $value = preg_replace('/::get(Escaped|Unescaped)Value/', '::get$1Style', $value, 1, $count);
         }
 
         return is_null($valueCheck)
@@ -86,7 +86,7 @@ abstract class AttributesCompiler extends CompilerFacade
 
     protected function getAttributeValue($escaped, $key, $value, &$classesCheck, &$valueCheck)
     {
-        if ($this->isConstant($value) || ($key != 'class' && $this->isArrayOfConstants($value))) {
+        if ($this->isConstant($value)) {
             $value = trim($value, ' \'"');
 
             return $value === 'undefined' ? 'null' : $value;
@@ -112,6 +112,10 @@ abstract class AttributesCompiler extends CompilerFacade
         }
 
         if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+            if (is_null($valueCheck) && $attr['escaped'] && !$this->keepNullAttributes) {
+                $value = $this->escapeValue($value);
+            }
+
             return $this->getAttributeDisplayCode($key, $value, $valueCheck);
         }
 

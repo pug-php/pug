@@ -21,6 +21,18 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * escape value depanding on the current quote.
+     *
+     * @param string  input value
+     *
+     * @return string
+     */
+    protected function escapeValue($val)
+    {
+        return static::getEscapedValue($val, $this->quote);
+    }
+
+    /**
      * @param $match array regex match
      *
      * @return string
