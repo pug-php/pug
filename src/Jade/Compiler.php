@@ -163,37 +163,6 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * Test agains a array of constants.
-     *
-     * @param string $str
-     *
-     * @return bool|int
-     */
-    protected function isArrayOfConstants($str)
-    {
-        $str = trim($str);
-
-        if (0 === strpos($str, 'array(') || 0 === strpos($str, '[')) {
-
-            // This pattern matches against array constants: useful for "data-" attributes (see test attrs-data.jade)
-            //
-            // simpler regex                - explanation
-            //
-            // arrray\(\)                   - matches against the old array construct
-            // []                           - matches against the new/shorter array construct
-            // (const=>)?const(,recursion)  - matches against the value list, values can be a constant or a new array built of constants
-            if (preg_match("/array[ \t]*\((?R)\)|\\[(?R)\\]|(" . static::CONSTANT_VALUE . '=>)?' . static::CONSTANT_VALUE . '(,(?R))?/', $str, $matches)) {
-                // cant use ^ and $ because the patter is recursive
-                if (strlen($matches[0]) == strlen($str)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param string $str
      *
      * @return bool|int
