@@ -27,7 +27,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * value treatment if it must not be escaped.
+     * value treatment if it must be escaped.
      *
      * @param string  input value
      *
@@ -38,6 +38,47 @@ abstract class CompilerFacade extends CompilerUtils
         $val = htmlspecialchars(static::getUnescapedValue($val), ENT_NOQUOTES);
 
         return str_replace($quote, $quote === '"' ? '&quot;' : '&apos;', $val);
+    }
+
+    /**
+     * @param mixed value to be computed into style.
+     *
+     * @return mixed
+     */
+    public static function styleValue($val)
+    {
+        if (is_array($val) && !is_string(key($val))) {
+            $val = implode(';', $val);
+        } elseif (is_array($val) || is_object($val)) {
+            $style = array();
+            foreach ($val as $key => $property) {
+                $style[] = $key . ':' . $property;
+            }
+
+            $val = implode(';', $style);
+        }
+
+        return $val;
+    }
+
+    /**
+     * @param mixed value to be computed into style and escaped.
+     *
+     * @return string
+     */
+    public static function getEscapedStyle($val, $quote)
+    {
+        return static::getEscapedValue(static::styleValue($val), $quote);
+    }
+
+    /**
+     * @param mixed value to be computed into style and stringified.
+     *
+     * @return string
+     */
+    public static function getUnescapedStyle($val)
+    {
+        return static::getUnescapedValue(static::styleValue($val));
     }
 
     /**

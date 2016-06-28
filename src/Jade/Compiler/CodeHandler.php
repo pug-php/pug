@@ -44,10 +44,14 @@ class CodeHandler extends CompilerUtils
         }
 
         preg_match_all(
-            '/(?<![<>=!])=(?!>|=)|[\[\]{}(),;.]|(?!:):|->/', // punctuation
-            preg_replace_callback('#([\'"]).*(?<!\\\\)(?:\\\\{2})*\\1#', function ($match) {
+            '/(?<![<>=!])=(?!>|=)|[\[\]\{\}\(\),;\.]|(?!:):|->/', // punctuation
+            preg_replace_callback('/[a-zA-Z0-9\\\\_\\x7f-\\xff]*\((?:[0-9\/%\.\s*+-]++|(?R))*+\)/', function ($match) {
+                // no need to keep separators in simple PHP expressions (functions calls, parentheses, calculs)
                 return str_repeat(' ', strlen($match[0]));
-            }, $this->input),
+            }, preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\{2})*\\1/', function ($match) {
+                // do not take separators in strings
+                return str_repeat(' ', strlen($match[0]));
+            }, $this->input)),
             $separators,
             PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
         );
@@ -147,7 +151,7 @@ class CodeHandler extends CompilerUtils
                     if ($curr[0] === $close) {
                         $count--;
                     }
-                } while ($curr[0] !== null && $count >= 0 && $curr[0] !== ',');
+                } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
 
                 $end = current($separators);
 
@@ -177,10 +181,9 @@ class CodeHandler extends CompilerUtils
         };
 
         // using next() ourselves so that we can advance the array pointer inside inner loops
-        while (key($separators) !== null) {
+        while ($sep = current($separators)) {
             // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
-            $sep = current($separators);
 
             if ($sep[0] === null) {
                 break;
@@ -292,6 +295,7 @@ class CodeHandler extends CompilerUtils
                                     break;
                             }
                         }
+                        ${is_null($value) ? 'key' : 'value'} .= $argument;
                         $addToOutput();
                     }
                     $varname .= 'array(' . implode(', ', $output) . ')';
@@ -308,7 +312,7 @@ class CodeHandler extends CompilerUtils
                     break;
 
                 default:
-                    if (($innerName !== false && $innerName !== '') || $sep[0] != ')') {
+                    if (($innerName !== false && $innerName !== '') || $sep[0] !== ')') {
                         $varname .= $sep[0] . $innerName;
                     }
                     break;
