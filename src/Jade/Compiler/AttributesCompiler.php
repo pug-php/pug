@@ -7,7 +7,7 @@ abstract class AttributesCompiler extends CompilerFacade
     protected function getAttributeDisplayCode($key, $value, $valueCheck)
     {
         if ($key === 'style') {
-            $value = preg_replace('/::get(Escaped|Unescaped)Value/', '::get$1Style', $value, 1, $count);
+            $value = preg_replace('/::get(Escaped|Unescaped)Value/', '::get$1Style', $value, 1);
         }
 
         return is_null($valueCheck)

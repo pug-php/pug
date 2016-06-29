@@ -9,6 +9,8 @@ namespace Jade\Compiler;
 abstract class CompilerUtils extends Indenter
 {
     /**
+     * Prepend "$" to the given input if it's a varname.
+     *
      * @param $call string
      *
      * @throws \InvalidArgumentException
@@ -21,7 +23,7 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
-     * escape value depanding on the current quote.
+     * Escape value depanding on the current quote.
      *
      * @param string  input value
      *
@@ -33,6 +35,10 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Return PHP code to translate dot to object/array getter.
+     *
+     * @example foo.bar return $foo->bar (if foo is an object), or $foo["bar"] if it's an array.
+     *
      * @param $match array regex match
      *
      * @return string
@@ -90,6 +96,8 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Parse a value from its quoted string (or JSON) representation.
+     *
      * @param $value string
      *
      * @return mixed
@@ -100,6 +108,8 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Decode a value (parse it except if it's null).
+     *
      * @param $value string
      *
      * @return mixed
@@ -112,6 +122,8 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Decode each attribute in the given list.
+     *
      * @param $attributes array
      *
      * @return array
@@ -131,6 +143,8 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Get filter by name.
+     *
      * @param $name string
      *
      * @return callable
@@ -143,6 +157,8 @@ abstract class CompilerUtils extends Indenter
     }
 
     /**
+     * Return PHP code wich wrap the given value and escape it if $escaped is true.
+     *
      * @param $escaped bool need to be escaped
      * @param $value mixed to be escaped if $escaped is true
      *
@@ -155,5 +171,20 @@ abstract class CompilerUtils extends Indenter
         }
 
         return $this->createCode(static::UNESCAPED, $value);
+    }
+
+    /**
+     * Join with space if the value is an array, else return the input value
+     * with no changes.
+     *
+     * @param $value array
+     *
+     * @return string|mixed
+     */
+    protected static function joinAny($value)
+    {
+        return is_array($value)
+            ? implode(' ', $value)
+            : $value;
     }
 }

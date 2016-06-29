@@ -11,7 +11,7 @@ abstract class CompilerFacade extends CompilerUtils
     protected static $mixinBlocks = array();
 
     /**
-     * value treatment if it must not be escaped.
+     * Value treatment if it must not be escaped.
      *
      * @param string  input value
      *
@@ -27,7 +27,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * value treatment if it must be escaped.
+     * Value treatment if it must be escaped.
      *
      * @param string  input value
      *
@@ -41,6 +41,8 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
+     * Convert style object to CSS string.
+     *
      * @param mixed value to be computed into style.
      *
      * @return mixed
@@ -62,6 +64,8 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
+     * Convert style object to CSS string and return PHP code to escape then display it.
+     *
      * @param mixed value to be computed into style and escaped.
      *
      * @return string
@@ -72,6 +76,8 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
+     * Convert style object to CSS string and return PHP code to display it.
+     *
      * @param mixed value to be computed into style and stringified.
      *
      * @return string
@@ -82,7 +88,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * record a closure as a mixin block during execution jade template time.
+     * Record a closure as a mixin block during execution jade template time.
      *
      * @param string  mixin name
      * @param string  mixin block treatment
@@ -96,7 +102,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * record a closure as a mixin block during execution jade template time.
+     * Record a closure as a mixin block during execution jade template time.
      *
      * @param string  mixin name
      * @param string  mixin block treatment
@@ -112,7 +118,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * record a closure as a mixin block during execution jade template time
+     * Record a closure as a mixin block during execution jade template time
      * and propagate variables.
      *
      * @param string  mixin name
@@ -130,7 +136,7 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * end of the record a closure as a mixin block.
+     * End of the record of the mixin block.
      *
      * @param string  mixin name
      */
@@ -142,6 +148,8 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
+     * Get property from object or entry from array.
+     *
      * @param $anything object|array
      * @param $key mixed key to retrive from the object or the array
      *
@@ -162,13 +170,14 @@ abstract class CompilerFacade extends CompilerUtils
         return $value;
     }
 
-    protected static function joinAny($value)
-    {
-        return is_array($value)
-            ? implode(' ', $value)
-            : $value;
-    }
-
+    /**
+     * Merge given attributes such as tag attributes with mixin attributes.
+     *
+     * @param $attributes array
+     * @param $mixinAttributes array
+     *
+     * @return array
+     */
     public static function withMixinAttributes($attributes, $mixinAttributes)
     {
         foreach ($mixinAttributes as $attribute) {
@@ -187,7 +196,10 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
-     * @param $attributes
+     * Display a list of attributes with the given quote character in HTML.
+     *
+     * @param $attributes array
+     * @param $quote string
      */
     public static function displayAttributes($attributes, $quote)
     {
@@ -201,6 +213,9 @@ abstract class CompilerFacade extends CompilerUtils
     }
 
     /**
+     * Return true if the given value can be display
+     * (null or false should not be displayed in the output HTML).
+     *
      * @param $value
      *
      * @return bool

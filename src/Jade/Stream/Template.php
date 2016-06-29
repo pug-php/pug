@@ -70,12 +70,10 @@ class Template
     /**
      * Dummy URL stat method to prevent PHP "undefined method" errors.
      *
-     * @TODO Return real stat
-     *
      * @return array
      */
     public function url_stat($path, $flags)
     {
-        return array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return array(0, 0, 0, 0, 0, 0, 0, strlen($this->data), 0, 0, 0, 0);
     }
 }

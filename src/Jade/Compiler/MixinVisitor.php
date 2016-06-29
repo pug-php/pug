@@ -216,7 +216,7 @@ abstract class MixinVisitor extends CodeVisitor
     /**
      * @param Nodes\Mixin $mixin
      */
-    protected function visitMixinDeclaration(Mixin $mixin, $name, $attributes)
+    protected function visitMixinDeclaration(Mixin $mixin, $name)
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
@@ -261,6 +261,6 @@ abstract class MixinVisitor extends CodeVisitor
             return;
         }
 
-        $this->visitMixinDeclaration($mixin, $name, $attributes);
+        $this->visitMixinDeclaration($mixin, $name);
     }
 }
