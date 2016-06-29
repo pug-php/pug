@@ -4,13 +4,13 @@ use Jade\Nodes\Block;
 use Jade\Nodes\Tag;
 use Jade\Nodes\Text;
 
-class BlockTest extends PHPUnit_Framework_TestCase {
-
+class BlockTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Block Node test
      */
-    public function testBlock() {
-
+    public function testBlock()
+    {
         $foo = new Block();
         $bar = new Block(new Tag('small'));
         $this->assertTrue($foo->isEmpty(), 'The block should be empty');
@@ -23,8 +23,8 @@ class BlockTest extends PHPUnit_Framework_TestCase {
     /**
      * Tag Node test
      */
-    public function testTag() {
-
+    public function testTag()
+    {
         $foo = new Block();
         $foo->push(new Tag('em'));
         $p = new Tag('p');

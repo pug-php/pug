@@ -42,9 +42,9 @@ Pug options should be passed to the Jade construction
 
 ```php
 $pug = new Pug(array(
-	'prettyprint' => true,
-	'extension' => '.pug',
-	'cache' => 'pathto/writable/cachefolder/'
+    'prettyprint' => true,
+    'extension' => '.pug',
+    'cache' => 'pathto/writable/cachefolder/'
 );
 ```
 
@@ -53,7 +53,7 @@ $pug = new Pug(array(
 ```php
 $pug = new Pug();
 $output = $pug->render('file', array(
-	'title' => 'Hello World'
+    'title' => 'Hello World'
 ));
 ```
 
@@ -67,10 +67,10 @@ $pug->filter('escaped', 'My\Callable\Class');
 // or
 
 $pug->filter('escaped', function($node, $compiler){
-	foreach ($node->block->nodes as $line) {
-		$output[] = $compiler->interpolate($line->value);
-	}
-	return htmlentities(implode("\n", $output));
+    foreach ($node->block->nodes as $line) {
+        $output[] = $compiler->interpolate($line->value);
+    }
+    return htmlentities(implode("\n", $output));
 });
 ```
 
@@ -89,6 +89,38 @@ http://pug-filters.selfbuild.fr/
 #### Publish your own filter
 
 https://github.com/kylekatarnls/jade-filter-base#readme
+
+### Check requirements
+
+To check if all requirements are ready to use Pug, use the requirements method:
+```php
+$pug = new Pug(array(
+    'cache' => 'pathto/writable/cachefolder/'
+);
+$missingRequirements = array_keys(array_filter($pug->requirements(), function ($valid) {
+    return $valid === false;
+}));
+$missings = count($missingRequirements);
+if ($missings) {
+    echo $missings . ' requirements are missing.<br />';
+    foreach ($missingRequirements as $requirement) {
+        switch($requirement) {
+            case 'streamWhiteListed':
+                echo 'Suhosin is enabled and ' . $pug->getOption('stream') . ' is not in suhosin.executor.include.whitelist, please add it to your php.ini file.<br />';
+                break;
+            case 'cacheFolderExists':
+                echo 'The cache folder does not exists, please enter in a command line : <code>mkdir -p ' . $pug->getOption('cache') . '</code>.<br />';
+                break;
+            case 'cacheFolderIsWritable':
+                echo 'The cache folder is not writable, please enter in a command line : <code>chmod -R +w ' . $pug->getOption('cache') . '</code>.<br />';
+                break;
+            default:
+                echo $requirement . ' is false.<br />';
+        }
+    }
+    exit();
+}
+```
 
 ## Contributing
 

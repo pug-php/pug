@@ -35,7 +35,8 @@ div
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 18
      */
     public function testNonCallableFilter()
     {
@@ -81,7 +82,8 @@ div
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 17
      */
     public function testFilterAutoloadWhenClassDoNotExist()
     {

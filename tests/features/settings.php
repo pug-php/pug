@@ -322,7 +322,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 20
      */
     public function testAllowMixedIndentDisabled()
     {
@@ -334,7 +335,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 22
      */
     public function testIncludeNotFoundDisabled()
     {

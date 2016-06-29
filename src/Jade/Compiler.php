@@ -143,7 +143,7 @@ class Compiler extends MixinVisitor
     protected function apply($method, $arguments)
     {
         if (!method_exists($this, $method)) {
-            throw new \BadMethodCallException(sprintf('Method %s do not exists', $method));
+            throw new \BadMethodCallException(sprintf('Method %s do not exists', $method), 7);
         }
 
         return call_user_func_array(array($this, $method), $arguments);
@@ -176,7 +176,7 @@ class Compiler extends MixinVisitor
      * @param        $input
      * @param string $name
      *
-     * @throws \Exception
+     * @throws \ErrorException
      *
      * @return array
      */
@@ -190,7 +190,7 @@ class Compiler extends MixinVisitor
     /**
      * @param $input
      *
-     * @throws \Exception
+     * @throws \ErrorException
      *
      * @return array
      */
@@ -221,7 +221,7 @@ class Compiler extends MixinVisitor
 
             if (preg_match('/^(([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\2)(.*)$/', $part[0], $match)) {
                 if (mb_strlen(trim($match[3]))) {
-                    throw new \Exception('Unexpected value: ' . $match[3]);
+                    throw new \ErrorException('Unexpected value: ' . $match[3], 8);
                 }
                 array_push($resultsString, $match[1]);
                 continue;
@@ -263,14 +263,14 @@ class Compiler extends MixinVisitor
     }
 
     /**
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      *
      * @return array
      */
     protected function createStatements()
     {
         if (func_num_args() == 0) {
-            throw new \Exception('No Arguments provided');
+            throw new \InvalidArgumentException('No Arguments provided', 9);
         }
 
         $arguments = func_get_args();
@@ -321,7 +321,7 @@ class Compiler extends MixinVisitor
             try {
                 return $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
             } catch (\Exception $e) {
-                throw new \Exception('Pug.php did not understand ' . $arg, 1, $e);
+                throw new \Exception('Pug.php did not understand ' . $arg, 10, $e);
             }
         }
     }
