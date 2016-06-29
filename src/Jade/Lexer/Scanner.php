@@ -199,6 +199,7 @@ abstract class Scanner extends MixinScanner
 
     /**
      * @throws \ErrorException
+     *
      * @return object
      */
     protected function scanAttributes()
