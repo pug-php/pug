@@ -95,81 +95,12 @@ class CodeHandler extends CompilerUtils
             $varname = static::addDollarIfNeeded($varname);
         }
 
-        $getMiddleString = function ($start, $end) use ($input) {
-            $offset = $start[1] + strlen($start[0]);
+        $subCodeHandler = new SubCodeHandler($this, $input, $name);
+        $getMiddleString = $subCodeHandler->getMiddleString();
 
-            return substr($input, $offset, isset($end) ? $end[1] - $offset : strlen($input));
-        };
+        $handleRecursion = $subCodeHandler->handleRecursion($result);
 
-        $host = $this;
-        $handleRecursion = function ($arg, $name = '') use ($input, &$result, $host, $getMiddleString) {
-            list($start, $end) = $arg;
-            $str = trim($getMiddleString($start, $end));
-
-            if (!strlen($str)) {
-                return '';
-            }
-
-            $innerCode = $host->innerCode($str, $name);
-
-            if (count($innerCode) > 1) {
-                $result = array_merge($result, array_slice($innerCode, 0, -1));
-
-                return array_pop($innerCode);
-            }
-
-            return $innerCode[0];
-        };
-
-        $handleCodeInbetween = function () use (&$separators, $name, $handleRecursion, $input) {
-            $arguments = array();
-            $count = 1;
-
-            $start = current($separators);
-            $endPair = array(
-                '[' => ']',
-                '{' => '}',
-                '(' => ')',
-                ',' => false,
-            );
-            $open = $start[0];
-            $close = $endPair[$start[0]];
-
-            do {
-                // reset start
-                $start = current($separators);
-
-                do {
-                    $curr = next($separators);
-
-                    if ($curr[0] === $open) {
-                        $count++;
-                    }
-                    if ($curr[0] === $close) {
-                        $count--;
-                    }
-                } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
-
-                $end = current($separators);
-
-                if ($end !== false && $start[1] !== $end[1]) {
-                    $tmpName = $name * 10 + count($arguments);
-                    $arg = $handleRecursion(array($start, $end), $tmpName);
-
-                    array_push($arguments, $arg);
-                }
-            } while ($curr !== false && $count > 0);
-
-            if ($close && $count > 0) {
-                throw new \ErrorException($input . "\nMissing closing: " . $close, 14);
-            }
-
-            if ($end !== false) {
-                next($separators);
-            }
-
-            return $arguments;
-        };
+        $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
 
         $getNext = function ($index) use ($separators) {
             if (isset($separators[$index + 1])) {
@@ -204,7 +135,6 @@ class CodeHandler extends CompilerUtils
                 case '(':
                     $arguments = $handleCodeInbetween();
                     $call = $varname . '(' . implode(', ', $arguments) . ')';
-                    $currentSeparator = current($separators);
                     $call = static::addDollarIfNeeded($call);
                     $varname = $var;
                     array_push($result, "{$var}={$call}");
