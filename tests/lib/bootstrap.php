@@ -8,7 +8,8 @@ define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __D
 
 define('IGNORE_INDENT', true);
 
-function setup_autoload() {
+function setup_autoload()
+{
     // quick setup for autoloading
     $path = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../');
     $path = realpath($path);
@@ -22,12 +23,14 @@ function setup_autoload() {
     });
 }
 
-function find_tests() {
+function find_tests()
+{
     // find the tests
     return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.jade');
 }
 
-function build_list($test_list) {
+function build_list($test_list)
+{
     $group_list = array();
     foreach ($test_list as $test) {
         $name = basename($test, '.jade');
@@ -42,7 +45,8 @@ function build_list($test_list) {
     return $group_list;
 }
 
-function get_php_code($file) {
+function get_php_code($file)
+{
     $jade = new Jade(array(
         'singleQuote' => false,
         'prettyprint' => true,
@@ -50,7 +54,8 @@ function get_php_code($file) {
     return $jade->render($file);
 }
 
-function compile_php($file) {
+function compile_php($file)
+{
     $jade = new Jade(array(
         'singleQuote' => false,
         'prettyprint' => true,
@@ -58,17 +63,20 @@ function compile_php($file) {
     return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
 }
 
-function get_html_code($name) {
+function get_html_code($name)
+{
     return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.jade'));
 }
 
-function init_tests() {
+function init_tests()
+{
     mb_internal_encoding('utf-8');
     error_reporting(E_ALL);
     setup_autoload();
 }
 
-function get_generated_html($contents) {
+function get_generated_html($contents)
+{
     if(intval(ini_get('allow_url_include')) !== 0) {
         error_reporting(E_ALL & ~E_NOTICE);
         ob_start();
@@ -85,7 +93,8 @@ function get_generated_html($contents) {
     return $contents;
 }
 
-function orderWords($words) {
+function orderWords($words)
+{
     if (is_array($words)) {
         return 'class=' . $words[1] . orderWords($words[2]) . $words[1];
     }
@@ -96,7 +105,8 @@ function orderWords($words) {
     return implode(' ', $words);
 }
 
-function get_test_result($name, $verbose = false, $moreVerbose = false) {
+function get_test_result($name, $verbose = false, $moreVerbose = false)
+{
     $mergeSpace = IGNORE_INDENT && strpos($name, 'indent.') === false;
     $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
@@ -164,7 +174,8 @@ function get_test_result($name, $verbose = false, $moreVerbose = false) {
     return array(true, $result);
 }
 
-function array_remove(&$array, $value) {
+function array_remove(&$array, $value)
+{
     if($found = in_array($value, $array)) {
         array_splice($array, array_search($value, $array), 1);
     }
@@ -172,7 +183,8 @@ function array_remove(&$array, $value) {
     return $found;
 }
 
-function get_tests_results($verbose = false) {
+function get_tests_results($verbose = false)
+{
     global $argv;
 
     $moreVerbose = array_remove($argv, '--verbose');

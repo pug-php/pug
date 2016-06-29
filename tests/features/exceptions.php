@@ -38,7 +38,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 10
      */
     public function testDoNotUnderstand()
     {
@@ -46,7 +47,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 10
      */
     public function testDoubleDoubleArrow()
     {
@@ -54,7 +56,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 26
      */
     public function testBadInclude()
     {
@@ -62,7 +65,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 10
      */
     public function testCannotBeReadFromPhp()
     {
@@ -70,15 +74,17 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 8
      */
-    public function testUnexpectingValue()
+    public function testUnexpectedValue()
     {
         get_php_code('a(href="foo""bar")');
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 21
      */
     public function testUnableToFindAttributesClosingParenthesis()
     {
@@ -86,7 +92,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 24
      */
     public function testExpectedIndent()
     {
@@ -94,7 +101,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 25
      */
     public function testUnexpectingToken()
     {
@@ -110,7 +118,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \Exception
+     * @expectedExceptionCode 10
      */
     public function testNonParsableExtends()
     {
@@ -126,7 +135,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 3
      */
     public function testSetInvalidOption()
     {
@@ -135,7 +145,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 3
      */
     public function testSetInvalidOptions()
     {
@@ -147,7 +158,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 2
      */
     public function testGetInvalidOption()
     {
@@ -200,7 +212,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 17
      */
     public function testFilterDoesNotExist()
     {

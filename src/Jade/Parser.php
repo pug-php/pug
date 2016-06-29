@@ -66,7 +66,7 @@ class Parser
             }
         }
 
-        throw new \InvalidArgumentException("The included file '$path' does not exists.");
+        throw new \InvalidArgumentException("The included file '$path' does not exists.", 22);
     }
 
     protected function getTemplateContents($path)
@@ -157,7 +157,7 @@ class Parser
             try {
                 $ast = $parser->parse();
             } catch (\Exception $e) {
-                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 1, $e);
+                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 23, $e);
             }
             $this->context();
 
@@ -180,7 +180,7 @@ class Parser
         $lineNumber = $this->line();
         $lines = explode("\n", $this->input);
         $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
-        throw new \Exception("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString) . "\n");
+        throw new \ErrorException("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString) . "\n", 24);
     }
 
     protected function accept($type)
@@ -217,7 +217,7 @@ class Parser
                 return $this->parseExpression();
 
             default:
-                throw new \Exception($this->filename . ' (' . $this->line() . ') : Unexpected token "' . $this->peek()->type . '"');
+                throw new \ErrorException($this->filename . ' (' . $this->line() . ') : Unexpected token "' . $this->peek()->type . '"', 25);
         }
     }
 
@@ -405,7 +405,7 @@ class Parser
 
         if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($path)) {
             if (!file_exists($path)) {
-                throw new \Exception($file . ' not found at ' . $this->filename . ' (line ' . $token->line . ')');
+                throw new \ErrorException($file . ' not found at ' . $this->filename . ' (line ' . $token->line . ')', 26);
             }
 
             return new Nodes\Literal(file_get_contents($path));
@@ -421,7 +421,7 @@ class Parser
         try {
             $ast = $parser->parse();
         } catch (\Exception $e) {
-            throw new \Exception($path . ' (' . $parser->lexer->lineno . ') : ' . $e->getMessage());
+            throw new \ErrorException($path . ' (' . $parser->lexer->lineno . ') : ' . $e->getMessage(), 27);
         }
         $this->context();
         $ast->filename = $path;

@@ -2,13 +2,13 @@
 
 use Jade\Nodes\Attributes;
 
-class AttributesTest extends PHPUnit_Framework_TestCase {
-
+class AttributesTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Attributes Node test
      */
-    public function testAttributes() {
-
+    public function testAttributes()
+    {
         $attributes = new Attributes();
         $this->assertTrue(is_null($attributes->getAttribute('foo')), 'First, foo attribute should not exists');
         $attributes->setAttribute('foo', 'bar');

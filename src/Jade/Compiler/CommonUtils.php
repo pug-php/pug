@@ -11,14 +11,14 @@ class CommonUtils
     /**
      * @param string $call
      *
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
     public static function addDollarIfNeeded($call)
     {
         if ($call === 'Inf') {
-            throw new \Exception($call . ' cannot be read from PHP', 1);
+            throw new \InvalidArgumentException($call . ' cannot be read from PHP', 16);
         }
         if ($call === 'undefined') {
             return 'null';

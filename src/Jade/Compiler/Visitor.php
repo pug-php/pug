@@ -161,7 +161,7 @@ abstract class Visitor extends AttributesCompiler
             $filter = new $filter();
         }
         if (!is_callable($filter)) {
-            throw new \InvalidArgumentException($node->name . ': Filter must be callable');
+            throw new \InvalidArgumentException($node->name . ': Filter must be callable', 18);
         }
         $this->buffer($filter($node, $this));
     }

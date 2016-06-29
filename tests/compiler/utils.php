@@ -2,21 +2,21 @@
 
 use Jade\Compiler;
 
-class Decoder extends Compiler {
-
-    public function decode($attributes) {
-
+class Decoder extends Compiler
+{
+    public function decode($attributes)
+    {
         return static::decodeAttributes($attributes);
     }
 }
 
-class CompilerUtilsTest extends PHPUnit_Framework_TestCase {
-
+class CompilerUtilsTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Attributes decoding test
      */
-    public function testDecodeAttributes() {
-
+    public function testDecodeAttributes()
+    {
         $decoder = new Decoder();
         $attributes = $decoder->decode(array(
             '"Hello"',

@@ -35,7 +35,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException ErrorException
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 5
      */
     public function testMissingDirectory()
     {
@@ -77,7 +78,8 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException ErrorException
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 6
      */
     public function testReadOnlyDirectory()
     {
@@ -87,7 +89,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
             if ($parent === $dir) {
                 $dir = 'C:';
                 if (!file_exists($dir) || is_writable($dir)) {
-                    throw new \ErrorException("No read-only directory found to do the test", 1);
+                    throw new \ErrorException('No read-only directory found to do the test', 6);
                 }
                 break;
             }

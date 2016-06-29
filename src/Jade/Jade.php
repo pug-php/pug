@@ -69,41 +69,146 @@ class Jade
         $this->options = array_merge($this->options, $options);
     }
 
+    /**
+     * Returns true if suhosin extension is loaded and the stream name
+     * is missing in the executor include whitelist.
+     * Returns false in any other case.
+     *
+     * @return bool
+     */
+    protected function suhosinWhiteListNeeded()
+    {
+        return extension_loaded('suhosin') &&
+            false === strpos(
+                ini_get('suhosin.executor.include.whitelist'),
+                $this->options['stream']
+            );
+    }
+
+    /**
+     * Returns list of requirements in an array identified by keys.
+     * For each of them, the value can be true if the requirement is
+     * fullfilled, false else.
+     *
+     * If a requirement name is specified, returns only the matching
+     * boolean value for this requirement.
+     *
+     * @param string name
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return array|bool
+     */
+    public function requirements($name = null)
+    {
+        $requirements = array(
+            'streamWhiteListed' => !$this->suhosinWhiteListNeeded(),
+            'cacheFolderExists' => $this->options['cache'] && is_dir($this->options['cache']),
+            'cacheFolderIsWritable' => $this->options['cache'] && is_writable($this->options['cache']),
+        );
+
+        if ($name) {
+            if (!isset($requirements[$name])) {
+                throw new \InvalidArgumentException($name . ' is not in the requirements list (' . implode(', ', array_keys($requirements)) . ')', 19);
+            }
+
+            return $requirements[$name];
+        }
+
+        return $requirements;
+    }
+
+    /**
+     * Get standard or custom option, return the previously setted value or the default value else.
+     *
+     * Throw a invalid argument exception if the option does not exists.
+     *
+     * @param string name
+     *
+     * @throws \InvalidArgumentException
+     */
     public function getOption($name)
     {
         if (!array_key_exists($name, $this->options)) {
-            throw new \InvalidArgumentException("$name is not a valid option name.", 1);
+            throw new \InvalidArgumentException("$name is not a valid option name.", 2);
         }
 
         return $this->options[$name];
     }
 
+    /**
+     * Set one standard option (listed in $this->options).
+     *
+     * @param string name
+     * @param mixed option value
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return $this
+     */
     public function setOption($name, $value)
     {
         if (!array_key_exists($name, $this->options)) {
-            throw new \InvalidArgumentException("$name is not a valid option name.", 1);
+            throw new \InvalidArgumentException("$name is not a valid option name.", 3);
         }
 
         $this->options[$name] = $value;
+
+        return $this;
     }
 
+    /**
+     * Set multiple standard options.
+     *
+     * @param array option list
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return $this
+     */
     public function setOptions($options)
     {
         foreach ($options as $name => $value) {
             $this->setOption($name, $value);
         }
+
+        return $this;
     }
 
+    /**
+     * Set one custom option.
+     *
+     * @param string name
+     * @param mixed option value
+     *
+     * @return $this
+     */
     public function setCustomOption($name, $value)
     {
         $this->options[$name] = $value;
+
+        return $this;
     }
 
+    /**
+     * Set multiple custom options.
+     *
+     * @param array options list
+     *
+     * @return $this
+     */
     public function setCustomOptions(array $options)
     {
         $this->options = array_merge($this->options, $options);
+
+        return $this;
     }
 
+    /**
+     * Get main template file extension.
+     *
+     * @return string
+     */
     public function getExtension()
     {
         $extension = $this->getOption('extension');
@@ -117,10 +222,10 @@ class Jade
     }
 
     /**
-     * register / override new filter.
+     * Register / override new filter.
      *
-     * @param $name
-     * @param $filter
+     * @param string name
+     * @param callable filter
      *
      * @return $this
      */
@@ -132,7 +237,9 @@ class Jade
     }
 
     /**
-     * @param $name
+     * Check if a filter is registered.
+     *
+     * @param string name
      *
      * @return bool
      */
@@ -144,7 +251,9 @@ class Jade
     }
 
     /**
-     * @param $name
+     * Get a registered filter by name.
+     *
+     * @param string name
      *
      * @return callable
      */
@@ -156,7 +265,11 @@ class Jade
     }
 
     /**
-     * @param $input
+     * Compile PHP code from a Pug input or a Pug file.
+     *
+     * @param string input
+     *
+     * @throws \Exception
      *
      * @return string
      */
@@ -169,10 +282,14 @@ class Jade
     }
 
     /**
-     * @param $input
-     * @param array $vars
+     * Compile HTML code from a Pug input or a Pug file.
      *
-     * @return mixed|string
+     * @param sring Pug input or file
+     * @param array vars to pass to the view
+     *
+     * @throws \Exception
+     *
+     * @return string
      */
     public function render($input, array $vars = array())
     {
@@ -196,14 +313,16 @@ class Jade
      * Create a stream wrapper to allow
      * the possibility to add $scope variables.
      *
-     * @param $input
+     * @param string input
+     *
+     * @throws \ErrorException
      *
      * @return string
      */
     public function stream($input)
     {
-        if (extension_loaded('suhosin') && false === strpos(ini_get('suhosin.executor.include.whitelist'), $this->options['stream'])) {
-            throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.');
+        if ($this->suhosinWhiteListNeeded()) {
+            throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.', 4);
         }
 
         if (!in_array($this->options['stream'], static::$wrappersRegistered)) {
@@ -215,19 +334,22 @@ class Jade
     }
 
     /**
-     * @param $input
+     * Get cached input/file a matching cache file exists.
+     * Else, render the input, cache it in a file and return it.
+     *
+     * @param string input
      *
      * @throws \InvalidArgumentException
      * @throws \Exception
      *
-     * @return mixed|string
+     * @return string
      */
     public function cache($input)
     {
         $cacheFolder = $this->options['cache'];
 
         if (!is_dir($cacheFolder)) {
-            throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists');
+            throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists', 5);
         }
 
         if (is_file($input)) {
@@ -269,7 +391,7 @@ class Jade
         }
 
         if (!is_writable($cacheFolder)) {
-            throw new \ErrorException(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder));
+            throw new \ErrorException(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder), 6);
         }
 
         $rendered = $this->compile($input);

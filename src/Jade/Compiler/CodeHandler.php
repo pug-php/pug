@@ -14,11 +14,11 @@ class CodeHandler extends CompilerUtils
     public function __construct($input, $name)
     {
         if (!is_string($input)) {
-            throw new \Exception('Expecting a string of PHP, got: ' . gettype($input));
+            throw new \InvalidArgumentException('Expecting a string of PHP, got: ' . gettype($input), 11);
         }
 
         if (strlen($input) == 0) {
-            throw new \Exception('Expecting a string of PHP, empty string received.');
+            throw new \InvalidArgumentException('Expecting a string of PHP, empty string received.', 12);
         }
 
         $this->input = trim(preg_replace('/\bvar\b/', '', $input));
@@ -40,7 +40,7 @@ class CodeHandler extends CompilerUtils
         }
 
         if (strpos('=,;?', substr($this->input, 0, 1)) !== false) {
-            throw new \Exception('Expecting a variable name or an expression, got: ' . $this->input);
+            throw new \ErrorException('Expecting a variable name or an expression, got: ' . $this->input, 13);
         }
 
         preg_match_all(
@@ -161,7 +161,7 @@ class CodeHandler extends CompilerUtils
             } while ($curr !== false && $count > 0);
 
             if ($close && $count > 0) {
-                throw new \Exception($input . "\nMissing closing: " . $close);
+                throw new \ErrorException($input . "\nMissing closing: " . $close, 14);
             }
 
             if ($end !== false) {
@@ -271,7 +271,7 @@ class CodeHandler extends CompilerUtils
                                         break;
                                     }
                                     if (!is_null($value)) {
-                                        throw new \Exception('Parse error on ' . substr($argument, strlen($match[1])), 1);
+                                        throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
                                     }
                                     $key .= $match[1];
                                     $value = '';

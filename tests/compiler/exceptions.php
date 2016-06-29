@@ -21,7 +21,8 @@ class ApplyBugCompiler extends Compiler
 class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @expectedException Exception
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 12
      */
     public function testHandleEmptyCode()
     {
@@ -30,7 +31,8 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 11
      */
     public function testNonStringInHandleCode()
     {
@@ -39,7 +41,8 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 14
      */
     public function testMissingClosing()
     {
@@ -48,7 +51,8 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 9
      */
     public function testCreateEmptyStatement()
     {
@@ -56,7 +60,8 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Exception
+     * @expectedException \BadMethodCallException
+     * @expectedExceptionCode 7
      */
     public function testBadMethodApply()
     {

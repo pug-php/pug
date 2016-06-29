@@ -63,6 +63,6 @@ class FilterHelper
             return $filter;
         }
 
-        throw new \InvalidArgumentException($name . ': Filter doesn\'t exists');
+        throw new \InvalidArgumentException($name . ': Filter doesn\'t exists', 17);
     }
 }

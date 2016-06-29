@@ -43,7 +43,7 @@ abstract class IndentScanner extends InputHandler
     }
 
     /**
-     * @throws \Exception
+     * @throws \ErrorException
      *
      * @return mixed|object
      */
@@ -59,7 +59,7 @@ abstract class IndentScanner extends InputHandler
             $firstChar = substr($this->input, 0, 1);
 
             if ($this->length() && (' ' === $firstChar || "\t" === $firstChar)) {
-                throw new \Exception('Invalid indentation, you can use tabs or spaces but not both');
+                throw new \ErrorException('Invalid indentation, you can use tabs or spaces but not both', 20);
             }
 
             return $this->getTokenFromIndent($firstChar, $indents);

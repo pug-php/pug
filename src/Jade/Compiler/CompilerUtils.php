@@ -11,7 +11,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * @param $call string
      *
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      *
      * @return string
      */
@@ -79,7 +79,7 @@ abstract class CompilerUtils extends Indenter
      *
      * @param &string reference of an argument containing an expression
      *
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
     protected static function initArgToNull(&$arg)
     {

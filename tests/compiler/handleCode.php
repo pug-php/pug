@@ -2,7 +2,7 @@
 
 use Jade\Compiler;
 
-class JadeCompilerTest extends PHPUnit_Framework_TestCase
+class JadeCompilerHandleCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testGoodClosing()
     {
