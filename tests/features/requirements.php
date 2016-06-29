@@ -4,7 +4,7 @@ use Pug\Pug;
 
 class PugRequirementsSuhosinFailure extends Pug
 {
-    protected function suhosinWhiteListNeeded()
+    protected function whiteListNeeded($extension)
     {
         return true;
     }
@@ -13,7 +13,7 @@ class PugRequirementsSuhosinFailure extends Pug
 
 class PugRequirementsSuhosinSuccess extends Pug
 {
-    protected function suhosinWhiteListNeeded()
+    protected function whiteListNeeded($extension)
     {
         return false;
     }

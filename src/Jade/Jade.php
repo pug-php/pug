@@ -76,11 +76,11 @@ class Jade
      *
      * @return bool
      */
-    protected function suhosinWhiteListNeeded()
+    protected function whiteListNeeded($extension)
     {
-        return extension_loaded('suhosin') &&
+        return extension_loaded($extension) &&
             false === strpos(
-                ini_get('suhosin.executor.include.whitelist'),
+                ini_get($extension . '.executor.include.whitelist'),
                 $this->options['stream']
             );
     }
@@ -102,7 +102,7 @@ class Jade
     public function requirements($name = null)
     {
         $requirements = array(
-            'streamWhiteListed' => !$this->suhosinWhiteListNeeded(),
+            'streamWhiteListed' => !$this->whiteListNeeded('suhosin'),
             'cacheFolderExists' => $this->options['cache'] && is_dir($this->options['cache']),
             'cacheFolderIsWritable' => $this->options['cache'] && is_writable($this->options['cache']),
         );
@@ -321,7 +321,7 @@ class Jade
      */
     public function stream($input)
     {
-        if ($this->suhosinWhiteListNeeded()) {
+        if ($this->whiteListNeeded('suhosin')) {
             throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.', 4);
         }
 
