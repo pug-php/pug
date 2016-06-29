@@ -33,9 +33,8 @@ class SubCodeHandler
     {
         $getMiddleString = $this->getMiddleString();
         $codeHandler = $this->codeHandler;
-        $input = $this->input;
 
-        return function ($arg, $name = '') use (&$result, $input, $codeHandler, $getMiddleString) {
+        return function ($arg, $name = '') use (&$result, $codeHandler, $getMiddleString) {
             list($start, $end) = $arg;
             $str = trim($getMiddleString($start, $end));
 
