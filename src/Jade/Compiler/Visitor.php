@@ -59,6 +59,23 @@ abstract class Visitor extends AttributesCompiler
     }
 
     /**
+     * @param string $expression
+     * @param &array $arguments
+     *
+     * @return string
+     */
+    protected function visitCase($expression, &$arguments)
+    {
+        if ('default' === $expression) {
+            return 'default:';
+        }
+
+        $arguments[] = $expression;
+
+        return 'case %s:';
+    }
+
+    /**
      * @param Nodes\When $node
      */
     protected function visitWhen(When $node)
@@ -73,12 +90,8 @@ abstract class Visitor extends AttributesCompiler
 
             $this->indents++;
         }
-        if ('default' == $node->expr) {
-            $code .= 'default:';
-        } else {
-            $code .= 'case %s:';
-            $arguments[] = $node->expr;
-        }
+
+        $code .= $this->visitCase($node->expr, $arguments);
 
         array_unshift($arguments, $code);
 
@@ -185,7 +198,7 @@ abstract class Visitor extends AttributesCompiler
     }
 
     /**
-     * @param $node
+     * @param Nodes\Each $node
      */
     protected function visitEach(Each $node)
     {
@@ -193,18 +206,23 @@ abstract class Visitor extends AttributesCompiler
         //if (is_string($node->obj)) {
         //$serialized = serialize($node->obj);
         if (isset($node->alternative)) {
-            $code = $this->createCode('if (isset(%s) && %s) {', $node->obj, $node->obj);
-            $this->buffer($code);
+            $this->buffer($this->createCode(
+                'if (isset(%s) && %s) {',
+                $node->obj, $node->obj
+            ));
             $this->indents++;
         }
 
-        if (isset($node->key) && mb_strlen($node->key) > 0) {
-            $code = $this->createCode('foreach (%s as %s => %s) {', $node->obj, $node->key, $node->value);
-        } else {
-            $code = $this->createCode('foreach (%s as %s) {', $node->obj, $node->value);
-        }
-
-        $this->buffer($code);
+        $this->buffer(isset($node->key) && mb_strlen($node->key) > 0
+            ? $this->createCode(
+                'foreach (%s as %s => %s) {',
+                $node->obj, $node->key, $node->value
+            )
+            : $this->createCode(
+                'foreach (%s as %s) {',
+                $node->obj, $node->value
+            )
+        );
 
         $this->indents++;
         $this->visit($node->block);
@@ -225,7 +243,7 @@ abstract class Visitor extends AttributesCompiler
     }
 
     /**
-     * @param $attributes
+     * @param array $attributes
      */
     protected function visitAttributes($attributes)
     {

@@ -11,7 +11,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Prepend "$" to the given input if it's a varname.
      *
-     * @param $call string
+     * @param string $call
      *
      * @throws \InvalidArgumentException
      *
@@ -25,7 +25,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Escape value depanding on the current quote.
      *
-     * @param string  input value
+     * @param string $val input value
      *
      * @return string
      */
@@ -39,7 +39,7 @@ abstract class CompilerUtils extends Indenter
      *
      * @example foo.bar return $foo->bar (if foo is an object), or $foo["bar"] if it's an array.
      *
-     * @param $match array regex match
+     * @param array $match regex match
      *
      * @return string
      */
@@ -64,8 +64,8 @@ abstract class CompilerUtils extends Indenter
     /**
      * Replace var paths in a string.
      *
-     * @param $arg string
-     * @param $regexp string
+     * @param string $arg
+     * @param string $regexp
      *
      * @return string
      */
@@ -83,7 +83,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Concat " = null" to initializations to simulate the JS "var foo;".
      *
-     * @param &string reference of an argument containing an expression
+     * @param &string $arg reference of an argument containing an expression
      *
      * @throws \InvalidArgumentException
      */
@@ -98,7 +98,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Parse a value from its quoted string (or JSON) representation.
      *
-     * @param $value string
+     * @param string $value
      *
      * @return mixed
      */
@@ -110,7 +110,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Decode a value (parse it except if it's null).
      *
-     * @param $value string
+     * @param string $value
      *
      * @return mixed
      */
@@ -124,7 +124,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Decode each attribute in the given list.
      *
-     * @param $attributes array
+     * @param array $attributes
      *
      * @return array
      */
@@ -145,7 +145,7 @@ abstract class CompilerUtils extends Indenter
     /**
      * Get filter by name.
      *
-     * @param $name string
+     * @param string $name
      *
      * @return callable
      */
@@ -159,8 +159,8 @@ abstract class CompilerUtils extends Indenter
     /**
      * Return PHP code wich wrap the given value and escape it if $escaped is true.
      *
-     * @param $escaped bool need to be escaped
-     * @param $value mixed to be escaped if $escaped is true
+     * @param bool  $escaped need to be escaped
+     * @param mixed $value   to be escaped if $escaped is true
      *
      * @return callable
      */
@@ -177,7 +177,7 @@ abstract class CompilerUtils extends Indenter
      * Join with space if the value is an array, else return the input value
      * with no changes.
      *
-     * @param $value array
+     * @param array $value
      *
      * @return string|mixed
      */

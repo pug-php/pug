@@ -13,6 +13,7 @@ engines:
   phpmd:
     enabled: true
     exclude_fingerprints:
+    # Camel Case in Template (mandatory due to PHP interface)
     - bfc9d4bcb17b7370187b6188eb667c32
     - e26083ecb05f3489ef1afc03151e5d72
     - 89e3aa3801675c411ff895b35b97a410
@@ -20,6 +21,13 @@ engines:
     - 22b8a69d4867ec56276c9c98777ffb38
     - aaeb3d11f939d1619d64131aa16357e5
     - af957bd20b308ce225941c9b2d053a25
+    - ca7400c9de963d4695967f19b944bef6
+    # setAttribute is allowed to use boolean default value for escaped
+    - a5e6f6215d8cc84a0b7750eaafaf8105
+    checks:
+      # Allow static access such as CommonUtils ones
+      CleanCode/StaticAccess:
+        enabled: false
 ratings:
   paths:
   - "**.inc"
