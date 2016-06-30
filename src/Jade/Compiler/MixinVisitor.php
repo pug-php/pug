@@ -46,6 +46,27 @@ abstract class MixinVisitor extends CodeVisitor
         }, $arguments);
     }
 
+    protected function parseMixinAttribute($data)
+    {
+        if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
+            return;
+        }
+
+        if ($data['value'] === 'false' || is_bool($data['value'])) {
+            return false;
+        }
+
+        $value = is_array($data['value'])
+            ? preg_split('`\s+`', trim(implode(' ', $data['value'])))
+            : trim($data['value']);
+
+        return $data['escaped'] === true
+            ? is_array($value)
+                ? array_map('htmlspecialchars', $value)
+                : htmlspecialchars($value)
+            : $value;
+    }
+
     protected function parseMixinAttributes($attributes, $defaultAttributes, $mixinAttributes)
     {
         if (!count($attributes)) {
@@ -54,24 +75,7 @@ abstract class MixinVisitor extends CodeVisitor
 
         $parsedAttributes = array();
         foreach ($attributes as $data) {
-            if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
-                $parsedAttributes[$data['name']] = null;
-                continue;
-            }
-
-            if ($data['value'] === 'false' || is_bool($data['value'])) {
-                $parsedAttributes[$data['name']] = false;
-                continue;
-            }
-
-            $value = is_array($data['value'])
-                ? preg_split('`\s+`', trim(implode(' ', $data['value'])))
-                : trim($data['value']);
-            $parsedAttributes[$data['name']] = $data['escaped'] === true
-                ? is_array($value)
-                    ? array_map('htmlspecialchars', $value)
-                    : htmlspecialchars($value)
-                : $value;
+            $parsedAttributes[$data['name']] = $this->parseMixinAttribute($data);
         }
 
         $attributes = var_export($parsedAttributes, true);

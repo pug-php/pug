@@ -24,6 +24,8 @@ engines:
     - ca7400c9de963d4695967f19b944bef6
     # setAttribute is allowed to use boolean default value for escaped
     - a5e6f6215d8cc84a0b7750eaafaf8105
+    # else here is the simpliest way to do it
+    - 311e57c70997007dce22492a1426d448
     checks:
       # Allow static access such as CommonUtils ones
       CleanCode/StaticAccess:

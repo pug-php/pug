@@ -528,9 +528,10 @@ class Parser
         while ($this->peek()->type !== 'outdent') {
             if ($this->peek()->type === 'newline') {
                 $this->lexer->advance();
-            } else {
-                $block->push($this->parseExpression());
+                continue;
             }
+
+            $block->push($this->parseExpression());
         }
 
         $this->expect('outdent');
