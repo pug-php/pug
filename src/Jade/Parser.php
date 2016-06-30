@@ -593,7 +593,7 @@ class Parser
             $tag = $parser->parse();
             $tag->line = $this->line();
             $block->push($tag);
-            $str = mb_substr($str, mb_strlen($matches[0]));
+            $str = substr($str, strlen($matches[0]));
         }
         $text = new Nodes\Text($str);
         $text->line = $this->line();

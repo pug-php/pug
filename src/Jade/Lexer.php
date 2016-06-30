@@ -62,7 +62,7 @@ class Lexer extends Scanner
      */
     protected function consume($bytes)
     {
-        $this->input = mb_substr($this->input, mb_strlen($bytes));
+        $this->input = substr($this->input, strlen($bytes));
     }
 
     /**

@@ -131,7 +131,6 @@ class SubCodeHandler
                 if (preg_match('/^\d*[a-zA-Z_]/', ${$var})) {
                     ${$var} = var_export(${$var}, true);
                 }
-                $quote = substr(${$var}, 0, 1);
             }
             $output[] = empty($value)
                 ? $key

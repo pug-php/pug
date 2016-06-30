@@ -51,7 +51,7 @@ abstract class BlockScanner extends IndentScanner
         if (preg_match("/^block\b *(?:(prepend|append) +)?([^\n]*)/", $this->input, $matches)) {
             $this->consume($matches[0]);
             $token = $this->token('block', $matches[2]);
-            $token->mode = (mb_strlen($matches[1]) == 0) ? 'replace' : $matches[1];
+            $token->mode = (strlen($matches[1]) == 0) ? 'replace' : $matches[1];
 
             return $token;
         }

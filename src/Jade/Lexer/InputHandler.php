@@ -46,7 +46,7 @@ abstract class InputHandler
      */
     public function length()
     {
-        return mb_strlen($this->input);
+        return strlen($this->input);
     }
 
     /**
@@ -70,12 +70,12 @@ abstract class InputHandler
         $indent = "/^\n(" . ($this->allowMixedIndent ? '[\t ]*' : '\t*') . ')/';
         $found = preg_match($indent, $this->input, $matches);
 
-        if ($found && mb_strlen($matches[1]) === 0) {
+        if ($found && strlen($matches[1]) === 0) {
             $indent = "/^\n( *)/";
             $found = preg_match($indent, $this->input, $matches);
         }
 
-        if ($found && mb_strlen($matches[1]) !== 0) {
+        if ($found && strlen($matches[1]) !== 0) {
             $this->identRE = $indent;
         }
 

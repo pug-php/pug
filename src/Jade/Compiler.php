@@ -220,7 +220,7 @@ class Compiler extends MixinVisitor
             $part[0] = trim($part[0]);
 
             if (preg_match('/^(([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\2)(.*)$/', $part[0], $match)) {
-                if (mb_strlen(trim($match[3]))) {
+                if (strlen(trim($match[3]))) {
                     throw new \ErrorException('Unexpected value: ' . $match[3], 8);
                 }
                 array_push($resultsString, $match[1]);

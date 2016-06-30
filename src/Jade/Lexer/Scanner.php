@@ -15,7 +15,7 @@ abstract class Scanner extends MixinScanner
         if (preg_match($regex, $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token($type, isset($matches[$captureIndex]) && mb_strlen($matches[$captureIndex]) > 0 ? $matches[$captureIndex] : '');
+            return $this->token($type, isset($matches[$captureIndex]) && strlen($matches[$captureIndex]) > 0 ? $matches[$captureIndex] : '');
         }
     }
 
@@ -57,11 +57,11 @@ abstract class Scanner extends MixinScanner
             $this->consume($matches[0]);
             $name = $matches[1];
 
-            if (':' === mb_substr($name, -1) && ':' !== mb_substr($name, -2, 1)) {
-                $name = mb_substr($name, 0, -1);
+            if (':' === substr($name, -1) && ':' !== substr($name, -2, 1)) {
+                $name = substr($name, 0, -1);
                 $this->defer($this->token(':'));
 
-                while (' ' === mb_substr($this->input, 0, 1)) {
+                while (' ' === substr($this->input, 0, 1)) {
                     $this->consume(' ');
                 }
             }
@@ -221,7 +221,7 @@ abstract class Scanner extends MixinScanner
             $token->selfClosing = false;
 
             $parser = new Attributes($token);
-            $parser->parseWith(mb_substr($matches[0], 1, mb_strlen($matches[0]) - 2));
+            $parser->parseWith(substr($matches[0], 1, strlen($matches[0]) - 2));
 
             if ($this->length() && '/' == $this->input[0]) {
                 $this->consume(1);
@@ -238,13 +238,13 @@ abstract class Scanner extends MixinScanner
     protected function scanPipelessText()
     {
         if ($this->pipeless && "\n" !== substr($this->input, 0, 1)) {
-            $pos = mb_strpos($this->input, "\n");
+            $pos = strpos($this->input, "\n");
 
             if ($pos === false) {
                 $pos = $this->length();
             }
 
-            $str = mb_substr($this->input, 0, $pos); // do not include the \n char
+            $str = substr($this->input, 0, $pos); // do not include the \n char
 
             $this->consume($str);
 

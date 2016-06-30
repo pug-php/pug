@@ -13,6 +13,7 @@ Pug.php adds inline PHP scripting support to the [Pug](http://jade-lang.com) tem
 > Pug has been recently re-named from Jade. If you're new to Pug, you should install the pug-php/pug package on composer.
 
 ##### [The Pug Syntax Reference](https://github.com/pugjs/pug#readme)
+##### [See Pug.php demo](https://pug-demo.herokuapp.com/)
 
 ## Implementation details
 

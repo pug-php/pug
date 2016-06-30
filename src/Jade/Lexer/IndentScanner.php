@@ -31,7 +31,7 @@ abstract class IndentScanner extends InputHandler
     protected function scanBlank()
     {
         if (preg_match('/^\n *\n/', $this->input, $matches)) {
-            $this->consume(mb_substr($matches[0], 0, -1)); // do not cosume the last \r
+            $this->consume(substr($matches[0], 0, -1)); // do not cosume the last \r
             $this->lineno++;
 
             if ($this->pipeless) {
@@ -52,7 +52,7 @@ abstract class IndentScanner extends InputHandler
         $matches = $this->getNextIndent();
 
         if ($matches !== null) {
-            $indents = mb_strlen($matches[1]);
+            $indents = strlen($matches[1]);
 
             $this->lineno++;
             $this->consume($matches[0]);

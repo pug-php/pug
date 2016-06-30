@@ -187,8 +187,8 @@ class Attributes
             }
         };
 
-        for ($i = 0; $i < mb_strlen($str); $i++) {
-            $parse(mb_substr($str, $i, 1), mb_substr($str, $i + 1, 1));
+        for ($i = 0; $i < strlen($str); $i++) {
+            $parse(substr($str, $i, 1), substr($str, $i + 1, 1));
         }
 
         $parse(',');

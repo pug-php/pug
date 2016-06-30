@@ -70,7 +70,6 @@ function get_html_code($name)
 
 function init_tests()
 {
-    mb_internal_encoding('utf-8');
     error_reporting(E_ALL);
     setup_autoload();
 }

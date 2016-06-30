@@ -213,7 +213,7 @@ abstract class Visitor extends AttributesCompiler
             $this->indents++;
         }
 
-        $this->buffer(isset($node->key) && mb_strlen($node->key) > 0
+        $this->buffer(isset($node->key) && strlen($node->key) > 0
             ? $this->createCode(
                 'foreach (%s as %s => %s) {',
                 $node->obj, $node->key, $node->value
