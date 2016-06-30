@@ -169,7 +169,7 @@ abstract class AttributesCompiler extends CompilerFacade
     }
 
     /**
-     * @param $attributes
+     * @param array $attributes
      */
     protected function compileAttributes($attributes)
     {

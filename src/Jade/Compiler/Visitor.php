@@ -198,7 +198,7 @@ abstract class Visitor extends AttributesCompiler
     }
 
     /**
-     * @param $node
+     * @param Nodes\Each $node
      */
     protected function visitEach(Each $node)
     {
@@ -243,7 +243,7 @@ abstract class Visitor extends AttributesCompiler
     }
 
     /**
-     * @param $attributes
+     * @param array $attributes
      */
     protected function visitAttributes($attributes)
     {
