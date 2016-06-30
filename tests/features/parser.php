@@ -27,6 +27,11 @@ class Parser extends \Jade\Parser
         $this->lexer = new Lexer($this->input, $this->options);
     }
 
+    public function checkExtensions()
+    {
+        return $this->getExtensions();
+    }
+
     public function testAccept($type)
     {
         return $this->accept($type);
@@ -55,5 +60,23 @@ class JadeParserTest extends PHPUnit_Framework_TestCase
     public function testGoodInclude()
     {
         $this->assertSame('<div class="alert alert-danger"> Page not found.</div>', trim(get_php_code('include a/file/with/a.pug')));
+    }
+
+    public function testExtensions()
+    {
+        $parser = new Parser('template', null, array(
+            'extension' => '.pug',
+        ));
+        $this->assertSame(array('.pug'), $parser->checkExtensions());
+
+        $parser = new Parser('template', null, array(
+            'extension' => array('.pug'),
+        ));
+        $this->assertSame(array('.pug'), $parser->checkExtensions());
+
+        $parser = new Parser('template', null, array(
+            'extension' => array('.pug', '.jade'),
+        ));
+        $this->assertSame(array('.pug', '.jade'), $parser->checkExtensions());
     }
 }

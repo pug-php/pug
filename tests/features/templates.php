@@ -1,5 +1,7 @@
 <?php
 
+use Pug\Pug;
+
 class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 {
     static private $skipped = array(
@@ -40,5 +42,12 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
         $result = $result[1];
 
         $this->assertSame($result[1], $result[2], $name);
+    }
+
+    public function testEmptyTemplate()
+    {
+        $pug = new Pug();
+
+        $this->assertSame('', $pug->render(''), 'Empty string should render empty string.');
     }
 }

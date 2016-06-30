@@ -28,5 +28,8 @@ class PugAliasTest extends PHPUnit_Framework_TestCase
 
         $jade->setOption('extension', array());
         $this->assertSame($jade->getExtension(), '');
+
+        $jade->setOption('extension', '.pug');
+        $this->assertSame($jade->getExtension(), '.pug');
     }
 }

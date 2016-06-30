@@ -40,12 +40,18 @@ class Parser
         array_push($this->contexts, $this);
     }
 
-    protected function hasValidTemplateExtension($path)
+    protected function getExtensions()
     {
         $extensions = is_string($this->extension)
             ? array($this->extension)
             : $this->extension;
-        foreach (array_unique($extensions) as $extension) {
+
+        return array_unique($extensions);
+    }
+
+    protected function hasValidTemplateExtension($path)
+    {
+        foreach ($this->getExtensions() as $extension) {
             if (substr($path, -strlen($extension)) === $extension) {
                 return true;
             }
@@ -56,11 +62,9 @@ class Parser
 
     protected function getTemplatePath($path)
     {
-        $extensions = is_string($this->extension)
-            ? array($this->extension)
-            : $this->extension;
+        $extensions = $this->getExtensions();
         $extensions[] = '';
-        foreach (array_unique($extensions) as $extension) {
+        foreach ($extensions as $extension) {
             if (file_exists($path . $extension)) {
                 return $path . $extension;
             }
