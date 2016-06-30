@@ -97,16 +97,9 @@ class CodeHandler extends CompilerUtils
 
         $subCodeHandler = new SubCodeHandler($this, $input, $name);
         $getMiddleString = $subCodeHandler->getMiddleString();
-
         $handleRecursion = $subCodeHandler->handleRecursion($result);
-
         $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
-
-        $getNext = function ($index) use ($separators) {
-            if (isset($separators[$index + 1])) {
-                return $separators[$index + 1];
-            }
-        };
+        $getNext = $subCodeHandler->getNext($separators);
 
         // using next() ourselves so that we can advance the array pointer inside inner loops
         while ($sep = current($separators)) {
@@ -151,26 +144,8 @@ class CodeHandler extends CompilerUtils
                     $output = array();
                     $key = '';
                     $value = null;
-                    $addToOutput = function () use (&$output, &$key, &$value) {
-                        foreach (array('key', 'value') as $var) {
-                            ${$var} = trim(${$var});
-                            if (empty(${$var})) {
-                                continue;
-                            }
-                            if (preg_match('/^\d*[a-zA-Z_]/', ${$var})) {
-                                ${$var} = var_export(${$var}, true);
-                            }
-                            $quote = substr(${$var}, 0, 1);
-                        }
-                        $output[] = empty($value)
-                            ? $key
-                            : $key . ' => ' . $value;
-                        $key = '';
-                        $value = null;
-                    };
-                    $consume = function (&$argument, $start) {
-                        $argument = substr($argument, strlen($start));
-                    };
+                    $addToOutput = $subCodeHandler->addToOutput($output, $key, $value);
+                    $consume = $subCodeHandler->consume();
                     foreach ($input as $argument) {
                         $argument = ltrim($argument, '$');
                         $quote = null;

@@ -110,4 +110,41 @@ class SubCodeHandler
             return $arguments;
         };
     }
+
+    public function getNext($separators)
+    {
+        return function ($index) use ($separators) {
+            if (isset($separators[$index + 1])) {
+                return $separators[$index + 1];
+            }
+        };
+    }
+
+    public function addToOutput(&$output, &$key, &$value)
+    {
+        return function () use (&$output, &$key, &$value) {
+            foreach (array('key', 'value') as $var) {
+                ${$var} = trim(${$var});
+                if (empty(${$var})) {
+                    continue;
+                }
+                if (preg_match('/^\d*[a-zA-Z_]/', ${$var})) {
+                    ${$var} = var_export(${$var}, true);
+                }
+                $quote = substr(${$var}, 0, 1);
+            }
+            $output[] = empty($value)
+                ? $key
+                : $key . ' => ' . $value;
+            $key = '';
+            $value = null;
+        };
+    }
+
+    public function consume()
+    {
+        return function (&$argument, $start) {
+            $argument = substr($argument, strlen($start));
+        };
+    }
 }

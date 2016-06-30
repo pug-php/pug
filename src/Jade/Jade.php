@@ -334,6 +334,64 @@ class Jade
     }
 
     /**
+     * Return a file path in the cache for a given name.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    protected function getCachePath($name)
+    {
+        return str_replace('//', '/', $this->options['cache'] . '/' . $name) . '.php';
+    }
+
+    /**
+     * Return true if the file or content is up to date in the cache folder,
+     * false else.
+     *
+     * @param string $input file or pug code
+     * @param &string $path to be filled
+     *
+     * @return bool
+     */
+    protected function isCacheUpToDate($input, &$path)
+    {
+        if (is_file($input)) {
+            $path = $this->getCachePath(($this->options['keepBaseName'] ? basename($input) : '') . md5($input));
+
+            // Do not re-parse file if original is older
+            return file_exists($path) && filemtime($input) < filemtime($path);
+        }
+
+        // Get the stronger hashing algorithm available to minimize collision risks
+        $algos = hash_algos();
+        $algo = $algos[0];
+        $number = 0;
+        foreach ($algos as $hashAlgorithm) {
+            if (strpos($hashAlgorithm, 'md') === 0) {
+                $hashNumber = substr($hashAlgorithm, 2);
+                if ($hashNumber > $number) {
+                    $number = $hashNumber;
+                    $algo = $hashAlgorithm;
+                }
+                continue;
+            }
+            if (strpos($hashAlgorithm, 'sha') === 0) {
+                $hashNumber = substr($hashAlgorithm, 3);
+                if ($hashNumber > $number) {
+                    $number = $hashNumber;
+                    $algo = $hashAlgorithm;
+                }
+                continue;
+            }
+        }
+        $path = $this->getCachePath(rtrim(strtr(base64_encode(hash($algo, $input, true)), '+/', '-_'), '='));
+
+        // Do not re-parse file if the same hash exists
+        return file_exists($path);
+    }
+
+    /**
      * Get cached input/file a matching cache file exists.
      * Else, render the input, cache it in a file and return it.
      *
@@ -352,42 +410,8 @@ class Jade
             throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists', 5);
         }
 
-        if (is_file($input)) {
-            $path = str_replace('//', '/', $cacheFolder . '/' . ($this->options['keepBaseName'] ? basename($input) : '') . md5($input) . '.php');
-
-            // Do not re-parse file if original is older
-            if (file_exists($path) && filemtime($input) < filemtime($path)) {
-                return $path;
-            }
-        } else {
-            // Get the stronger hashing algorithm available to minimize collision risks
-            $algos = hash_algos();
-            $algo = $algos[0];
-            $number = 0;
-            foreach ($algos as $hashAlgorithm) {
-                if (strpos($hashAlgorithm, 'md') === 0) {
-                    $hashNumber = substr($hashAlgorithm, 2);
-                    if ($hashNumber > $number) {
-                        $number = $hashNumber;
-                        $algo = $hashAlgorithm;
-                    }
-                    continue;
-                }
-                if (strpos($hashAlgorithm, 'sha') === 0) {
-                    $hashNumber = substr($hashAlgorithm, 3);
-                    if ($hashNumber > $number) {
-                        $number = $hashNumber;
-                        $algo = $hashAlgorithm;
-                    }
-                    continue;
-                }
-            }
-            $path = str_replace('//', '/', $cacheFolder . '/' . rtrim(strtr(base64_encode(hash($algo, $input, true)), '+/', '-_'), '='));
-
-            // Do not re-parse file if the same hash exists
-            if (file_exists($path)) {
-                return $path;
-            }
+        if ($this->isCacheUpToDate($input, $path)) {
+            return $path;
         }
 
         if (!is_writable($cacheFolder)) {
