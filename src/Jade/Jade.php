@@ -222,6 +222,20 @@ class Jade
     }
 
     /**
+     * Get list of supported extensions.
+     *
+     * @return array
+     */
+    public function getExtensions()
+    {
+        $extension = $this->getOption('extension');
+
+        return is_string($extension)
+            ? array($extension)
+            : array_unique($extension);
+    }
+
+    /**
      * Register / override new filter.
      *
      * @param string name

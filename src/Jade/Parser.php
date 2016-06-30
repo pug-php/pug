@@ -42,11 +42,9 @@ class Parser
 
     protected function getExtensions()
     {
-        $extensions = is_string($this->extension)
+        return  is_string($this->extension)
             ? array($this->extension)
-            : $this->extension;
-
-        return array_unique($extensions);
+            : array_unique($this->extension);
     }
 
     protected function hasValidTemplateExtension($path)
