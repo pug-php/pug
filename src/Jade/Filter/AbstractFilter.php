@@ -29,4 +29,26 @@ abstract class AbstractFilter implements FilterInterface
             ) . "\n";
         });
     }
+
+    public function __invoke(Filter $node, Compiler $compiler)
+    {
+        $nodes = $node->block->nodes;
+        $indent = strlen($nodes[0]->value) - strlen(ltrim($nodes[0]->value));
+        $code = '';
+        foreach ($nodes as $line) {
+            $code .= substr($compiler->interpolate($line->value), $indent) . "\n";
+        }
+
+        if (method_exists($this, 'parse')) {
+            $code = $this->parse($code);
+        }
+
+        if (isset($this->tag)) {
+            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
+                $code .
+                '</' . $this->tag . '>';
+        }
+
+        return $code;
+    }
 }
