@@ -12,7 +12,9 @@ abstract class AttributesCompiler extends CompilerFacade
 
         return is_null($valueCheck)
             ? ' ' . $key . '=' . $this->quote . $value . $this->quote
-            : $this->createCode('if (\\Jade\\Compiler::isDisplayable($__value = %1$s)) { ', $valueCheck)
+            : $this->createCode('if (true === ($__value = %1$s)) { ', $valueCheck)
+                . $this->getBooleanAttributeDisplayCode($key)
+                . $this->createCode('} else if (\\Jade\\Compiler::isDisplayable($__value)) { ')
                 . ' ' . $key . '=' . $this->quote . $value . $this->quote
                 . $this->createCode('}');
     }

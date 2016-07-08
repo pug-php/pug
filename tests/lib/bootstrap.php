@@ -45,13 +45,13 @@ function build_list($test_list)
     return $group_list;
 }
 
-function get_php_code($file)
+function get_php_code($file, $vars = array())
 {
     $jade = new Jade(array(
         'singleQuote' => false,
         'prettyprint' => true,
     ));
-    return $jade->render($file);
+    return $jade->render($file, $vars);
 }
 
 function compile_php($file)

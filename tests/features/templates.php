@@ -50,4 +50,22 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('', $pug->render(''), 'Empty string should render empty string.');
     }
+
+    public function testVariablesHandle()
+    {
+        $pug = new Pug(array(
+            'singleQuote' => false,
+            'terse' => true,
+        ));
+
+        $html = $pug->render('input(type="checkbox", checked=true)');
+
+        $this->assertSame('<input type="checkbox" checked>', $html, 'Static boolean values should render as simple attributes.');
+
+        $html = $pug->render('input(type="checkbox", checked=isChecked)', array(
+            'isChecked' => true,
+        ));
+
+        $this->assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
+    }
 }
