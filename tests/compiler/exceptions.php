@@ -1,6 +1,7 @@
 <?php
 
 use Jade\Compiler;
+use Jade\Jade;
 
 class StatementsBugCompiler extends Compiler
 {
@@ -66,5 +67,26 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
     public function testBadMethodApply()
     {
         new ApplyBugCompiler();
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 28
+     */
+    public function testInvalidOption()
+    {
+        $compiler = new Compiler();
+        $compiler->getOption('foo');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 2
+     */
+    public function testInvalidOptionWithEngineInConstructor()
+    {
+        $jade = new Jade();
+        $compiler = new Compiler($jade);
+        $compiler->getOption('foo');
     }
 }
