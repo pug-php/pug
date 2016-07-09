@@ -115,11 +115,9 @@ class Compiler extends MixinVisitor
             return $options;
         }
 
-        foreach ($optionTypes as $option => $type) {
-            if (isset($options[$option])) {
-                $this->$option = $options[$option];
-                settype($this->$option, $type);
-            }
+        foreach (array_intersect_key($optionTypes, $options) as $option => $type) {
+            $this->$option = $options[$option];
+            settype($this->$option, $type);
         }
 
         $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
