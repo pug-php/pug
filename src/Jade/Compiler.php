@@ -78,7 +78,6 @@ class Compiler extends MixinVisitor
     {
         $this->options = $this->setOptions($options);
         $this->filters = $filters;
-        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
     }
 
     /**
@@ -117,6 +116,8 @@ class Compiler extends MixinVisitor
                 }
             }
 
+            $this->quote = $this->jade->getOption('singleQuote') ? '\'' : '"';
+
             return $options;
         }
 
@@ -126,6 +127,8 @@ class Compiler extends MixinVisitor
                 settype($this->$option, $type);
             }
         }
+
+        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
 
         return $options;
     }
