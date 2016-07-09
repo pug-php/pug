@@ -105,15 +105,9 @@ class Compiler extends MixinVisitor
             $options = array();
 
             foreach ($optionTypes as $option => $type) {
-                try {
-                    $this->$option = $this->jade->getOption($option);
-                    $options[$option] = $this->$option;
-                    settype($this->$option, $type);
-                } catch (\InvalidArgumentException $e) {
-                    if ($e->getCode() !== 2) {
-                        throw $e;
-                    }
-                }
+                $this->$option = $this->jade->getOption($option);
+                $options[$option] = $this->$option;
+                settype($this->$option, $type);
             }
 
             $this->quote = $this->jade->getOption('singleQuote') ? '\'' : '"';
