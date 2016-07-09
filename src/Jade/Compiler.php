@@ -60,6 +60,10 @@ class Compiler extends MixinVisitor
      * @var bool
      */
     protected $restrictedScope = false;
+    /**
+     * @var Jade
+     */
+    protected $jade = null;
 
     /**
      * @var string
@@ -67,12 +71,26 @@ class Compiler extends MixinVisitor
     protected $quote;
 
     /**
-     * @param bool  $prettyprint
-     * @param array $filters
+     * @param array/Jade $options
+     * @param array      $filters
      */
-    public function __construct(array $options = array(), array $filters = array())
+    public function __construct($options = array(), array $filters = array())
     {
-        foreach (array(
+        $this->options = $this->setOptions($options);
+        $this->filters = $filters;
+        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
+    }
+
+    /**
+     * Get a jade engine reference or an options array and return needed options.
+     *
+     * @param array/Jade $options
+     *
+     * @return array
+     */
+    protected function setOptions($options)
+    {
+        $optionTypes = array(
             'prettyprint' => 'boolean',
             'phpSingleLine' => 'boolean',
             'allowMixinOverride' => 'boolean',
@@ -81,20 +99,61 @@ class Compiler extends MixinVisitor
             'restrictedScope' => 'boolean',
             'indentSize' => 'integer',
             'indentChar' => 'string',
-        ) as $option => $type) {
+        );
+
+        if ($options instanceof Jade) {
+            $this->jade = $options;
+            $options = array();
+
+            foreach ($optionTypes as $option => $type) {
+                try {
+                    $this->$option = $this->jade->getOption($option);
+                    $options[$option] = $this->$option;
+                    settype($this->$option, $type);
+                } catch (\InvalidArgumentException $e) {
+                    if ($e->getCode() !== 2) {
+                        throw $e;
+                    }
+                }
+            }
+
+            return $options;
+        }
+
+        foreach ($optionTypes as $option => $type) {
             if (isset($options[$option])) {
                 $this->$option = $options[$option];
                 settype($this->$option, $type);
             }
         }
 
-        $this->options = $options;
-        $this->filters = $filters;
-        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
+        return $options;
     }
 
     /**
-     * get a compiler with the same settings.
+     * Get an option from the jade engine if set or from the options array else.
+     *
+     * @param string $option
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        if (is_null($this->jade)) {
+            if (!isset($this->options[$option])) {
+                throw new \InvalidArgumentException("$option is not a valid option name.", 28);
+            }
+
+            return $this->options[$option];
+        }
+
+        return $this->jade->getOption($option);
+    }
+
+    /**
+     * Get a compiler with the same settings.
      *
      * @return Compiler
      */
