@@ -12,12 +12,11 @@ abstract class TagVisitor extends Visitor
     protected function visitTagAttributes(Tag $tag, $newLinePrettyPrint, $close = '>')
     {
         $open = '<' . $tag->name;
-        $close = $this->getClassesDisplayCode() . $close;
 
         if (count($tag->attributes)) {
             $this->buffer($this->indent() . $open, false);
             $this->visitAttributes($tag->attributes);
-            $this->buffer($close . $this->newline(), false);
+            $this->buffer($this->getClassesDisplayCode() . $close . $this->newline(), false);
 
             return;
         }

@@ -51,6 +51,7 @@ function get_php_code($file, $vars = array())
         'singleQuote' => false,
         'prettyprint' => true,
     ));
+
     return $jade->render($file, $vars);
 }
 
@@ -60,6 +61,7 @@ function compile_php($file)
         'singleQuote' => false,
         'prettyprint' => true,
     ));
+
     return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
 }
 
