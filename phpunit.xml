@@ -12,6 +12,9 @@
 			<directory suffix=".php">tests/nodes</directory>
 			<directory suffix=".php">tests/compiler</directory>
 		</testsuite>
+		<testsuite name="Performance">
+			<directory suffix=".php">tests/performance</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="true">
