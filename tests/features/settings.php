@@ -335,10 +335,12 @@ p(class=$foo)=$bar
     }
 
     /**
+     * Static includeNotFound is deprecated, use the notFound option instead.
+     *
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 22
      */
-    public function testIncludeNotFoundDisabled()
+    public function testIncludeNotFoundDisabledViaStaticVariable()
     {
         $save = \Jade\Parser::$includeNotFound;
         $jade = new Jade();
@@ -347,7 +349,7 @@ p(class=$foo)=$bar
         $error = null;
 
         try {
-            $actual = $jade->render('include does-not-exists');
+            $jade->render('include does-not-exists');
         } catch (\Exception $e) {
             $error = $e;
         }
@@ -360,22 +362,53 @@ p(class=$foo)=$bar
     }
 
     /**
-     * includeNotFound return a error included if a file miss.
+     * notFound option replace the static variable includeNotFound.
+     *
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionCode 22
      */
-    public function testIncludeNotFoundEnabled()
+    public function testIncludeNotFoundDisabledViaOption()
+    {
+        $jade = new Jade(array(
+            'notFound' => false
+        ));
+        $jade->render('include does-not-exists');
+    }
+
+    /**
+     * includeNotFound return an error included in content if a file miss.
+     */
+    public function testIncludeNotFoundEnabledViaStatic()
     {
         $jade = new Jade();
         $this->assertTrue(!empty(\Jade\Parser::$includeNotFound), 'includeNotFound should be set by default.');
 
         $actual = $jade->render('include does-not-exists');
         $notFound = $jade->render(\Jade\Parser::$includeNotFound);
-        $this->assertSame($actual, $notFound, 'A file not found when included should return includeNotFound value if set.');
+        $this->assertSame($actual, $notFound, 'A file not found when included should return default includeNotFound value if touched.');
 
         $save = \Jade\Parser::$includeNotFound;
         \Jade\Parser::$includeNotFound = 'h1 Hello';
         $actual = $jade->render('include does-not-exists');
         $this->assertSame($actual, '<h1>Hello</h1>', 'A file not found when included should return includeNotFound value if set.');
         \Jade\Parser::$includeNotFound = $save;
+    }
+
+    /**
+     * notFound option return an error included in content if a file miss.
+     */
+    public function testIncludeNotFoundEnabledViaOption()
+    {
+        $jade = new Jade();
+        $actual = $jade->render('include does-not-exists');
+        $notFound = $jade->render(\Jade\Parser::$includeNotFound);
+        $this->assertSame($actual, $notFound, 'A file not found when included should return default includeNotFound value if the notFound option is not set.');
+
+        $jade = new Jade(array(
+            'notFound' => 'p My Not Found Error'
+        ));
+        $actual = $jade->render('include does-not-exists');
+        $this->assertSame($actual, '<p>My Not Found Error</p>', 'A file not found when included should return notFound value if set.');
     }
 
     /**
@@ -429,6 +462,80 @@ body
         ));
         $actual = str_replace("\r", '', $jade->render($template));
         $expected = str_replace('    ', "\t", $expected);
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * notFound option replace the static variable includeNotFound.
+     *
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 29
+     */
+    public function testNoBaseDir()
+    {
+        $jade = new Jade();
+        $jade->render(__DIR__ . '/../templates/auxiliary/include-sibling.jade');
+    }
+
+    public function renderWithBaseDir($basedir)
+    {
+        $jade = new Jade(array(
+            'prettyprint' => true,
+            'basedir' => $basedir,
+        ));
+        $code = $jade->render(__DIR__ . '/../templates/auxiliary/include-sibling.jade');
+
+        return trim(preg_replace('/\n\s+/', "\n", str_replace("\r", '', $code)));
+    }
+
+    public function testBaseDir()
+    {
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/..',
+            __DIR__ . '/../templates/auxiliary/include-sibling.jade'
+        );
+        $expected = "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n".
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>";
+        $this->assertSame($expected, $actual);
+
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/../templates/',
+            __DIR__ . '/../templates/auxiliary/include-sibling.jade'
+        );
+        $expected = "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n".
+            "<p>World</p>\n" .
+            "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<p>World</p>";
+        $this->assertSame($expected, $actual);
+
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/../templates/auxiliary',
+            __DIR__ . '/../templates/auxiliary/include-sibling.jade'
+        );
+        $expected = "<p>World</p>\n" .
+            "<p>World</p>\n".
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>";
+        $this->assertSame($expected, $actual);
+
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/../templates/auxiliary/nothing',
+            __DIR__ . '/../templates/auxiliary/include-sibling.jade'
+        );
+        $expected = "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n".
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>\n" .
+            "<div class='alert alert-danger'> Page not found.</div>";
         $this->assertSame($expected, $actual);
     }
 }

@@ -38,7 +38,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException Jade\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testDoNotUnderstand()
@@ -47,7 +47,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException Jade\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testDoubleDoubleArrow()
@@ -56,7 +56,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
      * @expectedExceptionCode 26
      */
     public function testBadInclude()
@@ -65,7 +65,17 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 29
+     */
+    public function testAbsoluteIncludeWithNoBaseDir()
+    {
+        $jade = new Jade();
+        $jade->render('include /auxiliary/world');
+    }
+
+    /**
+     * @expectedException Jade\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testCannotBeReadFromPhp()
@@ -74,7 +84,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
      * @expectedExceptionCode 8
      */
     public function testUnexpectedValue()
@@ -83,7 +93,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
      * @expectedExceptionCode 21
      */
     public function testUnableToFindAttributesClosingParenthesis()
@@ -92,7 +102,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
      * @expectedExceptionCode 24
      */
     public function testExpectedIndent()
@@ -101,7 +111,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException \ErrorException
      * @expectedExceptionCode 25
      */
     public function testUnexpectingToken()
@@ -118,7 +128,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException Jade\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testNonParsableExtends()

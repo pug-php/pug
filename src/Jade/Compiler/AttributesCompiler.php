@@ -96,11 +96,11 @@ abstract class AttributesCompiler extends CompilerFacade
 
         $json = static::parseValue($value);
 
-        if ($json !== null && is_array($json) && $key == 'class') {
+        if ($json !== null && is_array($json) && $key === 'class') {
             return implode(' ', $json);
         }
 
-        if ($key == 'class') {
+        if ($key === 'class') {
             return $this->getClassAttribute($value, $classesCheck);
         }
 
@@ -109,7 +109,7 @@ abstract class AttributesCompiler extends CompilerFacade
 
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
     {
-        if ($value == 'true' || $attr['value'] === true) {
+        if ($value === 'true' || $attr['value'] === true) {
             return $this->getBooleanAttributeDisplayCode($key);
         }
 

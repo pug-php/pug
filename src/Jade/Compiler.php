@@ -4,6 +4,7 @@ namespace Jade;
 
 use Jade\Compiler\CodeHandler;
 use Jade\Compiler\MixinVisitor;
+use Jade\Parser\Exception as ParserException;
 
 /**
  * Class Jade Compiler.
@@ -36,6 +37,7 @@ class Compiler extends MixinVisitor
      * @var array
      */
     protected $filters = array();
+
     /**
      * @var bool
      */
@@ -375,7 +377,7 @@ class Compiler extends MixinVisitor
             try {
                 return $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
             } catch (\Exception $e) {
-                throw new \Exception('Pug.php did not understand ' . $arg, 10, $e);
+                throw new ParserException('Pug.php did not understand ' . $arg, 10, $e);
             }
         }
     }

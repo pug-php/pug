@@ -141,9 +141,9 @@ abstract class Visitor extends AttributesCompiler
 
         $this->buffer($str . $this->newline());
 
-        $this->terse = (strtolower($str) == '<!doctype html>');
+        $this->terse = (strtolower($str) === '<!doctype html>');
 
-        $this->xml = ($doc == 'xml');
+        $this->xml = ($doc === 'xml');
     }
 
     /**

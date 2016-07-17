@@ -42,5 +42,16 @@ class JadeCachePerformanceTest extends PHPUnit_Framework_TestCase
     public function testCacheWeihgt()
     {
         $this->assertSame('<p>Hello world!</p>', $this->getPhp('p Hello world!'), 'Simple template should output simple code.');
+
+        return;
+        $phpSize = strlen($this->getPhpFromTemplate('mixin'));
+        $htmlSize = strlen($this->getHtmlFromTemplate('mixin'));
+        echo "\n\n\n\n\n" . $this->getPhpFromTemplate('mixin') . "\n   => $phpSize\n\n" . $this->getHtmlFromTemplate('mixin') . "\n   => $htmlSize\n";
+        $this->assertLessThan($htmlSize, $phpSize, 'Mixins used twice should remains shorter than the flat HTML.');
+
+        $phpSize = strlen($this->getPhpFromTemplate('each'));
+        $htmlSize = strlen($this->getHtmlFromTemplate('each'));
+        echo "\n\n\n\n\n" . $this->getPhpFromTemplate('each') . "\n   => $phpSize\n\n" . $this->getHtmlFromTemplate('each') . "\n   => $htmlSize\n";
+        $this->assertLessThan($htmlSize, $phpSize, 'Each used twice should remains shorter than the flat HTML.');
     }
 }
