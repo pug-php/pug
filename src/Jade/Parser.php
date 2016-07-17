@@ -2,6 +2,8 @@
 
 namespace Jade;
 
+use Jade\Parser\Exception as ParserException;
+
 class Parser
 {
     public $basepath;
@@ -24,6 +26,8 @@ class Parser
         $defaultOptions = array(
             'allowMixedIndent' => true,
             'extension' => array('.pug', '.jade'),
+            'notFound' => null,
+            'basedir' => null,
         );
         foreach ($defaultOptions as $key => $default) {
             $this->$key = isset($options[$key]) ? $options[$key] : $default;
@@ -60,28 +64,39 @@ class Parser
 
     protected function getTemplatePath($path)
     {
+        $isAbsolutePath = substr($path, 0, 1) === '/';
+        if ($isAbsolutePath && !isset($this->options['basedir'])) {
+            throw new \ErrorException("The 'basedir' option need to be set to use absolute path like $path", 29);
+        }
+
+        $path = ($isAbsolutePath
+            ? rtrim($this->options['basedir'], '/\\')
+            : dirname($this->filename)
+        ) . DIRECTORY_SEPARATOR . $path;
         $extensions = $this->getExtensions();
         $extensions[] = '';
         foreach ($extensions as $extension) {
             if (file_exists($path . $extension)) {
-                return $path . $extension;
+                return realpath($path . $extension);
             }
         }
-
-        throw new \InvalidArgumentException("The included file '$path' does not exists.", 22);
     }
 
     protected function getTemplateContents($path)
     {
-        try {
-            return file_get_contents($this->getTemplatePath($path));
-        } catch (\InvalidArgumentException $e) {
-            if (static::$includeNotFound === false) {
-                throw $e;
-            }
+        if ($path !== null) {
+            return file_get_contents($path);
         }
 
-        return static::$includeNotFound;
+        $notFound = isset($this->options['notFound'])
+            ? $this->options['notFound']
+            : static::$includeNotFound;
+
+        if ($notFound !== false) {
+            return $notFound;
+        }
+
+        throw new \InvalidArgumentException("The included file '$path' does not exists.", 22);
     }
 
     protected function setInput($filename, $input)
@@ -96,7 +111,7 @@ class Parser
     }
 
     /**
-     * get a parser with the same settings.
+     * Get a parser with the same settings.
      *
      * @return Parser
      */
@@ -159,7 +174,7 @@ class Parser
             try {
                 $ast = $parser->parse();
             } catch (\Exception $e) {
-                throw new \Exception($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 23, $e);
+                throw new ParserException($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 23, $e);
             }
             $this->context();
 
@@ -341,11 +356,11 @@ class Parser
         return $node;
     }
 
+
+
     protected function parseExtends()
     {
-        $file = $this->expect('extends')->value;
-        $dir = realpath(dirname($this->filename));
-        $path = $this->getTemplatePath($dir . DIRECTORY_SEPARATOR . $file);
+        $path = $this->getTemplatePath($this->expect('extends')->value);
 
         $string = $this->getTemplateContents($path);
         $parser = new static($string, $path);
@@ -402,18 +417,17 @@ class Parser
     {
         $token = $this->expect('include');
         $file = trim($token->value);
-        $dir = realpath(dirname($this->filename));
-        $path = $dir . DIRECTORY_SEPARATOR . $file;
+        $path = $this->getTemplatePath($file);
 
-        if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($path)) {
-            if (!file_exists($path)) {
+        if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($file)) {
+            if ($path === null) {
                 throw new \ErrorException($file . ' not found at ' . $this->filename . ' (line ' . $token->line . ')', 26);
             }
 
             return new Nodes\Literal(file_get_contents($path));
         }
 
-        $string = $this->getTemplateContents($dir . DIRECTORY_SEPARATOR . $file);
+        $string = $this->getTemplateContents($path);
 
         $parser = new static($string, $path);
         $parser->blocks = $this->blocks;
