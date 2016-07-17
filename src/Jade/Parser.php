@@ -6,12 +6,13 @@ use Jade\Parser\Exception as ParserException;
 
 class Parser
 {
-    public $basepath;
-    public $extension;
-    public $allowMixedIndent;
-    public $textOnly = array('script', 'style');
     public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
+    protected $basedir;
+    protected $notFound;
+    protected $extension;
+    protected $allowMixedIndent;
+    protected $textOnly = array('script', 'style');
     protected $options = array();
     protected $input;
     protected $lexer;
@@ -255,7 +256,7 @@ class Parser
 
     protected function parseBlockExpansion()
     {
-        if (':' == $this->peek()->type) {
+        if (':' === $this->peek()->type) {
             $this->advance();
 
             return new Nodes\Block($this->parseExpression());
@@ -376,7 +377,7 @@ class Parser
         $mode = $block->mode;
         $name = trim($block->value);
 
-        $block = 'indent' == $this->peek()->type
+        $block = 'indent' === $this->peek()->type
             ? $this->block()
             : new Nodes\Block(empty($name)
                 ? new Nodes\MixinBlock()
@@ -520,7 +521,7 @@ class Parser
             }
         }
 
-        if (isset($this->_spaces) && $spaces == $this->_spaces) {
+        if (isset($this->_spaces) && $spaces === $this->_spaces) {
             unset($this->_spaces);
         }
 
@@ -665,7 +666,7 @@ class Parser
 
         $dot = false;
         $tag->textOnly = false;
-        if ('.' == $this->peek()->value) {
+        if ('.' === $this->peek()->value) {
             $dot = $tag->textOnly = true;
             $this->advance();
         }
@@ -686,7 +687,7 @@ class Parser
                 break;
         }
 
-        while ('newline' == $this->peek()->type) {
+        while ('newline' === $this->peek()->type) {
             $this->advance();
         }
 
@@ -694,7 +695,7 @@ class Parser
             $tag->textOnly = true;
         }
 
-        if ('script' == $tag->name) {
+        if ('script' === $tag->name) {
             $type = $tag->getAttribute('type');
 
             if ($type !== null) {
@@ -706,7 +707,7 @@ class Parser
             }
         }
 
-        if ('indent' == $this->peek()->type) {
+        if ('indent' === $this->peek()->type) {
             if ($tag->textOnly) {
                 $this->lexer->pipeless = true;
                 $tag->block = $this->parseTextBlock();

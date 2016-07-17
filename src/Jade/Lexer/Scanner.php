@@ -223,7 +223,7 @@ abstract class Scanner extends MixinScanner
             $parser = new Attributes($token);
             $parser->parseWith(substr($matches[0], 1, strlen($matches[0]) - 2));
 
-            if ($this->length() && '/' == $this->input[0]) {
+            if ($this->length() && '/' === $this->input[0]) {
                 $this->consume(1);
                 $token->selfClosing = true;
             }

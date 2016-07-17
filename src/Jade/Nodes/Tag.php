@@ -82,11 +82,11 @@ class Tag extends Attributes
             return false;
         };
 
-        if (count($nodes) == 0) {
+        if (count($nodes) === 0) {
             return true;
         }
 
-        if (count($nodes) == 1) {
+        if (count($nodes) === 1) {
             return $isInline($nodes[0]);
         }
 

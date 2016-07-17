@@ -21,7 +21,7 @@ class Application {
     }
     public function action($path, \Closure $callback)
     {
-        if ($path == $this->route) {
+        if ($path === $this->route) {
             $pug = new Pug;
             $vars = $callback($path) ?: [];
             $pug->render($path . $pug->getExtension(), $vars);

@@ -131,7 +131,7 @@ abstract class Visitor extends AttributesCompiler
      */
     protected function visitDoctype(Doctype $doctype = null)
     {
-        $doc = (empty($doctype->value) || $doctype == null || !isset($doctype->value))
+        $doc = (empty($doctype->value) || $doctype === null || !isset($doctype->value))
             ? 'default'
             : strtolower($doctype->value);
 

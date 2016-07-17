@@ -32,7 +32,7 @@ class Attributes extends Node
     public function removeAttribute($name)
     {
         foreach ($this->attributes as $k => $attr) {
-            if ($attr['name'] == $name) {
+            if ($attr['name'] === $name) {
                 unset($this->attributes[$k]);
             }
         }
@@ -46,7 +46,7 @@ class Attributes extends Node
     public function getAttribute($name)
     {
         foreach ($this->attributes as $attr) {
-            if ($attr['name'] == $name) {
+            if ($attr['name'] === $name) {
                 return $attr;
             }
         }

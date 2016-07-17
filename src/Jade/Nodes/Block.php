@@ -26,7 +26,7 @@ class Block extends Node
 
     public function isEmpty()
     {
-        return 0 == count($this->nodes);
+        return 0 === count($this->nodes);
     }
 
     public function unshift($node)

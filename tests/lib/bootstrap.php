@@ -204,7 +204,7 @@ function get_tests_results($verbose = false)
         foreach($arr as $e) {
             $name = $e['name'];
 
-            if($name == 'index' || (
+            if($name === 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
                 $name !== $argv[1] &&

@@ -12,7 +12,7 @@ abstract class CodeVisitor extends TagVisitor
     protected function visitCodeConditional(array $matches)
     {
         $code = trim($matches[2], '; ');
-        while (($len = strlen($code)) > 1 && ($code[0] == '(' || $code[0] == '{') && ord($code[0]) == ord(substr($code, -1)) - 1) {
+        while (($len = strlen($code)) > 1 && ($code[0] === '(' || $code[0] === '{') && ord($code[0]) === ord(substr($code, -1)) - 1) {
             $code = trim(substr($code, 1, $len - 2));
         }
 
@@ -29,7 +29,7 @@ abstract class CodeVisitor extends TagVisitor
 
         if (strlen($code) > 0) {
             $conditional .= '(%s) {';
-            $conditional = $matches[1] == 'unless'
+            $conditional = $matches[1] === 'unless'
                 ? sprintf($conditional, 'if', '!(%s)')
                 : sprintf($conditional, $matches[1], '%s');
             $this->buffer($this->createCode($conditional, $code));

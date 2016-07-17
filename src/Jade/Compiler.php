@@ -211,7 +211,7 @@ class Compiler extends MixinVisitor
      */
     protected function buffer($line, $indent = null)
     {
-        if (($indent !== null && $indent == true) || ($indent === null && $this->prettyprint)) {
+        if (($indent !== null && $indent === true) || ($indent === null && $this->prettyprint)) {
             $line = $this->indent() . $line . $this->newline();
         }
 
@@ -325,7 +325,7 @@ class Compiler extends MixinVisitor
      */
     protected function createStatements()
     {
-        if (func_num_args() == 0) {
+        if (func_num_args() === 0) {
             throw new \InvalidArgumentException('No Arguments provided', 9);
         }
 
@@ -390,14 +390,14 @@ class Compiler extends MixinVisitor
      */
     protected function createPhpBlock($code, $statements = null)
     {
-        if ($statements == null) {
+        if ($statements === null) {
             return '<?php ' . $code . ' ' . $this->closingTag();
         }
 
         $codeFormat = array_pop($statements);
         array_unshift($codeFormat, $code);
 
-        if (count($statements) == 0) {
+        if (count($statements) === 0) {
             $phpString = call_user_func_array('sprintf', $codeFormat);
 
             return '<?php ' . $phpString . ' ' . $this->closingTag();

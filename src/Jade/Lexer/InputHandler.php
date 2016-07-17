@@ -84,7 +84,7 @@ abstract class InputHandler
 
     protected function getWhiteSpacesTokens($indents)
     {
-        if ($indents && count($this->indentStack) && $indents == $this->indentStack[0]) {
+        if ($indents && count($this->indentStack) && $indents === $this->indentStack[0]) {
             return $this->token('newline');
         }
 

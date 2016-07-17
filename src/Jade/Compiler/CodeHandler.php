@@ -17,7 +17,7 @@ class CodeHandler extends CompilerUtils
             throw new \InvalidArgumentException('Expecting a string of PHP, got: ' . gettype($input), 11);
         }
 
-        if (strlen($input) == 0) {
+        if (strlen($input) === 0) {
             throw new \InvalidArgumentException('Expecting a string of PHP, empty string received.', 12);
         }
 
