@@ -356,8 +356,6 @@ class Parser
         return $node;
     }
 
-
-
     protected function parseExtends()
     {
         $path = $this->getTemplatePath($this->expect('extends')->value);
