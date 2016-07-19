@@ -138,6 +138,23 @@ abstract class KeywordsCompiler extends AttributesCompiler
         }
     }
 
+    protected function bufferCustomKeyword($data, $block)
+    {
+        if (isset($data['begin'])) {
+            $this->buffer($data['begin']);
+        }
+
+        if ($block) {
+            $this->indents++;
+            $this->visit($block);
+            $this->indents--;
+        }
+
+        if (isset($data['end'])) {
+            $this->buffer($data['end']);
+        }
+    }
+
     /**
      * @param Nodes\CustomKeyword $node
      */
@@ -167,18 +184,6 @@ abstract class KeywordsCompiler extends AttributesCompiler
             );
         }
 
-        if (isset($data['begin'])) {
-            $this->buffer($data['begin']);
-        }
-
-        if ($node->block) {
-            $this->indents++;
-            $this->visit($node->block);
-            $this->indents--;
-        }
-
-        if (isset($data['end'])) {
-            $this->buffer($data['end']);
-        }
+        $this->bufferCustomKeyword($data, $node->block);
     }
 }
