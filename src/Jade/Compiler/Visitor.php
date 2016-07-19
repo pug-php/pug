@@ -250,7 +250,7 @@ abstract class Visitor extends AttributesCompiler
     {
         $action = $this->options['customKeywords'][$node->keyWord];
 
-        $data = $action($node->args);
+        $data = $action($node->args, $node->block, $node->keyWord);
 
         if (is_string($data)) {
             $data = array(
@@ -276,9 +276,11 @@ abstract class Visitor extends AttributesCompiler
             $this->buffer($data['begin']);
         }
 
-        $this->indents++;
-        $this->visit($node->block);
-        $this->indents--;
+        if ($node->block) {
+            $this->indents++;
+            $this->visit($node->block);
+            $this->indents--;
+        }
 
         if (isset($data['end'])) {
             $this->buffer($data['end']);

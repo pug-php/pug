@@ -167,4 +167,63 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
         $expected = '<img src="bob.png">bar';
         $this->assertSame($expected, $actual, 'If addKeyword return an end entry, it\'s rendeder after the block.');
     }
+
+    public function testKeyWordArguments()
+    {
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'prettyprint' => false,
+        ));
+
+        $foo = function ($args, $block, $keyWord) {
+            return $keyWord;
+        };
+        $jade->setKeyword('foo', $foo);
+        $actual = trim($jade->render("foo\n"));
+        $expected = 'foo';
+        $this->assertSame($expected, $actual);
+
+        $jade->setKeyword('bar', $foo);
+        $actual = trim($jade->render("bar\n"));
+        $expected = 'bar';
+        $this->assertSame($expected, $actual);
+
+        $jade->setKeyword('minify', function ($args, $block) {
+            $names = array();
+            foreach ($block->nodes as $index => $tag) {
+                if ($tag->name === 'link') {
+                    $href = $tag->getAttribute('href');
+                    $names[] = substr($href['value'], 1, -5);
+                    unset($block->nodes[$index]);
+                }
+            }
+
+            return '<link href="' . implode('-', $names) . '.min.css">';
+        });
+        $actual = trim($jade->render(
+            "minify\n" .
+            "  link(href='foo.css')\n" .
+            "  link(href='bar.css')\n"
+        ));
+        $expected = '<link href="foo-bar.min.css">';
+        $this->assertSame($expected, $actual);
+
+        $jade->setKeyword('concat-to', function ($args, $block) {
+            $names = array();
+            foreach ($block->nodes as $index => $tag) {
+                if ($tag->name === 'link') {
+                    unset($block->nodes[$index]);
+                }
+            }
+
+            return '<link href="' . $args . '">';
+        });
+        $actual = trim($jade->render(
+            "concat-to app.css\n" .
+            "  link(href='foo.css')\n" .
+            "  link(href='bar.css')\n"
+        ));
+        $expected = '<link href="app.css">';
+        $this->assertSame($expected, $actual);
+    }
 }

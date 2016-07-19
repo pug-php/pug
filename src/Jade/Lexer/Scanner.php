@@ -186,7 +186,7 @@ abstract class Scanner extends MixinScanner
     {
         if (
             count($this->customKeywords) &&
-            preg_match('/^(\w+)([^\n]*)/', $this->input, $matches) &&
+            preg_match('/^([\w-]+)([^\n]*)/', $this->input, $matches) &&
             isset($this->customKeywords[$matches[1]]) &&
             is_callable($this->customKeywords[$matches[1]])
         ) {
