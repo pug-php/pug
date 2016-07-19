@@ -64,7 +64,7 @@ abstract class AttributesCompiler extends CompilerFacade
                     'unset($__attributes["class"]); ' .
                 '} ' .
             '} ' .
-            '\\Jade\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ');');
+            '\\Jade\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ', ' . var_export($this->terse, true) . ');');
     }
 
     protected function getClassAttribute($value, &$classesCheck)
@@ -109,11 +109,11 @@ abstract class AttributesCompiler extends CompilerFacade
 
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
     {
-        if ($value === 'true' || $attr['value'] === true) {
+        if ($value === true || $attr['value'] === true) {
             return $this->getBooleanAttributeDisplayCode($key);
         }
 
-        if ($value !== 'false' && $value !== 'null' && $value !== 'undefined') {
+        if ($value !== false && $attr['value'] !== false && $value !== 'null' && $value !== 'undefined') {
             if (is_null($valueCheck) && $attr['escaped'] && !$this->keepNullAttributes) {
                 $value = $this->escapeValue($value);
             }

@@ -52,8 +52,8 @@ abstract class MixinVisitor extends CodeVisitor
             return;
         }
 
-        if ($data['value'] === 'false' || is_bool($data['value'])) {
-            return false;
+        if (is_bool($data['value'])) {
+            return $data['value'];
         }
 
         $value = is_array($data['value'])

@@ -201,11 +201,15 @@ abstract class CompilerFacade extends CompilerUtils
      * @param $attributes array
      * @param $quote string
      */
-    public static function displayAttributes($attributes, $quote)
+    public static function displayAttributes($attributes, $quote, $terse)
     {
         if (is_array($attributes) || $attributes instanceof Traversable) {
             foreach ($attributes as $key => $value) {
                 if ($key !== 'class' && $value !== false && $value !== 'null') {
+                    if ($value === true) {
+                        echo ' ' . $key . ($terse ? '' : '=' . $quote . $key . $quote);
+                        continue;
+                    }
                     echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
                 }
             }
