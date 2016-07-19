@@ -7,7 +7,7 @@ use Jade\Compiler\FilterHelper;
 /**
  * Class Jade\Jade.
  */
-class Jade
+class Jade extends Keywords
 {
     /**
      * @var string
@@ -32,6 +32,8 @@ class Jade
         'filterAutoLoad'     => true,
         'indentSize'         => 2,
         'indentChar'         => ' ',
+        'customKeywords'     => array(),
+        'classAttribute'     => null,
     );
 
     /**

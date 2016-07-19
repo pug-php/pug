@@ -91,6 +91,78 @@ http://pug-filters.selfbuild.fr/
 
 https://github.com/kylekatarnls/jade-filter-base#readme
 
+### Supports for custom keywords
+
+You can add custom keywords, here are some examples:
+
+**Anonymous function**:
+```php
+$pug->addKeyword('for', function ($args) {
+    return array(
+        'beginPhp' => 'for (' . $args . ') {',
+        'endPhp' => '}',
+    );
+});
+
+$pug->render('
+for $i = 1; $i <= 3; $i++
+    p= i
+');
+```
+
+This will render:
+```html
+<p>1</p>
+<p>2</p>
+<p>3</p>
+```
+
+Note that the existing ```for..in``` operator will have the precedance on this custom ```for``` keyword.
+
+**Invokable class**:
+```php
+class UserKeyword
+{
+    public function __invoke($arguments, $block, $keyWord)
+    {
+        $badges = array();
+        foreach ($block->nodes as $index => $tag) {
+            if ($tag->name === 'badge') {
+                $href = $tag->getAttribute('color');
+                $badges[] = $href['value'];
+                unset($block->nodes[$index]);
+            }
+        }
+
+        return array(
+            'begin' => '<div class="' . $keyWord . '" data-name="' . $arguments . '" data-badges="[' . implode(',', $badges) . ']">',
+            'end' => '</div>',
+        );
+    }
+}
+
+$pug->addKeyword('user', new UserKeyword());
+
+$pug->render('
+user Bob
+    badge(color="blue")
+    badge(color="red")
+    em Registered yesterday
+');
+```
+
+This will render:
+```html
+<div class="user" data-name="Bob" data-badges="['blue', 'red']">
+    <em>Registered yesterday</em>
+</div>
+```
+
+A keyword must return an array (containing **begin** and/or **end** entires) or a string (used as a **begin** entry).
+
+The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** as in the first example to render PHP codes that will wrap the rendered block if there is one.
+
+
 ### Check requirements
 
 To check if all requirements are ready to use Pug, use the requirements method:
