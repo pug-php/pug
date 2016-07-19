@@ -3,8 +3,8 @@
 namespace Jade;
 
 /**
-* Class Jade\Keywords.
-*/
+ * Class Jade\Keywords.
+ */
 abstract class Keywords
 {
     /**
