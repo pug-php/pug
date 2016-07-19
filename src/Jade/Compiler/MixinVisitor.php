@@ -46,16 +46,8 @@ abstract class MixinVisitor extends CodeVisitor
         }, $arguments);
     }
 
-    protected function parseMixinAttribute($data)
+    protected function parseMixinStringAttribute($data)
     {
-        if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
-            return;
-        }
-
-        if ($data['value'] === 'false' || is_bool($data['value'])) {
-            return false;
-        }
-
         $value = is_array($data['value'])
             ? preg_split('`\s+`', trim(implode(' ', $data['value'])))
             : trim($data['value']);
@@ -65,6 +57,19 @@ abstract class MixinVisitor extends CodeVisitor
                 ? array_map('htmlspecialchars', $value)
                 : htmlspecialchars($value)
             : $value;
+    }
+
+    protected function parseMixinAttribute($data)
+    {
+        if ($data['value'] === 'null' || $data['value'] === 'undefined' || is_null($data['value'])) {
+            return;
+        }
+
+        if (is_bool($data['value'])) {
+            return $data['value'];
+        }
+
+        return $this->parseMixinStringAttribute($data);
     }
 
     protected function parseMixinAttributes($attributes, $defaultAttributes, $mixinAttributes)

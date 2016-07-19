@@ -132,7 +132,7 @@ abstract class CompilerUtils extends Indenter
     {
         foreach ($attributes as &$attribute) {
             if (is_array($attribute)) {
-                $attribute['value'] = $attribute['value'] === true ? $attribute['name'] : static::decodeValue($attribute['value']);
+                $attribute['value'] = is_bool($attribute['value']) ? $attribute['value'] : static::decodeValue($attribute['value']);
                 continue;
             }
 

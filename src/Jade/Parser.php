@@ -663,6 +663,10 @@ class Parser
 
                     foreach ($nameList as $name) {
                         $value = $obj[$name];
+                        $normalizedValue = strtolower($value);
+                        if ($normalizedValue === 'true' || $normalizedValue === 'false') {
+                            $value = $normalizedValue === 'true';
+                        }
                         $tag->setAttribute($name, $value, $escaped[$name]);
                     }
                     continue;

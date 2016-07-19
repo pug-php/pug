@@ -46,7 +46,7 @@ class CompilerUtilsTest extends PHPUnit_Framework_TestCase
         $this->assertSame($attributes[2]['value'], 34);
         $this->assertSame($attributes[3]['value'], 'Bob');
         $this->assertSame($attributes[4]['value'], 'Dylan');
-        $this->assertSame($attributes[5]['value'], 'checked');
+        $this->assertSame($attributes[5]['value'], true);
     }
 
     public function testWithMixinAttributes()

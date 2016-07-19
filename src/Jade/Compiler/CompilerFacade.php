@@ -6,86 +6,9 @@ namespace Jade\Compiler;
  * Class Jade CompilerFacade.
  * Expose methods available from compiled jade tempaltes.
  */
-abstract class CompilerFacade extends CompilerUtils
+abstract class CompilerFacade extends ValuesCompiler
 {
     protected static $mixinBlocks = array();
-
-    /**
-     * Value treatment if it must not be escaped.
-     *
-     * @param string  input value
-     *
-     * @return string
-     */
-    public static function getUnescapedValue($val)
-    {
-        if (is_null($val) || $val === false || $val === '') {
-            return '';
-        }
-
-        return is_array($val) || is_bool($val) || is_int($val) || is_float($val) ? json_encode($val) : strval($val);
-    }
-
-    /**
-     * Value treatment if it must be escaped.
-     *
-     * @param string  input value
-     *
-     * @return string
-     */
-    public static function getEscapedValue($val, $quote)
-    {
-        $val = htmlspecialchars(static::getUnescapedValue($val), ENT_NOQUOTES);
-
-        return str_replace($quote, $quote === '"' ? '&quot;' : '&apos;', $val);
-    }
-
-    /**
-     * Convert style object to CSS string.
-     *
-     * @param mixed value to be computed into style.
-     *
-     * @return mixed
-     */
-    public static function styleValue($val)
-    {
-        if (is_array($val) && !is_string(key($val))) {
-            $val = implode(';', $val);
-        } elseif (is_array($val) || is_object($val)) {
-            $style = array();
-            foreach ($val as $key => $property) {
-                $style[] = $key . ':' . $property;
-            }
-
-            $val = implode(';', $style);
-        }
-
-        return $val;
-    }
-
-    /**
-     * Convert style object to CSS string and return PHP code to escape then display it.
-     *
-     * @param mixed value to be computed into style and escaped.
-     *
-     * @return string
-     */
-    public static function getEscapedStyle($val, $quote)
-    {
-        return static::getEscapedValue(static::styleValue($val), $quote);
-    }
-
-    /**
-     * Convert style object to CSS string and return PHP code to display it.
-     *
-     * @param mixed value to be computed into style and stringified.
-     *
-     * @return string
-     */
-    public static function getUnescapedStyle($val)
-    {
-        return static::getUnescapedValue(static::styleValue($val));
-    }
 
     /**
      * Record a closure as a mixin block during execution jade template time.
@@ -157,17 +80,14 @@ abstract class CompilerFacade extends CompilerUtils
      */
     public static function getPropertyFromAnything($anything, $key)
     {
-        $value = null;
-
-        if (is_array($anything)) {
-            $value = isset($anything[$key]) ? $anything[$key] : null;
-        }
-
-        if (is_object($anything)) {
-            $value = isset($anything->$key) ? $anything->$key : null;
-        }
-
-        return $value;
+        return is_array($anything)
+            ? (isset($anything[$key])
+                ? $anything[$key]
+                : null
+            ) : (is_object($anything) && isset($anything->$key)
+                ? $anything->$key
+                : null
+            );
     }
 
     /**
@@ -201,11 +121,15 @@ abstract class CompilerFacade extends CompilerUtils
      * @param $attributes array
      * @param $quote string
      */
-    public static function displayAttributes($attributes, $quote)
+    public static function displayAttributes($attributes, $quote, $terse)
     {
         if (is_array($attributes) || $attributes instanceof Traversable) {
             foreach ($attributes as $key => $value) {
                 if ($key !== 'class' && $value !== false && $value !== 'null') {
+                    if ($value === true) {
+                        echo ' ' . $key . ($terse ? '' : '=' . $quote . $key . $quote);
+                        continue;
+                    }
                     echo ' ' . $key . '=' . $quote . htmlspecialchars($value) . $quote;
                 }
             }
