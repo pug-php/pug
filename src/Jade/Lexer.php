@@ -30,11 +30,17 @@ class Lexer extends Scanner
     public $lastTagIndent = -2;
 
     /**
+     * @var array
+     */
+    protected $customKeywords = array();
+
+    /**
      * @param $input
      */
     public function __construct($input, array $options = array())
     {
         $this->allowMixedIndent = isset($options['allowMixedIndent']) && $options['allowMixedIndent'];
+        $this->customKeywords = isset($options['customKeywords']) ? $options['customKeywords'] : array();
         $this->setInput($input);
     }
 
@@ -50,8 +56,8 @@ class Lexer extends Scanner
     {
         return (object) array(
             'type' => $type,
-            'line'   => $this->lineno,
-            'value'  => $value,
+            'line' => $this->lineno,
+            'value' => $value,
         );
     }
 
@@ -164,6 +170,7 @@ class Lexer extends Scanner
             'Conditional',
             'Each',
             'Assignment',
+            'CustomKeyword',
             'Tag',
             'Filter',
             'Code',

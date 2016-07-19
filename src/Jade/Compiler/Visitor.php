@@ -5,6 +5,7 @@ namespace Jade\Compiler;
 use Jade\Nodes\Block;
 use Jade\Nodes\CaseNode;
 use Jade\Nodes\Comment;
+use Jade\Nodes\CustomKeyword;
 use Jade\Nodes\Doctype;
 use Jade\Nodes\Each;
 use Jade\Nodes\Filter;
@@ -239,6 +240,48 @@ abstract class Visitor extends AttributesCompiler
             $this->indents--;
 
             $this->buffer($this->createCode('}'));
+        }
+    }
+
+    /**
+     * @param Nodes\CustomKeyword $node
+     */
+    protected function visitCustomKeyword(CustomKeyword $node)
+    {
+        $action = $this->options['customKeywords'][$node->keyWord];
+
+        $data = $action($node->args);
+
+        if (is_string($data)) {
+            $data = array(
+                'begin' => $data,
+            );
+        }
+
+        if (!is_array($data) && !($data instanceof \ArrayAccess)) {
+            throw new \ErrorException("The keyword {$node->keyWord} returned an invalid value type, string or array was expected.", 33);
+        }
+
+        foreach (array('begin', 'end') as $key) {
+            if (!isset($data[$key])) {
+                $data[$key] = '';
+            }
+
+            if (isset($data[$key . 'Php'])) {
+                $data[$key] = $this->createCode($data[$key . 'Php']) . $data[$key];
+            }
+        }
+
+        if (isset($data['begin'])) {
+            $this->buffer($data['begin']);
+        }
+
+        $this->indents++;
+        $this->visit($node->block);
+        $this->indents--;
+
+        if (isset($data['end'])) {
+            $this->buffer($data['end']);
         }
     }
 

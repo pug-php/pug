@@ -29,6 +29,7 @@ class Parser
             'extension' => array('.pug', '.jade'),
             'notFound' => null,
             'basedir' => null,
+            'customKeywords' => array(),
         );
         foreach ($defaultOptions as $key => $default) {
             $this->$key = isset($options[$key]) ? $options[$key] : $default;
@@ -210,7 +211,7 @@ class Parser
 
     protected function parseExpression()
     {
-        $_types = array('tag', 'mixin', 'block', 'case', 'when', 'default', 'extends', 'include', 'doctype', 'filter', 'comment', 'text', 'each', 'code', 'call', 'interpolation');
+        $_types = array('tag', 'mixin', 'block', 'case', 'when', 'default', 'extends', 'include', 'doctype', 'filter', 'comment', 'text', 'each', 'customKeyword', 'code', 'call', 'interpolation');
 
         if (in_array($this->peek()->type, $_types)) {
             $_method = 'parse' . ucfirst($this->peek()->type);
@@ -352,6 +353,18 @@ class Parser
         if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
             $this->advance();
             $node->alternative = $this->block();
+        }
+
+        return $node;
+    }
+
+    protected function parseCustomKeyword()
+    {
+        $token = $this->expect('customKeyword');
+        $node = new Nodes\CustomKeyword($token->value, $token->args);
+        $node->line = $this->line();
+        if ('indent' === $this->peek()->type) {
+            $node->block = $this->block();
         }
 
         return $node;

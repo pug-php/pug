@@ -182,6 +182,26 @@ abstract class Scanner extends MixinScanner
     /**
      * @return object
      */
+    protected function scanCustomKeyword()
+    {
+        if (
+            count($this->customKeywords) &&
+            preg_match('/^(\w+)([^\n]*)/', $this->input, $matches) &&
+            isset($this->customKeywords[$matches[1]]) &&
+            is_callable($this->customKeywords[$matches[1]])
+        ) {
+            $this->consume($matches[0]);
+
+            $token = $this->token('customKeyword', $matches[1]);
+            $token->args = trim($matches[2]);
+
+            return $token;
+        }
+    }
+
+    /**
+     * @return object
+     */
     protected function scanCode()
     {
         if (preg_match('/^(!?=|-)([^\n]+)/', $this->input, $matches)) {

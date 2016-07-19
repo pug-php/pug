@@ -63,6 +63,10 @@ class Compiler extends MixinVisitor
      */
     protected $restrictedScope = false;
     /**
+     * @var array
+     */
+    protected $customKeywords = array();
+    /**
      * @var Jade
      */
     protected $jade = null;
@@ -100,6 +104,7 @@ class Compiler extends MixinVisitor
             'restrictedScope' => 'boolean',
             'indentSize' => 'integer',
             'indentChar' => 'string',
+            'customKeywords' => 'array',
         );
 
         if ($options instanceof Jade) {
