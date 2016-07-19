@@ -109,19 +109,18 @@ abstract class AttributesCompiler extends CompilerFacade
 
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
     {
-        if ($value === true || $attr['value'] === true) {
-            return $this->getBooleanAttributeDisplayCode($key);
-        }
-
-        if ($value !== false && $attr['value'] !== false && $value !== 'null' && $value !== 'undefined') {
-            if (is_null($valueCheck) && $attr['escaped'] && !$this->keepNullAttributes) {
-                $value = $this->escapeValue($value);
-            }
-
-            return $this->getAttributeDisplayCode($key, $value, $valueCheck);
-        }
-
-        return '';
+        return $value === true || $attr['value'] === true
+            ? $this->getBooleanAttributeDisplayCode($key)
+            : ($value !== false && $attr['value'] !== false && $value !== 'null' && $value !== 'undefined'
+                ? $this->getAttributeDisplayCode(
+                    $key,
+                    is_null($valueCheck) && $attr['escaped'] && !$this->keepNullAttributes
+                        ? $this->escapeValue($value)
+                        : $value,
+                    $valueCheck
+                )
+                : ''
+            );
     }
 
     protected function getAttributeCode($attr, &$classes, &$classesCheck)

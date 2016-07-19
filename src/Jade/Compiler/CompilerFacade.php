@@ -157,17 +157,14 @@ abstract class CompilerFacade extends CompilerUtils
      */
     public static function getPropertyFromAnything($anything, $key)
     {
-        $value = null;
-
-        if (is_array($anything)) {
-            $value = isset($anything[$key]) ? $anything[$key] : null;
-        }
-
-        if (is_object($anything)) {
-            $value = isset($anything->$key) ? $anything->$key : null;
-        }
-
-        return $value;
+        return is_array($anything)
+            ? (isset($anything[$key])
+                ? $anything[$key]
+                : null
+            ) : (is_object($anything) && isset($anything->$key)
+                ? $anything->$key
+                : null
+            );
     }
 
     /**
