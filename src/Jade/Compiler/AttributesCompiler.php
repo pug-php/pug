@@ -107,6 +107,13 @@ abstract class AttributesCompiler extends CompilerFacade
         return $this->getValueCode($escaped, $value, $valueCheck);
     }
 
+    protected function escapeValueIfNeeded($value, $escaped, $valueCheck)
+    {
+        return is_null($valueCheck) && $escaped && !$this->keepNullAttributes
+            ? $this->escapeValue($value)
+            : $value;
+    }
+
     protected function compileAttributeValue($key, $value, $attr, $valueCheck)
     {
         return $value === true || $attr['value'] === true
@@ -114,9 +121,7 @@ abstract class AttributesCompiler extends CompilerFacade
             : ($value !== false && $attr['value'] !== false && $value !== 'null' && $value !== 'undefined'
                 ? $this->getAttributeDisplayCode(
                     $key,
-                    is_null($valueCheck) && $attr['escaped'] && !$this->keepNullAttributes
-                        ? $this->escapeValue($value)
-                        : $value,
+                    $this->escapeValueIfNeeded($value, $attr['escaped'], $valueCheck),
                     $valueCheck
                 )
                 : ''
