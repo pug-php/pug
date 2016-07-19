@@ -7,6 +7,19 @@ namespace Jade;
  */
 abstract class Keywords
 {
+    protected function hasKeyword($keyword)
+    {
+        return $this->hasValidCustomKeywordsOption() && isset($this->options['customKeywords'][$keyword]);
+    }
+
+    protected function hasValidCustomKeywordsOption()
+    {
+        return isset($this->options['customKeywords']) && (
+            is_array($this->options['customKeywords']) ||
+            $this->options['customKeywords'] instanceof \ArrayAccess
+        );
+    }
+
     /**
      * Set custom keyword.
      *
@@ -15,12 +28,12 @@ abstract class Keywords
      */
     public function setKeyword($keyword, $action)
     {
-        if (!isset($this->options['customKeywords'])) {
-            $this->options['customKeywords'] = array();
-        }
-
         if (!is_callable($action)) {
             throw new \InvalidArgumentException("Please add a callable action for your keyword $keyword", 30);
+        }
+
+        if (!$this->hasValidCustomKeywordsOption()) {
+            $this->options['customKeywords'] = array();
         }
 
         $this->options['customKeywords'][$keyword] = $action;
@@ -34,7 +47,7 @@ abstract class Keywords
      */
     public function addKeyword($keyword, $action)
     {
-        if (isset($this->options['customKeywords'], $this->options['customKeywords'][$keyword])) {
+        if ($this->hasKeyword($keyword)) {
             throw new \InvalidArgumentException("The keyword $keyword is already set.", 31);
         }
 
@@ -49,7 +62,7 @@ abstract class Keywords
      */
     public function replaceKeyword($keyword, $action)
     {
-        if (!isset($this->options['customKeywords'], $this->options['customKeywords'][$keyword])) {
+        if (!$this->hasKeyword($keyword)) {
             throw new \InvalidArgumentException("The keyword $keyword is not set.", 32);
         }
 
@@ -63,7 +76,7 @@ abstract class Keywords
      */
     public function removeKeyword($keyword)
     {
-        if (isset($this->options['customKeywords'], $this->options['customKeywords'][$keyword])) {
+        if ($this->hasKeyword($keyword)) {
             unset($this->options['customKeywords'][$keyword]);
         }
     }

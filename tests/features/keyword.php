@@ -10,6 +10,10 @@ class ForKeyword
     }
 }
 
+class BadOptionType
+{
+}
+
 class JadeKeywordTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -60,6 +64,16 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
             return 32;
         });
         $jade->render('foo');
+    }
+
+    public function testBadCustomKeywordOptionType()
+    {
+        $jade = new Jade();
+        $jade->setOption('customKeywords', new BadOptionType());
+        $jade->addKeyword('foo', function () {
+            return 'foo';
+        });
+        $this->assertSame('foo', $jade->render('foo'));
     }
 
     public function testPhpKeyWord()
