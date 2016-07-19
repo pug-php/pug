@@ -158,13 +158,13 @@ abstract class KeywordsCompiler extends AttributesCompiler
         }
 
         foreach (array('begin', 'end') as $key) {
-            if (!isset($data[$key])) {
-                $data[$key] = '';
-            }
-
-            if (isset($data[$key . 'Php'])) {
-                $data[$key] = $this->createCode($data[$key . 'Php']) . $data[$key];
-            }
+            $data[$key] = (isset($data[$key . 'Php'])
+                ? $this->createCode($data[$key . 'Php'])
+                : ''
+            ) . (isset($data[$key])
+                ? $data[$key]
+                : ''
+            );
         }
 
         if (isset($data['begin'])) {
