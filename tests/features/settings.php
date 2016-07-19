@@ -538,4 +538,15 @@ body
             "<div class='alert alert-danger'> Page not found.</div>";
         $this->assertSame($expected, $actual);
     }
+
+    public function testClassAttribute()
+    {
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'classAttribute' => 'className',
+        ));
+        $actual = trim($jade->render('.foo.bar Hello'));
+        $expected = '<div className="foo bar">Hello</div>';
+        $this->assertSame($expected, $actual);
+    }
 }

@@ -164,7 +164,10 @@ abstract class AttributesCompiler extends CompilerFacade
     {
         return trim($this->createCode(
             'if (!empty($__classes)) { ' .
-                '?> class=' . $this->quote . '<?php echo $__classes; ?>' . $this->quote . '<?php ' .
+                '?> ' . (isset($this->options['classAttribute'])
+                    ? $this->options['classAttribute']
+                    : 'class'
+                ) . '=' . $this->quote . '<?php echo $__classes; ?>' . $this->quote . '<?php ' .
             '} ' .
             'unset($__classes); '
         ));

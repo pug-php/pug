@@ -33,6 +33,7 @@ class Jade
         'indentSize'         => 2,
         'indentChar'         => ' ',
         'customKeywords'     => array(),
+        'classAttribute'     => null,
     );
 
     /**
@@ -443,7 +444,7 @@ class Jade
      * Set custom keyword.
      *
      * @param string   $keyword the keyword to be found.
-     * @param callable $action to be executed when the keyword is found.
+     * @param callable $action  action to be executed when the keyword is found.
      */
     public function setKeyword($keyword, $action)
     {
@@ -462,7 +463,7 @@ class Jade
      * Add custom keyword.
      *
      * @param string   $keyword the keyword to be found.
-     * @param callable $action to be executed when the keyword is found.
+     * @param callable $action  action to be executed when the keyword is found.
      */
     public function addKeyword($keyword, $action)
     {
@@ -481,7 +482,7 @@ class Jade
      * Replace custom keyword.
      *
      * @param string   $keyword the keyword to be found.
-     * @param callable $action to be executed when the keyword is found.
+     * @param callable $action  action to be executed when the keyword is found.
      */
     public function replaceKeyword($keyword, $action)
     {
