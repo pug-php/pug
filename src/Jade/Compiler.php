@@ -127,7 +127,7 @@ class Compiler extends MixinVisitor
             settype($this->$option, $type);
         }
 
-        $this->quote = !isset($options['singleQuote']) || $options['singleQuote'] ? '\'' : '"';
+        $this->quote = isset($options['singleQuote']) && $options['singleQuote'] ? '\'' : '"';
 
         return $options;
     }

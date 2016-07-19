@@ -28,7 +28,7 @@ class Jade extends Keywords
         'allowMixedIndent'   => true,
         'keepNullAttributes' => false,
         'restrictedScope'    => false,
-        'singleQuote'        => true,
+        'singleQuote'        => false,
         'filterAutoLoad'     => true,
         'indentSize'         => 2,
         'indentChar'         => ' ',
