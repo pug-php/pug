@@ -59,6 +59,29 @@ class Attributes
         return true;
     }
 
+    protected function replaceInterpolationsInStrings($match)
+    {
+        $quote = $match[1];
+
+        return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
+            return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
+                    '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
+                    function ($match) {
+                        return '\\Jade\\Compiler::getPropertyFromAnything(' .
+                                CommonUtils::addDollarIfNeeded($match[1]) . ', ' .
+                                var_export($match[2], true) .
+                            ')';
+                    },
+                    $match[1]
+                )) . ' . ' . $quote;
+        }, $match[0]));
+    }
+
+    protected function interpolate($attr)
+    {
+        return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
+    }
+
     /**
      * @return object
      */
@@ -78,24 +101,7 @@ class Attributes
             return $states[count($states) - 1];
         };
 
-        $interpolate = function ($attr) {
-            return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', function ($match) {
-                $quote = $match[1];
-
-                return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
-                    return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
-                            '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
-                            function ($match) {
-                                return '\\Jade\\Compiler::getPropertyFromAnything(' .
-                                        CommonUtils::addDollarIfNeeded($match[1]) . ', ' .
-                                        var_export($match[2], true) .
-                                    ')';
-                            },
-                            $match[1]
-                        )) . ' . ' . $quote;
-                }, $match[0]));
-            }, $attr);
-        };
+        $interpolate = array($this, 'interpolate');
 
         $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
             switch ($char) {
