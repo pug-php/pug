@@ -431,11 +431,7 @@ class Parser
         $file = trim($token->value);
         $path = $this->getTemplatePath($file);
 
-        if (strpos(basename($file), '.') !== false && !$this->hasValidTemplateExtension($file)) {
-            if ($path === null) {
-                throw new \ErrorException($file . ' not found at ' . $this->filename . ' (line ' . $token->line . ')', 26);
-            }
-
+        if ($path && !$this->hasValidTemplateExtension($path)) {
             return new Nodes\Literal(file_get_contents($path));
         }
 
@@ -457,7 +453,7 @@ class Parser
         if ('indent' === $this->peek()->type && method_exists($ast, 'includeBlock')) {
             $block = $ast->includeBlock();
             if (is_object($block)) {
-                $handler = count($block->nodes) === 1
+                $handler = count($block->nodes) === 1 && isset($block->nodes[0]->block)
                     ? $block->nodes[0]->block
                     : $block;
                 $handler->push($this->block());

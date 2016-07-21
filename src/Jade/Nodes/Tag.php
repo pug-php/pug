@@ -39,7 +39,7 @@ class Tag extends Attributes
     {
         $this->name = $name;
 
-        $this->block = ($block !== null)
+        $this->block = $block !== null
             ? $block
             : new Block();
 
@@ -71,15 +71,9 @@ class Tag extends Attributes
                 return true;
             }
 
-            if (isset($node->isText) && $node->isText) {
-                return true;
-            }
-
-            if (method_exists($node, 'isInline') && $node->isInline()) {
-                return true;
-            }
-
-            return false;
+            return
+                (isset($node->isText) && $node->isText) ||
+                (method_exists($node, 'isInline') && $node->isInline());
         };
 
         if (count($nodes) === 0) {

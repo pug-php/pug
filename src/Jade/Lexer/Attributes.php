@@ -16,7 +16,7 @@ class Attributes
         $this->token = $token;
     }
 
-    public function parseSpace(&$states, $state, $interpolate, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
+    public function parseSpace(&$states, $state, $parser, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
     {
         switch ($state()) {
             case 'expr':
@@ -50,13 +50,36 @@ class Attributes
                 );
                 $this->token->escaped[$key] = $escapedAttribute;
 
-                $this->token->attributes[$key] = ('' === $val) ? true : $interpolate($val);
+                $this->token->attributes[$key] = ('' === $val) ? true : $parser->interpolate($val);
 
                 $key = '';
                 $val = '';
         }
 
         return true;
+    }
+
+    protected function replaceInterpolationsInStrings($match)
+    {
+        $quote = $match[1];
+
+        return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
+            return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
+                    '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
+                    function ($match) {
+                        return '\\Jade\\Compiler::getPropertyFromAnything(' .
+                                CommonUtils::addDollarIfNeeded($match[1]) . ', ' .
+                                var_export($match[2], true) .
+                            ')';
+                    },
+                    $match[1]
+                )) . ' . ' . $quote;
+        }, $match[0]));
+    }
+
+    protected function interpolate($attr)
+    {
+        return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
     }
 
     /**
@@ -78,32 +101,13 @@ class Attributes
             return $states[count($states) - 1];
         };
 
-        $interpolate = function ($attr) {
-            return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', function ($match) {
-                $quote = $match[1];
-
-                return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
-                    return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
-                            '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
-                            function ($match) {
-                                return '\\Jade\\Compiler::getPropertyFromAnything(' .
-                                        CommonUtils::addDollarIfNeeded($match[1]) . ', ' .
-                                        var_export($match[2], true) .
-                                    ')';
-                            },
-                            $match[1]
-                        )) . ' . ' . $quote;
-                }, $match[0]));
-            }, $attr);
-        };
-
-        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
+        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
             switch ($char) {
                 case ',':
                 case "\n":
                 case "\t":
                 case ' ':
-                    if (!$parser->parseSpace($states, $state, $interpolate, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
+                    if (!$parser->parseSpace($states, $state, $parser, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
                         return;
                     }
                     break;

@@ -57,15 +57,6 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \ErrorException
-     * @expectedExceptionCode 26
-     */
-    public function testBadInclude()
-    {
-        get_php_code('include a/file/with/an.extension');
-    }
-
-    /**
-     * @expectedException \ErrorException
      * @expectedExceptionCode 29
      */
     public function testAbsoluteIncludeWithNoBaseDir()

@@ -57,9 +57,10 @@ class JadeParserTest extends PHPUnit_Framework_TestCase
         $this->assertSame($token->value, 'Hello', 'The next token must has the value Hello');
     }
 
-    public function testGoodInclude()
+    public function testInclude()
     {
         $this->assertSame('<div class="alert alert-danger">Page not found.</div>', trim(get_php_code('include a/file/with/a.pug')));
+        $this->assertSame('<div class="alert alert-danger">Page not found.</div>', trim(get_php_code('include a/file/with/an.extension')));
     }
 
     public function testExtensions()
