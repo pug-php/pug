@@ -68,9 +68,6 @@ class Block extends Node
             } elseif (isset($node->block) && !$node->block->isEmpty()) {
                 $ret = $node->block->includeBlock();
             }
-            if (isset($ret->yield)) {
-                return $ret;
-            }
         }
 
         return $ret;
