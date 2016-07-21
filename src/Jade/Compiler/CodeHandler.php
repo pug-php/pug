@@ -104,18 +104,11 @@ class CodeHandler extends CompilerUtils
                 switch ($match[2]) {
                     case '"':
                     case "'":
-                        if ($quote) {
-                            if (CommonUtils::escapedEnd($match[1])) {
-                                ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                $consume($argument, $match[0]);
-                                break;
-                            }
-                            $quote = null;
-                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                            $consume($argument, $match[0]);
-                            break;
-                        }
-                        $quote = $match[2];
+                        $quote = $quote
+                            ? CommonUtils::escapedEnd($match[1])
+                                ? $quote
+                                : null
+                            : $match[2];
                         ${is_null($value) ? 'key' : 'value'} .= $match[0];
                         $consume($argument, $match[0]);
                         break;
@@ -134,8 +127,8 @@ class CodeHandler extends CompilerUtils
                         $consume($argument, $match[0]);
                         break;
                     case ',':
-                        $consume($argument, $match[0]);
                         ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                        $consume($argument, $match[0]);
                         break;
                 }
             }

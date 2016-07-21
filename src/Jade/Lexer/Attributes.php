@@ -16,7 +16,7 @@ class Attributes
         $this->token = $token;
     }
 
-    public function parseSpace(&$states, $state, $interpolate, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
+    public function parseSpace(&$states, $state, $parser, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
     {
         switch ($state()) {
             case 'expr':
@@ -50,7 +50,7 @@ class Attributes
                 );
                 $this->token->escaped[$key] = $escapedAttribute;
 
-                $this->token->attributes[$key] = ('' === $val) ? true : $interpolate($val);
+                $this->token->attributes[$key] = ('' === $val) ? true : $parser->interpolate($val);
 
                 $key = '';
                 $val = '';
@@ -101,15 +101,13 @@ class Attributes
             return $states[count($states) - 1];
         };
 
-        $interpolate = array($this, 'interpolate');
-
-        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $interpolate, $parser) {
+        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
             switch ($char) {
                 case ',':
                 case "\n":
                 case "\t":
                 case ' ':
-                    if (!$parser->parseSpace($states, $state, $interpolate, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
+                    if (!$parser->parseSpace($states, $state, $parser, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
                         return;
                     }
                     break;
