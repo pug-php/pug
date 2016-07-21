@@ -71,10 +71,9 @@ class Tag extends Attributes
                 return true;
             }
 
-            return (
+            return
                 (isset($node->isText) && $node->isText) ||
-                (method_exists($node, 'isInline') && $node->isInline())
-            );
+                (method_exists($node, 'isInline') && $node->isInline());
         };
 
         if (count($nodes) === 0) {
