@@ -59,7 +59,7 @@ class JadeParserTest extends PHPUnit_Framework_TestCase
 
     public function testGoodInclude()
     {
-        $this->assertSame('<div class="alert alert-danger"> Page not found.</div>', trim(get_php_code('include a/file/with/a.pug')));
+        $this->assertSame('<div class="alert alert-danger">Page not found.</div>', trim(get_php_code('include a/file/with/a.pug')));
     }
 
     public function testExtensions()

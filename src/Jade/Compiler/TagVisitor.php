@@ -37,17 +37,30 @@ abstract class TagVisitor extends Visitor
         }
     }
 
+    protected function trimLastLine()
+    {
+        $key = count($this->buffer) - 1;
+        $this->buffer[$key] = substr($this->buffer[$key], 0, -1);
+        if ($this->prettyprint && substr($this->buffer[$key], -1) === ' ') {
+            $this->buffer[$key] = substr($this->buffer[$key], 0, -1);
+        }
+    }
+
     /**
      * @param Nodes\Tag $tag
      */
     protected function visitTagContents(Tag $tag)
     {
-        $this->indents++;
+        $inc = $tag->keepWhiteSpaces() ? -$this->indents : 1;
+        $this->indents += $inc;
         if (isset($tag->code)) {
             $this->visitCode($tag->code);
         }
         $this->visit($tag->block);
-        $this->indents--;
+        if ($tag->keepWhiteSpaces() && substr(end($this->buffer), -1) === "\n") {
+            $this->trimLastLine();
+        }
+        $this->indents -= $inc;
     }
 
     /**
@@ -56,11 +69,11 @@ abstract class TagVisitor extends Visitor
     protected function compileTag(Tag $tag)
     {
         $selfClosing = (in_array(strtolower($tag->name), $this->selfClosing) || $tag->selfClosing) && !$this->xml;
-        $this->visitTagAttributes($tag, $this->prettyprint, (!$selfClosing || $this->terse) ? '>' : ' />');
+        $this->visitTagAttributes($tag, !$tag->keepWhiteSpaces() && $this->prettyprint, (!$selfClosing || $this->terse) ? '>' : ' />');
 
         if (!$selfClosing) {
             $this->visitTagContents($tag);
-            $this->buffer('</' . $tag->name . '>');
+            $this->buffer('</' . $tag->name . '>', $tag->keepWhiteSpaces() ? false : null);
         }
     }
 
