@@ -80,6 +80,72 @@ class CodeHandler extends CompilerUtils
         return false !== strpos('"\'', $firstChar) && $lastChar === $firstChar;
     }
 
+    protected function getVarname($separator)
+    {
+        // do not add $ if it is not like a variable
+        $varname = static::convertVarPath(substr($this->input, 0, $separator[1]), '/^%s/');
+
+        return $separator[0] !== '(' && $varname !== '' && strstr('0123456789-+("\'$', substr($varname, 0, 1)) === false
+            ? static::addDollarIfNeeded($varname)
+            : $varname;
+    }
+
+    protected function parseArray($input, $subCodeHandler)
+    {
+        $output = array();
+        $key = '';
+        $value = null;
+        $addToOutput = $subCodeHandler->addToOutput($output, $key, $value);
+        $consume = $subCodeHandler->consume();
+        foreach ($input as $argument) {
+            $argument = ltrim($argument, '$');
+            $quote = null;
+            while (preg_match('/^(.*?)(=>|[\'",:])/', $argument, $match)) {
+                switch ($match[2]) {
+                    case '"':
+                    case "'":
+                        if ($quote) {
+                            if (CommonUtils::escapedEnd($match[1])) {
+                                ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                                $consume($argument, $match[0]);
+                                break;
+                            }
+                            $quote = null;
+                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                            $consume($argument, $match[0]);
+                            break;
+                        }
+                        $quote = $match[2];
+                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                        $consume($argument, $match[0]);
+                        break;
+                    case ':':
+                    case '=>':
+                        if ($quote) {
+                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                            $consume($argument, $match[0]);
+                            break;
+                        }
+                        if (!is_null($value)) {
+                            throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
+                        }
+                        $key .= $match[1];
+                        $value = '';
+                        $consume($argument, $match[0]);
+                        break;
+                    case ',':
+                        $consume($argument, $match[0]);
+                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                        break;
+                }
+            }
+            ${is_null($value) ? 'key' : 'value'} .= $argument;
+            $addToOutput();
+        }
+
+        return 'array(' . implode(', ', $output) . ')';
+    }
+
     protected function parseBetweenSeparators()
     {
         $input = $this->input;
@@ -89,11 +155,7 @@ class CodeHandler extends CompilerUtils
         // needs to be public because of the closure $handleRecursion
         $result = array();
 
-        // do not add $ if it is not like a variable
-        $varname = static::convertVarPath(substr($input, 0, $separators[0][1]), '/^%s/');
-        if ($separators[0][0] !== '(' && $varname !== '' && strstr('0123456789-+("\'$', substr($varname, 0, 1)) === false) {
-            $varname = static::addDollarIfNeeded($varname);
-        }
+        $varname = $this->getVarname($separators[0]);
 
         $subCodeHandler = new SubCodeHandler($this, $input, $name);
         $getMiddleString = $subCodeHandler->getMiddleString();
@@ -139,59 +201,7 @@ class CodeHandler extends CompilerUtils
                         break;
                     }
                 case '{':
-                    $input = $handleCodeInbetween();
-
-                    $output = array();
-                    $key = '';
-                    $value = null;
-                    $addToOutput = $subCodeHandler->addToOutput($output, $key, $value);
-                    $consume = $subCodeHandler->consume();
-                    foreach ($input as $argument) {
-                        $argument = ltrim($argument, '$');
-                        $quote = null;
-                        while (preg_match('/^(.*?)(=>|[\'",:])/', $argument, $match)) {
-                            switch ($match[2]) {
-                                case '"':
-                                case "'":
-                                    if ($quote) {
-                                        if (CommonUtils::escapedEnd($match[1])) {
-                                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                            $consume($argument, $match[0]);
-                                            break;
-                                        }
-                                        $quote = null;
-                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                        $consume($argument, $match[0]);
-                                        break;
-                                    }
-                                    $quote = $match[2];
-                                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                    $consume($argument, $match[0]);
-                                    break;
-                                case ':':
-                                case '=>':
-                                    if ($quote) {
-                                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                        $consume($argument, $match[0]);
-                                        break;
-                                    }
-                                    if (!is_null($value)) {
-                                        throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
-                                    }
-                                    $key .= $match[1];
-                                    $value = '';
-                                    $consume($argument, $match[0]);
-                                    break;
-                                case ',':
-                                    $consume($argument, $match[0]);
-                                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                                    break;
-                            }
-                        }
-                        ${is_null($value) ? 'key' : 'value'} .= $argument;
-                        $addToOutput();
-                    }
-                    $varname .= 'array(' . implode(', ', $output) . ')';
+                    $varname .= $this->parseArray($handleCodeInbetween(), $subCodeHandler);
                     break;
 
                 case '=':

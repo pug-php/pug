@@ -216,7 +216,7 @@ class Compiler extends MixinVisitor
      */
     protected function buffer($line, $indent = null)
     {
-        if (($indent !== null && $indent === true) || ($indent === null && $this->prettyprint)) {
+        if ($indent === true || ($indent === null && $this->prettyprint)) {
             $line = $this->indent() . $line . $this->newline();
         }
 

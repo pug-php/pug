@@ -54,25 +54,13 @@ class SubCodeHandler
         };
     }
 
-    public function handleCodeInbetween(&$separators, &$result)
+    protected function scanSeparators(&$separators, &$result)
     {
         $handleRecursion = $this->handleRecursion($result);
-        $input = $this->input;
         $name = $this->name;
 
-        return function () use (&$separators, $name, $handleRecursion, $input) {
-            $arguments = array();
+        return function (&$arguments, $open, $close) use (&$separators, $name, $handleRecursion) {
             $count = 1;
-
-            $start = current($separators);
-            $endPair = array(
-                '[' => ']',
-                '{' => '}',
-                '(' => ')',
-                ',' => false,
-            );
-            $open = $start[0];
-            $close = $endPair[$start[0]];
 
             do {
                 // reset start
@@ -99,12 +87,40 @@ class SubCodeHandler
                 }
             } while ($curr !== false && $count > 0);
 
+            return $count;
+        };
+    }
+
+    public function handleCodeInbetween(&$separators, &$result)
+    {
+        $scanSeparators = $this->scanSeparators($separators, $result);
+        $input = $this->input;
+
+        return function () use (&$separators, $input, $scanSeparators) {
+            $arguments = array();
+
+            $start = current($separators);
+            $endPair = array(
+                '[' => ']',
+                '{' => '}',
+                '(' => ')',
+                ',' => false,
+            );
+            $open = $start[0];
+            $close = $endPair[$start[0]];
+
+            $count = $scanSeparators($arguments, $open, $close);
+
             if ($close && $count > 0) {
                 throw new \ErrorException($input . "\nMissing closing: " . $close, 14);
             }
 
-            if ($end !== false) {
-                next($separators);
+            if (($sep = current($separators)) !== false) {
+                $end = next($separators);
+                if ($end[0] === null && $sep[1] < $end[1]) {
+                    $key = count($arguments) - 1;
+                    $arguments[$key] .= substr($input, $sep[1] + 1, $end[1] - $sep[1] - 1);
+                }
             }
 
             return $arguments;

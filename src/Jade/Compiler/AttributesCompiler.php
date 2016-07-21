@@ -70,7 +70,8 @@ abstract class AttributesCompiler extends CompilerFacade
     protected function getClassAttribute($value, &$classesCheck)
     {
         $statements = $this->createStatements($value);
-        $classesCheck[] = '(is_array($_a = ' . $statements[0][0] . ') ? implode(" ", $_a) : $_a)';
+        $value = is_array($statements[0]) ? $statements[0][0] : $statements[0];
+        $classesCheck[] = '(is_array($_a = ' . $value . ') ? implode(" ", $_a) : $_a)';
 
         return $this->keepNullAttributes ? '' : 'null';
     }
@@ -96,12 +97,10 @@ abstract class AttributesCompiler extends CompilerFacade
 
         $json = static::parseValue($value);
 
-        if ($json !== null && is_array($json) && $key === 'class') {
-            return implode(' ', $json);
-        }
-
         if ($key === 'class') {
-            return $this->getClassAttribute($value, $classesCheck);
+            return $json !== null && is_array($json)
+                ? implode(' ', $json)
+                : $this->getClassAttribute($value, $classesCheck);
         }
 
         return $this->getValueCode($escaped, $value, $valueCheck);
