@@ -624,6 +624,9 @@ class Parser
             $block->push($tag);
             $str = substr($str, strlen($matches[0]));
         }
+        if (substr($str, 0, 1) === ' ') {
+            $str = substr($str, 1);
+        }
         $text = new Nodes\Text($str);
         $text->line = $this->line();
         $block->push($text);

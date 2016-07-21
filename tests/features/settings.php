@@ -499,11 +499,11 @@ body
             __DIR__ . '/../templates/auxiliary/include-sibling.jade'
         );
         $expected = "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n".
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n".
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>";
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>";
         $this->assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
@@ -511,10 +511,10 @@ body
             __DIR__ . '/../templates/auxiliary/include-sibling.jade'
         );
         $expected = "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n".
+            "<div class=\"alert alert-danger\">Page not found.</div>\n".
             "<p>World</p>\n" .
             "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>";
         $this->assertSame($expected, $actual);
 
@@ -524,10 +524,10 @@ body
         );
         $expected = "<p>World</p>\n" .
             "<p>World</p>\n".
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>\n" .
             "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>";
+            "<div class=\"alert alert-danger\">Page not found.</div>";
         $this->assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
@@ -535,11 +535,11 @@ body
             __DIR__ . '/../templates/auxiliary/include-sibling.jade'
         );
         $expected = "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n".
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n".
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>\n" .
-            "<div class=\"alert alert-danger\"> Page not found.</div>";
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>";
         $this->assertSame($expected, $actual);
     }
 
