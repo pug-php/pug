@@ -481,13 +481,13 @@ body
         $jade->render(__DIR__ . '/../templates/auxiliary/include-sibling.jade');
     }
 
-    public function renderWithBaseDir($basedir)
+    public function renderWithBaseDir($basedir, $template)
     {
         $jade = new Jade(array(
             'prettyprint' => true,
             'basedir' => $basedir,
         ));
-        $code = $jade->render(__DIR__ . '/../templates/auxiliary/include-sibling.jade');
+        $code = $jade->render($template);
 
         return trim(preg_replace('/\n\s+/', "\n", str_replace("\r", '', $code)));
     }
