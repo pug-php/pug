@@ -375,7 +375,7 @@ class Parser
         $path = $this->getTemplatePath($this->expect('extends')->value);
 
         $string = $this->getTemplateContents($path);
-        $parser = new static($string, $path);
+        $parser = new static($string, $path, $this->options);
         // need to be a reference, or be seted after the parse loop
         $parser->blocks = &$this->blocks;
         $parser->contexts = $this->contexts;
@@ -437,7 +437,7 @@ class Parser
 
         $string = $this->getTemplateContents($path);
 
-        $parser = new static($string, $path);
+        $parser = new static($string, $path, $this->options);
         $parser->blocks = $this->blocks;
         $parser->mixins = $this->mixins;
 
