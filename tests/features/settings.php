@@ -541,6 +541,39 @@ body
             "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>";
         $this->assertSame($expected, $actual);
+
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/../templates/',
+            __DIR__ . '/../templates/auxiliary/include-basedir.jade'
+        );
+        $expected = "<p>World</p>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "<p>World</p>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<p>World</p>";
+        $this->assertSame($expected, $actual);
+
+        $actual = $this->renderWithBaseDir(
+            __DIR__ . '/../templates/',
+            __DIR__ . '/../templates/auxiliary/extends-basedir.jade'
+        );
+        $expected =
+            "<html>\n" .
+            "<head>\n" .
+            "<title>My Application</title>\n" .
+            "</head>\n" .
+            "<body>\n" .
+            "<h1>test</h1>\n" .
+            "<p>World</p>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "<p>World</p>\n" .
+            "<div class=\"alert alert-danger\">Page not found.</div>\n" .
+            "<p>World</p>\n" .
+            "</body>\n" .
+            "</html>";
+        $this->assertSame($expected, $actual);
     }
 
     public function testClassAttribute()
