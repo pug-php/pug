@@ -84,7 +84,7 @@ class Parser
         }
     }
 
-    protected function getTemplateContents($path)
+    protected function getTemplateContents($path, $value = null)
     {
         if ($path !== null) {
             return file_get_contents($path);
@@ -98,7 +98,8 @@ class Parser
             return $notFound;
         }
 
-        throw new \InvalidArgumentException("The included file '$path' does not exists.", 22);
+        $value = $value ?: $path;
+        throw new \InvalidArgumentException("The included file '$value' does not exists.", 22);
     }
 
     protected function setInput($filename, $input)
@@ -372,9 +373,10 @@ class Parser
 
     protected function parseExtends()
     {
-        $path = $this->getTemplatePath($this->expect('extends')->value);
+        $extendValue = $this->expect('extends')->value;
+        $path = $this->getTemplatePath($extendValue);
 
-        $string = $this->getTemplateContents($path);
+        $string = $this->getTemplateContents($path, $extendValue);
         $parser = new static($string, $path, $this->options);
         // need to be a reference, or be seted after the parse loop
         $parser->blocks = &$this->blocks;
@@ -428,14 +430,14 @@ class Parser
     protected function parseInclude()
     {
         $token = $this->expect('include');
-        $file = trim($token->value);
-        $path = $this->getTemplatePath($file);
+        $includeValue = trim($token->value);
+        $path = $this->getTemplatePath($includeValue);
 
         if ($path && !$this->hasValidTemplateExtension($path)) {
             return new Nodes\Literal(file_get_contents($path));
         }
 
-        $string = $this->getTemplateContents($path);
+        $string = $this->getTemplateContents($path, $includeValue);
 
         $parser = new static($string, $path, $this->options);
         $parser->blocks = $this->blocks;

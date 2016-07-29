@@ -370,6 +370,7 @@ p(class=$foo)=$bar
      *
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 22
+     * @expectedExceptionMessageRegExp /does-not-exists/
      */
     public function testIncludeNotFoundDisabledViaOption()
     {
