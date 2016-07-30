@@ -71,10 +71,28 @@ abstract class CompilerFacade extends ValuesCompiler
     }
 
     /**
+     * Get property from object.
+     *
+     * @param object $object source object
+     * @param mixed  $key    key to retrive from the object or the array
+     *
+     * @return mixed
+     */
+    public static function getPropertyFromObject($anything, $key)
+    {
+        return isset($anything->$key)
+            ? $anything->$key
+            : (method_exists($anything, $method = 'get' . ucfirst($key))
+                ? $anything->$method()
+                : null
+            );
+    }
+
+    /**
      * Get property from object or entry from array.
      *
-     * @param $anything object|array
-     * @param $key mixed key to retrive from the object or the array
+     * @param object|array $anything source
+     * @param mixed        $key      key to retrive from the object or the array
      *
      * @return mixed
      */
@@ -84,8 +102,8 @@ abstract class CompilerFacade extends ValuesCompiler
             ? (isset($anything[$key])
                 ? $anything[$key]
                 : null
-            ) : (is_object($anything) && isset($anything->$key)
-                ? $anything->$key
+            ) : (is_object($anything)
+                ? static::getPropertyFromObject($anything, $key)
                 : null
             );
     }
@@ -93,8 +111,8 @@ abstract class CompilerFacade extends ValuesCompiler
     /**
      * Merge given attributes such as tag attributes with mixin attributes.
      *
-     * @param $attributes array
-     * @param $mixinAttributes array
+     * @param array $attributes
+     * @param array $mixinAttributes
      *
      * @return array
      */
@@ -118,8 +136,8 @@ abstract class CompilerFacade extends ValuesCompiler
     /**
      * Display a list of attributes with the given quote character in HTML.
      *
-     * @param $attributes array
-     * @param $quote string
+     * @param array  $attributes
+     * @param string $quote
      */
     public static function displayAttributes($attributes, $quote, $terse)
     {
