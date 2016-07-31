@@ -79,7 +79,7 @@ class CacheHelper
             );
 
             // Do not re-parse file if original is older
-            return $this->pug->getOption('upToDateCheck') && file_exists($path) && filemtime($input) < filemtime($path);
+            return (!$this->pug->getOption('upToDateCheck')) || (file_exists($path) && filemtime($input) < filemtime($path));
         }
 
         $path = $this->getCachePath($this->hashPrint($input));
