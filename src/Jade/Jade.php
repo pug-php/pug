@@ -2,8 +2,8 @@
 
 namespace Jade;
 
-use Jade\Compiler\FilterHelper;
 use Jade\Compiler\CacheHelper;
+use Jade\Compiler\FilterHelper;
 use Jade\Parser\ExtensionsHelper;
 
 /**
