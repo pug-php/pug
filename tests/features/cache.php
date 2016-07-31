@@ -22,6 +22,9 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
 {
     protected function emptyDirectory($dir)
     {
+        if (!is_dir($dir)) {
+            return;
+        }
         foreach (scandir($dir) as $file) {
             if ($file !== '.' && $file !== '..') {
                 $path = $dir . '/' . $file;
@@ -97,34 +100,42 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
         }
         $jade = new Jade(array(
             'singleQuote' => false,
-            'cache' => $dir
+            'cache' => $dir,
         ));
         $jade->cache(__DIR__ . '/../templates/attrs.jade');
     }
 
     private function cacheSystem($keepBaseName)
     {
+        $cacheDirectory = sys_get_temp_dir() . '/pug-test';
+        $this->emptyDirectory($cacheDirectory);
+        if (!is_dir($cacheDirectory)) {
+            mkdir($cacheDirectory, 0777, true);
+        }
         $file = tempnam(sys_get_temp_dir(), 'jade-test-');
         $jade = new Jade(array(
             'singleQuote' => false,
             'keepBaseName' => $keepBaseName,
-            'cache' => sys_get_temp_dir(),
+            'cache' => $cacheDirectory,
         ));
         copy(__DIR__ . '/../templates/attrs.jade', $file);
         $name = basename($file);
-        $cachedFile = sys_get_temp_dir() . '/' . ($keepBaseName ? $name : '') . md5($file) . '.php';
-        if (file_exists($cachedFile)) {
-            unlink($cachedFile);
-        }
         $stream = $jade->cache($file);
+        $phpFiles = array_values(array_map(function ($file) use ($cacheDirectory) {
+            return $cacheDirectory . DIRECTORY_SEPARATOR . $file;
+        }, array_filter(scandir($cacheDirectory), function ($file) {
+            return substr($file, -4) === '.php';
+        })));
         $start = 'jade.stream://data;';
         $this->assertTrue(strpos($stream, $start) === 0, 'Fresh content should be a stream.');
-        $this->assertTrue(file_exists($cachedFile), 'The cached file should now exist.');
+        $this->assertSame(1, count($phpFiles), 'The cached file should now exist.');
+        $cachedFile = realpath($phpFiles[0]);
+        $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
         $this->assertSame($stream, $jade->stream($jade->compile($file)), 'Should return the stream of attrs.jade.');
         $this->assertSame(substr($stream, strlen($start)), file_get_contents($cachedFile), 'The cached file should contains the same contents.');
         touch($file, time() - 3600);
         $path = $jade->cache($file);
-        $this->assertSame($path, $cachedFile, 'The cached file should be used instead if untouched.');
+        $this->assertSame(realpath($path), $cachedFile, 'The cached file should be used instead if untouched.');
         copy(__DIR__ . '/../templates/mixins.jade', $file);
         touch($file, time() + 3600);
         $stream = $jade->cache($file);
@@ -146,5 +157,44 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
     public function testCacheWithKeepBaseName()
     {
         $this->cacheSystem(true);
+    }
+
+    /**
+     * Test cacheDirectory method
+     */
+    public function testCacheDirectory()
+    {
+        $cacheDirectory = sys_get_temp_dir() . '/pug-test';
+        $this->emptyDirectory($cacheDirectory);
+        if (!is_dir($cacheDirectory)) {
+            mkdir($cacheDirectory, 0777, true);
+        }
+        $templatesDirectory = __DIR__ . '/../templates';
+        $jade = new Jade(array(
+            'basedir' => $templatesDirectory,
+            'cache' => $cacheDirectory,
+        ));
+        list($success, $errors) = $jade->cacheDirectory($templatesDirectory);
+        $filesCount = count(array_filter(scandir($cacheDirectory), function ($file) {
+            return $file !== '.' && $file !== '..';
+        }));
+        $expectedCount = count(array_filter(array_merge(
+            scandir($templatesDirectory),
+            scandir($templatesDirectory . '/auxiliary'),
+            scandir($templatesDirectory . '/auxiliary/subdirectory/subsubdirectory')
+        ), function ($file) {
+            return in_array(pathinfo($file, PATHINFO_EXTENSION), array('pug', 'jade'));
+        }));
+        $this->emptyDirectory($cacheDirectory);
+        $templatesDirectory = __DIR__ . '/../templates/subdirectory/subsubdirectory';
+        $jade = new Jade(array(
+            'basedir' => $templatesDirectory,
+            'cache' => $cacheDirectory,
+        ));
+        $this->emptyDirectory($cacheDirectory);
+        rmdir($cacheDirectory);
+
+        $this->assertSame($expectedCount, $success + $errors, 'Each .jade file in the directory to cache should generate a success or an error.');
+        $this->assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
     }
 }

@@ -3,6 +3,7 @@
 namespace Jade;
 
 use Jade\Parser\Exception as ParserException;
+use Jade\Parser\ExtensionsHelper;
 
 class Parser
 {
@@ -48,20 +49,16 @@ class Parser
 
     protected function getExtensions()
     {
-        return  is_string($this->extension)
-            ? array($this->extension)
-            : array_unique($this->extension);
+        $extensions = new ExtensionsHelper($this->extension);
+
+        return $extensions->getExtensions();
     }
 
     protected function hasValidTemplateExtension($path)
     {
-        foreach ($this->getExtensions() as $extension) {
-            if (substr($path, -strlen($extension)) === $extension) {
-                return true;
-            }
-        }
+        $extensions = new ExtensionsHelper($this->extension);
 
-        return false;
+        return $extensions->hasValidTemplateExtension($path);
     }
 
     protected function getTemplatePath($path)
@@ -75,13 +72,9 @@ class Parser
             ? rtrim($this->options['basedir'], '/\\')
             : dirname($this->filename)
         ) . DIRECTORY_SEPARATOR . $path;
-        $extensions = $this->getExtensions();
-        $extensions[] = '';
-        foreach ($extensions as $extension) {
-            if (file_exists($path . $extension)) {
-                return realpath($path . $extension);
-            }
-        }
+        $extensions = new ExtensionsHelper($this->extension);
+
+        return $extensions->findValidTemplatePath($path, '');
     }
 
     protected function getTemplateContents($path, $value = null)

@@ -2,7 +2,9 @@
 
 namespace Jade;
 
+use Jade\Compiler\CacheHelper;
 use Jade\Compiler\FilterHelper;
+use Jade\Parser\ExtensionsHelper;
 
 /**
  * Class Jade\Jade.
@@ -18,22 +20,23 @@ class Jade extends Keywords
      * @var array
      */
     protected $options = array(
-        'cache'              => null,
-        'stream'             => null,
-        'extension'          => array('.pug', '.jade'),
-        'prettyprint'        => false,
-        'phpSingleLine'      => false,
-        'keepBaseName'       => false,
-        'allowMixinOverride' => true,
         'allowMixedIndent'   => true,
+        'allowMixinOverride' => true,
+        'cache'              => null,
+        'classAttribute'     => null,
+        'customKeywords'     => array(),
+        'extension'          => array('.pug', '.jade'),
+        'filterAutoLoad'     => true,
+        'indentChar'         => ' ',
+        'indentSize'         => 2,
+        'keepBaseName'       => false,
         'keepNullAttributes' => false,
+        'phpSingleLine'      => false,
+        'prettyprint'        => false,
         'restrictedScope'    => false,
         'singleQuote'        => false,
-        'filterAutoLoad'     => true,
-        'indentSize'         => 2,
-        'indentChar'         => ' ',
-        'customKeywords'     => array(),
-        'classAttribute'     => null,
+        'stream'             => null,
+        'upToDateCheck'      => true,
     );
 
     /**
@@ -48,6 +51,11 @@ class Jade extends Keywords
         'escaped'    => 'Jade\Filter\Escaped',
         'javascript' => 'Jade\Filter\Javascript',
     );
+
+    /**
+     * @var array
+     */
+    protected $sharedVariables = array();
 
     /**
      * Indicate if we registered the stream wrapper,
@@ -213,14 +221,9 @@ class Jade extends Keywords
      */
     public function getExtension()
     {
-        $extension = $this->getOption('extension');
+        $extensions = new ExtensionsHelper($this->getOption('extension'));
 
-        return is_string($extension)
-            ? $extension
-            : (isset($extension[0])
-                ? $extension[0]
-                : ''
-            );
+        return $extensions->getFirst();
     }
 
     /**
@@ -230,11 +233,9 @@ class Jade extends Keywords
      */
     public function getExtensions()
     {
-        $extension = $this->getOption('extension');
+        $extensions = new ExtensionsHelper($this->getOption('extension'));
 
-        return is_string($extension)
-            ? array($extension)
-            : array_unique($extension);
+        return $extensions->getExtensions();
     }
 
     /**
@@ -313,7 +314,7 @@ class Jade extends Keywords
             ? $this->cache($input)
             : $this->stream($this->compile($input));
 
-        extract($vars);
+        extract(array_merge($this->sharedVariables, $vars));
         ob_start();
         try {
             include $file;
@@ -350,64 +351,6 @@ class Jade extends Keywords
     }
 
     /**
-     * Return a file path in the cache for a given name.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getCachePath($name)
-    {
-        return str_replace('//', '/', $this->options['cache'] . '/' . $name) . '.php';
-    }
-
-    /**
-     * Return true if the file or content is up to date in the cache folder,
-     * false else.
-     *
-     * @param string  $input file or pug code
-     * @param &string $path  to be filled
-     *
-     * @return bool
-     */
-    protected function isCacheUpToDate($input, &$path)
-    {
-        if (is_file($input)) {
-            $path = $this->getCachePath(($this->options['keepBaseName'] ? basename($input) : '') . md5($input));
-
-            // Do not re-parse file if original is older
-            return file_exists($path) && filemtime($input) < filemtime($path);
-        }
-
-        // Get the stronger hashing algorithm available to minimize collision risks
-        $algos = hash_algos();
-        $algo = $algos[0];
-        $number = 0;
-        foreach ($algos as $hashAlgorithm) {
-            if (strpos($hashAlgorithm, 'md') === 0) {
-                $hashNumber = substr($hashAlgorithm, 2);
-                if ($hashNumber > $number) {
-                    $number = $hashNumber;
-                    $algo = $hashAlgorithm;
-                }
-                continue;
-            }
-            if (strpos($hashAlgorithm, 'sha') === 0) {
-                $hashNumber = substr($hashAlgorithm, 3);
-                if ($hashNumber > $number) {
-                    $number = $hashNumber;
-                    $algo = $hashAlgorithm;
-                }
-                continue;
-            }
-        }
-        $path = $this->getCachePath(rtrim(strtr(base64_encode(hash($algo, $input, true)), '+/', '-_'), '='));
-
-        // Do not re-parse file if the same hash exists
-        return file_exists($path);
-    }
-
-    /**
      * Get cached input/file a matching cache file exists.
      * Else, render the input, cache it in a file and return it.
      *
@@ -420,23 +363,49 @@ class Jade extends Keywords
      */
     public function cache($input)
     {
-        $cacheFolder = $this->options['cache'];
+        $cache = new CacheHelper($this);
 
-        if (!is_dir($cacheFolder)) {
-            throw new \ErrorException($cacheFolder . ': Cache directory seem\'s to not exists', 5);
+        return $cache->cache($input);
+    }
+
+    /**
+     * Scan a directory recursively, compile them and save them into the cache directory.
+     *
+     * @param string $directory the directory to search in pug templates
+     *
+     * @return array count of cached files and error count
+     */
+    public function cacheDirectory($directory)
+    {
+        $cache = new CacheHelper($this);
+
+        return $cache->cacheDirectory($directory);
+    }
+
+    /**
+     * Add a variable or an array of variables to be shared with all templates that will be rendered
+     * by the instance of Pug.
+     *
+     * @param array|string $variables|$key an associatives array of variable names and values, or a
+     *                                     variable name if you wish to sahre only one
+     * @param mixed        $value          if you pass an array as first argument, the second
+     *                                     argument will be ignored, else it will used as the
+     *                                     variable value for the variable name you passed as first
+     *                                     argument
+     */
+    public function share($variables, $value = null)
+    {
+        if (!is_array($variables)) {
+            $variables = array(strval($variables) => $value);
         }
+        $this->sharedVariables = array_merge($this->sharedVariables, $variables);
+    }
 
-        if ($this->isCacheUpToDate($input, $path)) {
-            return $path;
-        }
-
-        if (!is_writable($cacheFolder)) {
-            throw new \ErrorException(sprintf('Cache directory must be writable. "%s" is not.', $cacheFolder), 6);
-        }
-
-        $rendered = $this->compile($input);
-        file_put_contents($path, $rendered);
-
-        return $this->stream($rendered);
+    /**
+     * Remove all previously set shared variables.
+     */
+    public function resetSharedVariables()
+    {
+        $this->sharedVariables = array();
     }
 }

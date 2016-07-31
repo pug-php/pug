@@ -26,6 +26,8 @@ engines:
     - a5e6f6215d8cc84a0b7750eaafaf8105
     # else here is the simpliest way to do it
     - 311e57c70997007dce22492a1426d448
+    # no limit for Jade pubic methods
+    - e0ccdd520835bae57bf79e066296adcc
     checks:
       # Allow static access such as CommonUtils ones
       CleanCode/StaticAccess:
