@@ -459,9 +459,9 @@ class Jade extends Keywords
     /**
      * Scan a directory recursively, compile them and save them into the cache directory.
      *
-     * @param  string $directory the directory to search in pug templates
+     * @param string $directory the directory to search in pug templates
      *
-     * @return array  count of cached files and error count
+     * @return array count of cached files and error count
      */
     public function cacheDirectory($directory)
     {
