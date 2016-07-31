@@ -100,7 +100,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
         }
         $jade = new Jade(array(
             'singleQuote' => false,
-            'cache' => $dir
+            'cache' => $dir,
         ));
         $jade->cache(__DIR__ . '/../templates/attrs.jade');
     }
@@ -185,6 +185,12 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
         ), function ($file) {
             return in_array(pathinfo($file, PATHINFO_EXTENSION), array('pug', 'jade'));
         }));
+        $this->emptyDirectory($cacheDirectory);
+        $templatesDirectory = __DIR__ . '/../templates/subdirectory/subsubdirectory';
+        $jade = new Jade(array(
+            'basedir' => $templatesDirectory,
+            'cache' => $cacheDirectory,
+        ));
         $this->emptyDirectory($cacheDirectory);
         rmdir($cacheDirectory);
 

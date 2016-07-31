@@ -156,10 +156,7 @@ class CacheHelper
             if ($extensions->hasValidTemplateExtension($object)) {
                 $this->isCacheUpToDate($input, $path);
                 try {
-                    $contents = $this->pug->compile($input);
-                    if (!file_put_contents($path, $contents) && strlen($contents)) {
-                        throw new \Exception('Write error', 1);
-                    }
+                    file_put_contents($path, $this->pug->compile($input));
                     $success++;
                 } catch (\Exception $e) {
                     $errors++;

@@ -25,18 +25,6 @@ class ExtensionsHelper
             : $defaultValue;
     }
 
-    public function getExtension()
-    {
-        $extension = $this->getOption('extension');
-
-        return is_string($extension)
-            ? $extension
-            : (isset($extension[0])
-                ? $extension[0]
-                : ''
-            );
-    }
-
     public function hasValidTemplateExtension($path)
     {
         foreach ($this->getExtensions() as $extension) {
