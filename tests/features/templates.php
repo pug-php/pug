@@ -7,6 +7,7 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
     static private $skipped = array(
         // Not supported in HHVM
         'xml' => 'hhvm',
+        // Not supported in PHP < 7
         'method' => '<7',
 
         // Add here tests for future features not yet implemented
