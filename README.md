@@ -162,6 +162,28 @@ A keyword must return an array (containing **begin** and/or **end** entires) or 
 
 The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** as in the first example to render PHP codes that will wrap the rendered block if there is one.
 
+### Cache
+
+**Important**: to improve performance in production, enable the Pug cache by setting the **cache** option to a writable directory, you can first cache all your template at once (during deployment):
+```php
+$pug = new Pug(array(
+    'cache' => 'var/cache/pug',
+);
+list($success, $errors) = $pug->cacheDirectory('path/to/pug/templates');
+echo "$success files have been cached\n";
+echo "$errors errors occurred\n";
+```
+Be sure any unexpected error occurred and that all your templates in your template directory have been cached.
+
+Then use the same cache directory and template directory in production with the option upToDateCheck to ```false```to bypass the cache check and automatically use the cache version:
+```php
+$pug = new Pug(array(
+    'cache' => 'var/cache/pug',
+    'basedir' => 'path/to/pug/templates',
+    'upToDateCheck' => false,
+);
+$pug->render('path/to/pug/templates/my-page.pug');
+```
 
 ### Check requirements
 
