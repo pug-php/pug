@@ -51,16 +51,16 @@ class CommonUtils
     /**
      * Return true if the ending quote of the string is escaped.
      *
-     * @param object|array $anything
-     * @param string|int   $key|$method
-     * @param bool         $isMethod true if the second argument is a method
+     * @param object|array $anything    object or array (PHP >= 7) that contains a callable
+     * @param string|int   $key|$method key or method name
+     * @param bool         $isMethod    true if the second argument is a method
      *
      * @return string
      */
     public static function getGetter($anything, $key, $isMethod)
     {
         $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
-                CommonUtils::addDollarIfNeeded($anything) . ', ' .
+                static::addDollarIfNeeded($anything) . ', ' .
                 var_export($key, true) .
             ')';
         if ($isMethod && version_compare(PHP_VERSION, '7.0.0') < 0) {
