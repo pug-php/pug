@@ -3,10 +3,6 @@
         public function getWheels() {
             return 4;
         }
-        public function forEachWheel($text) {
-            return str_repeat($text, $this->getWheels());
-        }
     }
     $citroenAX = new Car()
 p=citroenAX.wheels
-p=citroenAX.forEachWheel('a')

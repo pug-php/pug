@@ -84,7 +84,7 @@ abstract class CompilerFacade extends ValuesCompiler
             ? $anything->$key
             : (method_exists($anything, $method = 'get' . ucfirst($key))
                 ? $anything->$method()
-                : (method_exists($anything, $key)
+                : (version_compare(PHP_VERSION, '7.0.0') >= 0 && method_exists($anything, $key)
                     ? function () use ($anything, $key) {
                         return call_user_func_array(array($anything, $key), func_get_args());
                     }

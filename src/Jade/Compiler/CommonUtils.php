@@ -57,16 +57,11 @@ class CommonUtils
      *
      * @return string
      */
-    public static function getGetter($anything, $key, $isMethod)
+    public static function getGetter($anything, $key)
     {
-        $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
+        return '\\Jade\\Compiler::getPropertyFromAnything(' .
                 static::addDollarIfNeeded($anything) . ', ' .
                 var_export($key, true) .
             ')';
-        if ($isMethod && version_compare(PHP_VERSION, '7.0.0') < 0) {
-            $var = 'call_user_func(' . $var . ', ';
-        }
-
-        return $var;
     }
 }
