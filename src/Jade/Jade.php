@@ -294,8 +294,14 @@ class Jade extends Keywords
     {
         $parser = new Parser($input, null, $this->options);
         $compiler = new Compiler($this->options, $this->filters);
+        $php = $compiler->compile($parser->parse());
+        if (version_compare(PHP_VERSION, '7.0.0') < 0) {
+            $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\(((?>[^()]+)|(?-2))*\\))/', function ($match) {
+                return 'call_user_func(' . $match[1] . ', ' . $match[4] . ')';
+            }, $php);
+        }
 
-        return $compiler->compile($parser->parse());
+        return $php;
     }
 
     /**

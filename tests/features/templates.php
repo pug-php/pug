@@ -7,8 +7,6 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
     static private $skipped = array(
         // Not supported in HHVM
         'xml' => 'hhvm',
-        // Not supported in PHP < 7
-        'method' => '<7',
 
         // Add here tests for future features not yet implemented
     );
@@ -26,9 +24,6 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
                 }
                 if (isset(self::$skipped[$name])) {
                     if (defined('HHVM_VERSION') && self::$skipped[$name] === 'hhvm') {
-                        continue;
-                    }
-                    if (version_compare(PHP_VERSION, '7.0.0') < 0 && self::$skipped[$name] === '<7') {
                         continue;
                     }
                 }
