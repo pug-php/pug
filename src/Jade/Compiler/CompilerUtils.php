@@ -52,9 +52,32 @@ abstract class CompilerUtils extends Indenter
         $var = ($match[0] === ',' ? ',' : '') . $match[1];
         foreach (explode('.', substr($match[2], 1)) as $name) {
             if (!empty($name)) {
-                $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
-                    static::addDollarIfNeeded($var) .
-                    ', ' . var_export($name, true) . ')';
+                $var = CommonUtils::getGetter($var, $name, false);
+            }
+        }
+
+        return $var;
+    }
+
+    /**
+     * Return PHP code to translate dot to object/array getter.
+     *
+     * @example foo.bar return $foo->bar (if foo is an object), or $foo["bar"] if it's an array.
+     *
+     * @param array $match regex match
+     *
+     * @return string
+     */
+    protected static function convertMethodPathCallback($match)
+    {
+        if (empty($match[1])) {
+            return $match[0];
+        }
+
+        $var = ($match[0] === ',' ? ',' : '') . $match[1];
+        foreach (explode('.', substr($match[2], 1)) as $name) {
+            if (!empty($name)) {
+                $var = CommonUtils::getGetter($var, $name, true);
             }
         }
 
@@ -71,11 +94,38 @@ abstract class CompilerUtils extends Indenter
      */
     protected static function convertVarPath($arg, $regexp = '/^%s|,%s/')
     {
+        $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)(?=\()';
+
+        $arg = preg_replace_callback(
+            str_replace('%s', $pattern, $regexp),
+            array(get_class(), 'convertMethodPathCallback'),
+            $arg
+        );
+
         $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
 
         return preg_replace_callback(
             str_replace('%s', $pattern, $regexp),
             array(get_class(), 'convertVarPathCallback'),
+            $arg
+        );
+    }
+
+    /**
+     * Replace method paths in a string.
+     *
+     * @param string $arg
+     * @param string $regexp
+     *
+     * @return string
+     */
+    protected static function convertMethodPath($arg, $regexp = '/^%s|,%s/')
+    {
+        $pattern = '\s*(\\${0,2}' . static::VARNAME . ')((\.' . static::VARNAME . ')*)';
+
+        return preg_replace_callback(
+            str_replace('%s', $pattern, $regexp),
+            array(get_class(), 'convertMethodPathCallback'),
             $arg
         );
     }

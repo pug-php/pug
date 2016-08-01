@@ -47,4 +47,26 @@ class CommonUtils
 
         return substr($end, 0, 1) === '\\' && strlen($end) & 1;
     }
+
+    /**
+     * Return true if the ending quote of the string is escaped.
+     *
+     * @param object|array $anything
+     * @param string|int   $key|$method
+     * @param bool         $isMethod true if the second argument is a method
+     *
+     * @return string
+     */
+    public static function getGetter($anything, $key, $isMethod)
+    {
+        $var = '\\Jade\\Compiler::getPropertyFromAnything(' .
+                CommonUtils::addDollarIfNeeded($anything) . ', ' .
+                var_export($key, true) .
+            ')';
+        if ($isMethod && version_compare(PHP_VERSION, '7.0.0') < 0) {
+            $var = 'call_user_func(' . $var . ', ';
+        }
+
+        return $var;
+    }
 }

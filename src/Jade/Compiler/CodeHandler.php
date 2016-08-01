@@ -83,7 +83,8 @@ class CodeHandler extends CompilerUtils
     protected function getVarname($separator)
     {
         // do not add $ if it is not like a variable
-        $varname = static::convertVarPath(substr($this->input, 0, $separator[1]), '/^%s/');
+        $method = $separator[0] === '(' ? 'convertMethodPath' : 'convertVarPath';
+        $varname = static::$method(substr($this->input, 0, $separator[1]), '/^%s/');
 
         return $separator[0] !== '(' && $varname !== '' && strstr('0123456789-+("\'$', substr($varname, 0, 1)) === false
             ? static::addDollarIfNeeded($varname)
