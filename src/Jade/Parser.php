@@ -9,16 +9,18 @@ class Parser
 {
     public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
 
-    protected $basedir;
-    protected $notFound;
-    protected $extension;
     protected $allowMixedIndent;
-    protected $textOnly = array('script', 'style');
-    protected $options = array();
+    protected $basedir;
+    protected $extending;
+    protected $extension;
+    protected $filename;
     protected $input;
     protected $lexer;
-    protected $filename;
-    protected $extending;
+    protected $notFound;
+    protected $options = array();
+    protected $preRender;
+    protected $textOnly = array('script', 'style');
+
     protected $blocks = array();
     protected $mixins = array();
     protected $contexts = array();
@@ -27,10 +29,11 @@ class Parser
     {
         $defaultOptions = array(
             'allowMixedIndent' => true,
-            'extension' => array('.pug', '.jade'),
-            'notFound' => null,
             'basedir' => null,
             'customKeywords' => array(),
+            'extension' => array('.pug', '.jade'),
+            'notFound' => null,
+            'preRender' => null,
         );
         foreach ($defaultOptions as $key => $default) {
             $this->$key = isset($options[$key]) ? $options[$key] : $default;
@@ -80,7 +83,12 @@ class Parser
     protected function getTemplateContents($path, $value = null)
     {
         if ($path !== null) {
-            return file_get_contents($path);
+            $contents = file_get_contents($path);
+            if (is_callable($this->preRender)) {
+                $contents = call_user_func($this->preRender, $contents);
+            }
+
+            return $contents;
         }
 
         $notFound = isset($this->options['notFound'])
@@ -103,6 +111,9 @@ class Parser
         }
 
         $this->input = preg_replace('`\r\n|\r`', "\n", $input);
+        if (is_callable($this->preRender)) {
+            $this->input = call_user_func($this->preRender, $this->input);
+        }
         $this->filename = $filename;
     }
 

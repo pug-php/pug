@@ -32,6 +32,8 @@ class Jade extends Keywords
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
         'phpSingleLine'      => false,
+        'postRender'         => null,
+        'preRender'          => null,
         'prettyprint'        => false,
         'restrictedScope'    => false,
         'singleQuote'        => false,
@@ -299,6 +301,10 @@ class Jade extends Keywords
             $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\(((?>[^()]+)|(?-2))*\\))/', function ($match) {
                 return 'call_user_func(' . $match[1] . ', ' . $match[4] . ')';
             }, $php);
+        }
+        $postRender = $this->getOption('postRender');
+        if (is_callable($postRender)) {
+            $php = call_user_func($postRender, $php);
         }
 
         return $php;
