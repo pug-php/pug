@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade;
+namespace Jade\Engine;
 
 /**
- * Class Jade\Keywords.
+ * Class Jade\Engine\Keywords.
  */
-abstract class Keywords
+abstract class Keywords extends Cache
 {
     protected function hasKeyword($keyword)
     {
