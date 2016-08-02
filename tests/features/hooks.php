@@ -17,6 +17,37 @@ class JadeHooksTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $html);
     }
 
+    public function testPreRenderIncludeAndExtend()
+    {
+        $pug = new Pug(array(
+            'basedir' => __DIR__ . '/../templates/auxiliary',
+            'preRender' => function ($pugCode) {
+                return str_replace(
+                    array('My Application', 'case 42'),
+                    array('Foobar', 'case 1138'),
+                    $pugCode
+                );
+            },
+        ));
+        $html = preg_replace('/\s/', '',$pug->render(
+            'extends /layout' . "\n" .
+            'block content' . "\n" .
+            '  include /world'
+        ));
+        $expected = preg_replace('/\s/', '',
+            '<html>' .
+            '  <head>' .
+            '    <title>Foobar</title>' .
+            '  </head>' .
+            '  <body>' .
+            '    <p>THX</p>' .
+            '  </body>' .
+            '</html>'
+        );
+
+        $this->assertSame($expected, $html);
+    }
+
     public function testPostRender()
     {
         $pug = new Pug(array(
