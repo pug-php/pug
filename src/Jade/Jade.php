@@ -2,9 +2,7 @@
 
 namespace Jade;
 
-use Jade\Compiler\CacheHelper;
-use Jade\Compiler\FilterHelper;
-use Jade\Parser\ExtensionsHelper;
+use Jade\Engine\Keywords;
 
 /**
  * Class Jade\Jade.
@@ -217,73 +215,6 @@ class Jade extends Keywords
     }
 
     /**
-     * Get main template file extension.
-     *
-     * @return string
-     */
-    public function getExtension()
-    {
-        $extensions = new ExtensionsHelper($this->getOption('extension'));
-
-        return $extensions->getFirst();
-    }
-
-    /**
-     * Get list of supported extensions.
-     *
-     * @return array
-     */
-    public function getExtensions()
-    {
-        $extensions = new ExtensionsHelper($this->getOption('extension'));
-
-        return $extensions->getExtensions();
-    }
-
-    /**
-     * Register / override new filter.
-     *
-     * @param string name
-     * @param callable filter
-     *
-     * @return $this
-     */
-    public function filter($name, $filter)
-    {
-        $this->filters[$name] = $filter;
-
-        return $this;
-    }
-
-    /**
-     * Check if a filter is registered.
-     *
-     * @param string name
-     *
-     * @return bool
-     */
-    public function hasFilter($name)
-    {
-        $helper = new FilterHelper($this->filters, $this->options['filterAutoLoad']);
-
-        return $helper->hasFilter($name);
-    }
-
-    /**
-     * Get a registered filter by name.
-     *
-     * @param string name
-     *
-     * @return callable
-     */
-    public function getFilter($name)
-    {
-        $helper = new FilterHelper($this->filters, $this->options['filterAutoLoad']);
-
-        return $helper->getFilter($name);
-    }
-
-    /**
      * Compile PHP code from a Pug input or a Pug file.
      *
      * @param string input
@@ -360,38 +291,6 @@ class Jade extends Keywords
         }
 
         return $this->options['stream'] . '://data;' . $input;
-    }
-
-    /**
-     * Get cached input/file a matching cache file exists.
-     * Else, render the input, cache it in a file and return it.
-     *
-     * @param string input
-     *
-     * @throws \InvalidArgumentException
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function cache($input)
-    {
-        $cache = new CacheHelper($this);
-
-        return $cache->cache($input);
-    }
-
-    /**
-     * Scan a directory recursively, compile them and save them into the cache directory.
-     *
-     * @param string $directory the directory to search in pug templates
-     *
-     * @return array count of cached files and error count
-     */
-    public function cacheDirectory($directory)
-    {
-        $cache = new CacheHelper($this);
-
-        return $cache->cacheDirectory($directory);
     }
 
     /**
