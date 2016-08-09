@@ -7,36 +7,33 @@ namespace Jade\Lexer;
  */
 class StringAttribute
 {
-    protected $state;
     protected $char;
 
-    public function __construct($state, $char)
+    public function __construct($char)
     {
-        $this->state = $state;
         $this->char = $char;
     }
 
-    public function parse(&$states, &$val, &$quote)
+    public function parse(AttributesState $states, &$val, &$quote)
     {
-        $state = $this->state;
-        switch ($state()) {
+        switch ($states->current()) {
             case 'key':
-                array_push($states, 'key char');
+                $states->push('key char');
                 break;
 
             case 'key char':
-                array_pop($states);
+                $states->pop();
                 break;
 
             case 'string':
                 if ($this->char === $quote) {
-                    array_pop($states);
+                    $states->pop();
                 }
                 $val .= $this->char;
                 break;
 
             default:
-                array_push($states, 'string');
+                $states->push('string');
                 $val .= $this->char;
                 $quote = $this->char;
                 break;
