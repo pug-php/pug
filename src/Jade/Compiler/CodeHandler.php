@@ -106,11 +106,14 @@ class CodeHandler extends CompilerUtils
         if ($quote) {
             ${is_null($value) ? 'key' : 'value'} .= $match[0];
             $consume($argument, $match[0]);
+
             return;
         }
+
         if (!is_null($value)) {
             throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
         }
+
         $key .= $match[1];
         $value = '';
         $consume($argument, $match[0]);
