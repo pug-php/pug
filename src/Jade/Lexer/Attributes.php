@@ -79,26 +79,9 @@ class Attributes
         return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
     }
 
-    /**
-     * @return object
-     */
-    public function parseWith($str)
+    protected function getParseFunction(&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser)
     {
-        $parser = $this;
-
-        $key = '';
-        $val = '';
-        $quote = '';
-        $states = array('key');
-        $escapedAttribute = '';
-        $previousChar = '';
-        $previousNonBlankChar = '';
-
-        $state = function () use (&$states) {
-            return $states[count($states) - 1];
-        };
-
-        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
+        return function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
             switch ($char) {
                 case ',':
                 case "\n":
@@ -196,6 +179,28 @@ class Attributes
                 $previousNonBlankChar = $char;
             }
         };
+    }
+
+    /**
+     * @return object
+     */
+    public function parseWith($str)
+    {
+        $parser = $this;
+
+        $key = '';
+        $val = '';
+        $quote = '';
+        $states = array('key');
+        $escapedAttribute = '';
+        $previousChar = '';
+        $previousNonBlankChar = '';
+
+        $state = function () use (&$states) {
+            return $states[count($states) - 1];
+        };
+
+        $parse = $this->getParseFunction($key, $val, $quote, $states, $escapedAttribute, $previousChar, $previousNonBlankChar, $state, $parser);
 
         for ($i = 0; $i < strlen($str); $i++) {
             $parse(substr($str, $i, 1), substr($str, $i + 1, 1));
