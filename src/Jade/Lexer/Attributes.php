@@ -79,6 +79,27 @@ class Attributes
         return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
     }
 
+    protected function parseEqual(&$states, $state, &$escapedAttribute, &$val, &$key, $char, $previousChar)
+    {
+        switch ($state()) {
+            case 'key char':
+                $key .= $char;
+                break;
+
+            case 'val':
+            case 'expr':
+            case 'array':
+            case 'string':
+            case 'object':
+                $val .= $char;
+                break;
+
+            default:
+                $escapedAttribute = '!' !== $previousChar;
+                array_push($states, 'val');
+        }
+    }
+
     protected function getParseFunction(&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser)
     {
         return function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
@@ -93,23 +114,7 @@ class Attributes
                     break;
 
                 case '=':
-                    switch ($state()) {
-                        case 'key char':
-                            $key .= $char;
-                            break;
-
-                        case 'val':
-                        case 'expr':
-                        case 'array':
-                        case 'string':
-                        case 'object':
-                            $val .= $char;
-                            break;
-
-                        default:
-                            $escapedAttribute = '!' !== $previousChar;
-                            array_push($states, 'val');
-                    }
+                    $this->parseEqual($states, $state, $escapedAttribute, $val, $key, $char, $previousChar);
                     break;
 
                 case '(':
