@@ -100,8 +100,43 @@ class Attributes
         }
     }
 
+    protected function parsePairs($states, $char, &$val)
+    {
+        switch ($char) {
+            case '(':
+                $states->pushFor('expr', 'val', 'expr');
+                break;
+
+            case ')':
+                $states->popFor('val', 'expr');
+                break;
+
+            case '{':
+                $states->pushFor('object', 'val');
+                break;
+
+            case '}':
+                $states->popFor('object');
+                break;
+
+            case '[':
+                $states->pushFor('array', 'val');
+                break;
+
+            default:
+                return false;
+        }
+        $val .= $char;
+
+        return true;
+    }
+
     public function parseChar($char, &$nextChar, &$key, &$val, &$quote, $states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar)
     {
+        if ($this->parsePairs($states, $char, $val)) {
+            return;
+        }
+
         switch ($char) {
             case ',':
             case "\n":
@@ -114,31 +149,6 @@ class Attributes
 
             case '=':
                 $this->parseEqual($states, $escapedAttribute, $val, $key, $char, $previousChar);
-                break;
-
-            case '(':
-                $states->pushFor('expr', 'val', 'expr');
-                $val .= $char;
-                break;
-
-            case ')':
-                $states->popFor('val', 'expr');
-                $val .= $char;
-                break;
-
-            case '{':
-                $states->pushFor('object', 'val');
-                $val .= $char;
-                break;
-
-            case '}':
-                $states->popFor('object');
-                $val .= $char;
-                break;
-
-            case '[':
-                $states->pushFor('array', 'val');
-                $val .= $char;
                 break;
 
             case ']':
