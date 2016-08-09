@@ -90,32 +90,42 @@ class CodeHandler extends CompilerUtils
             : $varname;
     }
 
+    protected function parseArrayString(&$argument, $match, $consume, &$quote, &$key, &$value)
+    {
+        $quote = $quote
+            ? CommonUtils::escapedEnd($match[1])
+                ? $quote
+                : null
+            : $match[2];
+        ${is_null($value) ? 'key' : 'value'} .= $match[0];
+        $consume($argument, $match[0]);
+    }
+
+    protected function parseArrayAssign(&$argument, $match, $consume, &$quote, &$key, &$value)
+    {
+        if ($quote) {
+            ${is_null($value) ? 'key' : 'value'} .= $match[0];
+            $consume($argument, $match[0]);
+            return;
+        }
+        if (!is_null($value)) {
+            throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
+        }
+        $key .= $match[1];
+        $value = '';
+        $consume($argument, $match[0]);
+    }
+
     protected function parseArrayElement(&$argument, $match, $consume, &$quote, &$key, &$value)
     {
         switch ($match[2]) {
             case '"':
             case "'":
-                $quote = $quote
-                    ? CommonUtils::escapedEnd($match[1])
-                        ? $quote
-                        : null
-                    : $match[2];
-                ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                $consume($argument, $match[0]);
+                $this->parseArrayString($argument, $match, $consume, $quote, $key, $value);
                 break;
             case ':':
             case '=>':
-                if ($quote) {
-                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                    $consume($argument, $match[0]);
-                    break;
-                }
-                if (!is_null($value)) {
-                    throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
-                }
-                $key .= $match[1];
-                $value = '';
-                $consume($argument, $match[0]);
+                $this->parseArrayAssign($argument, $match, $consume, $quote, $key, $value);
                 break;
             case ',':
                 ${is_null($value) ? 'key' : 'value'} .= $match[0];
