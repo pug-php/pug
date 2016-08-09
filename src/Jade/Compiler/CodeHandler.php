@@ -90,6 +90,40 @@ class CodeHandler extends CompilerUtils
             : $varname;
     }
 
+    protected function parseArrayElement(&$argument, $match, $consume, &$quote, &$key, &$value)
+    {
+        switch ($match[2]) {
+            case '"':
+            case "'":
+                $quote = $quote
+                    ? CommonUtils::escapedEnd($match[1])
+                        ? $quote
+                        : null
+                    : $match[2];
+                ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                $consume($argument, $match[0]);
+                break;
+            case ':':
+            case '=>':
+                if ($quote) {
+                    ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                    $consume($argument, $match[0]);
+                    break;
+                }
+                if (!is_null($value)) {
+                    throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
+                }
+                $key .= $match[1];
+                $value = '';
+                $consume($argument, $match[0]);
+                break;
+            case ',':
+                ${is_null($value) ? 'key' : 'value'} .= $match[0];
+                $consume($argument, $match[0]);
+                break;
+        }
+    }
+
     protected function parseArray($input, $subCodeHandler)
     {
         $output = array();
@@ -101,36 +135,7 @@ class CodeHandler extends CompilerUtils
             $argument = ltrim($argument, '$');
             $quote = null;
             while (preg_match('/^(.*?)(=>|[\'",:])/', $argument, $match)) {
-                switch ($match[2]) {
-                    case '"':
-                    case "'":
-                        $quote = $quote
-                            ? CommonUtils::escapedEnd($match[1])
-                                ? $quote
-                                : null
-                            : $match[2];
-                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                        $consume($argument, $match[0]);
-                        break;
-                    case ':':
-                    case '=>':
-                        if ($quote) {
-                            ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                            $consume($argument, $match[0]);
-                            break;
-                        }
-                        if (!is_null($value)) {
-                            throw new \ErrorException('Parse error on ' . substr($argument, strlen($match[1])), 15);
-                        }
-                        $key .= $match[1];
-                        $value = '';
-                        $consume($argument, $match[0]);
-                        break;
-                    case ',':
-                        ${is_null($value) ? 'key' : 'value'} .= $match[0];
-                        $consume($argument, $match[0]);
-                        break;
-                }
+                $this->parseArrayElement($argument, $match, $consume, $quote, $key, $value);
             }
             ${is_null($value) ? 'key' : 'value'} .= $argument;
             $addToOutput();
