@@ -60,33 +60,17 @@ class Tag extends Attributes
     {
         $nodes = $this->block->nodes;
 
-        $isInline = function ($node) use (&$isInline) {
-            if (isset($node->isBlock) && $node->isBlock) {
-                foreach ($node->nodes as $n) {
-                    if (!$isInline($n)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            return
-                (isset($node->isText) && $node->isText) ||
-                (method_exists($node, 'isInline') && $node->isInline());
-        };
-
         if (count($nodes) === 0) {
             return true;
         }
 
         if (count($nodes) === 1) {
-            return $isInline($nodes[0]);
+            return $nodes[0]->isInline();
         }
 
         $ret = true;
-        foreach ($nodes as $n) {
-            if (!$isInline($n)) {
+        foreach ($nodes as $node) {
+            if (!$node->isInline()) {
                 $ret = false;
                 break;
             }
@@ -94,11 +78,11 @@ class Tag extends Attributes
 
         if ($ret) {
             $prev = null;
-            foreach ($nodes as $k => $n) {
-                if ($prev !== null && isset($nodes[$prev]->isText) && $nodes[$prev]->isText && isset($n->isText) && $n->isText) {
+            foreach ($nodes as $key => $node) {
+                if ($prev !== null && isset($nodes[$prev]->isText) && $nodes[$prev]->isText && isset($node->isText) && $node->isText) {
                     return false;
                 }
-                $prev = $k;
+                $prev = $key;
             }
 
             return true;
