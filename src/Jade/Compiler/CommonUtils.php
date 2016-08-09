@@ -23,10 +23,14 @@ class CommonUtils
         if ($call === 'undefined') {
             return 'null';
         }
+        $firstChar = substr($call, 0, 1);
         if (
-            !in_array(substr($call, 0, 1), array('$', '\\')) &&
+            !in_array($firstChar, array('$', '\\')) &&
             !preg_match('#^(?:' . CompilerConfig::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call) &&
-            preg_match('#^' . CompilerConfig::VARNAME . '#', $call)
+            (
+                preg_match('#^' . CompilerConfig::VARNAME . '#', $call) ||
+                $firstChar === '_'
+            )
         ) {
             $call = '$' . $call;
         }
