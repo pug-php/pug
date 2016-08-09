@@ -76,11 +76,27 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \ErrorException
-     * @expectedExceptionCode 8
+     * @expectedExceptionCode 34
      */
     public function testUnexpectedValue()
     {
         get_php_code('a(href="foo""bar")');
+    }
+
+    public function testUnexpectedValuePreviousException()
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('Not compatible with HHVM');
+        }
+
+        $code = null;
+        try {
+            get_php_code('a(href="foo""bar")');
+        } catch (\Exception $e) {
+            $code = $e->getPrevious()->getCode();
+        }
+
+        $this->assertSame(8, $code, 'Expected previous exception code should be 8 for UnexpectedValue.');
     }
 
     /**

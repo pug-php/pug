@@ -16,9 +16,9 @@ class Attributes
         $this->token = $token;
     }
 
-    public function parseSpace(&$states, $state, $parser, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
+    protected function parseSpace($states, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
     {
-        switch ($state()) {
+        switch ($states->current()) {
             case 'expr':
             case 'array':
             case 'string':
@@ -37,7 +37,7 @@ class Attributes
                     $val .= $char;
                     break;
                 }
-                array_push($states, 'key');
+                $states->push('key');
                 $val = trim($val);
                 $key = trim($key);
 
@@ -50,7 +50,7 @@ class Attributes
                 );
                 $this->token->escaped[$key] = $escapedAttribute;
 
-                $this->token->attributes[$key] = ('' === $val) ? true : $parser->interpolate($val);
+                $this->token->attributes[$key] = ('' === $val) ? true : $this->interpolate($val);
 
                 $key = '';
                 $val = '';
@@ -79,6 +79,116 @@ class Attributes
         return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
     }
 
+    protected function parseEqual($states, &$escapedAttribute, &$val, &$key, $char, $previousChar)
+    {
+        switch ($states->current()) {
+            case 'key char':
+                $key .= $char;
+                break;
+
+            case 'val':
+            case 'expr':
+            case 'array':
+            case 'string':
+            case 'object':
+                $val .= $char;
+                break;
+
+            default:
+                $escapedAttribute = '!' !== $previousChar;
+                $states->push('val');
+        }
+    }
+
+    protected function parsePairs($states, $char, &$val)
+    {
+        switch ($char) {
+            case '(':
+                $states->pushFor('expr', 'val', 'expr');
+                break;
+
+            case ')':
+                $states->popFor('val', 'expr');
+                break;
+
+            case '{':
+                $states->pushFor('object', 'val');
+                break;
+
+            case '}':
+                $states->popFor('object');
+                break;
+
+            case '[':
+                $states->pushFor('array', 'val');
+                break;
+
+            default:
+                return false;
+        }
+        $val .= $char;
+
+        return true;
+    }
+
+    public function parseChar($char, &$nextChar, &$key, &$val, &$quote, $states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar)
+    {
+        if ($this->parsePairs($states, $char, $val)) {
+            return;
+        }
+
+        switch ($char) {
+            case ',':
+            case "\n":
+            case "\t":
+            case ' ':
+                if (!$this->parseSpace($states, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
+                    return;
+                }
+                break;
+
+            case '=':
+                $this->parseEqual($states, $escapedAttribute, $val, $key, $char, $previousChar);
+                break;
+
+            case ']':
+                $states->popFor('array');
+                $val .= $char;
+                break;
+
+            case '"':
+            case "'":
+                if (!CommonUtils::escapedEnd($val)) {
+                    $stringParser = new StringAttribute($char);
+                    $stringParser->parse($states, $val, $quote);
+                    break;
+                }
+
+            default:
+                switch ($states->current()) {
+                    case 'key':
+                    case 'key char':
+                        $key .= $char;
+                        break;
+
+                    default:
+                        $val .= $char;
+                        break;
+                }
+        }
+    }
+
+    protected function getParseFunction(&$key, &$val, &$quote, $states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $parser)
+    {
+        return function ($char, $nextChar = '') use (&$key, &$val, &$quote, $states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $parser) {
+            $parser->parseChar($char, $nextChar, $key, $val, $quote, $states, $escapedAttribute, $previousChar, $previousNonBlankChar);
+            $previousChar = $char;
+            if (trim($char) !== '') {
+                $previousNonBlankChar = $char;
+            }
+        };
+    }
+
     /**
      * @return object
      */
@@ -89,113 +199,12 @@ class Attributes
         $key = '';
         $val = '';
         $quote = '';
-        $states = array('key');
+        $states = new AttributesState();
         $escapedAttribute = '';
         $previousChar = '';
         $previousNonBlankChar = '';
 
-        $state = function () use (&$states) {
-            return $states[count($states) - 1];
-        };
-
-        $parse = function ($char, $nextChar = '') use (&$key, &$val, &$quote, &$states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar, $state, $parser) {
-            switch ($char) {
-                case ',':
-                case "\n":
-                case "\t":
-                case ' ':
-                    if (!$parser->parseSpace($states, $state, $parser, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
-                        return;
-                    }
-                    break;
-
-                case '=':
-                    switch ($state()) {
-                        case 'key char':
-                            $key .= $char;
-                            break;
-
-                        case 'val':
-                        case 'expr':
-                        case 'array':
-                        case 'string':
-                        case 'object':
-                            $val .= $char;
-                            break;
-
-                        default:
-                            $escapedAttribute = '!' !== $previousChar;
-                            array_push($states, 'val');
-                    }
-                    break;
-
-                case '(':
-                    if ($state() === 'val' || $state() === 'expr') {
-                        array_push($states, 'expr');
-                    }
-                    $val .= $char;
-                    break;
-
-                case ')':
-                    if ($state() === 'val' || $state() === 'expr') {
-                        array_pop($states);
-                    }
-                    $val .= $char;
-                    break;
-
-                case '{':
-                    if ($state() === 'val') {
-                        array_push($states, 'object');
-                    }
-                    $val .= $char;
-                    break;
-
-                case '}':
-                    if ($state() === 'object') {
-                        array_pop($states);
-                    }
-                    $val .= $char;
-                    break;
-
-                case '[':
-                    if ($state() === 'val') {
-                        array_push($states, 'array');
-                    }
-                    $val .= $char;
-                    break;
-
-                case ']':
-                    if ($state() === 'array') {
-                        array_pop($states);
-                    }
-                    $val .= $char;
-                    break;
-
-                case '"':
-                case "'":
-                    if (!CommonUtils::escapedEnd($val)) {
-                        $stringParser = new StringAttribute($state, $char);
-                        $stringParser->parse($states, $val, $quote);
-                        break;
-                    }
-
-                default:
-                    switch ($state()) {
-                        case 'key':
-                        case 'key char':
-                            $key .= $char;
-                            break;
-
-                        default:
-                            $val .= $char;
-                            break;
-                    }
-            }
-            $previousChar = $char;
-            if (trim($char) !== '') {
-                $previousNonBlankChar = $char;
-            }
-        };
+        $parse = $this->getParseFunction($key, $val, $quote, $states, $escapedAttribute, $previousChar, $previousNonBlankChar, $parser);
 
         for ($i = 0; $i < strlen($str); $i++) {
             $parse(substr($str, $i, 1), substr($str, $i + 1, 1));

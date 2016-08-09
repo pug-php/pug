@@ -226,7 +226,7 @@ class Jade extends Keywords
     public function compile($input)
     {
         $parser = new Parser($input, null, $this->options);
-        $compiler = new Compiler($this->options, $this->filters);
+        $compiler = new Compiler($this->options, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
             $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\(((?>[^()]+)|(?-2))*\\))/', function ($match) {

@@ -55,7 +55,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \ErrorException
-     * @expectedExceptionCode 33
+     * @expectedExceptionCode 34
      */
     public function testBadReturn()
     {
@@ -64,6 +64,25 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
             return 32;
         });
         $jade->render('foo');
+    }
+
+    public function testBadReturnPreviousException()
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('Not compatible with HHVM');
+        }
+
+        try {
+            $jade = new Jade();
+            $jade->addKeyword('foo', function () {
+                return 32;
+            });
+            $jade->render('foo');
+        } catch (\Exception $e) {
+            $code = $e->getPrevious()->getCode();
+        }
+
+        $this->assertSame(33, $code, 'Expected previous exception code should be 8 for BadReturn.');
     }
 
     public function testBadCustomKeywordOptionType()
