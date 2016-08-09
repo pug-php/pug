@@ -112,12 +112,23 @@ abstract class MixinVisitor extends CodeVisitor
         );
     }
 
-    protected function renderClosureClosing($code)
+    protected function renderClosureClosing($code, $arguments = array())
     {
         if (!$this->restrictedScope) {
+            $arguments = array_filter(array_map(function ($argument) {
+                $argument = explode('=', $argument);
+                $argument = trim($argument[0]);
+
+                return substr($argument, 0, 1) === '$'
+                    ? substr($argument, 1)
+                    : false;
+            }, array_slice($arguments, 1)));
+            $exception = count($arguments)
+                ? ' && !in_array($key, ' . var_export($arguments, true) . ')'
+                : '';
             $this->buffer($this->createCode(
                 'foreach ($__varHandler as $key => &$val) {' .
-                'if ($key !== \'__varHandler\') {' .
+                'if ($key !== \'__varHandler\'' . $exception . ') {' .
                 '$val = ${$key};' .
                 '}' .
                 '}'
@@ -219,7 +230,7 @@ abstract class MixinVisitor extends CodeVisitor
         $this->indents++;
         $this->visit($block);
         $this->indents--;
-        $this->renderClosureClosing($this->allowMixinOverride ? '};' : '} }');
+        $this->renderClosureClosing($this->allowMixinOverride ? '};' : '} }', $arguments);
     }
 
     /**
