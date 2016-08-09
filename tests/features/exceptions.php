@@ -85,6 +85,10 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
 
     public function testUnexpectedValuePreviousException()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('Not compatible with HHVM');
+        }
+
         $code = null;
         try {
             get_php_code('a(href="foo""bar")');

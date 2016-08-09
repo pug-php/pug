@@ -68,6 +68,10 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testBadReturnPreviousException()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('Not compatible with HHVM');
+        }
+
         try {
             $jade = new Jade();
             $jade->addKeyword('foo', function () {
