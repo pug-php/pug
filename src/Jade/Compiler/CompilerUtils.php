@@ -164,6 +164,8 @@ abstract class CompilerUtils extends Indenter
      */
     protected function escapeIfNeeded($escaped, $value)
     {
+        $value = rtrim($value, ';');
+
         if ($escaped) {
             return $this->createCode(static::ESCAPED, $value, var_export($this->quote, true));
         }
