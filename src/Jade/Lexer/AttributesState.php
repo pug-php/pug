@@ -2,19 +2,12 @@
 
 namespace Jade\Lexer;
 
-use Jade\Compiler\CommonUtils;
-
 /**
  * Class Jade\Lexer\AttributesState.
  */
 class AttributesState
 {
     protected $states = array('key');
-
-    public function __construct()
-    {
-        # code...
-    }
 
     public function current()
     {
