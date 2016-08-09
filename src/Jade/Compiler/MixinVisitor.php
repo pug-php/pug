@@ -116,13 +116,13 @@ abstract class MixinVisitor extends CodeVisitor
     {
         if (!$this->restrictedScope) {
             $arguments = array_filter(array_map(function ($argument) {
-                    $argument = explode('=', $argument);
-                    $argument = trim($argument[0]);
+                $argument = explode('=', $argument);
+                $argument = trim($argument[0]);
 
-                    return substr($argument, 0, 1) === '$'
-                        ? substr($argument, 1)
-                        : false;
-                }, array_slice($arguments, 1)));
+                return substr($argument, 0, 1) === '$'
+                    ? substr($argument, 1)
+                    : false;
+            }, array_slice($arguments, 1)));
             $exception = count($arguments)
                 ? ' && !in_array($key, ' . var_export($arguments, true) . ')'
                 : '';
