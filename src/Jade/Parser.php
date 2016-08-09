@@ -117,6 +117,11 @@ class Parser
         $this->filename = $filename;
     }
 
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
     /**
      * Get a parser with the same settings.
      *
@@ -181,7 +186,7 @@ class Parser
             try {
                 $ast = $parser->parse();
             } catch (\Exception $e) {
-                throw new ParserException($parser->filename . ' (' . $block->line . ') : ' . $e->getMessage(), 23, $e);
+                throw new ParserException($parser->getFilename() . ' (' . $block->line . ') : ' . $e->getMessage(), 23, $e);
             }
             $this->context();
 

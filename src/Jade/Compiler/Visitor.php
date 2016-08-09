@@ -31,10 +31,28 @@ abstract class Visitor extends KeywordsCompiler
     {
         $fqn = get_class($node);
         $parts = explode('\\', $fqn);
-        $name = end($parts);
-        $method = 'visit' . ucfirst(strtolower($name));
+        $name = strtolower(end($parts));
+        $method = 'visit' . ucfirst($name);
 
-        return $this->$method($node);
+        try {
+            return $this->$method($node);
+        } catch (\ErrorException $e) {
+            if (!in_array($e->getCode(), array(8, 33))) {
+                throw $e;
+            }
+
+            throw new \ErrorException(
+                'Error on the ' . $name .
+                (isset($node->name) ? ' "' . $node->name . '"' : '') .
+                ($this->filename ? ' in ' . $this->filename : '') .
+                ' line ' . $node->line . ":\n" . $e->getMessage(),
+                34,
+                1,
+                __FILE__,
+                __LINE__,
+                $e
+            );
+        }
     }
 
     /**

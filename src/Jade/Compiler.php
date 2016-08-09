@@ -77,13 +77,19 @@ class Compiler extends MixinVisitor
     protected $quote;
 
     /**
+     * @var string
+     */
+    protected $filename;
+
+    /**
      * @param array/Jade $options
      * @param array      $filters
      */
-    public function __construct($options = array(), array $filters = array())
+    public function __construct($options = array(), array $filters = array(), $filename = null)
     {
         $this->options = $this->setOptions($options);
         $this->filters = $filters;
+        $this->filename = $filename;
     }
 
     /**

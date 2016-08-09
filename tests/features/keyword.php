@@ -55,7 +55,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \ErrorException
-     * @expectedExceptionCode 33
+     * @expectedExceptionCode 34
      */
     public function testBadReturn()
     {
@@ -64,6 +64,23 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
             return 32;
         });
         $jade->render('foo');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 33
+     */
+    public function testBadReturnPreviousException()
+    {
+        try {
+            $jade = new Jade();
+            $jade->addKeyword('foo', function () {
+                return 32;
+            });
+            $jade->render('foo');
+        } catch (\Exception $e) {
+            throw $e->getPrevious();
+        }
     }
 
     public function testBadCustomKeywordOptionType()
