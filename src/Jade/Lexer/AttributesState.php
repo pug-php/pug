@@ -14,7 +14,7 @@ class AttributesState
         return $this->states[count($this->states) - 1];
     }
 
-    public function is()
+    protected function isIn()
     {
         return in_array($this->current(), func_get_args());
     }
@@ -31,14 +31,14 @@ class AttributesState
 
     public function popFor()
     {
-        if (call_user_func_array(array($this, 'is'), func_get_args())) {
+        if (call_user_func_array(array($this, 'isIn'), func_get_args())) {
             $this->pop();
         }
     }
 
     public function pushFor($value)
     {
-        if (call_user_func_array(array($this, 'is'), array_slice(func_get_args(), 1))) {
+        if (call_user_func_array(array($this, 'isIn'), array_slice(func_get_args(), 1))) {
             $this->push($value);
         }
     }
