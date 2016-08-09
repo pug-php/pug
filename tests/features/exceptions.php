@@ -83,17 +83,16 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
         get_php_code('a(href="foo""bar")');
     }
 
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 8
-     */
     public function testUnexpectedValuePreviousException()
     {
+        $code = null;
         try {
             get_php_code('a(href="foo""bar")');
         } catch (\Exception $e) {
-            throw $e->getPrevious();
+            $code = $e->getPrevious()->getCode();
         }
+
+        $this->assertSame(8, $code, 'Expected previous exception code should be 8 for UnexpectedValue.');
     }
 
     /**

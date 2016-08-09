@@ -66,10 +66,6 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
         $jade->render('foo');
     }
 
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 33
-     */
     public function testBadReturnPreviousException()
     {
         try {
@@ -79,8 +75,10 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
             });
             $jade->render('foo');
         } catch (\Exception $e) {
-            throw $e->getPrevious();
+            $code = $e->getPrevious()->getCode();
         }
+
+        $this->assertSame(33, $code, 'Expected previous exception code should be 8 for BadReturn.');
     }
 
     public function testBadCustomKeywordOptionType()
