@@ -116,6 +116,10 @@ class Attributes
                 $states->pushFor('array', 'val');
                 break;
 
+            case ']':
+                $states->popFor('array');
+                break;
+
             default:
                 return false;
         }
@@ -142,20 +146,12 @@ class Attributes
                 $this->parseEqual($states, $escapedAttribute, $val, $key, $char, $previousChar);
                 break;
 
-            case ']':
-                $states->popFor('array');
-                $val .= $char;
-                break;
-
-            case '"':
-            case "'":
-                if (!CommonUtils::escapedEnd($val)) {
+            default:
+                if (($char === '"' || $char === "'") && !CommonUtils::escapedEnd($val)) {
                     $stringParser = new StringAttribute($char);
                     $stringParser->parse($states, $val, $quote);
                     break;
                 }
-
-            default:
                 ${in_array($states->current(), array('key', 'key char')) ? 'key' : 'val'} .= $char;
         }
     }
