@@ -54,7 +54,7 @@ class SubCodeHandler
         };
     }
 
-    protected function handleNestedExpression(&$separators, &$result)
+    protected function handleNestedExpression(&$result)
     {
         $handleRecursion = $this->handleRecursion($result);
         $name = $this->name;
@@ -74,13 +74,12 @@ class SubCodeHandler
 
     protected function scanSeparators(&$separators, &$result)
     {
-        $handleNestedExpression = $this->handleNestedExpression($separators, $result);
+        $handleNested = $this->handleNestedExpression($result);
 
-        return function (&$arguments, $open, $close) use (&$separators, $handleNestedExpression) {
+        return function (&$arguments, $open, $close) use (&$separators, $handleNested) {
             $count = 1;
 
             do {
-                // reset start
                 $start = current($separators);
 
                 do {
@@ -94,8 +93,7 @@ class SubCodeHandler
                     }
                 } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
 
-                $handleNestedExpression($arguments, $start, current($separators));
-
+                $handleNested($arguments, $start, current($separators));
             } while ($curr !== false && $count > 0);
 
             return $count;
