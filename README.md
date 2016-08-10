@@ -219,8 +219,8 @@ if ($missings) {
 
 ## Contributing
 
-All contributions are welcome, please report any bug or issue you had at https://github.com/pug-php/pug/issues
+All contributions are welcome, for any bug, issue or merge request (except for secutiry issues) please [refer to CONTRIBUTING.md](CONTRIBUTING.md)
 
-You can also send pull-request to https://github.com/pug-php/pug/pulls
+## Security
 
-Please add some tests with your pull-requests, for example a pug file and the expected HTML file in /tests/templates
+Please report any security issue or risk by emailing pug@selfbuild.fr. Please don't disclose security bugs publicly until they have been handled by us.
