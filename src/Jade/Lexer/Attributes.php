@@ -30,7 +30,7 @@ class Attributes
         ) {
             $val .= $char;
 
-            return true;
+            return;
         }
 
         $states->push('key');
@@ -38,7 +38,7 @@ class Attributes
         $key = trim($key);
 
         if (empty($key)) {
-            return false;
+            return;
         }
 
         $key = preg_replace(
@@ -50,8 +50,6 @@ class Attributes
 
         $key = '';
         $val = '';
-
-        return true;
     }
 
     protected function replaceInterpolationsInStrings($match)
@@ -137,9 +135,7 @@ class Attributes
             case "\n":
             case "\t":
             case ' ':
-                if (!$this->parseSpace($states, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
-                    return;
-                }
+                $this->parseSpace($states, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar);
                 break;
 
             case '=':
@@ -160,16 +156,7 @@ class Attributes
                 }
 
             default:
-                switch ($states->current()) {
-                    case 'key':
-                    case 'key char':
-                        $key .= $char;
-                        break;
-
-                    default:
-                        $val .= $char;
-                        break;
-                }
+                ${in_array($states->current(), array('key', 'key char')) ? 'key' : 'val'} .= $char;
         }
     }
 
