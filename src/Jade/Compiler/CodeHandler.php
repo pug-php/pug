@@ -157,10 +157,59 @@ class CodeHandler extends CompilerUtils
         return 'array(' . implode(', ', $output) . ')';
     }
 
+    protected function parseSeparator($sep, &$separators, &$result, &$varname, $handleCodeInbetween, $handleRecursion, $subCodeHandler, $innerName)
+    {
+        $var = "\$__" . $this->name;
+
+        switch ($sep[0]) {
+            // translate the javascript's obj.attr into php's obj->attr or obj['attr']
+            /*
+            case '.':
+                $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
+                    $var, $varname, $varname, $innerName, $varname, $innerName
+                );
+                $varname = $var;
+                break;
+            //*/
+
+            // funcall
+            case '(':
+                $arguments = $handleCodeInbetween();
+                $call = $varname . '(' . implode(', ', $arguments) . ')';
+                $call = static::addDollarIfNeeded($call);
+                $varname = $var;
+                array_push($result, "{$var}={$call}");
+                break;
+
+            case '[':
+                if (preg_match('/[a-zA-Z0-9\\\\_\\x7f-\\xff]$/', $varname)) {
+                    $varname .= $sep[0] . $innerName;
+                    break;
+                }
+            case '{':
+                $varname .= $this->parseArray($handleCodeInbetween(), $subCodeHandler);
+                break;
+
+            case '=':
+                if (preg_match('/^[[:space:]]*$/', $innerName)) {
+                    next($separators);
+                    $arguments = $handleCodeInbetween();
+                    $varname .= '=' . implode($arguments);
+                    break;
+                }
+                $varname .= '=' . $handleRecursion(array($sep, end($separators)));
+                break;
+
+            default:
+                if (($innerName !== false && $innerName !== '') || $sep[0] !== ')') {
+                    $varname .= $sep[0] . $innerName;
+                }
+                break;
+        }
+    }
+
     protected function parseBetweenSeparators()
     {
-        $input = $this->input;
-        $name = $this->name;
         $separators = $this->separators;
 
         // needs to be public because of the closure $handleRecursion
@@ -168,7 +217,7 @@ class CodeHandler extends CompilerUtils
 
         $varname = $this->getVarname($separators[0]);
 
-        $subCodeHandler = new SubCodeHandler($this, $input, $name);
+        $subCodeHandler = new SubCodeHandler($this, $this->input, $this->name);
         $getMiddleString = $subCodeHandler->getMiddleString();
         $handleRecursion = $subCodeHandler->handleRecursion($result);
         $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
@@ -181,52 +230,7 @@ class CodeHandler extends CompilerUtils
 
             $innerName = $getMiddleString($sep, $getNext(key($separators)));
 
-            $var = "\$__{$name}";
-            switch ($sep[0]) {
-                // translate the javascript's obj.attr into php's obj->attr or obj['attr']
-                /*
-                case '.':
-                    $result[] = sprintf("%s=is_array(%s)?%s['%s']:%s->%s",
-                        $var, $varname, $varname, $innerName, $varname, $innerName
-                    );
-                    $varname = $var;
-                    break;
-                //*/
-
-                // funcall
-                case '(':
-                    $arguments = $handleCodeInbetween();
-                    $call = $varname . '(' . implode(', ', $arguments) . ')';
-                    $call = static::addDollarIfNeeded($call);
-                    $varname = $var;
-                    array_push($result, "{$var}={$call}");
-                    break;
-
-                case '[':
-                    if (preg_match('/[a-zA-Z0-9\\\\_\\x7f-\\xff]$/', $varname)) {
-                        $varname .= $sep[0] . $innerName;
-                        break;
-                    }
-                case '{':
-                    $varname .= $this->parseArray($handleCodeInbetween(), $subCodeHandler);
-                    break;
-
-                case '=':
-                    if (preg_match('/^[[:space:]]*$/', $innerName)) {
-                        next($separators);
-                        $arguments = $handleCodeInbetween();
-                        $varname .= '=' . implode($arguments);
-                        break;
-                    }
-                    $varname .= '=' . $handleRecursion(array($sep, end($separators)));
-                    break;
-
-                default:
-                    if (($innerName !== false && $innerName !== '') || $sep[0] !== ')') {
-                        $varname .= $sep[0] . $innerName;
-                    }
-                    break;
-            }
+            $this->parseSeparator($sep, $separators, $result, $varname, $handleCodeInbetween, $handleRecursion, $subCodeHandler, $innerName);
 
             next($separators);
         }
