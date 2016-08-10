@@ -554,9 +554,7 @@ class Parser
     {
         $block = new Nodes\Block();
         $block->line = $this->line();
-        if (!$this->expect('indent')) {
-            throw new \ErrorException('Invalid indentation, you can use tabs or spaces but not both', 20);
-        }
+        $this->expect('indent');
 
         while ($this->peekType() !== 'outdent') {
             if ($this->peekType() === 'newline') {

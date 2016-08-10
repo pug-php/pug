@@ -396,6 +396,19 @@ p(class=$foo)=$bar
     }
 
     /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 25
+     */
+    public function testAllowMixedIndentDisabledSpacesTabTextAfterTab()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n\t\t" . 'i Hi' . "\np\n    \t" . 'i Hi');
+    }
+
+    /**
      * Static includeNotFound is deprecated, use the notFound option instead.
      *
      * @expectedException \InvalidArgumentException
