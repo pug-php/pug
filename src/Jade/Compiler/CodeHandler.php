@@ -175,13 +175,9 @@ class CodeHandler extends CompilerUtils
         $getNext = $subCodeHandler->getNext($separators);
 
         // using next() ourselves so that we can advance the array pointer inside inner loops
-        while ($sep = current($separators)) {
-            // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag
+        while (($sep = current($separators)) && $sep[0] !== null) {
+            // $sep[0] - the separator string due to PREG_SPLIT_OFFSET_CAPTURE flag or null if end of string
             // $sep[1] - the offset due to PREG_SPLIT_OFFSET_CAPTURE
-
-            if ($sep[0] === null) {
-                break;
-            } // end of string
 
             $innerName = $getMiddleString($sep, $getNext(key($separators)));
 
