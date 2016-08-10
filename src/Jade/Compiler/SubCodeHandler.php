@@ -54,12 +54,29 @@ class SubCodeHandler
         };
     }
 
-    protected function scanSeparators(&$separators, &$result)
+    protected function handleNestedExpression(&$separators, &$result)
     {
         $handleRecursion = $this->handleRecursion($result);
         $name = $this->name;
 
-        return function (&$arguments, $open, $close) use (&$separators, $name, $handleRecursion) {
+        return function (&$arguments, $start, $end) use ($name, $handleRecursion) {
+            if ($end !== false && $start[1] !== $end[1]) {
+                array_push(
+                    $arguments,
+                    $handleRecursion(
+                        array($start, $end),
+                        $name * 10 + count($arguments)
+                    )
+                );
+            }
+        };
+    }
+
+    protected function scanSeparators(&$separators, &$result)
+    {
+        $handleNestedExpression = $this->handleNestedExpression($separators, $result);
+
+        return function (&$arguments, $open, $close) use (&$separators, $handleNestedExpression) {
             $count = 1;
 
             do {
@@ -77,14 +94,8 @@ class SubCodeHandler
                     }
                 } while ($curr[0] !== null && $count > 0 && $curr[0] !== ',');
 
-                $end = current($separators);
+                $handleNestedExpression($arguments, $start, current($separators));
 
-                if ($end !== false && $start[1] !== $end[1]) {
-                    $tmpName = $name * 10 + count($arguments);
-                    $arg = $handleRecursion(array($start, $end), $tmpName);
-
-                    array_push($arguments, $arg);
-                }
             } while ($curr !== false && $count > 0);
 
             return $count;
