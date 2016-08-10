@@ -18,45 +18,38 @@ class Attributes
 
     protected function parseSpace($states, $escapedAttribute, &$val, &$key, $char, $previousNonBlankChar, $nextChar)
     {
-        switch ($states->current()) {
-            case 'expr':
-            case 'array':
-            case 'string':
-            case 'object':
-                $val .= $char;
-                break;
+        if (
+            in_array($states->current(), array('expr', 'array', 'string', 'object')) ||
+            (
+                ($char === ' ' || $char === "\t") &&
+                (
+                    !preg_match('/^[a-zA-Z0-9_\\x7f-\\xff"\'\\]\\)\\}]$/', $previousNonBlankChar) ||
+                    !preg_match('/^[a-zA-Z0-9_]$/', $nextChar)
+                )
+            )
+        ) {
+            $val .= $char;
 
-            default:
-                if (
-                    ($char === ' ' || $char === "\t") &&
-                    (
-                        !preg_match('/^[a-zA-Z0-9_\\x7f-\\xff"\'\\]\\)\\}]$/', $previousNonBlankChar) ||
-                        !preg_match('/^[a-zA-Z0-9_]$/', $nextChar)
-                    )
-                ) {
-                    $val .= $char;
-                    break;
-                }
-                $states->push('key');
-                $val = trim($val);
-                $key = trim($key);
-
-                if (empty($key)) {
-                    return false;
-                }
-
-                $key = preg_replace(
-                    array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
-                );
-                $this->token->escaped[$key] = $escapedAttribute;
-
-                $this->token->attributes[$key] = ('' === $val) ? true : $this->interpolate($val);
-
-                $key = '';
-                $val = '';
+            return;
         }
 
-        return true;
+        $states->push('key');
+        $val = trim($val);
+        $key = trim($key);
+
+        if (empty($key)) {
+            return;
+        }
+
+        $key = preg_replace(
+            array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
+        );
+        $this->token->escaped[$key] = $escapedAttribute;
+
+        $this->token->attributes[$key] = ('' === $val) ? true : $this->interpolate($val);
+
+        $key = '';
+        $val = '';
     }
 
     protected function replaceInterpolationsInStrings($match)
@@ -142,9 +135,7 @@ class Attributes
             case "\n":
             case "\t":
             case ' ':
-                if (!$this->parseSpace($states, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar)) {
-                    return;
-                }
+                $this->parseSpace($states, $escapedAttribute, $val, $key, $char, $previousNonBlankChar, $nextChar);
                 break;
 
             case '=':
@@ -165,16 +156,7 @@ class Attributes
                 }
 
             default:
-                switch ($states->current()) {
-                    case 'key':
-                    case 'key char':
-                        $key .= $char;
-                        break;
-
-                    default:
-                        $val .= $char;
-                        break;
-                }
+                ${in_array($states->current(), array('key', 'key char')) ? 'key' : 'val'} .= $char;
         }
     }
 

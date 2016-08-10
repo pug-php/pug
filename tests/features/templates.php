@@ -70,4 +70,23 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
     }
+
+    public function testSpacesRender()
+    {
+        $pug = new Pug(array(
+            'prettyprint' => false,
+        ));
+
+        $html = $pug->render("i a\ni b");
+
+        $this->assertSame('<i>a</i><i>b</i>', $html);
+
+        $html = $pug->render("i a\n=' '\ni b");
+
+        $this->assertSame('<i>a</i> <i>b</i>', $html);
+
+        $html = $pug->render("p\n  | #[i a] #[i b]");
+
+        $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
+    }
 }

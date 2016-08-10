@@ -319,8 +319,13 @@ p(class=$foo)=$bar
         $jade = new Jade(array(
             'allowMixedIndent' => true,
         ));
-        $actual = $jade->render('p' . "\n\t    " . 'i Hi');
-        $expected = '<p><i>Hi</i></p>';
+        $actual = $jade->render('p' . "\n\t    " . 'i Hi' . "\n    \t" . 'i Ho');
+        $expected = '<p><i>Hi</i><i>Ho</i></p>';
+
+        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
+
+        $actual = $jade->render('p' . "\n    \t" . 'i Hi' . "\n\t    " . 'i Ho');
+        $expected = '<p><i>Hi</i><i>Ho</i></p>';
 
         $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
     }
@@ -329,13 +334,78 @@ p(class=$foo)=$bar
      * @expectedException \ErrorException
      * @expectedExceptionCode 20
      */
-    public function testAllowMixedIndentDisabled()
+    public function testAllowMixedIndentDisabledTabSpaces()
     {
         $jade = new Jade(array(
             'allowMixedIndent' => false,
         ));
 
         $jade->render('p' . "\n\t    " . 'i Hi');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 20
+     */
+    public function testAllowMixedIndentDisabledSpacesTab()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n    \t" . 'i Hi');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 20
+     */
+    public function testAllowMixedIndentDisabledSpacesTabAfterSpaces()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n        " . 'i Hi' . "\n    \t" . 'i Hi');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 25
+     */
+    public function testAllowMixedIndentDisabledSpacesAfterTab()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n\t" . 'i Hi' . "\n    " . 'i Hi');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 25
+     */
+    public function testAllowMixedIndentDisabledSpacesTextAfterTab()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n\t" . 'i Hi' . "\np.\n    " . 'Hi');
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionCode 25
+     */
+    public function testAllowMixedIndentDisabledSpacesTabTextAfterTab()
+    {
+        $jade = new Jade(array(
+            'allowMixedIndent' => false,
+        ));
+
+        $jade->render('p' . "\n\t\t" . 'i Hi' . "\np\n    \t" . 'i Hi');
     }
 
     /**

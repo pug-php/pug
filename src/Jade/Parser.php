@@ -172,8 +172,8 @@ class Parser
         $block = new Nodes\Block();
         $block->line = $this->line();
 
-        while ($this->peek()->type !== 'eos') {
-            if ($this->peek()->type === 'newline') {
+        while ($this->peekType() !== 'eos') {
+            if ($this->peekType() === 'newline') {
                 $this->advance();
                 continue;
             }
@@ -202,19 +202,19 @@ class Parser
 
     protected function expect($type)
     {
-        if ($this->peek()->type === $type) {
+        if ($this->peekType() === $type) {
             return $this->lexer->advance();
         }
 
         $lineNumber = $this->line();
         $lines = explode("\n", $this->input);
         $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
-        throw new \ErrorException("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peek()->type, $lineNumber, $lineString) . "\n", 24);
+        throw new \ErrorException("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peekType(), $lineNumber, $lineString) . "\n", 24);
     }
 
     protected function accept($type)
     {
-        if ($this->peek()->type === $type) {
+        if ($this->peekType() === $type) {
             return $this->advance();
         }
     }
@@ -223,13 +223,13 @@ class Parser
     {
         $_types = array('tag', 'mixin', 'block', 'case', 'when', 'default', 'extends', 'include', 'doctype', 'filter', 'comment', 'text', 'each', 'customKeyword', 'code', 'call', 'interpolation');
 
-        if (in_array($this->peek()->type, $_types)) {
-            $_method = 'parse' . ucfirst($this->peek()->type);
+        if (in_array($this->peekType(), $_types)) {
+            $_method = 'parse' . ucfirst($this->peekType());
 
             return $this->$_method();
         }
 
-        switch ($this->peek()->type) {
+        switch ($this->peekType()) {
             case 'yield':
                 $this->advance();
                 $block = new Nodes\Block();
@@ -246,7 +246,7 @@ class Parser
                 return $this->parseExpression();
 
             default:
-                throw new \ErrorException($this->filename . ' (' . $this->line() . ') : Unexpected token "' . $this->peek()->type . '"', 25);
+                throw new \ErrorException($this->filename . ' (' . $this->line() . ') : Unexpected token "' . $this->peekType() . '"', 25);
         }
     }
 
@@ -267,7 +267,7 @@ class Parser
 
     protected function parseBlockExpansion()
     {
-        if (':' === $this->peek()->type) {
+        if (':' === $this->peekType()) {
             $this->advance();
 
             return new Nodes\Block($this->parseExpression());
@@ -360,7 +360,7 @@ class Parser
         $node = new Nodes\Each($token->code, $token->value, $token->key);
         $node->line = $this->line();
         $node->block = $this->block();
-        if ($this->peek()->type === 'code' && $this->peek()->value === 'else') {
+        if ($this->peekType() === 'code' && $this->peek()->value === 'else') {
             $this->advance();
             $node->alternative = $this->block();
         }
@@ -373,7 +373,7 @@ class Parser
         $token = $this->expect('customKeyword');
         $node = new Nodes\CustomKeyword($token->value, $token->args);
         $node->line = $this->line();
-        if ('indent' === $this->peek()->type) {
+        if ('indent' === $this->peekType()) {
             $node->block = $this->block();
         }
 
@@ -401,7 +401,7 @@ class Parser
         $mode = $block->mode;
         $name = trim($block->value);
 
-        $block = 'indent' === $this->peek()->type
+        $block = 'indent' === $this->peekType()
             ? $this->block()
             : new Nodes\Block(empty($name)
                 ? new Nodes\MixinBlock()
@@ -461,7 +461,7 @@ class Parser
         $this->context();
         $ast->filename = $path;
 
-        if ('indent' === $this->peek()->type && method_exists($ast, 'includeBlock')) {
+        if ('indent' === $this->peekType() && method_exists($ast, 'includeBlock')) {
             $block = $ast->includeBlock();
             if (is_object($block)) {
                 $handler = count($block->nodes) === 1 && isset($block->nodes[0]->block)
@@ -501,7 +501,7 @@ class Parser
         $arguments = $token->arguments;
 
         // definition
-        if ('indent' === $this->peek()->type) {
+        if ('indent' === $this->peekType()) {
             $mixin = new Nodes\Mixin($name, $arguments, $this->block(), false);
             $this->mixins[$name] = $mixin;
 
@@ -524,8 +524,8 @@ class Parser
 
         $indent = str_repeat(' ', $spaces - $this->_spaces + 1);
 
-        while ($this->peek()->type != 'outdent') {
-            switch ($this->peek()->type) {
+        while ($this->peekType() != 'outdent') {
+            switch ($this->peekType()) {
                 case 'newline':
                     $this->lexer->advance();
                     break;
@@ -556,8 +556,8 @@ class Parser
         $block->line = $this->line();
         $this->expect('indent');
 
-        while ($this->peek()->type !== 'outdent') {
-            if ($this->peek()->type === 'newline') {
+        while ($this->peekType() !== 'outdent') {
+            if ($this->peekType() === 'newline') {
                 $this->lexer->advance();
                 continue;
             }
@@ -639,12 +639,19 @@ class Parser
         $block->push($text);
     }
 
+    protected function peekType()
+    {
+        return ($peek = $this->peek())
+            ? $peek->type
+            : null;
+    }
+
     protected function tag($tag)
     {
         $tag->line = $this->line();
 
         while (true) {
-            switch ($type = $this->peek()->type) {
+            switch ($type = $this->peekType()) {
                 case 'id':
                     $token = $this->advance();
                     $peek = $this->peek();
@@ -698,7 +705,7 @@ class Parser
             $this->advance();
         }
 
-        switch ($this->peek()->type) {
+        switch ($this->peekType()) {
             case 'text':
                 $this->parseInlineTags($tag->block, $this->expect('text')->value);
                 break;
@@ -714,7 +721,7 @@ class Parser
                 break;
         }
 
-        while ('newline' === $this->peek()->type) {
+        while ('newline' === $this->peekType()) {
             $this->advance();
         }
 
@@ -734,7 +741,7 @@ class Parser
             }
         }
 
-        if ('indent' === $this->peek()->type) {
+        if ('indent' === $this->peekType()) {
             if ($tag->textOnly) {
                 $this->lexer->pipeless = true;
                 $tag->block = $this->parseTextBlock();
