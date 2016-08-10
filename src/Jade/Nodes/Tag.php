@@ -56,38 +56,34 @@ class Tag extends Attributes
         return in_array($this->name, static::$whiteSpacesTags);
     }
 
-    public function canInline()
+    public function hasConsecutiveTextNodes()
     {
         $nodes = $this->block->nodes;
+        $prev = null;
 
-        if (count($nodes) === 0) {
-            return true;
+        foreach ($nodes as $key => $node) {
+            if ($prev !== null && isset($nodes[$prev]->isText) && $nodes[$prev]->isText && isset($node->isText) && $node->isText) {
+                return false;
+            }
+            $prev = $key;
         }
 
-        if (count($nodes) === 1) {
-            return $nodes[0]->isInline();
-        }
+        return true;
+    }
 
-        $ret = true;
-        foreach ($nodes as $node) {
+    public function hasOnlyInlineNodes()
+    {
+        foreach ($this->block->nodes as $node) {
             if (!$node->isInline()) {
-                $ret = false;
-                break;
+                return false;
             }
         }
 
-        if ($ret) {
-            $prev = null;
-            foreach ($nodes as $key => $node) {
-                if ($prev !== null && isset($nodes[$prev]->isText) && $nodes[$prev]->isText && isset($node->isText) && $node->isText) {
-                    return false;
-                }
-                $prev = $key;
-            }
+        return true;
+    }
 
-            return true;
-        }
-
-        return false;
+    public function canInline()
+    {
+        return $this->hasOnlyInlineNodes() && $this->hasConsecutiveTextNodes();
     }
 }
