@@ -77,16 +77,16 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
             'prettyprint' => false,
         ));
 
-        $html = $pug->render("span a\nspan b");
+        $html = $pug->render("i a\ni b");
 
-        $this->assertSame('<span>a</span><span>b</span>', $html);
+        $this->assertSame('<i>a</i><i>b</i>', $html);
 
-        $html = $pug->render("span a\n=' '\nspan b");
+        $html = $pug->render("i a\n=' '\ni b");
 
-        $this->assertSame('<span>a</span> <span>b</span>', $html);
+        $this->assertSame('<i>a</i> <i>b</i>', $html);
 
-        $html = $pug->render("#[span a] #[span b]");
+        $html = $pug->render("p\n  | #[i a] #[i b]");
 
-        $this->assertSame('<span>a</span> <span>b</span>', $html);
+        $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
     }
 }
