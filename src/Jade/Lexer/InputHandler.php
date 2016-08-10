@@ -61,25 +61,40 @@ abstract class InputHandler
             : $code;
     }
 
-    protected function getNextIndent()
+    protected function testIndent($indent)
     {
-        if (isset($this->identRE)) {
-            return preg_match($this->identRE, $this->input, $matches) ? $matches : null;
+        if (!preg_match('/^' . $indent . '/', substr($this->input, 1), $matches)) {
+            return;
         }
 
-        $indent = "/^\n(" . ($this->allowMixedIndent ? '[\t ]*' : '\t*') . ')/';
-        $found = preg_match($indent, $this->input, $matches);
-
-        if ($found && strlen($matches[1]) === 0) {
-            $indent = "/^\n( *)/";
-            $found = preg_match($indent, $this->input, $matches);
-        }
-
-        if ($found && strlen($matches[1]) !== 0) {
+        if (!isset($this->identRE)) {
             $this->identRE = $indent;
         }
 
-        return $found ? $matches : null;
+        return array(
+            "\n" . $matches[0],
+            $matches[0],
+        );
+    }
+
+    protected function getNextIndent()
+    {
+        if (substr($this->input, 0, 1) !== "\n") {
+            return;
+        }
+
+        $indents = isset($this->identRE)
+            ? array($this->identRE)
+            : ($this->allowMixedIndent
+                ? array('[\\t ]*')
+                : array('\\t+', ' *')
+            );
+
+        foreach ($indents as $indent) {
+            if ($matches = $this->testIndent($indent)) {
+                return $matches;
+            }
+        }
     }
 
     protected function getWhiteSpacesTokens($indents)
