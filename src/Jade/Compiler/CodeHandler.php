@@ -157,9 +157,24 @@ class CodeHandler extends CompilerUtils
         return 'array(' . implode(', ', $output) . ')';
     }
 
-    protected function parseSeparator($sep, &$separators, &$result, &$varname, $handleCodeInbetween, $handleRecursion, $subCodeHandler, $innerName)
+    protected function parseEqual($sep, &$separators, &$result, $innerName, $subCodeHandler)
     {
-        $var = "\$__" . $this->name;
+        if (preg_match('/^[[:space:]]*$/', $innerName)) {
+            next($separators);
+            $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
+
+            return implode($handleCodeInbetween());
+        }
+
+        $handleRecursion = $subCodeHandler->handleRecursion($result);
+
+        return $handleRecursion(array($sep, end($separators)));
+    }
+
+    protected function parseSeparator($sep, &$separators, &$result, &$varname, $subCodeHandler, $innerName)
+    {
+        $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
+        $var = '$__' . $this->name;
 
         switch ($sep[0]) {
             // translate the javascript's obj.attr into php's obj->attr or obj['attr']
@@ -191,13 +206,7 @@ class CodeHandler extends CompilerUtils
                 break;
 
             case '=':
-                if (preg_match('/^[[:space:]]*$/', $innerName)) {
-                    next($separators);
-                    $arguments = $handleCodeInbetween();
-                    $varname .= '=' . implode($arguments);
-                    break;
-                }
-                $varname .= '=' . $handleRecursion(array($sep, end($separators)));
+                $varname .= '=' . $this->parseEqual($sep, $separators, $result, $innerName, $subCodeHandler);
                 break;
 
             default:
@@ -212,15 +221,12 @@ class CodeHandler extends CompilerUtils
     {
         $separators = $this->separators;
 
-        // needs to be public because of the closure $handleRecursion
         $result = array();
 
         $varname = $this->getVarname($separators[0]);
 
         $subCodeHandler = new SubCodeHandler($this, $this->input, $this->name);
         $getMiddleString = $subCodeHandler->getMiddleString();
-        $handleRecursion = $subCodeHandler->handleRecursion($result);
-        $handleCodeInbetween = $subCodeHandler->handleCodeInbetween($separators, $result);
         $getNext = $subCodeHandler->getNext($separators);
 
         // using next() ourselves so that we can advance the array pointer inside inner loops
@@ -230,7 +236,7 @@ class CodeHandler extends CompilerUtils
 
             $innerName = $getMiddleString($sep, $getNext(key($separators)));
 
-            $this->parseSeparator($sep, $separators, $result, $varname, $handleCodeInbetween, $handleRecursion, $subCodeHandler, $innerName);
+            $this->parseSeparator($sep, $separators, $result, $varname, $subCodeHandler, $innerName);
 
             next($separators);
         }
