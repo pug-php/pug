@@ -19,7 +19,6 @@ class Parser
     protected $notFound;
     protected $options = array();
     protected $preRender;
-    protected $textOnly = array('script', 'style');
 
     protected $blocks = array();
     protected $mixins = array();
@@ -443,7 +442,7 @@ class Parser
         $path = $this->getTemplatePath($includeValue);
 
         if ($path && !$this->hasValidTemplateExtension($path)) {
-            return new Nodes\Literal(file_get_contents($path));
+            return new Nodes\Text(file_get_contents($path));
         }
 
         $string = $this->getTemplateContents($path, $includeValue);
@@ -723,10 +722,6 @@ class Parser
 
         while ('newline' === $this->peekType()) {
             $this->advance();
-        }
-
-        if (in_array($tag->name, $this->textOnly)) {
-            $tag->textOnly = true;
         }
 
         if ('script' === $tag->name) {
