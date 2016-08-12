@@ -24,25 +24,17 @@ abstract class CompilerConfig
     //      [ \t]* - we ignore spaces at the beginning and at the end: useful for the recursive pattern bellow
     //
     //      the first part of the unamed subpattern matches strings:
-    //          (['"]) - matches a string opening, inside a group because we use a backreference
-    //
-    //          unamed group to catch the string content:
-    //              \\.     - matches any escaped character, including ', " and \
-    //              [^'"\\] - matches any character, except the ones that have a meaning
-    //
-    //          \g{-1}  - relative backreference - http://codesaway.info/RegExPlus/backreferences.html#relative
-    //                  - used for two reasons:
-    //                      1. reference the same character used to open the string
-    //                      2. the pattern is used twice inside the array regex, so cant used absolute or named
+    //          "(?:\\.|[^"\\])*"  - quoted string with "
+    //          '(?:\\.|[^'\\])*'  - quoted string with '
     //
     //      the rest of the pattern:
-    //          true|false|null - language constants
-    //          0-9             - number constants
-    //          \b\b            - matches a empty string: useful for a empty array
+    //          true|false|null  - language constants
+    //          0-9              - number constants
+    //          \b\b             - matches a empty string: useful for a empty array
     /**
      * @const string
      */
-    const CONSTANT_VALUE = '[ \t]*(([\'"])(?:\\\\.|[^\'"\\\\])*\g{-1}|true|false|null|undefined|[0-9]+|\b\b)[ \t]*';
+    const CONSTANT_VALUE = '[ \t]*("(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|true|false|null|undefined|[0-9]+|\b\b)[ \t]*';
 
     /**
      * @const string

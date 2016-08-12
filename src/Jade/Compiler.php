@@ -286,11 +286,15 @@ class Compiler extends MixinVisitor
             // @todo: handleCode() in concat
             $part[0] = trim($part[0]);
 
-            if (preg_match('/^(([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\2)(.*)$/', $part[0], $match)) {
-                if (strlen(trim($match[3]))) {
-                    throw new \ErrorException('Unexpected value: ' . $match[3], 8);
+            if (preg_match('/^("(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\')(.*)$/', $part[0], $match)) {
+                $quote = substr($match[1], 0, 1);
+
+                if (strlen(trim($match[2]))) {
+                    throw new \ErrorException('Unexpected value: ' . $match[2], 8);
                 }
+
                 array_push($resultsString, $match[1]);
+
                 continue;
             }
 
@@ -377,7 +381,7 @@ class Compiler extends MixinVisitor
 
     protected function handleArgumentValue($arg)
     {
-        if (preg_match('/^([\'"]).*?\1/', $arg)) {
+        if (preg_match('/^"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'/', $arg)) {
             return $this->handleString(trim($arg));
         }
 
