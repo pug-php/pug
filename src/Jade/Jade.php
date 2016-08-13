@@ -58,15 +58,6 @@ class Jade extends Keywords
     protected $sharedVariables = array();
 
     /**
-     * Indicate if we registered the stream wrapper,
-     * in order to not ask the stream registry each time
-     * We need to render a template.
-     *
-     * @var bool
-     */
-    protected static $wrappersRegistered = array();
-
-    /**
      * Merge local options with constructor $options.
      *
      * @param array $options
@@ -285,8 +276,7 @@ class Jade extends Keywords
             throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.', 4);
         }
 
-        if (!in_array($this->options['stream'], static::$wrappersRegistered)) {
-            static::$wrappersRegistered[] = $this->options['stream'];
+        if (!in_array($this->options['stream'], stream_get_wrappers())) {
             stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
         }
 
