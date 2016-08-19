@@ -239,6 +239,13 @@ class Compiler extends MixinVisitor
         return preg_match('/^' . static::CONSTANT_VALUE . '$/', trim($str));
     }
 
+    protected function handleCodePhp($input, $name = '')
+    {
+        $handler = new CodeHandler($input, $name);
+
+        return $handler->parse();
+    }
+
     /**
      * @param        $input
      * @param string $name
@@ -249,9 +256,8 @@ class Compiler extends MixinVisitor
      */
     public function handleCode($input, $name = '')
     {
-        $handler = new CodeHandler($input, $name);
-
-        return $handler->parse();
+        return $this->handleCodePhp($input, $name);
+        return $this->phpizeExpression('handleCodePhp', $input, $name);
     }
 
     /**
@@ -349,21 +355,20 @@ class Compiler extends MixinVisitor
         $variables = array();
 
         foreach ($arguments as $arg) {
+            // $arg = $this->phpizeExpression('convertVarPath', $arg);
             $arg = static::convertVarPath($arg);
 
             // add dollar if missing
             if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
-                $arg = static::addDollarIfNeeded($arg);
+                $arg = $this->phpizeExpression('addDollarIfNeeded', $arg);
+                // $arg = static::addDollarIfNeeded($arg);
             }
 
-            // shortcut for constants
-            if ($this->isConstant($arg)) {
-                array_push($variables, $arg);
-                continue;
-            }
-
-            // if we have a php variable assume that the string is good php
-            if (strpos('{[', substr($arg, 0, 1)) === false && preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)) {
+            // if we have a php constant or variable assume that the string is good php
+            if ($this->isConstant($arg) || (
+                strpos('{[', substr($arg, 0, 1)) === false &&
+                preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)
+            )) {
                 array_push($variables, $arg);
                 continue;
             }

@@ -60,6 +60,7 @@ class CodeHandler extends CompilerUtils
 
         if (count($this->separators) === 0) {
             if (strstr('0123456789-+("\'$', substr($this->input, 0, 1)) === false) {
+                //$this->input = $this->phpizeExpression('addDollarIfNeeded', $this->input);
                 $this->input = static::addDollarIfNeeded($this->input);
             }
 

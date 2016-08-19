@@ -11,10 +11,10 @@ class JadeTest extends Jade
         return $this->compilationsCount;
     }
 
-    public function compile($input)
+    public function compile($input, $filename = null)
     {
         $this->compilationsCount++;
-        return parent::compile($input);
+        return parent::compile($input, $filename);
     }
 }
 
