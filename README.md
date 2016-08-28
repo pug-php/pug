@@ -31,11 +31,13 @@ composer install
 
 ### Pug in your favorite framework
 
-Phalcon: https://github.com/kylekatarnls/jade-phalcon
+Phalcon: https://github.com/pug-php/pug-phalcon
 
-Symfony: https://github.com/kylekatarnls/jade-symfony
+Symfony: https://github.com/pug-php/pug-symfony
 
-CodeIgniter: https://github.com/kylekatarnls/ci-jade
+Laravel: https://github.com/BKWLD/laravel-pug
+
+CodeIgniter: https://github.com/pug-php/ci-pug
 
 ### Pug options
 
