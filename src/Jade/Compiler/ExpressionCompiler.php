@@ -77,6 +77,6 @@ class ExpressionCompiler extends MixinVisitor
                 return $this->jsToPhp($method, $arguments);
         }
 
-        return call_user_func_array(array(get_class(), $method), $arguments);
+        return call_user_func_array(array(get_called_class(), $method), $arguments);
     }
 }

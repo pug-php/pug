@@ -32,12 +32,10 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $compiler = new ExpressionCompilerTester(array(
             'expressionLanguage' => 'js',
         ));
-        error_reporting(E_ALL ^ E_NOTICE);
-        $actual = trim($compiler->callPhpizeExpression('handleArgumentValue', 'array(1)'));
+        $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'array(1)'));
         $this->assertSame('array(1)', $actual);
-        $actual = trim($compiler->callPhpizeExpression('handleArgumentValue', 'a'));
+        $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('$a', $actual);
-        error_reporting(-1);
 
     }
 
@@ -47,9 +45,17 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
             'expressionLanguage' => 'php',
         ));
 
-        error_reporting(E_ALL ^ E_NOTICE);
-        $actual = trim($compiler->callPhpizeExpression('handleArgumentValue', 'a'));
-        error_reporting(-1);
+        $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('a', $actual);
+    }
+
+    public function testAutoExpression()
+    {
+        $compiler = new ExpressionCompilerTester(array(
+            'expressionLanguage' => 3.123,
+        ));
+
+        $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
+        $this->assertSame('$a', $actual);
     }
 }
