@@ -273,7 +273,6 @@ class Compiler extends MixinVisitor
     public function handleCode($input, $name = '')
     {
         return $this->handleCodePhp($input, $name);
-        return $this->phpizeExpression('handleCodePhp', $input, $name);
     }
 
     /**

@@ -10,7 +10,7 @@ use Jade\Engine\Options;
 class Jade extends Options
 {
     /**
-     * expressionLanguage option values
+     * expressionLanguage option values.
      */
     const EXP_AUTO = 0;
     const EXP_JS = 1;
