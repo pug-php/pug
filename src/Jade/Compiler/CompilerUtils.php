@@ -198,13 +198,12 @@ abstract class CompilerUtils extends Indenter
             return $arguments[0];
         }
 
-        static $jsPhpize = null;
-        if ($jsPhpize === null) {
-            $jsPhpize = new JsPhpize();
+        if ($this->jsPhpize === null) {
+            $this->jsPhpize = new JsPhpize();
         }
 
         try {
-            return rtrim(trim(call_user_func_array(array($jsPhpize, 'compileCode'), $arguments)), ';');
+            return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0], true)), ';');
         } catch (\Exception $e) {
             throw new \Exception("Error Processing Expression\n" . implode("\n", $arguments) . "\n" . $e->getMessage(), 1, $e);
         }

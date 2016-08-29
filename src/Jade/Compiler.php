@@ -70,6 +70,10 @@ class Compiler extends MixinVisitor
      * @var Jade
      */
     protected $jade = null;
+    /**
+     * @var JsPhpize
+     */
+    protected $jsPhpize = null;
 
     /**
      * @var string
@@ -92,6 +96,14 @@ class Compiler extends MixinVisitor
         $this->filename = $filename;
     }
 
+    protected function setOptionType($option, $type)
+    {
+        $types = explode('|', $type);
+        if (!in_array(gettype($this->$option), $types)) {
+            settype($this->$option, $types[0]);
+        }
+    }
+
     /**
      * Get a jade engine reference or an options array and return needed options.
      *
@@ -109,6 +121,7 @@ class Compiler extends MixinVisitor
             'filterAutoLoad' => 'boolean',
             'restrictedScope' => 'boolean',
             'indentSize' => 'integer',
+            'expressionLanguage' => 'string|integer',
             'indentChar' => 'string',
             'customKeywords' => 'array',
         );
@@ -120,7 +133,7 @@ class Compiler extends MixinVisitor
             foreach ($optionTypes as $option => $type) {
                 $this->$option = $this->jade->getOption($option);
                 $options[$option] = $this->$option;
-                settype($this->$option, $type);
+                $this->setOptionType($option, $type);
             }
 
             $this->quote = $this->jade->getOption('singleQuote') ? '\'' : '"';
@@ -130,7 +143,7 @@ class Compiler extends MixinVisitor
 
         foreach (array_intersect_key($optionTypes, $options) as $option => $type) {
             $this->$option = $options[$option];
-            settype($this->$option, $type);
+            $this->setOptionType($option, $type);
         }
 
         $this->quote = isset($options['singleQuote']) && $options['singleQuote'] ? '\'' : '"';
@@ -190,6 +203,9 @@ class Compiler extends MixinVisitor
         $this->visit($node);
 
         $code = ltrim(implode('', $this->buffer));
+        if ($this->jsPhpize) {
+            $code = $this->createCode($this->jsPhpize->compileDependencies()) . $code;
+        }
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if ($this->phpSingleLine) {
@@ -355,13 +371,16 @@ class Compiler extends MixinVisitor
         $variables = array();
 
         foreach ($arguments as $arg) {
-            // $arg = $this->phpizeExpression('convertVarPath', $arg);
-            $arg = static::convertVarPath($arg);
+            if ($this->getExpressionLanguage() === Jade::EXP_JS) {
+                $arg = $this->getPhpCodeFromJs(null, array($arg));
+            } else {
+                $arg = static::convertVarPath($arg);
 
-            // add dollar if missing
-            if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
-                $arg = $this->phpizeExpression('addDollarIfNeeded', $arg);
-                // $arg = static::addDollarIfNeeded($arg);
+                // add dollar if missing
+                if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
+                    $arg = static::addDollarIfNeeded($arg);
+                    // $arg = static::addDollarIfNeeded($arg);
+                }
             }
 
             // if we have a php constant or variable assume that the string is good php
@@ -373,7 +392,9 @@ class Compiler extends MixinVisitor
                 continue;
             }
 
-            $code = $this->handleArgumentValue($arg);
+            if ($this->getExpressionLanguage() !== Jade::EXP_JS) {
+                $code = $this->handleArgumentValue($arg);
+            }
 
             $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));
@@ -445,14 +466,9 @@ class Compiler extends MixinVisitor
      */
     protected function createCode($code)
     {
-        if (func_num_args() > 1) {
-            $arguments = func_get_args();
-            array_shift($arguments); // remove $code
-            $statements = $this->apply('createStatements', $arguments);
-
-            return $this->createPhpBlock($code, $statements);
-        }
-
-        return $this->createPhpBlock($code);
+        return $this->createPhpBlock($code, func_num_args() > 1
+            ? $this->apply('createStatements', array_slice(func_get_args(), 1))
+            : null
+        );
     }
 }

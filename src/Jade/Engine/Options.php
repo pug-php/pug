@@ -16,7 +16,7 @@ class Options extends Keywords
         'cache'              => null,
         'classAttribute'     => null,
         'customKeywords'     => array(),
-        'expressionLanguage' => 'js',
+        'expressionLanguage' => 'auto',
         'extension'          => array('.pug', '.jade'),
         'filterAutoLoad'     => true,
         'indentChar'         => ' ',
