@@ -8,6 +8,13 @@ define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __D
 
 define('IGNORE_INDENT', true);
 
+if (!function_exists('_')) {
+    function _($value)
+    {
+        return $value;
+    }
+}
+
 function setup_autoload()
 {
     // quick setup for autoloading
