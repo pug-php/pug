@@ -3,13 +3,13 @@
 namespace Jade;
 
 use Jade\Compiler\CodeHandler;
-use Jade\Compiler\MixinVisitor;
+use Jade\Compiler\ExpressionCompiler;
 use Jade\Parser\Exception as ParserException;
 
 /**
  * Class Jade Compiler.
  */
-class Compiler extends MixinVisitor
+class Compiler extends ExpressionCompiler
 {
     /**
      * Constants and configuration in Compiler/CompilerConfig.php.
@@ -70,10 +70,6 @@ class Compiler extends MixinVisitor
      * @var Jade
      */
     protected $jade = null;
-    /**
-     * @var JsPhpize
-     */
-    protected $jsPhpize = null;
 
     /**
      * @var string
@@ -370,17 +366,7 @@ class Compiler extends MixinVisitor
         $variables = array();
 
         foreach ($arguments as $arg) {
-            if ($this->getExpressionLanguage() === Jade::EXP_JS) {
-                $arg = $this->getPhpCodeFromJs(null, array($arg));
-            } else {
-                $arg = static::convertVarPath($arg);
-
-                // add dollar if missing
-                if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
-                    $arg = static::addDollarIfNeeded($arg);
-                    // $arg = static::addDollarIfNeeded($arg);
-                }
-            }
+            $arg = $this->getArgumentExpression($arg);
 
             // if we have a php constant or variable assume that the string is good php
             if ($this->isConstant($arg) || (
