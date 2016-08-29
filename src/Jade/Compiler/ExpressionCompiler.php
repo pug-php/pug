@@ -56,11 +56,7 @@ class ExpressionCompiler extends MixinVisitor
             $this->jsPhpize = new JsPhpize();
         }
 
-        try {
-            return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0], true)), ';');
-        } catch (\Exception $e) {
-            throw new \Exception("Error Processing Expression\n" . implode("\n", $arguments) . "\n" . $e->getMessage(), 1, $e);
-        }
+        return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0], true)), ';');
     }
 
     protected function jsToPhp($method, $arguments)
@@ -76,7 +72,7 @@ class ExpressionCompiler extends MixinVisitor
 
         switch ($this->getExpressionLanguage()) {
             case Jade::EXP_PHP:
-                return $expression;
+                return $arguments[0];
             case Jade::EXP_JS:
                 return $this->jsToPhp($method, $arguments);
         }
