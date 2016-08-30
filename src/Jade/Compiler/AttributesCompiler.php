@@ -36,7 +36,7 @@ abstract class AttributesCompiler extends CompilerFacade
 
     protected function getAndAttributeCode($attr, &$classes, &$classesCheck)
     {
-        $addClasses = '""';
+        $addClasses = '" "';
         if (count($classes) || count($classesCheck)) {
             foreach ($classes as &$value) {
                 $value = var_export($value, true);

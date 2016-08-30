@@ -3,13 +3,13 @@
 namespace Jade;
 
 use Jade\Compiler\CodeHandler;
-use Jade\Compiler\ExpressionCompiler;
+use Jade\Compiler\Options;
 use Jade\Parser\Exception as ParserException;
 
 /**
  * Class Jade Compiler.
  */
-class Compiler extends ExpressionCompiler
+class Compiler extends Options
 {
     /**
      * Constants and configuration in Compiler/CompilerConfig.php.
@@ -32,40 +32,8 @@ class Compiler extends ExpressionCompiler
     /**
      * @var array
      */
-    protected $options = array();
-    /**
-     * @var array
-     */
     protected $filters = array();
 
-    /**
-     * @var bool
-     */
-    protected $phpSingleLine = false;
-    /**
-     * @var bool
-     */
-    protected $allowMixinOverride = false;
-    /**
-     * @var bool
-     */
-    protected $keepNullAttributes = false;
-    /**
-     * @var bool
-     */
-    protected $filterAutoLoad = true;
-    /**
-     * @var bool
-     */
-    protected $terse = true;
-    /**
-     * @var bool
-     */
-    protected $restrictedScope = false;
-    /**
-     * @var array
-     */
-    protected $customKeywords = array();
     /**
      * @var Jade
      */
@@ -90,83 +58,6 @@ class Compiler extends ExpressionCompiler
         $this->options = $this->setOptions($options);
         $this->filters = $filters;
         $this->filename = $filename;
-    }
-
-    protected function setOptionType($option, $type)
-    {
-        $types = explode('|', $type);
-        if (!in_array(gettype($this->$option), $types)) {
-            settype($this->$option, $types[0]);
-        }
-    }
-
-    /**
-     * Get a jade engine reference or an options array and return needed options.
-     *
-     * @param array/Jade $options
-     *
-     * @return array
-     */
-    protected function setOptions($options)
-    {
-        $optionTypes = array(
-            'prettyprint' => 'boolean',
-            'phpSingleLine' => 'boolean',
-            'allowMixinOverride' => 'boolean',
-            'keepNullAttributes' => 'boolean',
-            'filterAutoLoad' => 'boolean',
-            'restrictedScope' => 'boolean',
-            'indentSize' => 'integer',
-            'expressionLanguage' => 'string|integer',
-            'indentChar' => 'string',
-            'customKeywords' => 'array',
-        );
-
-        if ($options instanceof Jade) {
-            $this->jade = $options;
-            $options = array();
-
-            foreach ($optionTypes as $option => $type) {
-                $this->$option = $this->jade->getOption($option);
-                $options[$option] = $this->$option;
-                $this->setOptionType($option, $type);
-            }
-
-            $this->quote = $this->jade->getOption('singleQuote') ? '\'' : '"';
-
-            return $options;
-        }
-
-        foreach (array_intersect_key($optionTypes, $options) as $option => $type) {
-            $this->$option = $options[$option];
-            $this->setOptionType($option, $type);
-        }
-
-        $this->quote = isset($options['singleQuote']) && $options['singleQuote'] ? '\'' : '"';
-
-        return $options;
-    }
-
-    /**
-     * Get an option from the jade engine if set or from the options array else.
-     *
-     * @param string $option
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return mixed
-     */
-    public function getOption($option)
-    {
-        if (is_null($this->jade)) {
-            if (!isset($this->options[$option])) {
-                throw new \InvalidArgumentException("$option is not a valid option name.", 28);
-            }
-
-            return $this->options[$option];
-        }
-
-        return $this->jade->getOption($option);
     }
 
     /**
@@ -344,7 +235,7 @@ class Compiler extends ExpressionCompiler
     protected function interpolateFromCapture($match)
     {
         if ($match[1] === '') {
-            return $this->escapeIfNeeded($match[2] === '!', $match[3]);
+            return trim($this->escapeIfNeeded($match[2] === '!', $match[3]));
         }
 
         return substr($match[0], 1);
@@ -370,16 +261,16 @@ class Compiler extends ExpressionCompiler
 
             // if we have a php constant or variable assume that the string is good php
             if ($this->isConstant($arg) || (
-                strpos('{[', substr($arg, 0, 1)) === false &&
+                strpos('{[', substr($arg . ' ', 0, 1)) === false &&
                 preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)
             )) {
                 array_push($variables, $arg);
                 continue;
             }
 
-            if ($this->getExpressionLanguage() !== Jade::EXP_JS) {
-                $code = $this->handleArgumentValue($arg);
-            }
+            $code = $this->getExpressionLanguage() !== Jade::EXP_JS
+                ? $this->handleArgumentValue($arg)
+                : array($arg);
 
             $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));
