@@ -2,6 +2,8 @@
 
 namespace Jade\Compiler;
 
+use Jade\Jade;
+
 /**
  * Class Jade CompilerUtils.
  * Internal static methods of the compiler.

@@ -29,6 +29,9 @@ engines:
     # False positives due to dynamic variable name
     - dd33258e7e716128f54e50df078b03ea
     - 3b839c8aa97552a3daec01930ff9e5c9
+    # Wrong duplicate detection
+    - 0db540efb806d580dd92aa79ec13ae6e
+    - 8b82fc8b1590d272c6e877b09a7c8865
     checks:
       # Allow static access such as CommonUtils ones
       CleanCode/StaticAccess:

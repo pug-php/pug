@@ -3,13 +3,13 @@
 namespace Jade;
 
 use Jade\Compiler\CodeHandler;
-use Jade\Compiler\MixinVisitor;
+use Jade\Compiler\ExpressionCompiler;
 use Jade\Parser\Exception as ParserException;
 
 /**
  * Class Jade Compiler.
  */
-class Compiler extends MixinVisitor
+class Compiler extends ExpressionCompiler
 {
     /**
      * Constants and configuration in Compiler/CompilerConfig.php.
@@ -92,6 +92,14 @@ class Compiler extends MixinVisitor
         $this->filename = $filename;
     }
 
+    protected function setOptionType($option, $type)
+    {
+        $types = explode('|', $type);
+        if (!in_array(gettype($this->$option), $types)) {
+            settype($this->$option, $types[0]);
+        }
+    }
+
     /**
      * Get a jade engine reference or an options array and return needed options.
      *
@@ -109,6 +117,7 @@ class Compiler extends MixinVisitor
             'filterAutoLoad' => 'boolean',
             'restrictedScope' => 'boolean',
             'indentSize' => 'integer',
+            'expressionLanguage' => 'string|integer',
             'indentChar' => 'string',
             'customKeywords' => 'array',
         );
@@ -120,7 +129,7 @@ class Compiler extends MixinVisitor
             foreach ($optionTypes as $option => $type) {
                 $this->$option = $this->jade->getOption($option);
                 $options[$option] = $this->$option;
-                settype($this->$option, $type);
+                $this->setOptionType($option, $type);
             }
 
             $this->quote = $this->jade->getOption('singleQuote') ? '\'' : '"';
@@ -130,7 +139,7 @@ class Compiler extends MixinVisitor
 
         foreach (array_intersect_key($optionTypes, $options) as $option => $type) {
             $this->$option = $options[$option];
-            settype($this->$option, $type);
+            $this->setOptionType($option, $type);
         }
 
         $this->quote = isset($options['singleQuote']) && $options['singleQuote'] ? '\'' : '"';
@@ -190,6 +199,9 @@ class Compiler extends MixinVisitor
         $this->visit($node);
 
         $code = ltrim(implode('', $this->buffer));
+        if ($this->jsPhpize) {
+            $code = $this->createCode($this->jsPhpize->compileDependencies()) . $code;
+        }
 
         // Separate in several lines to get a useable line number in case of an error occurs
         if ($this->phpSingleLine) {
@@ -239,6 +251,13 @@ class Compiler extends MixinVisitor
         return preg_match('/^' . static::CONSTANT_VALUE . '$/', trim($str));
     }
 
+    protected function handleCodePhp($input, $name = '')
+    {
+        $handler = new CodeHandler($input, $name);
+
+        return $handler->parse();
+    }
+
     /**
      * @param        $input
      * @param string $name
@@ -249,9 +268,7 @@ class Compiler extends MixinVisitor
      */
     public function handleCode($input, $name = '')
     {
-        $handler = new CodeHandler($input, $name);
-
-        return $handler->parse();
+        return $this->handleCodePhp($input, $name);
     }
 
     /**
@@ -349,26 +366,20 @@ class Compiler extends MixinVisitor
         $variables = array();
 
         foreach ($arguments as $arg) {
-            $arg = static::convertVarPath($arg);
+            $arg = $this->getArgumentExpression($arg);
 
-            // add dollar if missing
-            if (preg_match('/^' . static::VARNAME . '(\s*,.+)?$/', $arg)) {
-                $arg = static::addDollarIfNeeded($arg);
-            }
-
-            // shortcut for constants
-            if ($this->isConstant($arg)) {
+            // if we have a php constant or variable assume that the string is good php
+            if ($this->isConstant($arg) || (
+                strpos('{[', substr($arg, 0, 1)) === false &&
+                preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)
+            )) {
                 array_push($variables, $arg);
                 continue;
             }
 
-            // if we have a php variable assume that the string is good php
-            if (strpos('{[', substr($arg, 0, 1)) === false && preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)) {
-                array_push($variables, $arg);
-                continue;
+            if ($this->getExpressionLanguage() !== Jade::EXP_JS) {
+                $code = $this->handleArgumentValue($arg);
             }
-
-            $code = $this->handleArgumentValue($arg);
 
             $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));
@@ -440,14 +451,9 @@ class Compiler extends MixinVisitor
      */
     protected function createCode($code)
     {
-        if (func_num_args() > 1) {
-            $arguments = func_get_args();
-            array_shift($arguments); // remove $code
-            $statements = $this->apply('createStatements', $arguments);
-
-            return $this->createPhpBlock($code, $statements);
-        }
-
-        return $this->createPhpBlock($code);
+        return $this->createPhpBlock($code, func_num_args() > 1
+            ? $this->apply('createStatements', array_slice(func_get_args(), 1))
+            : null
+        );
     }
 }
