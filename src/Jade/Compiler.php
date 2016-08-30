@@ -195,8 +195,6 @@ class Compiler extends Options
             $part[0] = trim($part[0]);
 
             if (preg_match('/^("(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\')(.*)$/', $part[0], $match)) {
-                $quote = substr($match[1], 0, 1);
-
                 if (strlen(trim($match[2]))) {
                     throw new \ErrorException('Unexpected value: ' . $match[2], 8);
                 }
