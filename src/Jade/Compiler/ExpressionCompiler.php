@@ -18,7 +18,7 @@ class ExpressionCompiler extends MixinVisitor
     public function getArgumentExpression($arg)
     {
         if ($this->getExpressionLanguage() === Jade::EXP_JS) {
-            return $this->getPhpCodeFromJs(null, array($arg));
+            return $this->getPhpCodeFromJs(array($arg));
         }
 
         $arg = static::convertVarPath($arg);
@@ -46,7 +46,7 @@ class ExpressionCompiler extends MixinVisitor
         return Jade::EXP_AUTO;
     }
 
-    protected function getPhpCodeFromJs($method, $arguments)
+    protected function getPhpCodeFromJs($arguments)
     {
         if (preg_match('/^\s*array\s*\([\s\S]*\)\s*$/i', $arguments[0])) {
             return $arguments[0];
@@ -61,7 +61,7 @@ class ExpressionCompiler extends MixinVisitor
 
     protected function jsToPhp($method, $arguments)
     {
-        $code = $this->getPhpCodeFromJs($method, $arguments);
+        $code = $this->getPhpCodeFromJs($arguments);
 
         return in_array($method, array('handleCodePhp')) ? array($code) : $code;
     }
