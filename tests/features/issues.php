@@ -4,6 +4,17 @@ use Pug\Pug;
 
 class JadeIssuesTest extends PHPUnit_Framework_TestCase
 {
+    public function testIssue62()
+    {
+        $pug = new Pug();
+        $html = trim($pug->render('.MyInitialClass(class=$classes)', array(
+            'classes' => 'MyClass',
+        )));
+        $expected = '<div class="MyInitialClass MyClass"></div>';
+
+        $this->assertSame($expected, $html);
+    }
+
     public function testIssue64()
     {
         $pug = new Pug();

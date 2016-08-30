@@ -155,9 +155,10 @@ abstract class AttributesCompiler extends CompilerFacade
     {
         return trim($this->createCode(
             '$__classes = implode(" ", ' .
-                'array_unique(explode(" ", (empty($__classes) ? "" : $__classes) . ' .
-                    var_export(implode(' ', $classes), true) . ' . ' .
-                    'implode(" ", array(' . implode(', ', $classesCheck) . ')) ' .
+                'array_unique(array_merge(' .
+                    'empty($__classes) ? array() : explode(" ", $__classes), ' .
+                    var_export($classes, true) . ', ' .
+                    'array(' . implode(', ', $classesCheck) . ')' .
                 ')) ' .
             ');'
         ));
@@ -167,10 +168,10 @@ abstract class AttributesCompiler extends CompilerFacade
     {
         return trim($this->createCode(
             'if (!empty($__classes)) { ' .
-                '?> ' . (isset($this->options['classAttribute'])
+                'echo ' . var_export(' ' . (isset($this->options['classAttribute'])
                     ? $this->options['classAttribute']
                     : 'class'
-                ) . '=' . $this->quote . '<?php echo $__classes; ?>' . $this->quote . '<?php ' .
+                ) . '=' . $this->quote, true) . ' . $__classes .' . var_export($this->quote, true) . '; ' .
             '} ' .
             'unset($__classes); '
         ));
