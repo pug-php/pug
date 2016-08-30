@@ -52,7 +52,7 @@ class JadeHooksTest extends PHPUnit_Framework_TestCase
     {
         $pug = new Pug(array(
             'postRender' => function ($phpCode) {
-                return preg_replace('/<\?php.*\?>(?<!<\?php)/', '$0 data-dynamic="true"', $phpCode);
+                return str_replace('?>>', '?> data-dynamic="true">', $phpCode);
             },
         ));
         $html = $pug->render('a#foo(title=5*3) Hello');

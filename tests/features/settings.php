@@ -298,7 +298,7 @@ p(class=$foo)=$bar
         ));
         $compile = $jade->compile($template);
         $actual = substr_count($compile, "\n");
-        $expected = substr_count($compile, '<?php') * 2;
+        $expected = substr_count($compile, '<?php') * 2 + 1;
 
         $this->assertSame($expected, $actual, 'PHP single line enabled');
         $this->assertGreaterThan(5, $actual, 'PHP single line enabled');
@@ -308,7 +308,7 @@ p(class=$foo)=$bar
         ));
         $actual = substr_count(trim($jade->compile($template)), "\n");
 
-        $this->assertEquals(0, $actual,'PHP single line disabled');
+        $this->assertLessThan(2, $actual,'PHP single line disabled');
     }
 
     /**

@@ -10,6 +10,7 @@ engines:
       - php
     exclude_fingerprints:
     # Wrong duplicate detection
+    - 337c4c1b0c20f6efc50cd67f9bce5337
     - 0db540efb806d580dd92aa79ec13ae6e
     - 8b82fc8b1590d272c6e877b09a7c8865
   fixme:
