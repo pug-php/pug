@@ -133,17 +133,22 @@ class Jade extends Options
      * Compile HTML code from a Pug input or a Pug file.
      *
      * @param sring Pug input or file
+     * @param sring filename (optionnal)
      * @param array vars to pass to the view
      *
      * @throws \Exception
      *
      * @return string
      */
-    public function render($input, array $vars = array())
+    public function render($input, $filename = null, array $vars = array())
     {
+        if (is_array($filename) || is_object($filename)) {
+            $vars = $filename;
+            $filename = null;
+        }
         $file = $this->options['cache']
             ? $this->cache($input)
-            : $this->stream($this->compile($input));
+            : $this->stream($this->compile($input, $filename));
 
         extract(array_merge($this->sharedVariables, $vars));
         ob_start();
