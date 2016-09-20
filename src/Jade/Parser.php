@@ -7,7 +7,7 @@ use Jade\Parser\ExtensionsHelper;
 
 class Parser
 {
-    public static $includeNotFound = ".alert.alert-danger.\n\tPage not found.";
+    public static $includeNotFound = ".alert.alert-danger Page not found.";
 
     protected $allowMixedIndent;
     protected $basedir;
