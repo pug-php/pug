@@ -3,6 +3,7 @@
 namespace Jade\Compiler;
 
 use Jade\Nodes\Tag;
+use Jade\Nodes\Text;
 
 abstract class TagVisitor extends Visitor
 {
@@ -55,6 +56,19 @@ abstract class TagVisitor extends Visitor
         $this->indents += $inc;
         if (isset($tag->code)) {
             $this->visitCode($tag->code);
+        }
+        if (!$tag->keepWhiteSpaces()) {
+            $count = count($tag->block->nodes);
+            for ($i = 1; $i < $count; $i++) {
+                if (
+                    $tag->block->nodes[$i] instanceof Text &&
+                    $tag->block->nodes[$i - 1] instanceof Text &&
+                    !preg_match('/^\s/', $tag->block->nodes[$i]->value) &&
+                    !preg_match('/\s$/', $tag->block->nodes[$i - 1]->value)
+                ) {
+                    $tag->block->nodes[$i - 1]->value .= ' ';
+                }
+            }
         }
         $this->visit($tag->block);
         if ($tag->keepWhiteSpaces() && substr(end($this->buffer), -1) === "\n") {

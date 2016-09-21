@@ -28,4 +28,23 @@ class JadeWhiteSpaceTest extends PHPUnit_Framework_TestCase
         $expected = '<textarea>Bob</textarea>';
         $this->assertSame($expected, $actual);
     }
+
+    public function testPipeless()
+    {
+        $jade = new Jade(array(
+            'prettyprint' => false,
+        ));
+
+        $actual = $jade->render("div\n  span.
+            Some indented text
+            on many lines
+            but the words
+            must not
+            be
+            sticked.
+        ");
+        $expected = '<div><span>Some indented text on many lines but the words must not be sticked.</span></div>';
+        $actual = preg_replace('/\s+/', ' ', $actual);
+        $this->assertSame($expected, $actual);
+    }
 }
