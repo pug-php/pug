@@ -338,14 +338,25 @@ class Parser
         return $node;
     }
 
+    protected function parseFilterContent()
+    {
+        if ($this->lookahead(1)->type === 'text') {
+            return new Nodes\Block(new Nodes\Text($this->expect('text')->value));
+        }
+
+        $this->lexer->pipeless = true;
+        $block = $this->parseTextBlock();
+        $this->lexer->pipeless = false;
+
+        return $block;
+    }
+
     protected function parseFilter()
     {
         $token = $this->expect('filter');
         $attributes = $this->accept('attributes');
 
-        $this->lexer->pipeless = true;
-        $block = $this->parseTextBlock();
-        $this->lexer->pipeless = false;
+        $block = $this->parseFilterContent();
 
         $node = new Nodes\Filter($token->value, $block, $attributes);
         $node->line = $this->line();

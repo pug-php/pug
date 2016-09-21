@@ -97,4 +97,29 @@ div
             <div>section</div>
 ');
     }
+
+    public function testInlineFilter()
+    {
+        $jade = new Jade();
+        $jade->filter('lower', function($node, $compiler){
+            foreach ($node->block->nodes as $line) {
+                $output[] = $line->value;
+            }
+            return strtolower(implode(' ', $output));
+        });
+        $actual = $jade->render('
+h1
+    | BAR-
+    :lower FOO
+    | -BAR
+');
+        $expected = '<h1>BAR-foo-BAR</h1>';
+
+        $this->assertSame($expected, $actual, 'One-line filter');
+
+        $actual = $jade->render('h1 BAR-#[:lower FOO]-BAR');
+        $expected = '<h1>BAR-foo-BAR</h1>';
+
+        $this->assertSame($expected, $actual, 'In-line filter');
+    }
 }

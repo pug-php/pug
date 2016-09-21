@@ -114,7 +114,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testExpectedIndent()
     {
-        get_php_code(':a+()');
+        get_php_code(':a()');
     }
 
     /**
