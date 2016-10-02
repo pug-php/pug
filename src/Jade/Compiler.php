@@ -255,12 +255,18 @@ class Compiler extends Options
         $variables = array();
 
         foreach ($arguments as $arg) {
+            // skip all if we have a well-formatted variable
+            if (preg_match('/^&?\${1,2}_*' . static::VARNAME . '$/', $arg)) {
+                array_push($variables, $arg);
+                continue;
+            }
+
             $arg = $this->getArgumentExpression($arg);
 
             // if we have a php constant or variable assume that the string is good php
             if ($this->isConstant($arg) || (
                 strpos('{[', substr($arg . ' ', 0, 1)) === false &&
-                preg_match('/&?\${1,2}' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)
+                preg_match('/&?\${1,2}_*' . static::VARNAME . '|[A-Za-z0-9_\\\\]+::/', $arg)
             )) {
                 array_push($variables, $arg);
                 continue;

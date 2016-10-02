@@ -36,7 +36,24 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $this->assertSame('array(1)', $actual);
         $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('$a', $actual);
+    }
 
+    /**
+     * @group issues
+     */
+    public function testIssue71()
+    {
+        $jade = new Jade(array(
+            'singleQuote' => false,
+            'expressionLanguage' => 'js',
+        ));
+
+        $actual = trim($jade->render('input(type="checkbox", name="group[" + group.id + "]")', array(
+            'group' => (object) array(
+                'id' => 4,
+            ),
+        )));
+        $this->assertSame('<input type="checkbox" name="group[4]">', $actual);
     }
 
     public function testPhpExpression()
