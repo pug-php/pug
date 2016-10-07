@@ -27,4 +27,27 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($expected, $html);
     }
+
+    public function testIssue71()
+    {
+        $pug = new Pug(array(
+            'singleQuote' => false,
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render('input(type="checkbox", name="group[" + group.id + "]")', array(
+            'group' => (object) array(
+                'id' => 4,
+            ),
+        )));
+
+        $this->assertSame('<input type="checkbox" name="group[4]">', $actual);
+    }
+
+    public function testIssue73()
+    {
+        $pug = new Pug();
+        $actual = trim($pug->render('p=__("foo")'));
+
+        $this->assertSame('<p>foo</p>', $actual);
+    }
 }

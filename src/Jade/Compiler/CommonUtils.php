@@ -27,7 +27,7 @@ class CommonUtils
         if (
             !in_array($firstChar, array('$', '\\')) &&
             !preg_match('#^(?:' . CompilerConfig::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call) &&
-            preg_match('#^(_|' . CompilerConfig::VARNAME . ')(?!\()#', $call)
+            preg_match('#^(_*' . CompilerConfig::VARNAME . ')(?!\()#', $call)
         ) {
             $call = '$' . $call;
         }

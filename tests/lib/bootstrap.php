@@ -15,6 +15,13 @@ if (!function_exists('_')) {
     }
 }
 
+if (!function_exists('__')) {
+    function __($value)
+    {
+        return $value;
+    }
+}
+
 function setup_autoload()
 {
     // quick setup for autoloading
