@@ -86,8 +86,8 @@ class Jade extends Options
     {
         $requirements = array(
             'streamWhiteListed' => !$this->whiteListNeeded('suhosin'),
-            'cacheFolderExists' => $this->options['cache'] && is_dir($this->options['cache']),
-            'cacheFolderIsWritable' => $this->options['cache'] && is_writable($this->options['cache']),
+            'cacheFolderExists' => !$this->options['cache'] || is_dir($this->options['cache']),
+            'cacheFolderIsWritable' => !$this->options['cache'] || is_writable($this->options['cache']),
         );
 
         if ($name) {
