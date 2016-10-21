@@ -10,16 +10,41 @@
     "license": "MIT",
     "authors": [
         {
+            "name": "kylekatarnls",
+            "email": "jade-php@selfbuild.fr",
+            "homepage": "http://github.com/kylekatarnls",
+            "role": "Developer"
+        },
+        {
             "name": "Konstantin Kudryasho",
             "email": "konstantin.kudryashov@knplabs.com",
             "homepage": "http://about.me/everzet",
             "role": "Developer"
         },
         {
-            "name": "Janez Troha",
-            "email": "janez.troha@gmail.com",
-            "homepage": "http://flavors.me/dz0ny",
-            "role": "Maintainer"
+            "name": "volter9",
+            "homepage": "https://github.com/volter9",
+            "role": "Developer"
+        },
+        {
+            "name": "sisoftrg",
+            "homepage": "https://github.com/sisoftrg",
+            "role": "Developer"
+        },
+        {
+            "name": "hackaugusto",
+            "homepage": "https://github.com/hackaugusto",
+            "role": "Developer"
+        },
+        {
+            "name": "peniar",
+            "homepage": "https://github.com/peniar",
+            "role": "Developer"
+        },
+        {
+            "name": "NSinopoli",
+            "homepage": "https://github.com/NSinopoli",
+            "role": "Developer"
         },
         {
             "name": "Luke GB",
@@ -28,14 +53,65 @@
             "role": "Maintainer"
         },
         {
+            "name": "DJRanger",
+            "homepage": "https://github.com/DJRanger",
+            "role": "Contributor"
+        },
+        {
+            "name": "fcrosfly",
+            "homepage": "https://github.com/fcrosfly",
+            "role": "Contributor"
+        },
+        {
             "name": "Ronan Tessier",
             "email": "ronan.tessier@vaconsulting.lu",
             "homepage": "http://github.com/ronan-gloo",
             "role": "Maintainer"
         },
         {
-            "name": "kylekatarnls",
-            "homepage": "http://github.com/kylekatarnls",
+            "name": "Soviut",
+            "homepage": "http://github.com/Soviut",
+            "role": "Contributor"
+        },
+        {
+            "name": "just-paja",
+            "homepage": "http://github.com/just-paja",
+            "role": "Contributor"
+        },
+        {
+            "name": "cjonasw",
+            "homepage": "http://github.com/cjonasw",
+            "role": "Contributor"
+        },
+        {
+            "name": "s4msung",
+            "homepage": "http://github.com/s4msung",
+            "role": "Contributor"
+        },
+        {
+            "name": "sadjow",
+            "homepage": "http://github.com/sadjow",
+            "role": "Contributor"
+        },
+        {
+            "name": "hkjels",
+            "homepage": "http://github.com/hkjels",
+            "role": "Contributor"
+        },
+        {
+            "name": "krizalys",
+            "homepage": "http://github.com/krizalys",
+            "role": "Contributor"
+        },
+        {
+            "name": "sszigeti",
+            "homepage": "http://github.com/sszigeti",
+            "role": "Contributor"
+        },
+        {
+            "name": "Janez Troha",
+            "email": "janez.troha@gmail.com",
+            "homepage": "http://flavors.me/dz0ny",
             "role": "Maintainer"
         }
     ],
