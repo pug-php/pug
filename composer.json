@@ -113,6 +113,11 @@
             "email": "janez.troha@gmail.com",
             "homepage": "http://flavors.me/dz0ny",
             "role": "Maintainer"
+        },
+        {
+            "name": "debo",
+            "homepage": "https://github.com/debo",
+            "role": "contributor"
         }
     ],
     "require": {
