@@ -13,6 +13,7 @@ class Options extends Keywords
     protected $options = array(
         'allowMixedIndent'   => true,
         'allowMixinOverride' => true,
+        'basedir'            => null,
         'cache'              => null,
         'classAttribute'     => null,
         'customKeywords'     => array(),

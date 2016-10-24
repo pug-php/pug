@@ -29,6 +29,9 @@
 		<testsuite name="Performance">
 			<directory suffix=".php">tests/performance</directory>
 		</testsuite>
+		<testsuite name="Example">
+			<file>tests/example/example.php</file>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="true">

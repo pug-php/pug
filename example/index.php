@@ -41,7 +41,7 @@ $app->action('login', function () {
  */
 $app->action('cities', function () {
     $query  = isset($_GET['q']) ? trim($_GET['q']) : null;
-    $cities = ['total' => 0, 'result' => null];
+    $cities = array('total' => 0, 'result' => null);
 
     if ($query) {
         $ch = curl_init('http://gd.geobytes.com/AutoCompleteCity?q=' . $query);
@@ -52,4 +52,3 @@ $app->action('cities', function () {
 
     return compact('cities', 'query');
 });
-
