@@ -1,7 +1,7 @@
 <?php
 namespace Pug;
 
-error_reporting(E_ALL & ~E_NOTICE);
+error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 class Application
@@ -10,7 +10,7 @@ class Application
 
     public function __construct($srcPath, $pathInfo)
     {
-        $this->route = isset($pathInfo) ? ltrim($pathInfo, '/') : '/';
+        $this->route = ltrim($pathInfo, '/');
 
         spl_autoload_register(function ($class) use ($srcPath) {
             if (
@@ -24,14 +24,14 @@ class Application
 
     public function action($path, \Closure $callback)
     {
-        if ($path === $this->route) {
-            $pug    = new Pug;
-            $vars   = $callback($path) ?: [];
-            $output = $pug->render($path . $pug->getExtension(), $vars);
+        if (ltrim($path, '/') === $this->route) {
+            $pug    = new Pug();
+            $vars   = $callback($path) ?: array();
+            $output = $pug->render(__DIR__ . '/' . $path . $pug->getExtension(), $vars);
 
             echo $output;
         }
     }
 }
 
-$app = new Application('../src/', $_SERVER['PATH_INFO']);
+$app = new Application(__DIR__ . '/../src/', isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (isset($argv, $argv[1]) ? $argv[1] : ''));
