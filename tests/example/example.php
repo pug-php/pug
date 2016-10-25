@@ -14,6 +14,10 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
 
     protected function browse($path = '')
     {
+        if (!defined('PHP_BINARY')) {
+            define('PHP_BINARY', 'php');
+        }
+
         return $this->simpleHtml(shell_exec(trim(
             PHP_BINARY . ' ' . escapeshellarg(__DIR__ . '/../../example/index.php') . ' ' . $path
         )));
