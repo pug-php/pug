@@ -30,6 +30,6 @@ class Php implements FilterInterface
             $data .= ' ?> ' . $compiler->subCompiler()->compile($n) . '<?php ';
         }
 
-        return $data ? '<?php ' . $data . ' ?> ' : $data;
+        return $data ? '<?php ' . $data . ' ?>' : $data;
     }
 }
