@@ -23,13 +23,13 @@ class Php implements FilterInterface
         foreach ($node->block->nodes as $n) {
             if (isset($n->value)) {
                 $data .= preg_match('/^[[:space:]]*\|(?!\|)(.*)/', $n->value, $m)
-                    ? ' ?> ' . $m[1] . '<?php '
+                    ? $compiler->wrapOutPhp($m[1])
                     : $n->value . "\n";
                 continue;
             }
-            $data .= ' ?> ' . $compiler->subCompiler()->compile($n) . '<?php ';
+            $data .= $compiler->wrapOutPhp($compiler->subCompiler()->compile($n));
         }
 
-        return $data ? '<?php ' . $data . ' ?>' : $data;
+        return $data ? $compiler->wrapInPhp($data) : $data;
     }
 }
