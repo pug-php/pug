@@ -106,6 +106,7 @@ class Compiler extends Options
      * Return code wrapped in PHP tags.
      *
      * @param string code to wrap.
+     *
      * @return string
      */
     public function wrapInPhp($code)
@@ -117,6 +118,7 @@ class Compiler extends Options
      * Return code wrapped out of a PHP code.
      *
      * @param string code to wrap.
+     *
      * @return string
      */
     public function wrapOutPhp($code)
