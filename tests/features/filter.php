@@ -122,4 +122,94 @@ h1
 
         $this->assertSame($expected, $actual, 'In-line filter');
     }
+
+    /**
+     * @group php-filter-prettyprint
+     */
+    public function testPhpFilterWithoutPrettyprint()
+    {
+        $jade = new Jade();
+        $actual = $jade->render('
+h1
+    :php
+        |BAR-
+        echo 6 * 7
+        |-BAR
+');
+        $expected = '<h1>BAR-42-BAR</h1>';
+
+        $this->assertSame($expected, $actual, 'Block filter');
+
+        $actual = $jade->render('
+h1
+    span BAR-
+    :php
+        echo 6 * 7
+    span -BAR
+');
+        $expected = '<h1><span>BAR-</span>42<span>-BAR</span></h1>';
+
+        $this->assertSame($expected, $actual, 'Block filter and span');
+
+        $actual = $jade->render('
+h1
+    | BAR-
+    :php echo 6 * 7
+    | -BAR
+');
+        $expected = '<h1>BAR-42-BAR</h1>';
+
+        $this->assertSame($expected, $actual, 'One-line filter');
+
+        $actual = $jade->render('h1 BAR-#[:php echo 6 * 7]-BAR');
+        $expected = '<h1>BAR-42-BAR</h1>';
+
+        $this->assertSame($expected, $actual, 'In-line filter');
+    }
+
+    /**
+     * @group php-filter-prettyprint
+     */
+    public function testPhpFilterWithPrettyprint()
+    {
+        $jade = new Jade(array(
+            'prettyprint' => true,
+        ));
+        $actual = trim($jade->render('
+h1
+    :php
+        | BAR-
+        echo 6 * 7
+        | -BAR
+'));
+        $expected = '/^<h1>\n    BAR-42\s+-BAR\s*\n<\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'Block filter');
+
+        $actual = trim($jade->render('
+h1
+    span BAR-
+    :php
+        echo 6 * 7
+    span -BAR
+'));
+        $expected = '/^<h1>\s+<span>BAR-<\/span>\s+42\s+<span>-BAR<\/span><\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'Block filter and span');
+
+        $actual = trim($jade->render('
+h1
+    | BAR-
+    :php echo 6 * 7
+    | -BAR
+'));
+        $expected = '/^<h1>\s+BAR-\s+42\s+-BAR\s*<\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'One-line filter');
+
+        $actual = $jade->render('h1 BAR-#[:php echo 6 * 7]-BAR');
+        $expected = '/^<h1>\s+BAR-\s+42\s+-BAR\s*<\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'In-line filter');
+    }
 }

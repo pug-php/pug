@@ -103,6 +103,30 @@ class Compiler extends Options
     }
 
     /**
+     * Return code wrapped in PHP tags.
+     *
+     * @param string code to wrap.
+     *
+     * @return string
+     */
+    public function wrapInPhp($code)
+    {
+        return '<?php ' . $code . ' ' . $this->closingTag();
+    }
+
+    /**
+     * Return code wrapped out of a PHP code.
+     *
+     * @param string code to wrap.
+     *
+     * @return string
+     */
+    public function wrapOutPhp($code)
+    {
+        return ' ' . $this->closingTag() . $code . '<?php ';
+    }
+
+    /**
      * @param $method
      * @param $arguments
      *
@@ -309,19 +333,17 @@ class Compiler extends Options
      *
      * @return string
      */
-    protected function createPhpBlock($code, $statements = null)
+    protected function renderPhpStatements($code, $statements = null)
     {
         if ($statements === null) {
-            return '<?php ' . $code . ' ' . $this->closingTag();
+            return $code;
         }
 
         $codeFormat = array_pop($statements);
         array_unshift($codeFormat, $code);
 
         if (count($statements) === 0) {
-            $phpString = call_user_func_array('sprintf', $codeFormat);
-
-            return '<?php ' . $phpString . ' ' . $this->closingTag();
+            return call_user_func_array('sprintf', $codeFormat);
         }
 
         $stmtString = '';
@@ -332,11 +354,18 @@ class Compiler extends Options
         $stmtString .= $this->newline() . $this->indent();
         $stmtString .= call_user_func_array('sprintf', $codeFormat);
 
-        $phpString = '<?php ';
-        $phpString .= $stmtString;
-        $phpString .= $this->newline() . $this->indent() . ' ' . $this->closingTag();
+        return $stmtString . $this->newline() . $this->indent();
+    }
 
-        return $phpString;
+    /**
+     * @param      $code
+     * @param null $statements
+     *
+     * @return string
+     */
+    protected function createPhpBlock($code, $statements = null)
+    {
+        return $this->wrapInPhp($this->renderPhpStatements($code, $statements));
     }
 
     /**

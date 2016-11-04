@@ -132,7 +132,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
         $cachedFile = realpath($phpFiles[0]);
         $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
         $this->assertSame($stream, $jade->stream($jade->compile($file)), 'Should return the stream of attrs.jade.');
-        $this->assertSame(substr($stream, strlen($start)), file_get_contents($cachedFile), 'The cached file should contains the same contents.');
+        $this->assertStringEqualsFile($cachedFile, substr($stream, strlen($start)), 'The cached file should contains the same contents.');
         touch($file, time() - 3600);
         $path = $jade->cache($file);
         $this->assertSame(realpath($path), $cachedFile, 'The cached file should be used instead if untouched.');
