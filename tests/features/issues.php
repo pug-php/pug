@@ -62,9 +62,6 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($requirements['cacheFolderIsWritable']);
     }
 
-    /**
-     * @group i86
-     */
     public function testIssue86()
     {
         $pug = new Pug(array(
