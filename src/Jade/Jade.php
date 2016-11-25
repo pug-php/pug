@@ -117,7 +117,7 @@ class Jade extends Options
         $compiler = new Compiler($this->options, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
-            $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\(((?>[^()]+)|(?-2))*\\))/', function ($match) {
+            $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\((((?>[^()]+)|(?-2))*)\\))/', function ($match) {
                 return 'call_user_func(' . $match[1] . ', ' . $match[4] . ')';
             }, $php);
         }

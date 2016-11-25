@@ -94,11 +94,11 @@ class Compiler extends Options
             $code = $this->createCode($this->jsPhpize->compileDependencies()) . $code;
         }
 
-        // Separate in several lines to get a useable line number in case of an error occurs
         if ($this->phpSingleLine) {
+            // Separate in several lines to get a useable line number in case of an error occurs
             $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag()), $code);
         }
-        // Remove the $ wich are not needed
+
         return $code;
     }
 

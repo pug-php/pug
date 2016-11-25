@@ -61,4 +61,23 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($requirements['cacheFolderExists']);
         $this->assertTrue($requirements['cacheFolderIsWritable']);
     }
+
+    /**
+     * @group i86
+     */
+    public function testIssue86()
+    {
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render("a(href='?m=' + i.a)=i.b", array(
+            'i' => array(
+                'a' => 1,
+                'b' => 2,
+            ),
+        )));
+        $expected = '<a href="?m=1">2</a>';
+
+        $this->assertSame($expected, $actual);
+    }
 }
