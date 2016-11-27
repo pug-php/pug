@@ -77,4 +77,42 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($expected, $actual);
     }
+
+    public function testissue89()
+    {
+        include_once __DIR__ . '/../lib/FooBarClass.php';
+
+        $pug = new Pug(array(
+            'expressionLanguage' => 'auto',
+        ));
+        $actual = trim($pug->render("if errors.has('email')\n  = errors.first('email')", array(
+            'errors' => new \FooBarClass(),
+        )));
+
+        $this->assertSame('foo', $actual);
+    }
+
+    public function testIssue90()
+    {
+        $pug = new Pug(array(
+            'expressionLanguage' => 'php',
+        ));
+        $actual = trim($pug->render('p= \'$test\'
+p= "$test"
+p= \'#{$test}\'
+p= "#{$test}"
+p #{$test}
+
+p(
+    data-a=\'$test\'
+    data-b="$test"
+    data-c=\'#{$test}\'
+    data-d="#{$test}"
+) test', array(
+            'test' => 'foo',
+        )));
+        $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="$test" data-c="foo" data-d="foo">test</p>';
+
+        $this->assertSame($expected, $actual);
+    }
 }
