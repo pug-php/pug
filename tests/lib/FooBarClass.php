@@ -2,12 +2,12 @@
 
 class FooBarClass
 {
-    public function has($_)
+    public function has($_ = null)
     {
         return true;
     }
 
-    public function first($_)
+    public function first($_ = null)
     {
         return 'foo';
     }

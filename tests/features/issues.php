@@ -90,6 +90,15 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
         )));
 
         $this->assertSame('foo', $actual);
+
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render("if errors.has('email')\n  = errors.first('email')", array(
+            'errors' => new \FooBarClass(),
+        )));
+
+        $this->assertSame('foo', $actual);
     }
 
     public function testIssue90()
