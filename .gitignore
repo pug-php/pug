@@ -4,7 +4,7 @@
 
 # Coverage
 /build
-coverage.xml
+/coverage
 
 # Composer
 /vendor

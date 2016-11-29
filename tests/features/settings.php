@@ -15,7 +15,7 @@ class JadeSettingsTest extends PHPUnit_Framework_TestCase
 
     static private function simpleHtml($html)
     {
-        return trim(preg_replace('`\r\n|\r|\n\s*\n`', "\n", $html));
+        return trim(preg_replace('`\r\n|\r|(\n\s*| *)\n`', "\n", $html));
     }
 
     /**
@@ -254,15 +254,15 @@ mixin foo()
         $actual = $jade->render($template);
         $expected = "<h1 id='foo' style='color: red;' class='bar'>Hello</h1>";
 
-        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote enabled on a simple header');
+        $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote enabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled on attrs-data.complex');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote enabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled on attrs-data');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote enabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled on object-to-css');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote enabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.single-quote.html')), 'Single quote enabled on interpolation');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote enabled on interpolation');
 
         $jade = new Jade(array(
             'prettyprint' => true,
@@ -271,15 +271,15 @@ mixin foo()
         $actual = $jade->render($template);
         $expected = '<h1 id="foo" style="color: red;" class="bar">Hello</h1>';
 
-        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Single quote disabled on a simple header');
+        $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote disabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote disabled on attrs-data.complex');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote disabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote disabled on attrs-data');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote disabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote disabled on object-to-css');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote disabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml($jade->render($file . '.jade')), static::simpleHtml(file_get_contents($file . '.html')), 'Single quote disabled on interpolation');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($jade->render($file . '.jade')), 'Single quote disabled on interpolation');
     }
 
     /**
