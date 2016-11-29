@@ -257,7 +257,7 @@ class Compiler extends Options
     protected function interpolateFromCapture($match)
     {
         if ($match[1] === '') {
-            return trim($this->escapeIfNeeded($match[2] === '!', $match[3]));
+            return trim($this->escapeIfNeeded($match[2] !== '!', $match[3]));
         }
 
         return substr($match[0], 1);
