@@ -53,10 +53,12 @@ class ExpressionCompiler extends MixinVisitor
         }
 
         if ($this->jsPhpize === null) {
-            $this->jsPhpize = new JsPhpize();
+            $this->jsPhpize = new JsPhpize(array(
+                'catchDependencies' => true,
+            ));
         }
 
-        return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0], true)), ';');
+        return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0])), ';');
     }
 
     protected function jsToPhp($method, $arguments)
