@@ -166,6 +166,37 @@ A keyword must return an array (containing **begin** and/or **end** entires) or 
 
 The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** as in the first example to render PHP codes that will wrap the rendered block if there is one.
 
+### PHP Helpers functions
+
+If you want to make a php function available in a template or in all of them for convenience, use closures:
+
+```php
+$myClosure = function ($string) {
+    return 'Hey you ' . $string . ', out there on your own, can you hear me ?';
+}
+
+$pug->render('p=$myClosure("Pink")', array('myClosure' => $myClosure));
+```
+
+This will render:
+```html 
+<p>Hey you Pink, out there on your own, can you hear me ?</p>
+```
+
+You can make that closure available to all templates without passing it in render params by using :
+
+```php
+// ... $pug instantiation
+$pug->share('myClosure', $myClosure)
+$pug->render('p=$myClosure("Pink")')
+```
+
+
+This will render:
+```html 
+<p>Hey you Pink, out there on your own, can you hear me ?</p>
+```
+
 ### Cache
 
 **Important**: to improve performance in production, enable the Pug cache by setting the **cache** option to a writable directory, you can first cache all your template at once (during deployment):
