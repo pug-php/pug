@@ -168,34 +168,30 @@ The **begin** and **end** are rendered as raw HTML, but you can also use **begin
 
 ### PHP Helpers functions
 
-If you want to make a php function available in a template or in all of them for convenience, use closures:
+If you want to make a php function available in a template or in all of them for convenience, use closures ans pass them like any other variables:
 
 ```php
 $myClosure = function ($string) {
-    return 'Hey you ' . $string . ', out there on your own, can you hear me ?';
-}
+    return 'Hey you ' . $string . ', out there on your own, can you hear me?';
+};
 
 $pug->render('p=$myClosure("Pink")', array('myClosure' => $myClosure));
 ```
 
 This will render:
 ```html 
-<p>Hey you Pink, out there on your own, can you hear me ?</p>
+<p>Hey you Pink, out there on your own, can you hear me?</p>
 ```
 
-You can make that closure available to all templates without passing it in render params by using :
+You can make that closure available to all templates without passing it in render params by using the `share` method:
 
 ```php
 // ... $pug instantiation
-$pug->share('myClosure', $myClosure)
-$pug->render('p=$myClosure("Pink")')
+$pug->share('myClosure', $myClosure);
+$pug->render('p=$myClosure("Pink")');
 ```
 
-
-This will render:
-```html 
-<p>Hey you Pink, out there on your own, can you hear me ?</p>
-```
+This will render the same HTML than the previous example. Also note that `share` allow you to pass any type of value.
 
 ### Cache
 
