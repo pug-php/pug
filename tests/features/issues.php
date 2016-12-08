@@ -124,4 +124,20 @@ p(
 
         $this->assertSame($expected, $actual);
     }
+
+    /**
+     * @group i92
+     */
+    public function testIssue92()
+    {
+        $pug = new Pug();
+        $actual = trim($pug->compile('
+mixin upper-paragraph(str)
+    p=str
++upper-paragraph(strtoupper("foo"))
+'));
+        $expected = '<p>FOO</p>';
+
+        $this->assertSame($expected, $actual);
+    }
 }
