@@ -3,6 +3,7 @@
 namespace Jade;
 
 use Jade\Engine\Options;
+use Jade\Lexer\Scanner;
 
 /**
  * Class Jade\Jade.
@@ -117,7 +118,7 @@ class Jade extends Options
         $compiler = new Compiler($this->options, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
-            $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . '\\(((?>[^()]+)|(?-2))*\\))[ \t]*(\\(((?>[^()]+)|(?-2))*\\))/', function ($match) {
+            $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . Scanner::PARENTHESES . ')[ \t]*' . Scanner::PARENTHESES . '/', function ($match) {
                 $parenthesis = trim(substr($match[3], 1, -1));
                 $arguments = $match[1];
                 if ($parenthesis !== '') {
