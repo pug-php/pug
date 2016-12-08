@@ -3,6 +3,7 @@
 namespace Jade\Compiler;
 
 use Jade\Jade;
+use Jade\Lexer\Scanner;
 use JsPhpize\JsPhpize;
 
 /**
@@ -48,7 +49,7 @@ class ExpressionCompiler extends MixinVisitor
 
     protected function getPhpCodeFromJs($arguments)
     {
-        if (preg_match('/^\s*array\s*\([\s\S]*\)\s*$/i', $arguments[0])) {
+        if (preg_match('/^\s*array\s*' . Scanner::PARENTHESES . '\s*$/i', $arguments[0])) {
             return $arguments[0];
         }
 
