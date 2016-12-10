@@ -17,9 +17,9 @@ abstract class MixinScanner extends CaseScanner
             $token = $this->token('call', $matches[1]);
 
             // check for arguments
-            if (preg_match('/^ *\((.*?)\)/', $this->input, $matchesArguments)) {
+            if (preg_match('/^ *' . Scanner::PARENTHESES . '/', $this->input, $matchesArguments)) {
                 $this->consume($matchesArguments[0]);
-                $token->arguments = $matchesArguments[1];
+                $token->arguments = trim(substr($matchesArguments[1], 1, -1));
             }
 
             return $token;
