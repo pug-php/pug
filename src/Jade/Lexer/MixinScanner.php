@@ -31,10 +31,10 @@ abstract class MixinScanner extends CaseScanner
      */
     protected function scanMixin()
     {
-        if (preg_match('/^mixin +(\w[-\w]*)(?: *\((.*)\))?/', $this->input, $matches)) {
+        if (preg_match('/^mixin +(\w[-\w]*)(?: *' . Scanner::PARENTHESES . ')?/', $this->input, $matches)) {
             $this->consume($matches[0]);
             $token = $this->token('mixin', $matches[1]);
-            $token->arguments = isset($matches[2]) ? $matches[2] : null;
+            $token->arguments = isset($matches[2]) ? trim(substr($matches[2], 1, -1)) : null;
 
             return $token;
         }
