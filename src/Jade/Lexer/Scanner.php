@@ -12,12 +12,12 @@ abstract class Scanner extends MixinScanner
     /**
      *  Helper to create tokens.
      */
-    protected function scan($regex, $type, $captureIndex = 1)
+    protected function scan($regex, $type)
     {
         if (preg_match($regex, $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token($type, isset($matches[$captureIndex]) && strlen($matches[$captureIndex]) > 0 ? $matches[$captureIndex] : '');
+            return $this->token($type, isset($matches[1]) ? $matches[1] : '');
         }
     }
 
@@ -230,7 +230,7 @@ abstract class Scanner extends MixinScanner
             // cant use ^ anchor in the regex because the pattern is recursive
             // but this restriction is asserted by the if above
             //$this->input = preg_replace('/([a-zA-Z0-9\'"\\]\\}\\)])([\t ]+[a-zA-Z])/', '$1,$2', $this->input);
-            if (!preg_match('/\((?:"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|[^()\'"]++|(?R))*+\)/', $this->input, $matches)) {
+            if (!preg_match('/' . Scanner::PARENTHESES . '/', $this->input, $matches)) {
                 throw new \ErrorException('Unable to find attributes closing parenthesis.', 21);
             }
             $this->consume($matches[0]);
@@ -287,6 +287,10 @@ abstract class Scanner extends MixinScanner
      */
     protected function scanAndAttributes()
     {
-        return $this->scan('/^&attributes(\(((?>[^()]+|(?1))*)\))/', '&attributes', 2);
+        if (preg_match('/^&attributes(\(((?>[^()]+|(?1))*)\))/', $this->input, $matches)) {
+            $this->consume($matches[0]);
+
+            return $this->token('&attributes', $matches[2]);
+        }
     }
 }
