@@ -7,6 +7,14 @@ namespace Jade\Lexer;
  */
 abstract class Scanner extends MixinScanner
 {
+    /**
+     * Single quoted or double quoted strings pattern.
+     */
+    const QUOTED_STRING = '"(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\'';
+
+    /**
+     * Recursive parentheses pattern.
+     */
     const PARENTHESES = '(\\((?:(?>"(?:\\\\[\\S\\s]|[^"\\\\])*"|\'(?:\\\\[\\S\\s]|[^\'\\\\])*\'|[^()\'"]++|(?-1))*+)\\))';
 
     /**

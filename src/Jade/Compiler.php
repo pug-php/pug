@@ -4,6 +4,7 @@ namespace Jade;
 
 use Jade\Compiler\CodeHandler;
 use Jade\Compiler\Options;
+use Jade\Lexer\Scanner;
 use Jade\Parser\Exception as ParserException;
 
 /**
@@ -218,7 +219,7 @@ class Compiler extends Options
             // @todo: handleCode() in concat
             $part[0] = trim($part[0]);
 
-            if (preg_match('/^("(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\')([\\s\\S]*)$/', $part[0], $match)) {
+            if (preg_match('/^(' . Scanner::QUOTED_STRING . ')([\\s\\S]*)$/', $part[0], $match)) {
                 if (strlen(trim($match[2]))) {
                     throw new \ErrorException('Unexpected value: ' . $match[2], 8);
                 }
@@ -311,7 +312,7 @@ class Compiler extends Options
 
     protected function handleArgumentValue($arg)
     {
-        if (preg_match('/^"(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\'/', $arg)) {
+        if (preg_match('/^' . Scanner::QUOTED_STRING . '/', $arg)) {
             return $this->handleString(trim($arg));
         }
 

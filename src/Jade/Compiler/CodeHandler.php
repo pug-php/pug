@@ -2,6 +2,8 @@
 
 namespace Jade\Compiler;
 
+use Jade\Lexer\Scanner;
+
 /**
  * Class Jade\Compiler\CodeHandler.
  */
@@ -44,11 +46,11 @@ class CodeHandler extends CompilerUtils
         }
 
         preg_match_all(
-            '/(?<![<>=!])=(?!>|=)|[\[\]\{\}\(\),;\.]|(?!:):|->/', // punctuation
-            preg_replace_callback('/[a-zA-Z0-9\\\\_\\x7f-\\xff]*\((?:[0-9\/%\.\s*+-]++|(?R))*+\)/', function ($match) {
+            '/(?<![<>=!])=(?!>|=)|[\\[\\]\\{\\}\\(\\),;\\.]|(?!:):|->/', // punctuation
+            preg_replace_callback('/[a-zA-Z0-9\\\\_\\x7f-\\xff]*\\((?:[0-9\\/%\\.,\\s*+-]++|(?R))*+\\)/', function ($match) {
                 // no need to keep separators in simple PHP expressions (functions calls, parentheses, calculs)
                 return str_repeat(' ', strlen($match[0]));
-            }, preg_replace_callback('/"(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\'/', function ($match) {
+            }, preg_replace_callback('/' . Scanner::QUOTED_STRING . '/', function ($match) {
                 // do not take separators in strings
                 return str_repeat(' ', strlen($match[0]));
             }, $this->input)),

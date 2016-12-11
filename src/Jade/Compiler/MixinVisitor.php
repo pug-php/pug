@@ -2,6 +2,7 @@
 
 namespace Jade\Compiler;
 
+use Jade\Lexer\Scanner;
 use Jade\Nodes\Mixin;
 
 abstract class MixinVisitor extends CodeVisitor
@@ -15,10 +16,30 @@ abstract class MixinVisitor extends CodeVisitor
         }
     }
 
+    protected function splitArguments($argumentsString)
+    {
+        $arguments = array();
+        while (is_string($argumentsString) && strlen($argumentsString)) {
+            if(preg_match(
+                '/^((?:[^,"\'\\(\\)]+|' . Scanner::QUOTED_STRING . '|' . Scanner::PARENTHESES . ')*),/',
+                $argumentsString,
+                $matches
+            )) {
+                $arguments[] = trim($matches[1]);
+                $argumentsString = trim(substr($argumentsString, strlen($matches[0])));
+                continue;
+            }
+            $arguments[] = trim($argumentsString);
+            break;
+        }
+
+        return $arguments;
+    }
+
     protected function parseMixinArguments(&$arguments, &$containsOnlyArrays, &$defaultAttributes)
     {
         $newArrayKey = null;
-        $arguments = is_null($arguments) ? array() : explode(',', $arguments);
+        $arguments = $this->splitArguments($arguments);
         foreach ($arguments as $key => &$argument) {
             if ($tab = $this->getMixinArgumentAssign($argument)) {
                 if (is_null($newArrayKey)) {
@@ -249,8 +270,7 @@ abstract class MixinVisitor extends CodeVisitor
         }
 
         array_unshift($arguments, 'attributes');
-        $arguments = implode(',', $arguments);
-        $arguments = explode(',', $arguments);
+        $arguments = $this->splitArguments(implode(',', $arguments));
         array_walk($arguments, array(get_class(), 'initArgToNull'));
         $this->visitMixinCodeAndBlock($name, $block, $arguments);
 

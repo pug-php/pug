@@ -139,5 +139,17 @@ mixin simple-paragraph(str)
         $expected = '<p>FOO</p>';
 
         $this->assertSame($expected, $actual);
+
+        $actual = trim($pug->render('
+mixin simple-paragraph(str)
+    p=str
++simple-paragraph(strtoupper(substr("foo
+---\'(bar
+", 0, 3)) . \'\\""\' . (substr(\'")5\', 1)))
++simple-paragraph(strtoupper(\'b\') . "foo")
+'));
+        $expected = '<p>FOO\\&quot;&quot;)5</p><p>Bfoo</p>';
+
+        $this->assertSame($expected, $actual);
     }
 }

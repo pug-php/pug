@@ -244,7 +244,7 @@ if ($missings) {
                 echo $requirement . ' is false.<br />';
         }
     }
-    exit();
+    exit(1);
 }
 ```
 
