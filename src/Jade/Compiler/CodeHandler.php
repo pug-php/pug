@@ -48,7 +48,7 @@ class CodeHandler extends CompilerUtils
             preg_replace_callback('/[a-zA-Z0-9\\\\_\\x7f-\\xff]*\((?:[0-9\/%\.\s*+-]++|(?R))*+\)/', function ($match) {
                 // no need to keep separators in simple PHP expressions (functions calls, parentheses, calculs)
                 return str_repeat(' ', strlen($match[0]));
-            }, preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\{2})*\\1/', function ($match) {
+            }, preg_replace_callback('/"(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\'/', function ($match) {
                 // do not take separators in strings
                 return str_repeat(' ', strlen($match[0]));
             }, $this->input)),

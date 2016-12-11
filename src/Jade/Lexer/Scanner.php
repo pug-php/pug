@@ -7,7 +7,7 @@ namespace Jade\Lexer;
  */
 abstract class Scanner extends MixinScanner
 {
-    const PARENTHESES = '(\\((?:(?>"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|[^()\'"]++|(?-1))*+)\\))';
+    const PARENTHESES = '(\\((?:(?>"(?:\\\\[\\S\\s]|[^"\\\\])*"|\'(?:\\\\[\\S\\s]|[^\'\\\\])*\'|[^()\'"]++|(?-1))*+)\\))';
 
     /**
      *  Helper to create tokens.

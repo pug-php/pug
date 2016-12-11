@@ -218,7 +218,7 @@ class Compiler extends Options
             // @todo: handleCode() in concat
             $part[0] = trim($part[0]);
 
-            if (preg_match('/^("(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\')(.*)$/', $part[0], $match)) {
+            if (preg_match('/^("(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\')([\\s\\S]*)$/', $part[0], $match)) {
                 if (strlen(trim($match[2]))) {
                     throw new \ErrorException('Unexpected value: ' . $match[2], 8);
                 }
@@ -311,7 +311,7 @@ class Compiler extends Options
 
     protected function handleArgumentValue($arg)
     {
-        if (preg_match('/^"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'/', $arg)) {
+        if (preg_match('/^"(?:\\\\[\\s\\S]|[^"\\\\])*"|\'(?:\\\\[\\s\\S]|[^\'\\\\])*\'/', $arg)) {
             return $this->handleString(trim($arg));
         }
 
@@ -320,7 +320,7 @@ class Compiler extends Options
         } catch (\Exception $e) {
             // if a bug occur, try to remove comments
             try {
-                return $this->handleCode(preg_replace('#/\*(.*)\*/#', '', $arg));
+                return $this->handleCode(preg_replace('#/\\*([\\s\\S]*?)\\*/#', '', $arg));
             } catch (\Exception $e) {
                 throw new ParserException('Pug.php did not understand ' . $arg, 10, $e);
             }
