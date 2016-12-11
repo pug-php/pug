@@ -7,7 +7,7 @@ namespace Jade\Lexer;
  */
 abstract class Scanner extends MixinScanner
 {
-    const PARENTHESES = '(\\((?:"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|[^()\'"]++|(?R))*+\\))';
+    const PARENTHESES = '(\\((?:(?>"(?:\\\\.|[^"\\\\])*"|\'(?:\\\\.|[^\'\\\\])*\'|[^()\'"]++|(?-1))*+)\\))';
 
     /**
      *  Helper to create tokens.
@@ -287,10 +287,10 @@ abstract class Scanner extends MixinScanner
      */
     protected function scanAndAttributes()
     {
-        if (preg_match('/^&attributes(\(((?>[^()]+|(?1))*)\))/', $this->input, $matches)) {
+        if (preg_match('/^&attributes' . Scanner::PARENTHESES . '/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            return $this->token('&attributes', $matches[2]);
+            return $this->token('&attributes', trim(substr($matches[1], 1, -1)));
         }
     }
 }
