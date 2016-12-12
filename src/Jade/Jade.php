@@ -102,6 +102,24 @@ class Jade extends Options
         return $requirements;
     }
 
+
+    /*  setDir , output */
+    public function output($filename,$return = false) {
+        if($return) return $this->render($filename);
+        else echo $this->render($filename);
+    }
+
+    public function setDir($path) {
+        if(!$path) unset($this->options['basedir']);
+        else $this->options['basedir'] = $path;
+    }
+
+    // assign
+    public function assign($variables, $value = null) {
+        $this->share($variables,$value);
+    }
+
+
     /**
      * Compile PHP code from a Pug input or a Pug file.
      *
@@ -114,7 +132,7 @@ class Jade extends Options
      */
     public function compile($input, $filename = null)
     {
-        $parser = new Parser($input, $filename, $this->options);
+        $parser = new Parser($this->options['basedir'] . $input, $filename, $this->options);
         $compiler = new Compiler($this->options, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
@@ -149,6 +167,11 @@ class Jade extends Options
      */
     public function render($input, $filename = null, array $vars = array())
     {
+         // auto add extension
+        if($this->options['extension'] && substr($input,-(strlen($this->options['extension']))) != $this->options['extension']) {
+            $input .= $this->options['extension'];
+        }
+
         if (is_array($filename) || is_object($filename)) {
             $vars = $filename;
             $filename = null;
