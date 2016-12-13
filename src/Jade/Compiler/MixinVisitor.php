@@ -19,18 +19,16 @@ abstract class MixinVisitor extends CodeVisitor
     protected function splitArguments($argumentsString)
     {
         $arguments = array();
-        while (is_string($argumentsString) && strlen($argumentsString)) {
-            if(preg_match(
+        if (is_string($argumentsString) && strlen($argumentsString)) {
+            while (preg_match(
                 '/^((?:[^,"\'\\(\\)]+|' . Scanner::QUOTED_STRING . '|' . Scanner::PARENTHESES . ')*),/',
                 $argumentsString,
                 $matches
             )) {
                 $arguments[] = trim($matches[1]);
                 $argumentsString = trim(substr($argumentsString, strlen($matches[0])));
-                continue;
             }
             $arguments[] = trim($argumentsString);
-            break;
         }
 
         return $arguments;

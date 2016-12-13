@@ -115,7 +115,7 @@ class Jade extends Options
     public function compile($input, $filename = null)
     {
         $parser = new Parser($input, $filename, $this->options);
-        $compiler = new Compiler($this->options, $this->filters, $parser->getFilename());
+        $compiler = new Compiler($this, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
         if (version_compare(PHP_VERSION, '7.0.0') < 0) {
             $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . Scanner::PARENTHESES . ')[ \t]*' . Scanner::PARENTHESES . '/', function ($match) {

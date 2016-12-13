@@ -125,9 +125,6 @@ p(
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @group i92
-     */
     public function testIssue92()
     {
         $pug = new Pug();
@@ -149,6 +146,40 @@ mixin simple-paragraph(str)
 +simple-paragraph(strtoupper(\'b\') . "foo")
 '));
         $expected = '<p>FOO\\&quot;&quot;)5</p><p>Bfoo</p>';
+
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
+     * @group i72
+     */
+    public function testIssue72()
+    {
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render('
+if entryopen && !submitted
+    button
+', array(
+    'entryopen' => true,
+    'submitted' => false,
+)));
+        $expected = '<button></button>';
+
+        $this->assertSame($expected, $actual);
+
+        $pug = new Pug(array(
+            'expressionLanguage' => 'php',
+        ));
+        $actual = trim($pug->render('
+if $entryopen and !$submitted
+    button
+', array(
+    'entryopen' => true,
+    'submitted' => false,
+)));
+        $expected = '<button></button>';
 
         $this->assertSame($expected, $actual);
     }

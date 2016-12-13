@@ -159,12 +159,6 @@ abstract class Scanner extends MixinScanner
         if (preg_match('/^(if|unless|else if|elseif|else|while)\b([^\n]*)/', $this->input, $matches)) {
             $this->consume($matches[0]);
 
-            /*switch ($matches[1]) {
-                case 'if': $code = 'if (' . $matches[2] . '):'; break;
-                case 'unless': $code = 'if (!(' . $matches[2] . ')):'; break;
-                case 'else if': $code = 'elseif (' . $matches[2] . '):'; break;
-                case 'else': $code = 'else (' . $matches[2] . '):'; break;
-            }*/
             $code = $this->normalizeCode($matches[0]);
             $token = $this->token('code', $code);
             $token->buffer = false;

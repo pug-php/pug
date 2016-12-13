@@ -9,11 +9,12 @@ use Jade\Lexer\Scanner;
  */
 class CodeHandler extends CompilerUtils
 {
+    protected $compiler;
     protected $input;
     protected $name;
     protected $separators;
 
-    public function __construct($input, $name)
+    public function __construct($compiler, $input, $name)
     {
         if (!is_string($input)) {
             throw new \InvalidArgumentException('Expecting a string of PHP, got: ' . gettype($input), 11);
@@ -23,6 +24,7 @@ class CodeHandler extends CompilerUtils
             throw new \InvalidArgumentException('Expecting a string of PHP, empty string received.', 12);
         }
 
+        $this->compiler = $compiler;
         $this->input = trim(preg_replace('/\bvar\b/', '', $input));
         $this->name = $name;
         $this->separators = array();
@@ -30,7 +32,7 @@ class CodeHandler extends CompilerUtils
 
     public function innerCode($input, $name)
     {
-        $handler = new static($input, $name);
+        $handler = new static($this->compiler, $input, $name);
 
         return $handler->parse();
     }
@@ -62,8 +64,8 @@ class CodeHandler extends CompilerUtils
 
         if (count($this->separators) === 0) {
             if (strstr('0123456789-+("\'$', substr($this->input, 0, 1)) === false) {
-                //$this->input = $this->phpizeExpression('addDollarIfNeeded', $this->input);
-                $this->input = static::addDollarIfNeeded($this->input);
+                $this->input = $this->compiler->phpizeExpression('addDollarIfNeeded', $this->input);
+                //$this->input = static::addDollarIfNeeded($this->input);
             }
 
             return array($this->input);

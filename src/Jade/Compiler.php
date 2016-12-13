@@ -54,11 +54,12 @@ class Compiler extends Options
      * @param array/Jade $options
      * @param array      $filters
      */
-    public function __construct($options = array(), array $filters = array(), $filename = null)
+    public function __construct($options = array(), array $filters = array(), $filename = null, $jsPhpize = null)
     {
         $this->options = $this->setOptions($options);
         $this->filters = $filters;
         $this->filename = $filename;
+        $this->jsPhpize = $jsPhpize;
     }
 
     /**
@@ -68,7 +69,7 @@ class Compiler extends Options
      */
     public function subCompiler()
     {
-        return new static($this->options, $this->filters);
+        return new static($this->jade ?: $this->options, $this->filters, $this->filename, $this->jsPhpize);
     }
 
     /**
@@ -92,7 +93,8 @@ class Compiler extends Options
 
         $code = ltrim(implode('', $this->buffer));
         if ($this->jsPhpize) {
-            $code = $this->createCode($this->jsPhpize->compileDependencies()) . $code;
+            $dependencies = $this->jsPhpize->compileDependencies();
+            $code = $this->createCode($dependencies) . $code;
         }
 
         if ($this->phpSingleLine) {
@@ -169,7 +171,7 @@ class Compiler extends Options
 
     protected function handleCodePhp($input, $name = '')
     {
-        $handler = new CodeHandler($input, $name);
+        $handler = new CodeHandler($this, $input, $name);
 
         return $handler->parse();
     }
@@ -257,11 +259,9 @@ class Compiler extends Options
      */
     protected function interpolateFromCapture($match)
     {
-        if ($match[1] === '') {
-            return trim($this->escapeIfNeeded($match[2] !== '!', $match[3]));
-        }
-
-        return substr($match[0], 1);
+        return $match[1] === ''
+            ? trim($this->escapeIfNeeded($match[2] !== '!', $match[3]))
+            : substr($match[0], 1);
     }
 
     /**
