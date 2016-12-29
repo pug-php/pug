@@ -150,9 +150,6 @@ mixin simple-paragraph(str)
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @group i72
-     */
     public function testIssue72()
     {
         $pug = new Pug(array(
@@ -180,6 +177,27 @@ if $entryopen and !$submitted
     'submitted' => false,
 )));
         $expected = '<button></button>';
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testIssue100()
+    {
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
+            'item' => array(
+                'name' => 'Foo',
+                'price' => 12,
+            ),
+            'helpers' => array(
+                'format' => function ($type, $price) {
+                    return $type . '-' . $price;
+                },
+            ),
+        )));
+        $expected = '<p>Example Foo money-12</p>';
 
         $this->assertSame($expected, $actual);
     }
