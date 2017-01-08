@@ -150,9 +150,6 @@ mixin simple-paragraph(str)
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @group i72
-     */
     public function testIssue72()
     {
         $pug = new Pug(array(
@@ -181,6 +178,53 @@ if $entryopen and !$submitted
 )));
         $expected = '<button></button>';
 
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testSymfonyIssue6()
+    {
+        /**
+         * With js expression language.
+         */
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render('
+.foo(style=\'background-position: 50% -402px; background-image: url("\' + strtolower(\'/img.PNG\') + \'");\')
+'));
+        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+
+        // style as string
+        $this->assertSame($expected, $actual);
+
+        $actual = trim($pug->render('
+.foo(style={\'background-position\': "50% -402px", \'background-image\': \'url("\' + strtolower(\'/img.PNG\') + \'")\'})
+'));
+        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+
+        // style as object
+        $this->assertSame($expected, $actual);
+
+        /**
+         * With php expression language.
+         */
+        $pug = new Pug(array(
+            'expressionLanguage' => 'php',
+        ));
+        $actual = trim($pug->render('
+.foo(style=(\'background-position: 50% -402px; background-image: url("\' . strtolower(\'/img.PNG\') . \'");\'))
+'));
+        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+
+        // style as string
+        $this->assertSame($expected, $actual);
+
+        $actual = trim($pug->render('
+.foo(style=array(\'background-position\' => "50% -402px", \'background-image\' => \'url("\' . strtolower(\'/img.PNG\') . \'")\'))
+'));
+        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+
+        // style as array
         $this->assertSame($expected, $actual);
     }
 }
