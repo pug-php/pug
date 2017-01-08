@@ -227,4 +227,25 @@ if $entryopen and !$submitted
         // style as array
         $this->assertSame($expected, $actual);
     }
+
+    public function testIssue100()
+    {
+        $pug = new Pug(array(
+            'expressionLanguage' => 'js',
+        ));
+        $actual = trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
+            'item' => array(
+                'name' => 'Foo',
+                'price' => 12,
+            ),
+            'helpers' => array(
+                'format' => function ($type, $price) {
+                    return $type . '-' . $price;
+                },
+            ),
+        )));
+        $expected = '<p>Example Foo money-12</p>';
+
+        $this->assertSame($expected, $actual);
+    }
 }

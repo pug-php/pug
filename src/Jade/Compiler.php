@@ -94,7 +94,10 @@ class Compiler extends Options
         $code = ltrim(implode('', $this->buffer));
         if ($this->jsPhpize) {
             $dependencies = $this->jsPhpize->compileDependencies();
-            $code = $this->createCode($dependencies) . $code;
+            if (!empty($dependencies)) {
+                $this->jsPhpize->flushDependencies();
+                $code = $this->createCode($dependencies) . $code;
+            }
         }
 
         if ($this->phpSingleLine) {
