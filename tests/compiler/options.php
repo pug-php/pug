@@ -30,7 +30,7 @@ class JadeCompilerOptionsTest extends PHPUnit_Framework_TestCase
 
     public function testCompilerGetFilename()
     {
-        $jade = new Compiler(array(), array(), 'foobar');
+        $compiler = new Compiler(array(), array(), 'foobar');
         $this->assertSame('foobar', $compiler->getFilename());
     }
 }
