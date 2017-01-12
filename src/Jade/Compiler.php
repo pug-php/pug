@@ -63,6 +63,16 @@ class Compiler extends Options
     }
 
     /**
+     * Get the filename passed to the compiler.
+     *
+     * @return Compiler
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
      * Get a compiler with the same settings.
      *
      * @return Compiler
