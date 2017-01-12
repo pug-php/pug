@@ -27,4 +27,10 @@ class JadeCompilerOptionsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('@', $compiler->getOption('indentChar'));
         $this->assertSame('bar', $compiler->getOption('foo'));
     }
+
+    public function testCompilerGetFilename()
+    {
+        $jade = new Compiler(array(), array(), 'foobar');
+        $this->assertSame('foobar', $compiler->getFilename());
+    }
 }
