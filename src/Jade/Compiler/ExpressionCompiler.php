@@ -48,7 +48,10 @@ class ExpressionCompiler extends MixinVisitor
 
     protected function getPhpCodeFromJs($arguments)
     {
-        if (preg_match('/^\s*array\s*' . Scanner::PARENTHESES . '\s*$/i', $arguments[0])) {
+        if (
+            preg_match('/^\s*array\s*' . Scanner::PARENTHESES . '\s*$/i', $arguments[0]) ||
+            preg_match('/^\(*isset\(\$/i', $arguments[0])
+        ) {
             return $arguments[0];
         }
 
