@@ -41,6 +41,8 @@ Laravel: https://github.com/BKWLD/laravel-pug
 
 CodeIgniter: https://github.com/pug-php/ci-pug
 
+Yii 2: https://github.com/rmrevin/yii2-pug
+
 ### Pug options
 
 Pug options should be passed to the Jade construction
