@@ -2,6 +2,7 @@
 
 namespace Jade\Compiler;
 
+use Jade\Nodes\Block;
 use Jade\Nodes\Tag;
 use Jade\Nodes\Text;
 
@@ -58,6 +59,14 @@ abstract class TagVisitor extends Visitor
                 !preg_match('/\s$/', $nodes[$i - 1]->value)
             ) {
                 $nodes[$i - 1]->value .= ' ';
+            }
+
+            if (
+                $nodes[$i] instanceof Text &&
+                $nodes[$i - 1] instanceof Block &&
+                !preg_match('/^\s/', $nodes[$i]->value)
+            ) {
+                $nodes[$i]->value = ' ' . $nodes[$i]->value;
             }
         }
     }
