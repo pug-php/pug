@@ -65,7 +65,8 @@ abstract class TagVisitor extends Visitor
                 $nodes[$i] instanceof Text &&
                 $nodes[$i - 1] instanceof Block &&
                 $nodes[$i - 1]->nodes[0] instanceof Tag &&
-                !preg_match('/^\s/', $nodes[$i]->value)
+                !preg_match('/^\s/', $nodes[$i]->value) &&
+                !empty($nodes[$i]->value)
             ) {
                 $nodes[$i]->value = ' ' . $nodes[$i]->value;
             }
