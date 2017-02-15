@@ -88,5 +88,13 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
         $html = $pug->render("p\n  | #[i a] #[i b]");
 
         $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
+
+        $html = $pug->render("p this is #[a(href='#') test] string");
+
+        $this->assertSame('<p>this is <a href="#">test</a> string</p>', $html);
+
+        $html = $pug->render("p this is #[a(href='#') test string]");
+
+        $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
     }
 }
