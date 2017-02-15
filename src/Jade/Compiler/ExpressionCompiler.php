@@ -50,7 +50,11 @@ class ExpressionCompiler extends MixinVisitor
     {
         if (
             preg_match('/^\s*array\s*' . Scanner::PARENTHESES . '\s*$/i', $arguments[0]) ||
-            preg_match('/^\(*isset\(\$/i', $arguments[0])
+            preg_match('/^\(*isset\(\$/i', $arguments[0]) ||
+            (
+                preg_match('/^\s*array_merge\s*' . Scanner::PARENTHESES . '/i', $arguments[0]) &&
+                preg_match('/\s*array\s*' . Scanner::PARENTHESES . '\s*/i', $arguments[0])
+            )
         ) {
             return $arguments[0];
         }

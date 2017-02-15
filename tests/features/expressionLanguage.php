@@ -36,6 +36,9 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $this->assertSame('array(1)', $actual);
         $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('$a', $actual);
+
+        $actual = trim($jade->render("mixin test\n  div&attributes(attributes)\nbody\n  +test()(class='test')"));
+        $this->assertSame('<body><div class="test "></div></body>', $actual);
     }
 
     public function testPhpExpression()
