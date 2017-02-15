@@ -94,9 +94,9 @@ class CacheHelper
 
         if (!is_dir($cacheFolder) && !@mkdir($cacheFolder, 0777, true)) {
             throw new \ErrorException(
-                $cacheFolder . ': Cache directory seem\'s to not exists'."\n".
-                'Create it with:'."\n".
-                'mkdir -p '.escapeshellarg(realpath($cacheFolder))."\n".
+                $cacheFolder . ': Cache directory seem\'s to not exists' . "\n" .
+                'Create it with:' . "\n" .
+                'mkdir -p ' . escapeshellarg(realpath($cacheFolder)) . "\n" .
                 'Or replace your cache setting with a valid writable folder path.',
                 5
             );
