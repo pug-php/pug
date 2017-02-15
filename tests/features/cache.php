@@ -45,7 +45,7 @@ class JadeCacheTest extends PHPUnit_Framework_TestCase
     {
         $jade = new Jade(array(
             'singleQuote' => false,
-            'cache' => 'does/not/exists'
+            'cache' => '///cannot/be/created'
         ));
         $jade->render(__DIR__ . '/../templates/attrs.jade');
     }
