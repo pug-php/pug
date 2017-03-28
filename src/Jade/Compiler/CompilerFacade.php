@@ -87,8 +87,6 @@ abstract class CompilerFacade extends ValuesCompiler
         } elseif (isset($anything->$key)) {
             return $anything->$key;
         }
-
-        return null;
     }
 
     /**
