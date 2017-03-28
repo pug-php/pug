@@ -83,7 +83,7 @@ abstract class CompilerFacade extends ValuesCompiler
         if (method_exists($anything, $method = 'get' . ucfirst($key))) {
             return $anything->$method();
         } elseif (method_exists($anything, $key)) {
-            return [$anything, $key];
+            return array($anything, $key);
         } elseif (isset($anything->$key)) {
             return $anything->$key;
         }
