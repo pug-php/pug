@@ -175,7 +175,7 @@ class Jade extends Options
      */
     public function render($input, $filename = null, array $vars = array())
     {
-        $callback = [$this, 'renderWithPhp'];
+        $callback = array($this, 'renderWithPhp');
         $fallback = function () use ($callback, $input, $filename, $vars) {
             return call_user_func($callback, $input, $filename, $vars);
         };
