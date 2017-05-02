@@ -249,9 +249,6 @@ if $entryopen and !$submitted
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @group i103
-     */
     public function testIssue103()
     {
         $pug = new Pug(array(

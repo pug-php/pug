@@ -4,6 +4,9 @@ namespace Jade;
 
 use Jade\Engine\Options;
 use Jade\Lexer\Scanner;
+use Jade\Stream\Template;
+use NodejsPhpFallback\NodejsPhpFallback;
+use SebastianBergmann\CodeCoverage\InvalidArgumentException;
 
 /**
  * Class Jade\Jade.
@@ -58,6 +61,8 @@ class Jade extends Options
      * is missing in the executor include whitelist.
      * Returns false in any other case.
      *
+     * @param string $extension PHP extension name
+     *
      * @return bool
      */
     protected function whiteListNeeded($extension)
@@ -72,12 +77,12 @@ class Jade extends Options
     /**
      * Returns list of requirements in an array identified by keys.
      * For each of them, the value can be true if the requirement is
-     * fullfilled, false else.
+     * fulfilled, false else.
      *
      * If a requirement name is specified, returns only the matching
      * boolean value for this requirement.
      *
-     * @param string name
+     * @param string $name
      *
      * @throws \InvalidArgumentException
      *
@@ -136,18 +141,7 @@ class Jade extends Options
         return $php;
     }
 
-    /**
-     * Compile HTML code from a Pug input or a Pug file.
-     *
-     * @param sring Pug input or file
-     * @param sring filename (optionnal)
-     * @param array vars to pass to the view
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function render($input, $filename = null, array $vars = array())
+    protected function renderWithPhp($input, $filename, array $vars)
     {
         if (is_array($filename) || is_object($filename)) {
             $vars = $filename;
@@ -170,10 +164,95 @@ class Jade extends Options
     }
 
     /**
+     * Compile HTML code from a Pug input or a Pug file.
+     *
+     * @param string $input pug input or file
+     * @param string $filename (optional)
+     * @param array  $vars to pass to the view
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function render($input, $filename = null, array $vars = array())
+    {
+        $callback = [$this, 'renderWithPhp'];
+        $fallback = function () use ($callback, $input, $filename, $vars) {
+            return call_user_func($callback, $input, $filename, $vars);
+        };
+
+        if ($this->options['pugjs']) {
+            if (is_array($filename)) {
+                $vars = $filename;
+                $filename = null;
+            }
+
+            $workDirectory = empty($this->options['cache'])
+                ? sys_get_temp_dir()
+                : $this->options['cache'];
+            $pug = true;
+            if ($filename === null && file_exists($input)) {
+                $filename = $input;
+                $pug = null;
+            }
+            if ($pug) {
+                $pug = $input;
+                $input = $workDirectory . '/source.pug';
+                file_put_contents($input, $pug);
+            }
+
+            $node = new NodejsPhpFallback();
+            $options = array(
+                'path' => realpath($filename),
+                'basedir' => $this->options['basedir'],
+                'pretty' => $this->options['prettyprint'],
+                'out' => $workDirectory,
+            );
+            if (!empty($vars)) {
+                $options['obj'] = json_encode($vars);
+            }
+            $args = array();
+
+            foreach ($options as $option => $value) {
+                if (!empty($value)) {
+                    $args[] = '--' . $option . ' ' . json_encode($value);
+                }
+            }
+
+            $file = $node->execModuleScript(
+                'pug-cli',
+                'index.js',
+                implode(' ', $args) .
+                ' ' . escapeshellarg($input) .
+                ' 2>&1',
+                $fallback
+            );
+
+            $file = explode('rendered ', $file);
+            if (count($file) < 2) {
+                throw new \RuntimeException(
+                    'Pugjs throw an error: ' . $file[0]
+                );
+            }
+            $file = trim($file[1]);
+            $html = file_get_contents($file);
+            unlink($file);
+
+            if ($pug) {
+                unlink($input);
+            }
+
+            return $html;
+        }
+
+        return call_user_func($fallback);
+    }
+
+    /**
      * Create a stream wrapper to allow
      * the possibility to add $scope variables.
      *
-     * @param string input
+     * @param string $input
      *
      * @throws \ErrorException
      *
@@ -186,7 +265,7 @@ class Jade extends Options
         }
 
         if (!in_array($this->options['stream'], stream_get_wrappers())) {
-            stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
+            stream_wrapper_register($this->options['stream'], Template::class);
         }
 
         return $this->options['stream'] . '://data;' . $input;

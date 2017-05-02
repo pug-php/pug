@@ -28,6 +28,7 @@ class Options extends Keywords
         'postRender'         => null,
         'preRender'          => null,
         'prettyprint'        => false,
+        'pugjs'              => false,
         'restrictedScope'    => false,
         'singleQuote'        => false,
         'stream'             => null,
@@ -39,9 +40,11 @@ class Options extends Keywords
      *
      * Throw a invalid argument exception if the option does not exists.
      *
-     * @param string name
+     * @param string $name
      *
      * @throws \InvalidArgumentException
+     *
+     * @return mixed
      */
     public function getOption($name)
     {
@@ -55,8 +58,8 @@ class Options extends Keywords
     /**
      * Set one standard option (listed in $this->options).
      *
-     * @param string name
-     * @param mixed option value
+     * @param string $name
+     * @param mixed  $value
      *
      * @throws \InvalidArgumentException
      *
@@ -76,7 +79,7 @@ class Options extends Keywords
     /**
      * Set multiple standard options.
      *
-     * @param array option list
+     * @param array $options list of options
      *
      * @throws \InvalidArgumentException
      *
@@ -94,8 +97,8 @@ class Options extends Keywords
     /**
      * Set one custom option.
      *
-     * @param string name
-     * @param mixed option value
+     * @param string $name
+     * @param mixed  $value
      *
      * @return $this
      */
@@ -109,7 +112,7 @@ class Options extends Keywords
     /**
      * Set multiple custom options.
      *
-     * @param array options list
+     * @param array $options list of options
      *
      * @return $this
      */
