@@ -2,7 +2,6 @@
 
 namespace Jade\Compiler;
 
-use Jade\Nodes\Block;
 use Jade\Nodes\Tag;
 use Jade\Nodes\Text;
 

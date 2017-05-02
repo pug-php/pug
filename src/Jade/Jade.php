@@ -6,7 +6,6 @@ use Jade\Engine\Options;
 use Jade\Lexer\Scanner;
 use Jade\Stream\Template;
 use NodejsPhpFallback\NodejsPhpFallback;
-use SebastianBergmann\CodeCoverage\InvalidArgumentException;
 
 /**
  * Class Jade\Jade.
@@ -166,9 +165,9 @@ class Jade extends Options
     /**
      * Compile HTML code from a Pug input or a Pug file.
      *
-     * @param string $input pug input or file
-     * @param string $filename (optional)
-     * @param array  $vars to pass to the view
+     * @param string $input    pug input or file
+     * @param string $filename optional file path
+     * @param array  $vars     to pass to the view
      *
      * @throws \Exception
      *
