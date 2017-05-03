@@ -184,7 +184,7 @@ class Jade extends Options
      *
      * @return string
      */
-    public function renderWithJs($input, $filename, array $vars, callable $fallback)
+    public function renderWithJs($input, $filename, array $vars, $fallback)
     {
         if (is_array($filename)) {
             $vars = $filename;
