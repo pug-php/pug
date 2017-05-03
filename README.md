@@ -181,7 +181,7 @@ $pug->render('p=$myClosure("Pink")', array('myClosure' => $myClosure));
 ```
 
 This will render:
-```html 
+```html
 <p>Hey you Pink, out there on your own, can you hear me?</p>
 ```
 
@@ -208,7 +208,8 @@ echo "$errors errors occurred\n";
 ```
 Be sure any unexpected error occurred and that all your templates in your template directory have been cached.
 
-Then use the same cache directory and template directory in production with the option upToDateCheck to ```false```to bypass the cache check and automatically use the cache version:
+Then use the same cache directory and template directory in production with the option upToDateCheck to ```false```
+to bypass the cache check and automatically use the cache version:
 ```php
 $pug = new Pug(array(
     'cache' => 'var/cache/pug',
@@ -217,6 +218,47 @@ $pug = new Pug(array(
 );
 $pug->render('path/to/pug/templates/my-page.pug');
 ```
+
+### Templates from pug-js
+
+First remember pug-php is a PHP template engine. Pug-js and Pug-php provide both a HAML-like syntax
+for markup, but for expression and raw code, pug-js use JS, and pug-php use PHP. By default, we did
+some magic tricks to transform simple JS syntaxes into PHP. This should help you to migrate smoother
+from pug-js if you already have some template but benefit of PHP advantages.
+
+If you start a new project, we highly recommend you to use the following option:
+```php
+$pug = new Pug(array(
+    'expressionLanguage' => 'php'
+);
+```
+It will disable all translations, so you have to use always explicit PHP syntaxes such as:
+```pug
+- $concat = $foo . $bar
+p=$concat
+```
+
+If you want expressions closest to JS, you can use:
+```php
+$pug = new Pug(array(
+    'expressionLanguage' => 'js'
+);
+```
+It will allow both PHP stuff and JS stuff in a JS-style syntax. But you must stick to it,
+you will not be able to mix PHP and JS styles in this mode.
+
+Finally, you can use the native pug-js engine with:
+```php
+$pug = new Pug(array(
+    'pugjs' => 'js'
+);
+```
+
+This mode require node and npm installed as it will install **pug-cli** and directly call it.
+This mode will flat you local vars (it means complex object like DateTime, or classes with
+magic methods will be striginfied in JSON as simple objects) and you will not benefit some
+features like cache, mixed indent, pre/post render hooks but here you will get exact same
+output as in pug-js.
 
 ### Check requirements
 
