@@ -33,19 +33,25 @@ abstract class MixinVisitorUtils extends CodeVisitor
         return $arguments;
     }
 
+    protected function checkForNewKey(&$arguments, &$argument, &$newArrayKey, $key)
+    {
+        if (is_null($newArrayKey)) {
+            $newArrayKey = $key;
+            $argument = array();
+
+            return;
+        }
+
+        unset($arguments[$key]);
+    }
+
     protected function parseMixinArguments(&$arguments, &$containsOnlyArrays, &$defaultAttributes)
     {
         $newArrayKey = null;
         $arguments = $this->splitArguments($arguments);
         foreach ($arguments as $key => &$argument) {
             if ($tab = $this->getMixinArgumentAssign($argument)) {
-                if (is_null($newArrayKey)) {
-                    $newArrayKey = $key;
-                    $argument = array();
-                } else {
-                    unset($arguments[$key]);
-                }
-
+                $this->checkForNewKey($arguments, $argument, $newArrayKey, $key);
                 $defaultAttributes[] = var_export($tab[0], true) . ' => ' . $tab[1];
                 $arguments[$newArrayKey][$tab[0]] = static::decodeValue($tab[1]);
                 continue;
