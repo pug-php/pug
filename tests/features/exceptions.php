@@ -93,11 +93,6 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
         try {
             get_php_code('a(href="foo""bar")');
         } catch (\Exception $e) {
-            if (!is_object($e->getPrevious())) {
-                var_dump($e->getPrevious());
-
-                throw $e;
-            }
             $code = $e->getPrevious()->getCode();
         }
 
