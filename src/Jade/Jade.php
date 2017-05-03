@@ -4,7 +4,6 @@ namespace Jade;
 
 use Jade\Engine\Options;
 use Jade\Lexer\Scanner;
-use Jade\Stream\Template;
 use NodejsPhpFallback\NodejsPhpFallback;
 
 /**
@@ -264,7 +263,7 @@ class Jade extends Options
         }
 
         if (!in_array($this->options['stream'], stream_get_wrappers())) {
-            stream_wrapper_register($this->options['stream'], Template::class);
+            stream_wrapper_register($this->options['stream'], 'Jade\\Stream\\Template');
         }
 
         return $this->options['stream'] . '://data;' . $input;
