@@ -2,14 +2,13 @@
 
 namespace Jade;
 
-use Jade\Engine\Options;
+use Jade\Engine\PugJsEngine;
 use Jade\Lexer\Scanner;
-use NodejsPhpFallback\NodejsPhpFallback;
 
 /**
  * Class Jade\Jade.
  */
-class Jade extends Options
+class Jade extends PugJsEngine
 {
     /**
      * expressionLanguage option values.
@@ -139,7 +138,18 @@ class Jade extends Options
         return $php;
     }
 
-    protected function renderWithPhp($input, $filename, array $vars)
+    /**
+     * Render using the PHP engine.
+     *
+     * @param string $input    pug input or file
+     * @param string $filename optional file path
+     * @param array  $vars     to pass to the view
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function renderWithPhp($input, $filename, array $vars)
     {
         if (is_array($filename) || is_object($filename)) {
             $vars = $filename;
@@ -180,67 +190,7 @@ class Jade extends Options
         };
 
         if ($this->options['pugjs']) {
-            if (is_array($filename)) {
-                $vars = $filename;
-                $filename = null;
-            }
-
-            $workDirectory = empty($this->options['cache'])
-                ? sys_get_temp_dir()
-                : $this->options['cache'];
-            $pug = true;
-            if ($filename === null && file_exists($input)) {
-                $filename = $input;
-                $pug = null;
-            }
-            if ($pug) {
-                $pug = $input;
-                $input = $workDirectory . '/source.pug';
-                file_put_contents($input, $pug);
-            }
-
-            $node = new NodejsPhpFallback();
-            $options = array(
-                'path' => realpath($filename),
-                'basedir' => $this->options['basedir'],
-                'pretty' => $this->options['prettyprint'],
-                'out' => $workDirectory,
-            );
-            if (!empty($vars)) {
-                $options['obj'] = json_encode($vars);
-            }
-            $args = array();
-
-            foreach ($options as $option => $value) {
-                if (!empty($value)) {
-                    $args[] = '--' . $option . ' ' . json_encode($value);
-                }
-            }
-
-            $file = $node->execModuleScript(
-                'pug-cli',
-                'index.js',
-                implode(' ', $args) .
-                ' ' . escapeshellarg($input) .
-                ' 2>&1',
-                $fallback
-            );
-
-            $file = explode('rendered ', $file);
-            if (count($file) < 2) {
-                throw new \RuntimeException(
-                    'Pugjs throw an error: ' . $file[0]
-                );
-            }
-            $file = trim($file[1]);
-            $html = file_get_contents($file);
-            unlink($file);
-
-            if ($pug) {
-                unlink($input);
-            }
-
-            return $html;
+            return $this->renderWithJs($input, $filename, $vars, $fallback);
         }
 
         return call_user_func($fallback);

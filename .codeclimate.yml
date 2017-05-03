@@ -29,8 +29,6 @@ engines:
     - ca7400c9de963d4695967f19b944bef6
     # setAttribute is allowed to use boolean default value for escaped
     - a5e6f6215d8cc84a0b7750eaafaf8105
-    # else here is the simpliest way to do it
-    - 311e57c70997007dce22492a1426d448
     # False positives due to dynamic variable name
     - dd33258e7e716128f54e50df078b03ea
     - 3b839c8aa97552a3daec01930ff9e5c9
