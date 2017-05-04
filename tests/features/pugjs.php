@@ -78,6 +78,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $this->assertSame("<div>\n  <p></p>\n</div>", $html);
 
         unlink($source);
+        unlink($cache);
     }
 
     /**

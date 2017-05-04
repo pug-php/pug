@@ -56,7 +56,7 @@ class PugJsEngine extends Options
         fwrite($handler, 'module.exports=template;');
         fclose($handler);
 
-        $renderFile = realpath($file) . '.render.js';
+        $renderFile = realpath($file) . '.render.' . mt_rand(0, 999999999) . '.js';
         file_put_contents($renderFile,
             'console.log(require(' . json_encode($file) . ')' .
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
