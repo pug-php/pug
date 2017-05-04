@@ -19,8 +19,9 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         $pug->setOption('cache', sys_get_temp_dir());
-        $source = sys_get_temp_dir() . '/basic-copy.jade';
-        $cache = sys_get_temp_dir() . '/basic-copy.js';
+        $name = 'basic-copy-' . mt_rand(0, 99999999);
+        $source = sys_get_temp_dir() . '/' . $name . '.jade';
+        $cache = sys_get_temp_dir() . '/' . $name . '.js';
         copy(__DIR__ . '/../templates/basic.jade', $source);
 
         if (file_exists($cache)) {
