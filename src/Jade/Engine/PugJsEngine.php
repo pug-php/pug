@@ -56,17 +56,19 @@ class PugJsEngine extends Options
         fwrite($handler, 'module.exports=template;');
         fclose($handler);
 
-        $file = realpath($file);
-        $renderFile = $file . '.render.' . mt_rand(0, 999999999) . '.js';
+        $directory = dirname($file);
+        $currentDirectory = getcwd();
+        $renderFile = './render.' . time() . mt_rand(0, 999999999) . '.js';
+        chdir($directory);
         file_put_contents($renderFile,
-            'console.log(require(' . json_encode($file) . ')' .
+            'console.log(require(' . json_encode(realpath($file)) . ')' .
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
-        $renderFile = realpath($renderFile);
 
         $node = new NodejsPhpFallback();
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
+        chdir($currentDirectory);
 
         return $html;
     }

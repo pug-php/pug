@@ -18,11 +18,9 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
-        $tempDirectory = './tmp-cache';
-        mkdir($tempDirectory, 0777);
-        $pug->setOption('cache', $tempDirectory);
-        $source = $tempDirectory . '/basic-copy.jade';
-        $cache = $tempDirectory . '/basic-copy.js';
+        $pug->setOption('cache', sys_get_temp_dir());
+        $source = sys_get_temp_dir() . '/basic-copy.jade';
+        $cache = sys_get_temp_dir() . '/basic-copy.js';
         copy(__DIR__ . '/../templates/basic.jade', $source);
 
         if (file_exists($cache)) {
@@ -81,7 +79,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         unlink($source);
         unlink($cache);
-        rmdir($tempDirectory);
     }
 
     /**
