@@ -29,7 +29,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         }
 
         $html = trim($pug->render($source));
-        $a = file_get_contents($cache);
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
