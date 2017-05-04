@@ -29,6 +29,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         }
 
         $html = trim($pug->render($source));
+        $a = file_get_contents($cache);
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
@@ -40,6 +41,13 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = trim($pug->render($source, array(
             'greet' => 'Hello'
         )));
+
+        if (empty($html)) {
+            $b = file_get_contents($cache);
+            echo $a . "\n\n";
+            echo $b . "\n\n";
+            exit(1);
+        }
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
