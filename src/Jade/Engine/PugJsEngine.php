@@ -66,6 +66,11 @@ class PugJsEngine extends Options
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
 
+        if (substr($html, 0, 1) !== '<') {
+            echo "\n" . $renderFile . "\n" . var_export(file_exists($renderFile), true) . "\n\n";
+            exit;
+        }
+
         return $html;
     }
 
