@@ -89,7 +89,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Pugjs throw an error
+     * @expectedExceptionMessage is not a valid class name
      */
     public function testPugJsOptionException()
     {

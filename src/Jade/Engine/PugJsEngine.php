@@ -136,6 +136,11 @@ class PugJsEngine extends Options
             ' 2>&1',
             $fallback
         );
+        echo $result;
+        $test = explode('rendered ', $result);
+        if (count($test) > 1) {
+            echo file_get_contents(trim($test[1])) . "\n\n";
+        }
 
         return $this->parsePugJsResult($result, $input, $pug, $options);
     }
