@@ -30,6 +30,10 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         clearstatcache();
         $html = trim($pug->render($source));
 
+        if (!file_exists($cache)) {
+            var_dump($html);
+            exit(1);
+        }
         $this->assertTrue(file_exists($cache));
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
