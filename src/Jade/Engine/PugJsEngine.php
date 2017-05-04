@@ -64,6 +64,8 @@ class PugJsEngine extends Options
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
 
+        echo $renderFile . "\n" . var_export(file_exists($renderFile), true) . "\n\n";
+
         $node = new NodejsPhpFallback();
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
