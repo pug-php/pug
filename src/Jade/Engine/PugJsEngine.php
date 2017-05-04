@@ -43,7 +43,33 @@ class PugJsEngine extends Options
         return $options;
     }
 
-    protected function parsPugJsResult($result, &$input, &$pug)
+    protected function getHtml($file, array &$options)
+    {
+        if (empty($this->options['cache'])) {
+            $html = file_get_contents($file);
+            unlink($file);
+
+            return $html;
+        }
+
+        $handler = fopen($file, 'a');
+        fwrite($handler, 'module.exports=template;');
+        fclose($handler);
+
+        $renderFile = realpath($file) . '.render.js';
+        file_put_contents($renderFile,
+            'console.log(require(' . json_encode($file) . ')' .
+            '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
+        );
+
+        $node = new NodejsPhpFallback();
+        $html = $node->nodeExec($renderFile);
+        unlink($renderFile);
+
+        return $html;
+    }
+
+    protected function parsePugJsResult($result, &$input, &$pug, array &$options)
     {
         $result = explode('rendered ', $result);
         if (count($result) < 2) {
@@ -52,8 +78,7 @@ class PugJsEngine extends Options
             );
         }
         $file = trim($result[1]);
-        $html = file_get_contents($file);
-        unlink($file);
+        $html = $this->getHtml($file, $options);
 
         if ($pug) {
             unlink($input);
@@ -79,9 +104,22 @@ class PugJsEngine extends Options
         $options = $this->getPugJsOptions($input, $filename, $vars, $pug);
         $args = array();
 
+        if (!empty($options['pretty'])) {
+            $args[] = '--pretty';
+            unset($options['pretty']);
+        }
+
         foreach ($options as $option => $value) {
             if (!empty($value)) {
                 $args[] = '--' . $option . ' ' . json_encode($value);
+            }
+        }
+
+        if (!empty($this->options['cache'])) {
+            $args[] = '--client';
+            $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($input)) . '.js';
+            if (file_exists($renderFile) && filemtime($renderFile) >= filemtime($input)) {
+                return $this->parsePugJsResult('rendered ' . $renderFile, $input, $pug, $options);
             }
         }
 
@@ -95,6 +133,6 @@ class PugJsEngine extends Options
             $fallback
         );
 
-        return $this->parsPugJsResult($result, $input, $pug);
+        return $this->parsePugJsResult($result, $input, $pug, $options);
     }
 }

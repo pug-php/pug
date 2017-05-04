@@ -25,6 +25,7 @@ class Options extends Keywords
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
         'phpSingleLine'      => false,
+        'php5compatibility'  => false,
         'postRender'         => null,
         'preRender'          => null,
         'prettyprint'        => false,

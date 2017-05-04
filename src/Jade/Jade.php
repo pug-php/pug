@@ -119,7 +119,7 @@ class Jade extends PugJsEngine
         $parser = new Parser($input, $filename, $this->options);
         $compiler = new Compiler($this, $this->filters, $parser->getFilename());
         $php = $compiler->compile($parser->parse());
-        if (version_compare(PHP_VERSION, '7.0.0') < 0) {
+        if (version_compare(PHP_VERSION, '7.0.0') < 0 || $this->getOption('php5compatibility')) {
             $php = preg_replace_callback('/(' . preg_quote('\\Jade\\Compiler::getPropertyFromAnything', '/') . Scanner::PARENTHESES . ')[ \t]*' . Scanner::PARENTHESES . '/', function ($match) {
                 $parenthesis = trim(substr($match[3], 1, -1));
                 $arguments = $match[1];
