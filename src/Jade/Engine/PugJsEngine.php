@@ -61,6 +61,8 @@ class PugJsEngine extends Options
             'console.log(require(' . json_encode($file) . ')' .
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
+        clearstatcache();
+        echo "\n" . $renderFile . "\n" . var_export(file_exists($renderFile), true) . "\n\n";
 
         $node = new NodejsPhpFallback();
         $html = $node->nodeExec($renderFile);
@@ -68,7 +70,7 @@ class PugJsEngine extends Options
 
         if (substr($html, 0, 1) !== '<') {
             echo "\n" . $renderFile . "\n" . var_export(file_exists($renderFile), true) . "\n\n";
-            exit;
+            exit(1);
         }
 
         return $html;
