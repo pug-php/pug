@@ -52,7 +52,7 @@ $pug = new Pug(array(
     'prettyprint' => true,
     'extension' => '.pug',
     'cache' => 'pathto/writable/cachefolder/'
-);
+));
 ```
 
 ### Supports for local variables
