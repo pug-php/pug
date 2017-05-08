@@ -44,13 +44,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             'greet' => 'Hello'
         )));
 
-        if (empty($html)) {
-            $b = file_get_contents($cache);
-            echo $a . "\n\n";
-            echo $b . "\n\n";
-            exit(1);
-        }
-
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         touch($cache, time() - 20);

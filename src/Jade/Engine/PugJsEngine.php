@@ -130,16 +130,20 @@ class PugJsEngine extends Options
             }
         }
 
+        $directory = dirname($input);
+        $currentDirectory = getcwd();
+        $basename = basename($input);
+        chdir($directory);
         $node = new NodejsPhpFallback();
         $result = $node->execModuleScript(
             'pug-cli',
             'index.js',
             implode(' ', $args) .
-            ' ' . escapeshellarg($input) .
+            ' ' . escapeshellarg($basename) .
             ' 2>&1',
             $fallback
         );
-        $test = explode('rendered ', $result);
+        chdir($currentDirectory);
 
         return $this->parsePugJsResult($result, $input, $pug, $options);
     }
