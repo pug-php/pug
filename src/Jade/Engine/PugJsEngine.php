@@ -51,6 +51,9 @@ class PugJsEngine extends Options
 
             return $html;
         }
+        echo $file;
+        echo "\n\n" . file_exists($file) ? file_get_contents($file) : 'do not exist';
+        exit(1);
 
         $handler = fopen($file, 'a');
         fwrite($handler, 'module.exports=template;');
@@ -136,11 +139,7 @@ class PugJsEngine extends Options
             ' 2>&1',
             $fallback
         );
-        echo $result;
         $test = explode('rendered ', $result);
-        if (count($test) > 1) {
-            echo file_get_contents(trim($test[1])) . "\n\n";
-        }
 
         return $this->parsePugJsResult($result, $input, $pug, $options);
     }
