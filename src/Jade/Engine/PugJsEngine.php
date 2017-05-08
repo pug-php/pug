@@ -56,15 +56,19 @@ class PugJsEngine extends Options
         fwrite($handler, 'module.exports=template;');
         fclose($handler);
 
-        $renderFile = realpath($file) . '.render.' . mt_rand(0, 999999999) . '.js';
+        $directory = dirname($file);
+        $currentDirectory = getcwd();
+        $renderFile = './render.' . time() . mt_rand(0, 999999999) . '.js';
+        chdir($directory);
         file_put_contents($renderFile,
-            'console.log(require(' . json_encode($file) . ')' .
+            'console.log(require(' . json_encode(realpath($file)) . ')' .
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
 
         $node = new NodejsPhpFallback();
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
+        chdir($currentDirectory);
 
         return $html;
     }
@@ -111,7 +115,11 @@ class PugJsEngine extends Options
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $args[] = '--' . $option . ' ' . json_encode($value);
+                $function = in_array($option, array('pretty', 'obj'))
+                    ? 'json_encode'
+                    : 'escapeshellarg';
+                $value = call_user_func($function, $value);
+                $args[] = '--' . $option . ' ' . $value;
             }
         }
 
@@ -123,15 +131,20 @@ class PugJsEngine extends Options
             }
         }
 
+        $directory = dirname($input);
+        $currentDirectory = getcwd();
+        $basename = basename($input);
+        chdir($directory);
         $node = new NodejsPhpFallback();
         $result = $node->execModuleScript(
             'pug-cli',
             'index.js',
             implode(' ', $args) .
-            ' ' . escapeshellarg($input) .
+            ' ' . escapeshellarg($basename) .
             ' 2>&1',
             $fallback
         );
+        chdir($currentDirectory);
 
         return $this->parsePugJsResult($result, $input, $pug, $options);
     }
