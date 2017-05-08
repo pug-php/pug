@@ -116,7 +116,11 @@ class PugJsEngine extends Options
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $args[] = '--' . $option . ' ' . json_encode($value);
+                $function = in_array($option, array('pretty', 'obj'))
+                    ? 'json_encode'
+                    : 'escapeshellarg';
+                $value = call_user_func($function, $value);
+                $args[] = '--' . $option . ' ' . $value;
             }
         }
 
