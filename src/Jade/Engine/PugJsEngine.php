@@ -51,10 +51,6 @@ class PugJsEngine extends Options
 
             return $html;
         }
-        echo $file;
-        echo realpath($file);
-        echo "\n\n" . (file_exists($file) ? file_get_contents($file) : 'do not exist');
-        exit(1);
 
         $handler = fopen($file, 'a');
         fwrite($handler, 'module.exports=template;');
@@ -85,7 +81,11 @@ class PugJsEngine extends Options
                 'Pugjs throw an error: ' . $result[0]
             );
         }
+        var_dump($result);
         $file = trim($result[1]);
+        if (strpos($file, 'tmp/basic-copy') !== false) {
+            exit(1);
+        }
         $html = $this->getHtml($file, $options);
 
         if ($pug) {
