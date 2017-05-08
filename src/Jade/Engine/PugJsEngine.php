@@ -66,7 +66,6 @@ class PugJsEngine extends Options
         );
 
         $node = new NodejsPhpFallback();
-        echo "\nnodeExec\n" . $renderFile;
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
         chdir($currentDirectory);
@@ -137,8 +136,6 @@ class PugJsEngine extends Options
         $basename = basename($input);
         chdir($directory);
         $node = new NodejsPhpFallback();
-        echo "\npug-cli\n" . implode(' ', $args) .
-        ' ' . escapeshellarg($basename);
         $result = $node->execModuleScript(
             'pug-cli',
             'index.js',
