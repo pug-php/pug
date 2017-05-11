@@ -250,14 +250,14 @@ you will not be able to mix PHP and JS styles in this mode.
 Finally, you can use the native pug-js engine with:
 ```php
 $pug = new Pug(array(
-    'pugjs' => 'js'
+    'pugjs' => true
 );
 ```
 
 This mode require node and npm installed as it will install **pug-cli** and directly call it.
 This mode will flat you local vars (it means complex object like DateTime, or classes with
 magic methods will be striginfied in JSON as simple objects) and you will not benefit some
-features like cache, mixed indent, pre/post render hooks but here you will get exact same
+features like mixed indent, pre/post render hooks but in this mode you will get exact same
 output as in pug-js.
 
 ### Check requirements
