@@ -24,6 +24,7 @@ class Options extends Keywords
         'indentSize'         => 2,
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
+        'nodePath'           => null,
         'phpSingleLine'      => false,
         'php5compatibility'  => false,
         'postRender'         => null,

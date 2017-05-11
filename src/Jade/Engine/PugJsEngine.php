@@ -9,6 +9,23 @@ use NodejsPhpFallback\NodejsPhpFallback;
  */
 class PugJsEngine extends Options
 {
+    /**
+     * @var NodejsPhpFallback
+     */
+    protected $nodeEngine;
+
+    /**
+     * @return NodejsPhpFallback
+     */
+    public function getNodeEngine()
+    {
+        if (!$this->nodeEngine) {
+            $this->nodeEngine = new NodejsPhpFallback($this->options['nodePath']);
+        }
+
+        return $this->nodeEngine;
+    }
+
     protected function getPugJsOptions(&$input, &$filename, &$vars, &$pug)
     {
         if (is_array($filename)) {
@@ -65,7 +82,7 @@ class PugJsEngine extends Options
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
 
-        $node = new NodejsPhpFallback();
+        $node = $this->getNodeEngine();
         $html = $node->nodeExec($renderFile);
         unlink($renderFile);
         chdir($currentDirectory);
@@ -135,7 +152,7 @@ class PugJsEngine extends Options
         $currentDirectory = getcwd();
         $basename = basename($input);
         chdir($directory);
-        $node = new NodejsPhpFallback();
+        $node = $this->getNodeEngine();
         $result = $node->execModuleScript(
             'pug-cli',
             'index.js',
