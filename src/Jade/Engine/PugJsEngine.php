@@ -43,7 +43,7 @@ class PugJsEngine extends Options
         }
         if ($pug) {
             $pug = $input;
-            $input = $workDirectory . '/source.pug';
+            $input = $workDirectory . '/source-' . mt_rand(0, 999999999) . '.pug';
             file_put_contents($input, $pug);
         }
 
