@@ -250,7 +250,7 @@ you will not be able to mix PHP and JS styles in this mode.
 Finally, you can use the native pug-js engine with:
 ```php
 $pug = new Pug(array(
-    'pugjs' => 'js'
+    'pugjs' => true
 );
 ```
 
