@@ -299,3 +299,9 @@ All contributions are welcome, for any bug, issue or merge request (except for s
 ## Security
 
 Please report any security issue or risk by emailing pug@selfbuild.fr. Please don't disclose security bugs publicly until they have been handled by us.
+
+
+
+Pug-php recommand
+
+[<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
