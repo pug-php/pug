@@ -80,15 +80,13 @@ abstract class CompilerFacade extends ValuesCompiler
      */
     public static function getPropertyFromObject($anything, $key)
     {
-        return isset($anything->$key)
-            ? $anything->$key
-            : (method_exists($anything, $method = 'get' . ucfirst($key))
-                ? $anything->$method()
-                : (method_exists($anything, $key)
-                    ? array($anything, $key)
-                    : null
-                )
-            );
+        if (method_exists($anything, $method = 'get' . ucfirst($key))) {
+            return $anything->$method();
+        } elseif (method_exists($anything, $key)) {
+            return array($anything, $key);
+        } elseif (isset($anything->$key)) {
+            return $anything->$key;
+        }
     }
 
     /**
