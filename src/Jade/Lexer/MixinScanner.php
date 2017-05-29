@@ -12,7 +12,7 @@ abstract class MixinScanner extends CaseScanner
      */
     protected function scanCall()
     {
-        if (preg_match('/^\+(\w[-\w]*)/', $this->input, $matches)) {
+        if (preg_match('/^\+(\w[-\w]*|(#\\{(?:(?>"(?:\\\\[\\S\\s]|[^"\\\\])*"|\'(?:\\\\[\\S\\s]|[^\'\\\\])*\'|[^{}\'"]++|(?-1))*+)\\}))/', $this->input, $matches)) {
             $this->consume($matches[0]);
             $token = $this->token('call', $matches[1]);
 
