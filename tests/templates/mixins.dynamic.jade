@@ -1,0 +1,11 @@
+mixin pargraph_foo()
+  p foo
+
+mixin pargraph_bar(bar)
+  p=bar
+
+- var foo = 'pargraph_foo'
++#{foo}()
++#{'pargraph_foo'}()
++#{"pargraph_foo"}()
++#{strtolower('pargraph_BAR')}('hello')
