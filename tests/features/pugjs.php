@@ -86,14 +86,15 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         unlink($cache);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage is not a valid class name
+     */
     public function testPugJsOptionException()
     {
         if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
+            throw new \RuntimeException('emulate "is not a valid class name" exception');
         }
-
-        $this->expectException('RuntimeException');
-        $this->expectExceptionMessage('is not a valid class name');
 
         $pug = new Pug(array(
             'pugjs' => true,
