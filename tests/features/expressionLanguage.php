@@ -60,4 +60,21 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('$a', $actual);
     }
+
+    public function testJsLanguageOptions()
+    {
+        $jade = new Jade(array(
+            'expressionLanguage' => 'js',
+            'jsLanguage' => array(
+                'helpers' => array(
+                    'dot' => 'plus',
+                ),
+            ),
+        ));
+
+        $actual = trim($jade->render('=a.ho', array(
+            'a' => 'hi '
+        )));
+        $this->assertSame('hi ho', $actual);
+    }
 }

@@ -22,6 +22,7 @@ class Options extends Keywords
         'filterAutoLoad'     => true,
         'indentChar'         => ' ',
         'indentSize'         => 2,
+        'jsLanguage'         => array(),
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
         'nodePath'           => null,

@@ -7,7 +7,7 @@ use Jade\Lexer\Scanner;
 use JsPhpize\JsPhpize;
 
 /**
- * Class Jade Compiler.
+ * Class Jade ExpressionCompiler.
  */
 class ExpressionCompiler extends MixinVisitor
 {
@@ -60,9 +60,9 @@ class ExpressionCompiler extends MixinVisitor
         }
 
         if ($this->jsPhpize === null) {
-            $this->jsPhpize = new JsPhpize(array(
+            $this->jsPhpize = new JsPhpize(array_merge_recursive(array(
                 'catchDependencies' => true,
-            ));
+            ), $this->getOption('jsLanguage', array())));
         }
 
         return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0])), ';');
