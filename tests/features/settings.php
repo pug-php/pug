@@ -241,6 +241,33 @@ mixin foo()
     }
 
     /**
+     * allowMixinOverride setting test with dynamic mixin name
+     */
+    public function testOverrideDynamicMixin()
+    {
+        $jade = new Jade(array(
+            'allowMixinOverride' => false,
+            'prettyprint' => true,
+        ));
+
+        $actual = static::rawHtml($jade->render(__DIR__ . '/../templates/xml.jade'));
+        $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/xml.html'));
+        $this->assertSame($expected, $actual);
+
+        $actual = static::rawHtml($jade->render(__DIR__ . '/../templates/mixins.dynamic.jade'));
+        $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
+        $this->assertSame($expected, $actual);
+
+        $jade = new Jade(array(
+            'allowMixinOverride' => true,
+            'prettyprint' => true,
+        ));
+        $actual = static::rawHtml($jade->render(__DIR__ . '/../templates/mixins.dynamic.jade'));
+        $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
+        $this->assertSame($expected, $actual);
+    }
+
+    /**
      * singleQuote setting test
      */
     public function testSingleQuote()

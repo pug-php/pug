@@ -118,14 +118,38 @@ abstract class MixinVisitor extends MixinVisitorUtils
 
     /**
      * @param Nodes\Mixin $mixin
+     *
+     * @return array name and block name
      */
-    protected function visitMixin(Mixin $mixin)
+    protected function getMixinName(Mixin $mixin)
     {
+        if (preg_match('/^#\\{(.+)\\}$/', $mixin->name, $match)) {
+            if ($this->allowMixinOverride) {
+                $blockName = '(' . $this->phpizeExpression('addDollarIfNeeded', $match[1]) . ') . \'_mixin\'';
+
+                return array('$GLOBALS[' . $blockName . ']', $blockName);
+            }
+
+            $name = '$__callee = (' . $this->phpizeExpression('addDollarIfNeeded', $match[1]) . ') . \'_mixin\'; $__callee';
+
+            return array($name, $name);
+        }
+
         $name = strtr($mixin->name, '-', '_') . '_mixin';
-        $blockName = var_export($mixin->name, true);
+
         if ($this->allowMixinOverride) {
             $name = '$GLOBALS[\'' . $name . '\']';
         }
+
+        return array($name, var_export($mixin->name, true));
+    }
+
+    /**
+     * @param Nodes\Mixin $mixin
+     */
+    protected function visitMixin(Mixin $mixin)
+    {
+        list($name, $blockName) = $this->getMixinName($mixin);
         $attributes = static::decodeAttributes($mixin->attributes);
 
         if ($mixin->call) {
