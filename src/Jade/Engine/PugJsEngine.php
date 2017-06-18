@@ -148,7 +148,10 @@ class PugJsEngine extends Options
         if (!empty($this->options['cache'])) {
             $args[] = '--client';
             $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($input)) . '.js';
-            if (file_exists($renderFile) && ($mTime = filemtime($renderFile)) >= filemtime($input)) {
+            if (file_exists($renderFile) && (
+                ($mTime = filemtime($renderFile)) >= filemtime($input) ||
+                !$this->options['upToDateCheck']
+            )) {
                 $html = $this->parsePugJsResult('rendered ' . $renderFile, $input, $pug, $options);
                 touch($renderFile, $mTime);
 
