@@ -69,16 +69,21 @@ class PugJsEngine extends Options
             return $html;
         }
 
+        $currentDirectory = getcwd();
+        $realPath = realpath($file);
+        if (!file_exists($realPath)) {
+            $realPath = realpath($currentDirectory . DIRECTORY_SEPARATOR . $file);
+        }
+
         $handler = fopen($file, 'a');
         fwrite($handler, 'module.exports=template;');
         fclose($handler);
 
         $directory = dirname($file);
-        $currentDirectory = getcwd();
         $renderFile = './render.' . time() . mt_rand(0, 999999999) . '.js';
         chdir($directory);
         file_put_contents($renderFile,
-            'console.log(require(' . json_encode(realpath($file)) . ')' .
+            'console.log(require(' . json_encode($realPath) . ')' .
             '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
         );
 
@@ -143,8 +148,11 @@ class PugJsEngine extends Options
         if (!empty($this->options['cache'])) {
             $args[] = '--client';
             $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($input)) . '.js';
-            if (file_exists($renderFile) && filemtime($renderFile) >= filemtime($input)) {
-                return $this->parsePugJsResult('rendered ' . $renderFile, $input, $pug, $options);
+            if (file_exists($renderFile) && ($mTime = filemtime($renderFile)) >= filemtime($input)) {
+                $html = $this->parsePugJsResult('rendered ' . $renderFile, $input, $pug, $options);
+                touch($renderFile, $mTime);
+
+                return $html;
             }
         }
 
