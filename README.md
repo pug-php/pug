@@ -43,6 +43,8 @@ CodeIgniter: https://github.com/pug-php/ci-pug
 
 Yii 2: https://github.com/rmrevin/yii2-pug
 
+Slim 3: https://github.com/MarcelloDuarte/pug-slim
+
 ### Pug options
 
 Pug options should be passed to the Jade construction
