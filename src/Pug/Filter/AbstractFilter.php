@@ -3,7 +3,6 @@
 namespace Pug\Filter;
 
 use Pug\Compiler;
-use Pug\Filter\FilterInterface as JadeFilterInterface;
 use Pug\Nodes\Filter;
 
 /**
