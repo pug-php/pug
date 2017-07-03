@@ -2,8 +2,8 @@
 
 namespace Pug\Filter;
 
-use Jade\Compiler;
-use Jade\Nodes\Filter;
+use Pug\Compiler;
+use Pug\Nodes\Filter;
 
 /**
  * Interface Pug\Filter\FilterInterface.

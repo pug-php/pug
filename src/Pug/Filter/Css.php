@@ -2,9 +2,13 @@
 
 namespace Pug\Filter;
 
-/**
- * Class Pug\Filter\Css.
- */
-class Css extends \Jade\Filter\Css
+use Pug\Compiler;
+use Pug\Nodes\Filter;
+
+class Css extends AbstractFilter
 {
+    public function __invoke(Filter $node, Compiler $compiler)
+    {
+        return '<style type="text/css">' . $this->getNodeString($node, $compiler) . '</style>';
+    }
 }

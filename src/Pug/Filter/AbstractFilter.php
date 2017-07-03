@@ -2,14 +2,14 @@
 
 namespace Pug\Filter;
 
-use Jade\Compiler;
-use Jade\Filter\FilterInterface as JadeFilterInterface;
-use Jade\Nodes\Filter;
+use Pug\Compiler;
+use Pug\Filter\FilterInterface as JadeFilterInterface;
+use Pug\Nodes\Filter;
 
 /**
  * Class Pug\Filter\AbstractFilter.
  */
-abstract class AbstractFilter implements JadeFilterInterface
+abstract class AbstractFilter implements FilterInterface
 {
     /**
      * Returns the node string value, line by line.

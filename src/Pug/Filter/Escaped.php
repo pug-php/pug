@@ -2,9 +2,13 @@
 
 namespace Pug\Filter;
 
-/**
- * Class Pug\Filter\Escaped.
- */
-class Escaped extends \Jade\Filter\Escaped
+use Pug\Compiler;
+use Pug\Nodes\Filter;
+
+class Escaped extends AbstractFilter
 {
+    public function __invoke(Filter $node, Compiler $compiler)
+    {
+        return htmlentities($this->getNodeString($node, $compiler));
+    }
 }
