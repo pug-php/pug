@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade CompilerConfig.
+ * Class Pug CompilerConfig.
  * Definitions and low level settings.
  */
 abstract class Indenter extends CompilerConfig

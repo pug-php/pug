@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Lexer;
+use Pug\Lexer;
 
 class BrokenLexer extends Lexer
 {

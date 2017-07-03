@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade;
+namespace Pug;
 
-use Jade\Lexer\Scanner;
+use Pug\Lexer\Scanner;
 
 /**
- * Class Jade\Lexer.
+ * Class Pug\Lexer.
  */
 class Lexer extends Scanner
 {

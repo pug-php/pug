@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\StringAttribute.
+ * Class Pug\Lexer\StringAttribute.
  */
 class StringAttribute
 {

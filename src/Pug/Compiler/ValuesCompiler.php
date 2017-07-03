@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 abstract class ValuesCompiler extends CompilerUtils
 {

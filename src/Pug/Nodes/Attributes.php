@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Nodes;
+namespace Pug\Nodes;
 
 /**
- * Class Jade\Nodes\Attributes.
+ * Class Pug\Nodes\Attributes.
  */
 class Attributes extends Node
 {

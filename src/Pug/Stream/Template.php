@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Stream;
+namespace Pug\Stream;
 
 /**
  * Creates a wrapper in order to allow the Zend PhpRenderer
  * to include the compiled file.
- * Class Jade\Stream\Template.
+ * Class Pug\Stream\Template.
  */
 class Template
 {

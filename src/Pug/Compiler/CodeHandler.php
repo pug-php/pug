@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Lexer\Scanner;
+use Pug\Lexer\Scanner;
 
 /**
- * Class Jade\Compiler\CodeHandler.
+ * Class Pug\Compiler\CodeHandler.
  */
 class CodeHandler extends CompilerUtils
 {

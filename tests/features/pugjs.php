@@ -18,15 +18,15 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<h1>Yop</h1>', $html);
 
-        $html = $pug->render(__DIR__ . '/../templates/basic.jade');
+        $html = $pug->render(__DIR__ . '/../templates/basic.pug');
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         $pug->setOption('cache', sys_get_temp_dir());
         $name = 'basic-copy-' . mt_rand(0, 99999999);
-        $source = sys_get_temp_dir() . '/' . $name . '.jade';
+        $source = sys_get_temp_dir() . '/' . $name . '.pug';
         $cache = sys_get_temp_dir() . '/' . $name . '.js';
-        copy(__DIR__ . '/../templates/basic.jade', $source);
+        copy(__DIR__ . '/../templates/basic.pug', $source);
 
         if (file_exists($cache)) {
             unlink($cache);
@@ -100,6 +100,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             'pugjs' => true,
         ));
 
-        $pug->render('./bar/basic.jade');
+        $pug->render('./bar/basic.pug');
     }
 }

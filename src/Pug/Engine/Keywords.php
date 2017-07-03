@@ -1,23 +1,25 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
+
+use ArrayAccess;
+use InvalidArgumentException;
+use Phug\Renderer;
 
 /**
- * Class Jade\Engine\Keywords.
+ * Class Pug\Engine\Keywords.
  */
-abstract class Keywords extends Cache
+abstract class Keywords extends Renderer
 {
     protected function hasKeyword($keyword)
     {
-        return $this->hasValidCustomKeywordsOption() && isset($this->options['customKeywords'][$keyword]);
+        return $this->hasValidCustomKeywordsOption() && $this->getOption(['custom_keywords', $keyword]);
     }
 
     protected function hasValidCustomKeywordsOption()
     {
-        return isset($this->options['customKeywords']) && (
-            is_array($this->options['customKeywords']) ||
-            $this->options['customKeywords'] instanceof \ArrayAccess
-        );
+        return is_array($this->getOption('custom_keywords')) ||
+            $this->getOption('custom_keywords') instanceof ArrayAccess;
     }
 
     /**
@@ -29,14 +31,14 @@ abstract class Keywords extends Cache
     public function setKeyword($keyword, $action)
     {
         if (!is_callable($action)) {
-            throw new \InvalidArgumentException("Please add a callable action for your keyword $keyword", 30);
+            throw new InvalidArgumentException("Please add a callable action for your keyword $keyword", 30);
         }
 
         if (!$this->hasValidCustomKeywordsOption()) {
-            $this->options['customKeywords'] = array();
+            $this->setOption('custom_keywords', []);
         }
 
-        $this->options['customKeywords'][$keyword] = $action;
+        $this->setOption(['custom_keywords', $keyword], $action);
     }
 
     /**
@@ -48,7 +50,7 @@ abstract class Keywords extends Cache
     public function addKeyword($keyword, $action)
     {
         if ($this->hasKeyword($keyword)) {
-            throw new \InvalidArgumentException("The keyword $keyword is already set.", 31);
+            throw new InvalidArgumentException("The keyword $keyword is already set.", 31);
         }
 
         $this->setKeyword($keyword, $action);
@@ -77,7 +79,7 @@ abstract class Keywords extends Cache
     public function removeKeyword($keyword)
     {
         if ($this->hasKeyword($keyword)) {
-            unset($this->options['customKeywords'][$keyword]);
+            $this->unsetOption(['custom_keywords', $keyword]);
         }
     }
 }

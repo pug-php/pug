@@ -2,7 +2,7 @@
 
 use Pug\Pug;
 
-class JadeHooksTest extends PHPUnit_Framework_TestCase
+class PugHooksTest extends PHPUnit_Framework_TestCase
 {
     public function testPreRender()
     {

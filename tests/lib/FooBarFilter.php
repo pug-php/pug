@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Filter;
+namespace Pug\Filter;
 
-use Jade\Compiler;
-use Jade\Nodes\Filter;
+use Pug\Compiler;
+use Pug\Nodes\Filter;
 
 class FooBar extends AbstractFilter
 {

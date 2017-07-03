@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Parser;
+namespace Pug\Parser;
 
 class Exception extends \Exception
 {

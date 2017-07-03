@@ -1,8 +1,8 @@
 <?php
 
-use Jade\Nodes\Block;
-use Jade\Nodes\Tag;
-use Jade\Nodes\Text;
+use Pug\Nodes\Block;
+use Pug\Nodes\Tag;
+use Pug\Nodes\Text;
 
 class BlockTest extends PHPUnit_Framework_TestCase
 {

@@ -1,8 +1,8 @@
 <?php
 
-use Jade\Stream\Template;
+use Pug\Stream\Template;
 
-class JadeStreamTest extends PHPUnit_Framework_TestCase
+class PugStreamTest extends PHPUnit_Framework_TestCase
 {
     protected $stream;
 

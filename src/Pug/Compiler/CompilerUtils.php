@@ -1,8 +1,8 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Jade;
+use Pug\Jade;
 
 /**
  * Class Jade CompilerUtils.

@@ -1,20 +1,20 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade CompilerFacade.
- * Expose methods available from compiled jade tempaltes.
+ * Class Pug CompilerFacade.
+ * Expose methods available from compiled pug tempaltes.
  */
 abstract class CompilerFacade extends ValuesCompiler
 {
     protected static $mixinBlocks = array();
 
     /**
-     * Record a closure as a mixin block during execution jade template time.
+     * Record a closure as a mixin block during execution pug template time.
      *
-     * @param string  mixin name
-     * @param string  mixin block treatment
+     * @param string  $name mixin name
+     * @param string  $func mixin block treatment
      */
     public static function recordMixinBlock($name, $func = null)
     {
@@ -25,10 +25,10 @@ abstract class CompilerFacade extends ValuesCompiler
     }
 
     /**
-     * Record a closure as a mixin block during execution jade template time.
+     * Record a closure as a mixin block during execution pug template time.
      *
-     * @param string  mixin name
-     * @param string  mixin block treatment
+     * @param string  $name       mixin name
+     * @param string  $attribtues mixin block treatment
      */
     public static function callMixinBlock($name, $attributes = array())
     {
@@ -41,12 +41,12 @@ abstract class CompilerFacade extends ValuesCompiler
     }
 
     /**
-     * Record a closure as a mixin block during execution jade template time
+     * Record a closure as a mixin block during execution pug template time
      * and propagate variables.
      *
-     * @param string  mixin name
-     * @param &array  variables handler propagated from parent scope
-     * @param string  mixin block treatment
+     * @param string $name       mixin name
+     * @param &array $varHandler variables handler propagated from parent scope
+     * @param string $attributes mixin block treatment
      */
     public static function callMixinBlockWithVars($name, &$varHandler, $attributes = array())
     {

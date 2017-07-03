@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
-use Jade\Compiler\CommonUtils;
+use Pug\Compiler\CommonUtils;
 
 /**
- * Class Jade\Lexer\Attributes.
+ * Class Pug\Lexer\Attributes.
  */
 class Attributes
 {

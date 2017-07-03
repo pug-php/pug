@@ -20,7 +20,7 @@ class PugRequirementsSuhosinSuccess extends Pug
 
 }
 
-class JadeRequirementsTest extends PHPUnit_Framework_TestCase
+class PugRequirementsTest extends PHPUnit_Framework_TestCase
 {
     public function testStreamWhiteListed()
     {

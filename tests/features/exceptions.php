@@ -1,7 +1,7 @@
 <?php
 
-use Jade\Parser;
-use Jade\Jade;
+use Pug\Parser;
+use Pug\Pug;
 
 class EmulateBugException extends \Exception {}
 class OnlyOnceException extends \Exception {}
@@ -30,7 +30,7 @@ class IncludeParser extends Parser
     }
 }
 
-class JadeExceptionsTest extends PHPUnit_Framework_TestCase
+class PugExceptionsTest extends PHPUnit_Framework_TestCase
 {
     static public function emulateBug()
     {
@@ -38,7 +38,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Jade\Parser\Exception
+     * @expectedException Pug\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testDoNotUnderstand()
@@ -47,7 +47,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Jade\Parser\Exception
+     * @expectedException Pug\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testDoubleDoubleArrow()
@@ -61,12 +61,12 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testAbsoluteIncludeWithNoBaseDir()
     {
-        $jade = new Jade();
-        $jade->render('include /auxiliary/world');
+        $Pug = new Pug();
+        $Pug->render('include /auxiliary/world');
     }
 
     /**
-     * @expectedException Jade\Parser\Exception
+     * @expectedException Pug\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testCannotBeReadFromPhp()
@@ -129,18 +129,18 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException EmulateBugException
      */
-    public function testExceptionThroughtJade()
+    public function testExceptionThroughtPug()
     {
-        get_php_code('a(href=\JadeExceptionsTest::emulateBug())');
+        get_php_code('a(href=\PugExceptionsTest::emulateBug())');
     }
 
     /**
-     * @expectedException Jade\Parser\Exception
+     * @expectedException Pug\Parser\Exception
      * @expectedExceptionCode 10
      */
     public function testNonParsableExtends()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.jade');
+        get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.pug');
     }
 
     /**
@@ -148,7 +148,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testBrokenExtends()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.jade');
+        get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.pug');
     }
 
     /**
@@ -157,8 +157,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetInvalidOption()
     {
-        $jade = new Jade();
-        $jade->setOption('i-do-not-exists', 'wrong');
+        $Pug = new Pug();
+        $Pug->setOption('i-do-not-exists', 'wrong');
     }
 
     /**
@@ -167,8 +167,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetInvalidOptions()
     {
-        $jade = new Jade();
-        $jade->setOptions(array(
+        $Pug = new Pug();
+        $Pug->setOptions(array(
             'prettyprint' => true,
             'i-do-not-exists' => 'right',
         ));
@@ -180,8 +180,8 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testGetInvalidOption()
     {
-        $jade = new Jade();
-        $jade->getOption('i-do-not-exists');
+        $Pug = new Pug();
+        $Pug->getOption('i-do-not-exists');
     }
 
     /**
@@ -189,11 +189,11 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testExtendsWithFilterException()
     {
-        $jade = new Jade();
-        $jade->filter('throw-exception', function () {
+        $Pug = new Pug();
+        $Pug->filter('throw-exception', function () {
             throw new EmulateBugException("Bad filter", 1);
         });
-        $jade->render(__DIR__ . '/../templates/auxiliary/extends-exception-filter.jade');
+        $Pug->render(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
     }
 
     /**
@@ -201,7 +201,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testExtendsWithParserException()
     {
-        $parser = new ExtendParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.jade');
+        $parser = new ExtendParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
         $message = null;
         try {
             $parser->parse();
@@ -217,7 +217,7 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testIncludesWithParserException()
     {
-        $parser = new IncludeParser(__DIR__ . '/../templates/auxiliary/include-exception-filter.jade');
+        $parser = new IncludeParser(__DIR__ . '/../templates/auxiliary/include-exception-filter.pug');
         $message = null;
         try {
             $parser->parse();
@@ -242,6 +242,6 @@ class JadeExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testBrokenInclude()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/include-exception.jade');
+        get_php_code(__DIR__ . '/../templates/auxiliary/include-exception.pug');
     }
 }

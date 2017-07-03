@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
 
-use Jade\Parser\ExtensionsHelper;
+use Pug\Parser\ExtensionsHelper;
 
 /**
- * Class Jade\Engine\Extensions.
+ * Class Pug\Engine\Extensions.
  */
 abstract class Extensions
 {

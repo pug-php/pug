@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Jade;
+use Pug\Pug;
 
 /**
- * Class Jade Compiler.
+ * Class Pug Compiler.
  */
 class Options extends ExpressionCompiler
 {
@@ -55,9 +55,9 @@ class Options extends ExpressionCompiler
     }
 
     /**
-     * Get a jade engine reference or an options array and return needed options.
+     * Get a pug engine reference or an options array and return needed options.
      *
-     * @param array/Jade $options
+     * @param array|Pug $options
      *
      * @return array
      */
@@ -76,7 +76,7 @@ class Options extends ExpressionCompiler
             'customKeywords' => 'array',
         );
 
-        if ($options instanceof Jade) {
+        if ($options instanceof Pug) {
             $this->jade = $options;
             $options = array();
 

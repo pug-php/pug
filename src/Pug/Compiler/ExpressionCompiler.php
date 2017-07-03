@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Jade;
-use Jade\Lexer\Scanner;
+use Pug\Pug;
+use Pug\Lexer\Scanner;
 use JsPhpize\JsPhpize;
 
 /**
@@ -80,9 +80,9 @@ class ExpressionCompiler extends MixinVisitor
         $arguments = array_slice(func_get_args(), 1);
 
         switch ($this->getExpressionLanguage()) {
-            case Jade::EXP_PHP:
+            case Pug::EXP_PHP:
                 return $arguments[0];
-            case Jade::EXP_JS:
+            case Pug::EXP_JS:
                 return $this->jsToPhp($method, $arguments);
         }
 

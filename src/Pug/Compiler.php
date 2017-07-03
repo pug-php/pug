@@ -1,14 +1,14 @@
 <?php
 
-namespace Jade;
+namespace Pug;
 
-use Jade\Compiler\CodeHandler;
-use Jade\Compiler\Options;
-use Jade\Lexer\Scanner;
-use Jade\Parser\Exception as ParserException;
+use Pug\Compiler\CodeHandler;
+use Pug\Compiler\Options;
+use Pug\Lexer\Scanner;
+use Pug\Parser\Exception as ParserException;
 
 /**
- * Class Jade Compiler.
+ * Class Pug Compiler.
  */
 class Compiler extends Options
 {
@@ -36,7 +36,7 @@ class Compiler extends Options
     protected $filters = array();
 
     /**
-     * @var Jade
+     * @var Pug
      */
     protected $jade = null;
 
@@ -51,8 +51,8 @@ class Compiler extends Options
     protected $filename;
 
     /**
-     * @param array/Jade $options
-     * @param array      $filters
+     * @param array|Pug $options
+     * @param array     $filters
      */
     public function __construct($options = array(), array $filters = array(), $filename = null, $jsPhpize = null)
     {
@@ -310,7 +310,7 @@ class Compiler extends Options
                 continue;
             }
 
-            $code = $this->getExpressionLanguage() !== Jade::EXP_JS
+            $code = $this->getExpressionLanguage() !== Pug::EXP_JS
                 ? $this->handleArgumentValue($arg)
                 : array($arg);
 

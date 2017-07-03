@@ -1,6 +1,6 @@
 <?php
 
-class Lexer extends \Jade\Lexer
+class Lexer extends \Pug\Lexer
 {
     public function nextToken()
     {
@@ -18,7 +18,7 @@ class Lexer extends \Jade\Lexer
     }
 }
 
-class Parser extends \Jade\Parser
+class Parser extends \Pug\Parser
 {
     public function __construct($input, $filename = null, array $options = array())
     {
@@ -38,11 +38,11 @@ class Parser extends \Jade\Parser
     }
 }
 
-class JadeParserTest extends PHPUnit_Framework_TestCase
+class PugParserTest extends PHPUnit_Framework_TestCase
 {
     public function testAccept()
     {
-        $parser = new Parser('', 'file.jade', array());
+        $parser = new Parser('', 'file.pug', array());
         $this->assertSame($parser->testAccept('indent'), null, 'Should not get an indent at the first time');
         $parser->skip(1);
         $token = $parser->testAccept('indent');

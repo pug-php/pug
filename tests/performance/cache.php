@@ -1,12 +1,12 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
-class JadeCachePerformanceTest extends PHPUnit_Framework_TestCase
+class PugCachePerformanceTest extends PHPUnit_Framework_TestCase
 {
     protected function getPerformanceTemplate($template)
     {
-        return TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . 'performance' . DIRECTORY_SEPARATOR . $template . '.jade';
+        return TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . 'performance' . DIRECTORY_SEPARATOR . $template . '.pug';
     }
 
     protected function getPhpFromTemplate($template)
@@ -16,24 +16,24 @@ class JadeCachePerformanceTest extends PHPUnit_Framework_TestCase
 
     protected function getPhp($template)
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,
         ));
 
-        return trim($jade->compile($template));
+        return trim($Pug->compile($template));
     }
 
     protected function getHtmlFromTemplate($template, array $vars = array())
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,
         ));
 
-        return trim($jade->render($this->getPerformanceTemplate($template), $vars));
+        return trim($Pug->render($this->getPerformanceTemplate($template), $vars));
     }
 
     /**

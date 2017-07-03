@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -40,14 +40,14 @@ function setup_autoload()
 function find_tests()
 {
     // find the tests
-    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.jade');
+    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.pug');
 }
 
 function build_list($test_list)
 {
     $group_list = array();
     foreach ($test_list as $test) {
-        $name = basename($test, '.jade');
+        $name = basename($test, '.pug');
         $parts = preg_split('/[.-]/', $name);
 
         if (!isset($group_list[$parts[0]])) {
@@ -61,27 +61,27 @@ function build_list($test_list)
 
 function get_php_code($file, $vars = array())
 {
-    $jade = new Jade(array(
+    $Pug = new Pug(array(
         'singleQuote' => false,
         'prettyprint' => true,
     ));
 
-    return $jade->render($file, $vars);
+    return $Pug->render($file, $vars);
 }
 
 function compile_php($file)
 {
-    $jade = new Jade(array(
+    $Pug = new Pug(array(
         'singleQuote' => false,
         'prettyprint' => true,
     ));
 
-    return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
+    return $Pug->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.pug'));
 }
 
 function get_html_code($name)
 {
-    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.jade'));
+    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.pug'));
 }
 
 function init_tests()
@@ -100,7 +100,7 @@ function get_generated_html($contents)
         ob_end_clean();
         error_reporting(E_ALL);
     } else {
-        $file = tempnam(sys_get_temp_dir(), 'jade');
+        $file = tempnam(sys_get_temp_dir(), 'Pug');
         file_put_contents($file, $contents);
         $contents = `php -d error_reporting="E_ALL & ~E_NOTICE" {$file}`;
         unlink($file);
@@ -137,7 +137,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
         echo "* rendering test '$name'\n";
     }
     try {
-        $new = get_php_code($path . '.jade');
+        $new = get_php_code($path . '.pug');
     } catch(Exception $err) {
         if($verbose) {
             echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
@@ -147,7 +147,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
     }
 
     if(is_null($new)) {
-        return array(false, array($name, null, "! FATAL: " . $path . ".jade returns null\n"));
+        return array(false, array($name, null, "! FATAL: " . $path . ".pug returns null\n"));
     }
 
     $actualHtml = get_generated_html($new);

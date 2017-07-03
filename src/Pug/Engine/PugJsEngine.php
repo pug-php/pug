@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
 
 use NodejsPhpFallback\NodejsPhpFallback;
 
 /**
- * Class Jade\PugJsEngine.
+ * Class Pug\PugJsEngine.
  */
 class PugJsEngine extends Options
 {

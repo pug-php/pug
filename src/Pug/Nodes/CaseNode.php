@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Nodes;
+namespace Pug\Nodes;
 
 // cant use the keyword case as class name
 class CaseNode extends Node

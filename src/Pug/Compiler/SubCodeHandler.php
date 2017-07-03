@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade\Compiler\SubCodeHandler.
+ * Class Pug\Compiler\SubCodeHandler.
  */
 class SubCodeHandler
 {

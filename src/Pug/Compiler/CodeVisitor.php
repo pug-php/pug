@@ -1,8 +1,8 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Nodes\Code;
+use Pug\Nodes\Code;
 
 abstract class CodeVisitor extends TagVisitor
 {

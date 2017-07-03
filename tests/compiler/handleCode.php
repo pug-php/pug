@@ -1,8 +1,8 @@
 <?php
 
-use Jade\Compiler;
+use Pug\Compiler;
 
-class JadeCompilerHandleCodeTest extends PHPUnit_Framework_TestCase
+class PugCompilerHandleCodeTest extends PHPUnit_Framework_TestCase
 {
     public function testGoodClosing()
     {

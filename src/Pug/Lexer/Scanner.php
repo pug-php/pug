@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\Scanner.
+ * Class Pug\Lexer\Scanner.
  */
 abstract class Scanner extends MixinScanner
 {

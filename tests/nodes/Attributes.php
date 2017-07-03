@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Nodes\Attributes;
+use Pug\Nodes\Attributes;
 
 class AttributesTest extends PHPUnit_Framework_TestCase
 {

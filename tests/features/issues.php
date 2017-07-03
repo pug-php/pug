@@ -2,7 +2,7 @@
 
 use Pug\Pug;
 
-class JadeIssuesTest extends PHPUnit_Framework_TestCase
+class PugIssuesTest extends PHPUnit_Framework_TestCase
 {
     public function testIssue62()
     {

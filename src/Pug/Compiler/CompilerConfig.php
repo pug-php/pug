@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade CompilerConfig.
+ * Class Pug CompilerConfig.
  * Definitions and low level settings.
  */
 abstract class CompilerConfig
@@ -39,12 +39,12 @@ abstract class CompilerConfig
     /**
      * @const string
      */
-    const ESCAPED = 'echo \\Jade\\Compiler::getEscapedValue(%s, %s)';
+    const ESCAPED = 'echo \\Pug\\Compiler::getEscapedValue(%s, %s)';
 
     /**
      * @const string
      */
-    const UNESCAPED = 'echo \\Jade\\Compiler::getUnescapedValue(%s)';
+    const UNESCAPED = 'echo \\Pug\\Compiler::getUnescapedValue(%s)';
 
     /**
      * @var array

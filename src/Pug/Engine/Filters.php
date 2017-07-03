@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
 
-use Jade\Compiler\FilterHelper;
+use Pug\Compiler\FilterHelper;
 
 /**
- * Class Jade\Engine\Filters.
+ * Class Pug\Engine\Filters.
  */
 abstract class Filters extends Extensions
 {

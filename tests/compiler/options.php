@@ -1,9 +1,9 @@
 <?php
 
-use Jade\Compiler;
-use Jade\Jade;
+use Pug\Compiler;
+use Pug\Pug;
 
-class JadeCompilerOptionsTest extends PHPUnit_Framework_TestCase
+class PugCompilerOptionsTest extends PHPUnit_Framework_TestCase
 {
     public function testArrayOptions()
     {
@@ -17,12 +17,12 @@ class JadeCompilerOptionsTest extends PHPUnit_Framework_TestCase
 
     public function testEngineOptions()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'terse' => false,
             'indentChar' => '@',
         ));
-        $compiler = new Compiler($jade);
-        $jade->setCustomOption('foo', 'bar');
+        $compiler = new Compiler($Pug);
+        $Pug->setCustomOption('foo', 'bar');
         $this->assertFalse($compiler->getOption('terse'));
         $this->assertSame('@', $compiler->getOption('indentChar'));
         $this->assertSame('bar', $compiler->getOption('foo'));

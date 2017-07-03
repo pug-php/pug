@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 abstract class AttributesCompiler extends CompilerFacade
 {
@@ -14,7 +14,7 @@ abstract class AttributesCompiler extends CompilerFacade
             ? ' ' . $key . '=' . $this->quote . $value . $this->quote
             : $this->createCode('if (true === ($__value = %1$s)) { ', $valueCheck)
                 . $this->getBooleanAttributeDisplayCode($key)
-                . $this->createCode('} else if (\\Jade\\Compiler::isDisplayable($__value)) { ')
+                . $this->createCode('} else if (\\Pug\\Compiler::isDisplayable($__value)) { ')
                 . ' ' . $key . '=' . $this->quote . $value . $this->quote
                 . $this->createCode('}');
     }
@@ -64,7 +64,7 @@ abstract class AttributesCompiler extends CompilerFacade
                     'unset($__attributes["class"]); ' .
                 '} ' .
             '} ' .
-            '\\Jade\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ', ' . var_export($this->terse, true) . ');');
+            '\\Pug\\Compiler::displayAttributes($__attributes, ' . var_export($this->quote, true) . ', ' . var_export($this->terse, true) . ');');
     }
 
     protected function getClassAttribute($value, &$classesCheck)

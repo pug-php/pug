@@ -41,14 +41,14 @@ class PugSuhosinEmulation extends Pug
 
         if (!in_array($this->options['stream'], static::$wrappersRegistered)) {
             static::$wrappersRegistered[] = $this->options['stream'];
-            stream_wrapper_register($this->options['stream'], 'Jade\Stream\Template');
+            stream_wrapper_register($this->options['stream'], 'Pug\Stream\Template');
         }
 
         return $this->options['stream'] . '://data;' . $input;
     }
 }
 
-class JadeSuhosinTest extends PHPUnit_Framework_TestCase
+class PugSuhosinTest extends PHPUnit_Framework_TestCase
 {
     public function testSuhosinBroken()
     {

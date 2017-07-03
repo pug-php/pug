@@ -1,12 +1,12 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Nodes\CaseNode;
-use Jade\Nodes\CustomKeyword;
-use Jade\Nodes\Each;
-use Jade\Nodes\Filter;
-use Jade\Nodes\When;
+use Pug\Nodes\CaseNode;
+use Pug\Nodes\CustomKeyword;
+use Pug\Nodes\Each;
+use Pug\Nodes\Filter;
+use Pug\Nodes\When;
 
 abstract class KeywordsCompiler extends AttributesCompiler
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Compiler;
+use Pug\Compiler;
 
 class Decoder extends Compiler
 {

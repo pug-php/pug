@@ -1,7 +1,7 @@
 <?php
 
-use Jade\Compiler;
-use Jade\Jade;
+use Pug\Compiler;
+use Pug\Pug;
 
 class StatementsBugCompiler extends Compiler
 {
@@ -19,7 +19,7 @@ class ApplyBugCompiler extends Compiler
     }
 }
 
-class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
+class PugCompilerExceptionsTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException \InvalidArgumentException
@@ -85,8 +85,8 @@ class JadeCompilerExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidOptionWithEngineInConstructor()
     {
-        $jade = new Jade();
-        $compiler = new Compiler($jade);
+        $Pug = new Pug();
+        $compiler = new Compiler($Pug);
         $compiler->getOption('foo');
     }
 }

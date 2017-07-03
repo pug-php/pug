@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade;
+namespace Pug;
 
-use Jade\Parser\Exception as ParserException;
-use Jade\Parser\ExtensionsHelper;
+use Pug\Parser\Exception as ParserException;
+use Pug\Parser\ExtensionsHelper;
 
 class Parser
 {

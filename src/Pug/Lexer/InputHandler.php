@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\InputHandler.
+ * Class Pug\Lexer\InputHandler.
  */
 abstract class InputHandler
 {

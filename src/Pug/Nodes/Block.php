@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Nodes;
+namespace Pug\Nodes;
 
 class Block extends Node
 {

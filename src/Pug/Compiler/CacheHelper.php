@@ -1,15 +1,15 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Jade;
-use Jade\Parser\ExtensionsHelper;
+use Pug\Pug;
+use Pug\Parser\ExtensionsHelper;
 
 class CacheHelper
 {
     protected $pug;
 
-    public function __construct(Jade $pug)
+    public function __construct(Pug $pug)
     {
         $this->pug = $pug;
     }

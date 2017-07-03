@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\BlockScanner.
+ * Class Pug\Lexer\BlockScanner.
  */
 abstract class BlockScanner extends IndentScanner
 {

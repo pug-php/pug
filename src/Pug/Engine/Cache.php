@@ -1,11 +1,11 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
 
-use Jade\Compiler\CacheHelper;
+use Pug\Compiler\CacheHelper;
 
 /**
- * Class Jade\Engine\Cache.
+ * Class Pug\Engine\Cache.
  */
 abstract class Cache extends Filters
 {

@@ -1,7 +1,7 @@
 <?php
 
-use Jade\Compiler;
-use Jade\Jade;
+use Pug\Compiler;
+use Pug\Pug;
 
 class ExpressionCompilerTester extends Compiler
 {
@@ -11,22 +11,22 @@ class ExpressionCompilerTester extends Compiler
     }
 }
 
-class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
+class PugExpressionLanguageTest extends PHPUnit_Framework_TestCase
 {
     public function testJsExpression()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'expressionLanguage' => 'js',
         ));
 
-        $actual = trim($jade->render("- a = 2\n- b = 4\n- c = b * a\np=a * b\np=c"));
+        $actual = trim($Pug->render("- a = 2\n- b = 4\n- c = b * a\np=a * b\np=c"));
         $this->assertSame('<p>8</p><p>8</p>', $actual);
 
-        $actual = trim($jade->render("- a = 2\n- b = 4\np=a + b"));
+        $actual = trim($Pug->render("- a = 2\n- b = 4\np=a + b"));
         $this->assertSame('<p>6</p>', $actual);
 
-        $actual = trim($jade->render("- a = '2'\n- b = 4\np=a + b"));
+        $actual = trim($Pug->render("- a = '2'\n- b = 4\np=a + b"));
         $this->assertSame('<p>24</p>', $actual);
 
         $compiler = new ExpressionCompilerTester(array(
@@ -37,7 +37,7 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $actual = trim($compiler->callPhpizeExpression('addDollarIfNeeded', 'a'));
         $this->assertSame('$a', $actual);
 
-        $actual = trim($jade->render("mixin test\n  div&attributes(attributes)\nbody\n  +test()(class='test')"));
+        $actual = trim($Pug->render("mixin test\n  div&attributes(attributes)\nbody\n  +test()(class='test')"));
         $this->assertSame('<body><div class="test "></div></body>', $actual);
     }
 
@@ -63,7 +63,7 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
 
     public function testJsLanguageOptions()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'expressionLanguage' => 'js',
             'jsLanguage' => array(
                 'helpers' => array(
@@ -72,7 +72,7 @@ class JadeExpressionLanguageTest extends PHPUnit_Framework_TestCase
             ),
         ));
 
-        $actual = trim($jade->render('=a.ho', array(
+        $actual = trim($Pug->render('=a.ho', array(
             'a' => 'hi '
         )));
         $this->assertSame('hi ho', $actual);

@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade CommonUtils.
+ * Class Pug CommonUtils.
  * Common static methods for compiler and lexer classes.
  */
 class CommonUtils
@@ -60,7 +60,7 @@ class CommonUtils
      */
     public static function getGetter($anything, $key)
     {
-        return '\\Jade\\Compiler::getPropertyFromAnything(' .
+        return '\\Pug\\Compiler::getPropertyFromAnything(' .
                 static::addDollarIfNeeded($anything) . ', ' .
                 var_export($key, true) .
             ')';

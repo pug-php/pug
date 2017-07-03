@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Nodes\Tag;
-use Jade\Nodes\Text;
+use Pug\Nodes\Tag;
+use Pug\Nodes\Text;
 
 abstract class TagVisitor extends Visitor
 {

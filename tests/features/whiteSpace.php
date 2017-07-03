@@ -1,41 +1,41 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
-class JadeWhiteSpaceTest extends PHPUnit_Framework_TestCase
+class PugWhiteSpaceTest extends PHPUnit_Framework_TestCase
 {
     public function testTextarea()
     {
-        $jade = new Jade();
+        $Pug = new Pug();
 
-        $actual = $jade->render("div\n  textarea");
+        $actual = $Pug->render("div\n  textarea");
         $expected = '<div><textarea></textarea></div>';
         $this->assertSame($expected, $actual);
 
-        $actual = $jade->render("div\n  textarea Bob");
+        $actual = $Pug->render("div\n  textarea Bob");
         $expected = '<div><textarea>Bob</textarea></div>';
         $this->assertSame($expected, $actual);
 
-        $actual = $jade->render("textarea\n  ='Bob'");
+        $actual = $Pug->render("textarea\n  ='Bob'");
         $expected = '<textarea>Bob</textarea>';
         $this->assertSame($expected, $actual);
 
-        $actual = $jade->render("div\n  textarea.\n    Bob\n    Boby");
+        $actual = $Pug->render("div\n  textarea.\n    Bob\n    Boby");
         $expected = "<div><textarea>Bob\nBoby</textarea></div>";
         $this->assertSame($expected, $actual);
 
-        $actual = $jade->render("textarea\n  | Bob");
+        $actual = $Pug->render("textarea\n  | Bob");
         $expected = '<textarea>Bob</textarea>';
         $this->assertSame($expected, $actual);
     }
 
     public function testPipeless()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'prettyprint' => false,
         ));
 
-        $actual = $jade->render("div\n  span.
+        $actual = $Pug->render("div\n  span.
             Some indented text
             on many lines
             but the words

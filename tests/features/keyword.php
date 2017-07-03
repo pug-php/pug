@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
 class ForKeyword
 {
@@ -14,7 +14,7 @@ class BadOptionType
 {
 }
 
-class JadeKeywordTest extends PHPUnit_Framework_TestCase
+class PugKeywordTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException \InvalidArgumentException
@@ -22,8 +22,8 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidAction()
     {
-        $jade = new Jade();
-        $jade->addKeyword('foo', 'bar');
+        $Pug = new Pug();
+        $Pug->addKeyword('foo', 'bar');
     }
 
     /**
@@ -32,11 +32,11 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testAddAlreadySetKeyword()
     {
-        $jade = new Jade();
-        $jade->addKeyword('foo', function () {
+        $Pug = new Pug();
+        $Pug->addKeyword('foo', function () {
             return array();
         });
-        $jade->addKeyword('foo', function () {
+        $Pug->addKeyword('foo', function () {
             return 'foo';
         });
     }
@@ -47,8 +47,8 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testReplaceNonSetKeyword()
     {
-        $jade = new Jade();
-        $jade->replaceKeyword('foo', function () {
+        $Pug = new Pug();
+        $Pug->replaceKeyword('foo', function () {
             return array();
         });
     }
@@ -59,11 +59,11 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testBadReturn()
     {
-        $jade = new Jade();
-        $jade->addKeyword('foo', function () {
+        $Pug = new Pug();
+        $Pug->addKeyword('foo', function () {
             return 32;
         });
-        $jade->render('foo');
+        $Pug->render('foo');
     }
 
     public function testBadReturnPreviousException()
@@ -73,11 +73,11 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
         }
 
         try {
-            $jade = new Jade();
-            $jade->addKeyword('foo', function () {
+            $Pug = new Pug();
+            $Pug->addKeyword('foo', function () {
                 return 32;
             });
-            $jade->render('foo');
+            $Pug->render('foo');
         } catch (\Exception $e) {
             $code = $e->getPrevious()->getCode();
         }
@@ -87,71 +87,71 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testBadCustomKeywordOptionType()
     {
-        $jade = new Jade();
-        $jade->setOption('customKeywords', new BadOptionType());
-        $jade->addKeyword('foo', function () {
+        $Pug = new Pug();
+        $Pug->setOption('customKeywords', new BadOptionType());
+        $Pug->addKeyword('foo', function () {
             return 'foo';
         });
-        $this->assertSame('foo', $jade->render('foo'));
+        $this->assertSame('foo', $Pug->render('foo'));
     }
 
     public function testPhpKeyWord()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'prettyprint' => false,
         ));
 
-        $actual = trim($jade->render('for ;;'));
+        $actual = trim($Pug->render('for ;;'));
         $expected = '<for>;;</for>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
-        $jade->addKeyword('for', function ($args) {
+        $Pug->addKeyword('for', function ($args) {
             return array(
                 'beginPhp' => 'for (' . $args . ') {',
                 'endPhp' => '}',
             );
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             'for $i = 0; $i < 3; $i++' . "\n" .
             '  p= i'
         ));
         $expected = '<p>0</p><p>1</p><p>2</p>';
         $this->assertSame($expected, $actual, 'addKeyword should allow to customize available keywords.');
-        $jade->replaceKeyword('for', new ForKeyword());
-        $actual = trim($jade->render(
+        $Pug->replaceKeyword('for', new ForKeyword());
+        $actual = trim($Pug->render(
             'for $i = 0; $i < 3; $i++' . "\n" .
             '  p'
         ));
         $expected = '$i = 0; $i < 3; $i++<p></p>';
         $this->assertSame($expected, $actual, 'The keyword action can be an callable class.');
 
-        $jade->removeKeyword('for');
-        $actual = trim($jade->render('for ;;'));
+        $Pug->removeKeyword('for');
+        $actual = trim($Pug->render('for ;;'));
         $expected = '<for>;;</for>';
         $this->assertSame($expected, $actual, 'After removing keyword, a word render as a tag.');
     }
 
     public function testHtmlKeyWord()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'prettyprint' => false,
         ));
 
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = '<user>Bob<img src="bob.png"></user>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
-        $jade->addKeyword('user', function ($args) {
+        $Pug->addKeyword('user', function ($args) {
             return array(
                 'begin' => '<div class="user" title="' . $args . '">',
                 'end' => '</div>',
             );
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
@@ -161,39 +161,39 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testKeyWordBeginAndEnd()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'prettyprint' => false,
         ));
 
-        $jade->setKeyword('foo', function ($args) {
+        $Pug->setKeyword('foo', function ($args) {
             return 'bar';
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = 'bar<img src="bob.png">';
         $this->assertSame($expected, $actual, 'If addKeyword return a string, it\'s rendeder before the block.');
 
-        $jade->setKeyword('foo', function ($args) {
+        $Pug->setKeyword('foo', function ($args) {
             return array(
                 'begin' => $args . '/',
             );
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = 'Bob/<img src="bob.png">';
         $this->assertSame($expected, $actual, 'If addKeyword return a begin entry, it\'s rendeder before the block.');
 
-        $jade->setKeyword('foo', function ($args) {
+        $Pug->setKeyword('foo', function ($args) {
             return array(
                 'end' => 'bar',
             );
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
@@ -203,7 +203,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testKeyWordArguments()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'singleQuote' => false,
             'prettyprint' => false,
         ));
@@ -211,17 +211,17 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
         $foo = function ($args, $block, $keyWord) {
             return $keyWord;
         };
-        $jade->setKeyword('foo', $foo);
-        $actual = trim($jade->render("foo\n"));
+        $Pug->setKeyword('foo', $foo);
+        $actual = trim($Pug->render("foo\n"));
         $expected = 'foo';
         $this->assertSame($expected, $actual);
 
-        $jade->setKeyword('bar', $foo);
-        $actual = trim($jade->render("bar\n"));
+        $Pug->setKeyword('bar', $foo);
+        $actual = trim($Pug->render("bar\n"));
         $expected = 'bar';
         $this->assertSame($expected, $actual);
 
-        $jade->setKeyword('minify', function ($args, $block) {
+        $Pug->setKeyword('minify', function ($args, $block) {
             $names = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
@@ -233,7 +233,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
             return '<link href="' . implode('-', $names) . '.min.css">';
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "minify\n" .
             "  link(href='foo.css')\n" .
             "  link(href='bar.css')\n"
@@ -241,7 +241,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
         $expected = '<link href="foo-bar.min.css">';
         $this->assertSame($expected, $actual);
 
-        $jade->setKeyword('concat-to', function ($args, $block) {
+        $Pug->setKeyword('concat-to', function ($args, $block) {
             $names = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
@@ -251,7 +251,7 @@ class JadeKeywordTest extends PHPUnit_Framework_TestCase
 
             return '<link href="' . $args . '">';
         });
-        $actual = trim($jade->render(
+        $actual = trim($Pug->render(
             "concat-to app.css\n" .
             "  link(href='foo.css')\n" .
             "  link(href='bar.css')\n"

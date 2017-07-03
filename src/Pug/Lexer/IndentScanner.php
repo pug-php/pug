@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\IndentScanner.
+ * Class Pug\Lexer\IndentScanner.
  */
 abstract class IndentScanner extends InputHandler
 {

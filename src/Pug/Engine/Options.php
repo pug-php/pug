@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Engine;
+namespace Pug\Engine;
 
 /**
- * Class Jade\Engine\Options.
+ * Class Pug\Engine\Options.
  */
 class Options extends Keywords
 {
@@ -37,92 +37,43 @@ class Options extends Keywords
         'stream'             => null,
         'upToDateCheck'      => true,
     );
+    /**
+     * @param array  $arrays
+     * @param string $functionName
+     *
+     * @return $this
+     */
+    private function setOptionArrays(array $arrays, $functionName)
+    {
+        var_dump($arrays);
+        exit;
+        array_unshift($arrays, $this->options);
+        $this->options = call_user_func_array($functionName, array_filter($arrays, 'is_array'));
+
+        return $this;
+    }
 
     /**
-     * Get standard or custom option, return the previously setted value or the default value else.
+     * @param array|string $keys
+     * @param callable     $callback
      *
-     * Throw a invalid argument exception if the option does not exists.
-     *
-     * @param string $name
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return mixed
+     * @return &$options
      */
-    public function getOption($name)
+    private function withOptionsReference(&$keys, $callback)
     {
-        if (!array_key_exists($name, $this->options)) {
-            throw new \InvalidArgumentException("$name is not a valid option name.", 2);
+        var_dump($keys);
+        exit;
+        $options = &$this->options;
+        if (is_array($keys)) {
+            foreach (array_slice($keys, 0, -1) as $key) {
+                if (!array_key_exists($key, $options)) {
+                    $options[$key] = [];
+                }
+                $options = &$options[$key];
+            }
+            $keys = end($keys);
         }
 
-        return $this->options[$name];
-    }
-
-    /**
-     * Set one standard option (listed in $this->options).
-     *
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return $this
-     */
-    public function setOption($name, $value)
-    {
-        if (!array_key_exists($name, $this->options)) {
-            throw new \InvalidArgumentException("$name is not a valid option name.", 3);
-        }
-
-        $this->options[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Set multiple standard options.
-     *
-     * @param array $options list of options
-     *
-     * @throws \InvalidArgumentException
-     *
-     * @return $this
-     */
-    public function setOptions($options)
-    {
-        foreach ($options as $name => $value) {
-            $this->setOption($name, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set one custom option.
-     *
-     * @param string $name
-     * @param mixed  $value
-     *
-     * @return $this
-     */
-    public function setCustomOption($name, $value)
-    {
-        $this->options[$name] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Set multiple custom options.
-     *
-     * @param array $options list of options
-     *
-     * @return $this
-     */
-    public function setCustomOptions(array $options)
-    {
-        $this->options = array_merge($this->options, $options);
-
-        return $this;
+        return $callback($options, $keys);
     }
 }

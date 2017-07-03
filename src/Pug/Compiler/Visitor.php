@@ -1,12 +1,12 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Nodes\Block;
-use Jade\Nodes\Comment;
-use Jade\Nodes\Doctype;
-use Jade\Nodes\Literal;
-use Jade\Nodes\Node;
+use Pug\Nodes\Block;
+use Pug\Nodes\Comment;
+use Pug\Nodes\Doctype;
+use Pug\Nodes\Literal;
+use Pug\Nodes\Node;
 
 abstract class Visitor extends KeywordsCompiler
 {
@@ -104,8 +104,8 @@ abstract class Visitor extends KeywordsCompiler
         $name = var_export($this->visitedMixin->name, true);
 
         $code = $this->restrictedScope
-            ? "\\Jade\\Compiler::callMixinBlock($name, \$attributes);"
-            : "\$__varHandler = get_defined_vars(); \\Jade\\Compiler::callMixinBlockWithVars($name, \$__varHandler, \$attributes); extract(array_diff_key(\$__varHandler, array('__varHandler' => 1)));";
+            ? "\\Pug\\Compiler::callMixinBlock($name, \$attributes);"
+            : "\$__varHandler = get_defined_vars(); \\Pug\\Compiler::callMixinBlockWithVars($name, \$__varHandler, \$attributes); extract(array_diff_key(\$__varHandler, array('__varHandler' => 1)));";
 
         $this->buffer($this->createCode($code));
     }

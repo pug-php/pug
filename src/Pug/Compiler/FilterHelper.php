@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
 /**
- * Class Jade CompilerUtils.
+ * Class Pug CompilerUtils.
  * Internal static methods of the compiler.
  */
 class FilterHelper

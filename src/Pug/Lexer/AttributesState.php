@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\AttributesState.
+ * Class Pug\Lexer\AttributesState.
  */
 class AttributesState
 {

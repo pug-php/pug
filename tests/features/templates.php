@@ -2,15 +2,8 @@
 
 use Pug\Pug;
 
-class JadeTemplatesTest extends PHPUnit_Framework_TestCase
+class PugTemplatesTest extends PHPUnit_Framework_TestCase
 {
-    static private $skipped = array(
-        // Not supported in HHVM
-        'xml' => 'hhvm',
-
-        // Add here tests for future features not yet implemented
-    );
-
     public function caseProvider()
     {
         $cases = array();
@@ -19,13 +12,8 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
             foreach ($arr as $e) {
                 $name = $e['name'];
 
-                if ($name === 'index' || in_array($name, self::$skipped)) {
+                if ($name === 'index') {
                     continue;
-                }
-                if (isset(self::$skipped[$name])) {
-                    if (defined('HHVM_VERSION') && self::$skipped[$name] === 'hhvm') {
-                        continue;
-                    }
                 }
 
                 $cases[] = array($name);
@@ -38,7 +26,7 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider caseProvider
      */
-    public function testJadeGeneration($name)
+    public function testPugGeneration($name)
     {
         $result = get_test_result($name);
         $result = $result[1];

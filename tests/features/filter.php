@@ -1,25 +1,25 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
-class JadeFilterTest extends PHPUnit_Framework_TestCase
+class PugFilterTest extends PHPUnit_Framework_TestCase
 {
     /**
      * custom filter test
      */
     public function testFilter()
     {
-        $jade = new Jade();
-        $this->assertSame($jade->getFilter('php'), 'Jade\Filter\Php');
-        $this->assertFalse($jade->hasFilter('text'));
-        $jade->filter('text', function($node, $compiler){
+        $Pug = new Pug();
+        $this->assertSame($Pug->getFilter('php'), 'Pug\Filter\Php');
+        $this->assertFalse($Pug->hasFilter('text'));
+        $Pug->filter('text', function($node, $compiler){
             foreach ($node->block->nodes as $line) {
                 $output[] = $compiler->interpolate($line->value);
             }
             return strip_tags(implode(' ', $output));
         });
-        $this->assertTrue($jade->hasFilter('text'));
-        $actual = $jade->render('
+        $this->assertTrue($Pug->hasFilter('text'));
+        $actual = $Pug->render('
 div
     p
         :text
@@ -40,11 +40,11 @@ div
      */
     public function testNonCallableFilter()
     {
-        $jade = new Jade();
-        $this->assertFalse($jade->hasFilter('bar'));
-        $jade->filter('bar', 'nonexists');
-        $this->assertTrue($jade->hasFilter('bar'));
-        $actual = $jade->render('
+        $Pug = new Pug();
+        $this->assertFalse($Pug->hasFilter('bar'));
+        $Pug->filter('bar', 'nonexists');
+        $this->assertTrue($Pug->hasFilter('bar'));
+        $actual = $Pug->render('
 div
     p
         :bar
@@ -55,8 +55,8 @@ div
 
     public function testFilterAutoload()
     {
-        $jade = new Jade();
-        $this->assertFalse($jade->hasFilter('foo-bar'));
+        $Pug = new Pug();
+        $this->assertFalse($Pug->hasFilter('foo-bar'));
         spl_autoload_register(function ($name) {
             $name = explode('\\', $name);
             $file = __DIR__ . '/../lib/' . end($name) . 'Filter.php';
@@ -64,13 +64,13 @@ div
                 include_once $file;
             }
         });
-        $jade->setOption('filterAutoLoad', false);
-        $this->assertFalse($jade->hasFilter('foo-bar'));
-        $this->assertSame($jade->getFilter('foo-bar'), null);
-        $jade->setOption('filterAutoLoad', true);
-        $this->assertTrue($jade->hasFilter('foo-bar'));
-        $this->assertSame($jade->getFilter('foo-bar'), 'Jade\Filter\FooBar');
-        $actual = $jade->render('
+        $Pug->setOption('filterAutoLoad', false);
+        $this->assertFalse($Pug->hasFilter('foo-bar'));
+        $this->assertSame($Pug->getFilter('foo-bar'), null);
+        $Pug->setOption('filterAutoLoad', true);
+        $this->assertTrue($Pug->hasFilter('foo-bar'));
+        $this->assertSame($Pug->getFilter('foo-bar'), 'Pug\Filter\FooBar');
+        $actual = $Pug->render('
 div
     p
         :foo-bar
@@ -87,9 +87,9 @@ div
      */
     public function testFilterAutoloadWhenClassDoNotExist()
     {
-        $jade = new Jade();
-        $this->assertFalse($jade->hasFilter('bar-foo'));
-        $actual = $jade->render('
+        $Pug = new Pug();
+        $this->assertFalse($Pug->hasFilter('bar-foo'));
+        $actual = $Pug->render('
 div
     p
         :bar-foo
@@ -100,14 +100,14 @@ div
 
     public function testInlineFilter()
     {
-        $jade = new Jade();
-        $jade->filter('lower', function($node, $compiler){
+        $Pug = new Pug();
+        $Pug->filter('lower', function($node, $compiler){
             foreach ($node->block->nodes as $line) {
                 $output[] = $line->value;
             }
             return strtolower(implode(' ', $output));
         });
-        $actual = $jade->render('
+        $actual = $Pug->render('
 h1
     | BAR-
     :lower FOO
@@ -117,7 +117,7 @@ h1
 
         $this->assertSame($expected, $actual, 'One-line filter');
 
-        $actual = $jade->render('h1 BAR-#[:lower FOO]-BAR');
+        $actual = $Pug->render('h1 BAR-#[:lower FOO]-BAR');
         $expected = '<h1>BAR-foo-BAR</h1>';
 
         $this->assertSame($expected, $actual, 'In-line filter');
@@ -128,8 +128,8 @@ h1
      */
     public function testPhpFilterWithoutPrettyprint()
     {
-        $jade = new Jade();
-        $actual = $jade->render('
+        $Pug = new Pug();
+        $actual = $Pug->render('
 h1
     :php
         |BAR-
@@ -140,7 +140,7 @@ h1
 
         $this->assertSame($expected, $actual, 'Block filter');
 
-        $actual = $jade->render('
+        $actual = $Pug->render('
 h1
     span BAR-
     :php
@@ -151,7 +151,7 @@ h1
 
         $this->assertSame($expected, $actual, 'Block filter and span');
 
-        $actual = $jade->render('
+        $actual = $Pug->render('
 h1
     | BAR-
     :php echo 6 * 7
@@ -161,7 +161,7 @@ h1
 
         $this->assertSame($expected, $actual, 'One-line filter');
 
-        $actual = $jade->render('h1 BAR-#[:php echo 6 * 7]-BAR');
+        $actual = $Pug->render('h1 BAR-#[:php echo 6 * 7]-BAR');
         $expected = '<h1>BAR-42-BAR</h1>';
 
         $this->assertSame($expected, $actual, 'In-line filter');
@@ -172,10 +172,10 @@ h1
      */
     public function testPhpFilterWithPrettyprint()
     {
-        $jade = new Jade(array(
+        $Pug = new Pug(array(
             'prettyprint' => true,
         ));
-        $actual = trim($jade->render('
+        $actual = trim($Pug->render('
 h1
     :php
         | BAR-
@@ -186,7 +186,7 @@ h1
 
         $this->assertRegExp($expected, $actual, 'Block filter');
 
-        $actual = trim($jade->render('
+        $actual = trim($Pug->render('
 h1
     span BAR-
     :php
@@ -197,7 +197,7 @@ h1
 
         $this->assertRegExp($expected, $actual, 'Block filter and span');
 
-        $actual = trim($jade->render('
+        $actual = trim($Pug->render('
 h1
     | BAR-
     :php echo 6 * 7
@@ -207,7 +207,7 @@ h1
 
         $this->assertRegExp($expected, $actual, 'One-line filter');
 
-        $actual = $jade->render('h1 BAR-#[:php echo 6 * 7]-BAR');
+        $actual = $Pug->render('h1 BAR-#[:php echo 6 * 7]-BAR');
         $expected = '/^<h1>\s+BAR-\s+42\s+-BAR\s*<\/h1>$/';
 
         $this->assertRegExp($expected, $actual, 'In-line filter');

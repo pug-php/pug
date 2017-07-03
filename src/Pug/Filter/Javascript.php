@@ -1,6 +1,6 @@
 <?php
 
-namespace Jade\Filter;
+namespace Pug\Filter;
 
 use Pug\Compiler;
 use Pug\Nodes\Filter;

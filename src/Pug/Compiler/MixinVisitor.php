@@ -1,8 +1,8 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Nodes\Mixin;
+use Pug\Nodes\Mixin;
 
 abstract class MixinVisitor extends MixinVisitorUtils
 {
@@ -21,7 +21,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
         $attributes = $this->parseMixinAttributes($attributes, $defaultAttributes, $mixin->attributes);
 
         if ($block) {
-            $this->renderClosureOpenning("\\Jade\\Compiler::recordMixinBlock($blockName, ", 'attributes');
+            $this->renderClosureOpenning("\\Pug\\Compiler::recordMixinBlock($blockName, ", 'attributes');
             $this->visit($block);
             $this->renderClosureClosing('});');
         }
@@ -82,7 +82,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
         }
 
         if ($block) {
-            $code = $this->createCode("\\Jade\\Compiler::terminateMixinBlock($blockName);");
+            $code = $this->createCode("\\Pug\\Compiler::terminateMixinBlock($blockName);");
             $this->buffer($code);
         }
     }

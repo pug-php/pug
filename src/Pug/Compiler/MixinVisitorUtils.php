@@ -1,8 +1,8 @@
 <?php
 
-namespace Jade\Compiler;
+namespace Pug\Compiler;
 
-use Jade\Lexer\Scanner;
+use Pug\Lexer\Scanner;
 
 abstract class MixinVisitorUtils extends CodeVisitor
 {
@@ -110,7 +110,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
         $attributes = var_export($parsedAttributes, true);
         $mixinAttributes = var_export(static::decodeAttributes($mixinAttributes), true);
 
-        return "array_merge(\\Jade\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
+        return "array_merge(\\Pug\\Compiler::withMixinAttributes($attributes, $mixinAttributes), (isset(\$attributes)) ? \$attributes : array($defaultAttributes))";
     }
 
     protected function renderClosureOpenning()

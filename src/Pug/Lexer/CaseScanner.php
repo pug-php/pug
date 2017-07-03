@@ -1,9 +1,9 @@
 <?php
 
-namespace Jade\Lexer;
+namespace Pug\Lexer;
 
 /**
- * Class Jade\Lexer\CaseScanner.
+ * Class Pug\Lexer\CaseScanner.
  */
 abstract class CaseScanner extends BlockScanner
 {
