@@ -32,8 +32,9 @@ class PugSuhosinEmulation extends Pug
         return $requirements;
     }
 
-    public function stream($input)
+    public function stream()
     {
+        $input = '';
         $extensions = get_loaded_extensions();
         if ($this->whiteListNeeded($extensions[0])) {
             throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.', 4);

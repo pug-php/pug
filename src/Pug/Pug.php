@@ -3,8 +3,8 @@
 namespace Pug;
 
 use InvalidArgumentException;
+use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\PugJsEngine;
-use Pug\Lexer\Scanner;
 
 /**
  * Class Pug\Pug.
@@ -19,11 +19,6 @@ class Pug extends PugJsEngine
     const EXP_PHP = 2;
 
     /**
-     * @var string
-     */
-    protected $streamName = 'pug';
-
-    /**
      * Built-in filters.
      *
      * @var array
@@ -35,24 +30,6 @@ class Pug extends PugJsEngine
         'escaped'    => 'Pug\Filter\Escaped',
         'javascript' => 'Pug\Filter\Javascript',
     );
-
-    /**
-     * @var array
-     */
-    protected $sharedVariables = array();
-
-    /**
-     * Merge local options with constructor $options.
-     *
-     * @param array $options
-     */
-    public function __construct(array $options = array())
-    {
-        if (is_null($this->options['stream'])) {
-            $this->options['stream'] = $this->streamName . '.stream';
-        }
-        $this->options = array_merge($this->options, $options);
-    }
 
     /**
      * Returns true if suhosin extension is loaded and the stream name
@@ -106,40 +83,6 @@ class Pug extends PugJsEngine
     }
 
     /**
-     * Compile PHP code from a Pug input or a Pug file.
-     *
-     * @param string $input    input file (or input content if filenname is specified or no file found)
-     * @param string $filename filename for the input code
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function compile($input, $filename = null)
-    {
-        $parser = new Parser($input, $filename, $this->options);
-        $compiler = new Compiler($this, $this->filters, $parser->getFilename());
-        $php = $compiler->compile($parser->parse());
-        if (version_compare(PHP_VERSION, '7.0.0') < 0 || $this->getOption('php5compatibility')) {
-            $php = preg_replace_callback('/(' . preg_quote('\\Pug\\Compiler::getPropertyFromAnything', '/') . Scanner::PARENTHESES . ')[ \t]*' . Scanner::PARENTHESES . '/', function ($match) {
-                $parenthesis = trim(substr($match[3], 1, -1));
-                $arguments = $match[1];
-                if ($parenthesis !== '') {
-                    $arguments .= ', ' . $parenthesis;
-                }
-
-                return 'call_user_func(' . $arguments . ')';
-            }, $php);
-        }
-        $postRender = $this->getOption('postRender');
-        if (is_callable($postRender)) {
-            $php = call_user_func($postRender, $php);
-        }
-
-        return $php;
-    }
-
-    /**
      * Render using the PHP engine.
      *
      * @param string $input pug input or file
@@ -151,12 +94,6 @@ class Pug extends PugJsEngine
      */
     public function renderWithPhp($input, array $vars)
     {
-        if (!file_exists($input)) {
-            throw new InvalidArgumentException(
-                'File not found. If you tried to pass a pug string, use renderString or displayString.'
-            );
-        }
-
         return parent::render($input, $vars);
     }
 
@@ -185,52 +122,15 @@ class Pug extends PugJsEngine
     }
 
     /**
-     * Create a stream wrapper to allow
-     * the possibility to add $scope variables.
-     *
-     * @param string $input
+     * Obsolete.
      *
      * @throws \ErrorException
-     *
-     * @return string
      */
-    public function stream($input)
+    public function stream()
     {
-        if ($this->whiteListNeeded('suhosin')) {
-            throw new \ErrorException('To run Pug.php on the fly, add "' . $this->options['stream'] . '" to the "suhosin.executor.include.whitelist" settings in your php.ini file.', 4);
-        }
-
-        if (!in_array($this->options['stream'], stream_get_wrappers())) {
-            stream_wrapper_register($this->options['stream'], 'Pug\\Stream\\Template');
-        }
-
-        return $this->options['stream'] . '://data;' . $input;
-    }
-
-    /**
-     * Add a variable or an array of variables to be shared with all templates that will be rendered
-     * by the instance of Pug.
-     *
-     * @param array|string $variables|$key an associatives array of variable names and values, or a
-     *                                     variable name if you wish to sahre only one
-     * @param mixed        $value          if you pass an array as first argument, the second
-     *                                     argument will be ignored, else it will used as the
-     *                                     variable value for the variable name you passed as first
-     *                                     argument
-     */
-    public function share($variables, $value = null)
-    {
-        if (!is_array($variables)) {
-            $variables = array(strval($variables) => $value);
-        }
-        $this->sharedVariables = array_merge($this->sharedVariables, $variables);
-    }
-
-    /**
-     * Remove all previously set shared variables.
-     */
-    public function resetSharedVariables()
-    {
-        $this->sharedVariables = array();
+        throw new \ErrorException(
+            '->stream() is no longer available, please use ' . StreamAdapter::class . ' instead',
+            34
+        );
     }
 }
