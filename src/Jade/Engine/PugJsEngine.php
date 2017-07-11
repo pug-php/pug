@@ -54,7 +54,7 @@ class PugJsEngine extends Options
             'out' => $workDirectory,
         );
         if (!empty($vars)) {
-            $options['obj'] = json_encode($vars);
+            $options['obj'] = json_encode($vars, JSON_UNESCAPED_SLASHES);
         }
 
         return $options;

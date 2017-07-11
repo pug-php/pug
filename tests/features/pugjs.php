@@ -102,4 +102,22 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $pug->render('./bar/basic.jade');
     }
+
+    public function testIssue147()
+    {
+        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
+            return;
+        }
+
+        $pug = new Pug(array(
+            'pugjs' => true,
+        ));
+
+        $html = $pug->render(
+            'link(rel="shortcut icon", href=site.favicon, type="image/png")',
+            array('site' => array('favicon' => '/favicon.png'))
+        );
+
+        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+    }
 }
