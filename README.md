@@ -10,7 +10,7 @@
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
 
 
-Pug.php adds inline PHP scripting support to the [Pug](http://jade-lang.com) template compiler.
+Pug.php adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler.
 
 > Pug has been recently re-named from Jade. If you're new to Pug, you should install the pug-php/pug package on composer.
 
