@@ -36,6 +36,7 @@ class Options extends Keywords
         'singleQuote'        => false,
         'stream'             => null,
         'upToDateCheck'      => true,
+        'localsJsonFile'     => false,
     );
 
     /**

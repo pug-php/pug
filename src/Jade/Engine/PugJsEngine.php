@@ -54,7 +54,15 @@ class PugJsEngine extends Options
             'out' => $workDirectory,
         );
         if (!empty($vars)) {
-            $options['obj'] = json_encode($vars, JSON_UNESCAPED_SLASHES);
+            $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
+
+            if (!$this->options['localsJsonFile']) {
+                $options['obj'] = $locals;
+            } else {
+                $optionsFile = $workDirectory . '/options-' . hash('md5', time()) . '.json';
+                file_put_contents($optionsFile, $locals);
+                $options['obj'] = $optionsFile;
+            }
         }
 
         return $options;
@@ -110,6 +118,10 @@ class PugJsEngine extends Options
             unlink($input);
         }
 
+        if ($this->options['localsJsonFile']) {
+            unlink($options['obj']);
+        }
+
         return $html;
     }
 
@@ -137,7 +149,9 @@ class PugJsEngine extends Options
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $function = in_array($option, array('pretty', 'obj'))
+                $jsonOptions = ['pretty'];
+                if (!$this->options['localsJsonFile']) $jsonOptions[] = 'obj';
+                $function = in_array($option, $jsonOptions)
                     ? 'json_encode'
                     : 'escapeshellarg';
                 $value = call_user_func($function, $value);
