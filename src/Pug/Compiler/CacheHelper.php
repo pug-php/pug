@@ -2,8 +2,8 @@
 
 namespace Pug\Compiler;
 
-use Pug\Pug;
 use Pug\Parser\ExtensionsHelper;
+use Pug\Pug;
 
 class CacheHelper
 {

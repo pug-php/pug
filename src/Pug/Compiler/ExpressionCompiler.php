@@ -2,9 +2,9 @@
 
 namespace Pug\Compiler;
 
-use Pug\Pug;
-use Pug\Lexer\Scanner;
 use JsPhpize\JsPhpize;
+use Pug\Lexer\Scanner;
+use Pug\Pug;
 
 /**
  * Class Jade ExpressionCompiler.
