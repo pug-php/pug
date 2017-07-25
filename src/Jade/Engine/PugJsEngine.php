@@ -92,7 +92,7 @@ class PugJsEngine extends Options
         chdir($directory);
         file_put_contents($renderFile,
             'console.log(require(' . json_encode($realPath) . ')' .
-            '(' . (empty($options['obj']) ? '{}' : $options['obj']) . '));'
+            '(' . (empty($options['obj']) ? '{}' : (!$this->options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')') ) . '));'
         );
 
         $node = $this->getNodeEngine();
