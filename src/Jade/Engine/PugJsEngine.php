@@ -59,7 +59,7 @@ class PugJsEngine extends Options
             $options['obj'] = $locals;
 
             if ($this->options['localsJsonFile']) {
-                $optionsFile = $workDirectory . '/options-' . hash('md5', time()) . '.json';
+                $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.json';
                 file_put_contents($optionsFile, $locals);
                 $options['obj'] = $optionsFile;
             }
