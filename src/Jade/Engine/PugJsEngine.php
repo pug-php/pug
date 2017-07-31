@@ -147,12 +147,14 @@ class PugJsEngine extends Options
             unset($options['pretty']);
         }
 
+        // options that need be encoded by json_encode
+        $jsonOptions = array('pretty');
+        if (!$this->options['localsJsonFile']) {
+            $jsonOptions[] = 'obj';
+        }
+
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $jsonOptions = array('pretty');
-                if (!$this->options['localsJsonFile']) {
-                    $jsonOptions[] = 'obj';
-                }
                 $function = in_array($option, $jsonOptions)
                     ? 'json_encode'
                     : 'escapeshellarg';
