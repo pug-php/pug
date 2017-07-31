@@ -149,7 +149,7 @@ class PugJsEngine extends Options
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $jsonOptions = ['pretty'];
+                $jsonOptions = array('pretty');
                 if (!$this->options['localsJsonFile']) {
                     $jsonOptions[] = 'obj';
                 }
