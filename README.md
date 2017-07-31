@@ -262,7 +262,7 @@ magic methods will be striginfied in JSON as simple objects) and you will not be
 features like mixed indent, pre/post render hooks but in this mode you will get exact same
 output as in pug-js.
 
-### Write locals object to json file with pugjs
+#### Write locals object to json file with pugjs
 
 If your locals object is large it may cause a `RuntimeException` error. This is because
 locals object passed directly to pug-cli as argument. To fix this problem you can use
@@ -270,7 +270,6 @@ locals object passed directly to pug-cli as argument. To fix this problem you ca
 
 ```php
 $pug = new Pug(array(
-    'expressionLanguage' => 'js',
     'pugjs' => true,
     'localsJsonFile' => true
 );
