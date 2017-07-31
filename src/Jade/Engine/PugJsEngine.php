@@ -56,9 +56,9 @@ class PugJsEngine extends Options
         if (!empty($vars)) {
             $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
 
-            if (!$this->options['localsJsonFile']) {
-                $options['obj'] = $locals;
-            } else {
+            $options['obj'] = $locals;
+
+            if ($this->options['localsJsonFile']) {
                 $optionsFile = $workDirectory . '/options-' . hash('md5', time()) . '.json';
                 file_put_contents($optionsFile, $locals);
                 $options['obj'] = $optionsFile;
@@ -92,7 +92,7 @@ class PugJsEngine extends Options
         chdir($directory);
         file_put_contents($renderFile,
             'console.log(require(' . json_encode($realPath) . ')' .
-            '(' . (empty($options['obj']) ? '{}' : (!$this->options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')') ) . '));'
+            '(' . (empty($options['obj']) ? '{}' : (!$this->options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')')) . '));'
         );
 
         $node = $this->getNodeEngine();
@@ -150,7 +150,9 @@ class PugJsEngine extends Options
         foreach ($options as $option => $value) {
             if (!empty($value)) {
                 $jsonOptions = ['pretty'];
-                if (!$this->options['localsJsonFile']) $jsonOptions[] = 'obj';
+                if (!$this->options['localsJsonFile']) {
+                    $jsonOptions[] = 'obj';
+                }
                 $function = in_array($option, $jsonOptions)
                     ? 'json_encode'
                     : 'escapeshellarg';
