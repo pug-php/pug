@@ -16,24 +16,26 @@ class PugCachePerformanceTest extends PHPUnit_Framework_TestCase
 
     protected function getPhp($template)
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,
-        ));
+        ]);
 
-        return trim($Pug->compile($template));
+        return trim($pug->compile($template));
     }
 
     protected function getHtmlFromTemplate($template, array $vars = array())
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,
-        ));
+        ]);
 
-        return trim($Pug->render($this->getPerformanceTemplate($template), $vars));
+        return trim($pug->render($this->getPerformanceTemplate($template), $vars));
     }
 
     /**

@@ -61,8 +61,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testAbsoluteIncludeWithNoBaseDir()
     {
-        $Pug = new Pug();
-        $Pug->render('include /auxiliary/world');
+        $pug = new Pug();
+        $pug->render('include /auxiliary/world');
     }
 
     /**
@@ -157,8 +157,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetInvalidOption()
     {
-        $Pug = new Pug();
-        $Pug->setOption('i-do-not-exists', 'wrong');
+        $pug = new Pug();
+        $pug->setOption('i-do-not-exists', 'wrong');
     }
 
     /**
@@ -167,8 +167,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetInvalidOptions()
     {
-        $Pug = new Pug();
-        $Pug->setOptions(array(
+        $pug = new Pug();
+        $pug->setOptions(array(
             'prettyprint' => true,
             'i-do-not-exists' => 'right',
         ));
@@ -180,8 +180,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testGetInvalidOption()
     {
-        $Pug = new Pug();
-        $Pug->getOption('i-do-not-exists');
+        $pug = new Pug();
+        $pug->getOption('i-do-not-exists');
     }
 
     /**
@@ -189,11 +189,11 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testExtendsWithFilterException()
     {
-        $Pug = new Pug();
-        $Pug->filter('throw-exception', function () {
+        $pug = new Pug();
+        $pug->filter('throw-exception', function () {
             throw new EmulateBugException("Bad filter", 1);
         });
-        $Pug->render(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
+        $pug->render(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
     }
 
     /**

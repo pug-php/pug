@@ -85,8 +85,10 @@ class PugCompilerExceptionsTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidOptionWithEngineInConstructor()
     {
-        $Pug = new Pug();
-        $compiler = new Compiler($Pug);
+        $pug = new Pug([
+            'debug' => true,
+        ]);
+        $compiler = new Compiler($pug);
         $compiler->getOption('foo');
     }
 }

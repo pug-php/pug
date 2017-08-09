@@ -22,8 +22,8 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testInvalidAction()
     {
-        $Pug = new Pug();
-        $Pug->addKeyword('foo', 'bar');
+        $pug = new Pug();
+        $pug->addKeyword('foo', 'bar');
     }
 
     /**
@@ -32,11 +32,11 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testAddAlreadySetKeyword()
     {
-        $Pug = new Pug();
-        $Pug->addKeyword('foo', function () {
+        $pug = new Pug();
+        $pug->addKeyword('foo', function () {
             return array();
         });
-        $Pug->addKeyword('foo', function () {
+        $pug->addKeyword('foo', function () {
             return 'foo';
         });
     }
@@ -47,8 +47,8 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testReplaceNonSetKeyword()
     {
-        $Pug = new Pug();
-        $Pug->replaceKeyword('foo', function () {
+        $pug = new Pug();
+        $pug->replaceKeyword('foo', function () {
             return array();
         });
     }
@@ -59,11 +59,11 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
      */
     public function testBadReturn()
     {
-        $Pug = new Pug();
-        $Pug->addKeyword('foo', function () {
+        $pug = new Pug();
+        $pug->addKeyword('foo', function () {
             return 32;
         });
-        $Pug->render('foo');
+        $pug->render('foo');
     }
 
     public function testBadReturnPreviousException()
@@ -73,11 +73,11 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         }
 
         try {
-            $Pug = new Pug();
-            $Pug->addKeyword('foo', function () {
+            $pug = new Pug();
+            $pug->addKeyword('foo', function () {
                 return 32;
             });
-            $Pug->render('foo');
+            $pug->render('foo');
         } catch (\Exception $e) {
             $code = $e->getPrevious()->getCode();
         }
@@ -87,71 +87,73 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testBadCustomKeywordOptionType()
     {
-        $Pug = new Pug();
-        $Pug->setOption('customKeywords', new BadOptionType());
-        $Pug->addKeyword('foo', function () {
+        $pug = new Pug();
+        $pug->setOption('customKeywords', new BadOptionType());
+        $pug->addKeyword('foo', function () {
             return 'foo';
         });
-        $this->assertSame('foo', $Pug->render('foo'));
+        $this->assertSame('foo', $pug->render('foo'));
     }
 
     public function testPhpKeyWord()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'prettyprint' => false,
-        ));
+        ]);
 
-        $actual = trim($Pug->render('for ;;'));
+        $actual = trim($pug->render('for ;;'));
         $expected = '<for>;;</for>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
-        $Pug->addKeyword('for', function ($args) {
+        $pug->addKeyword('for', function ($args) {
             return array(
                 'beginPhp' => 'for (' . $args . ') {',
                 'endPhp' => '}',
             );
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             'for $i = 0; $i < 3; $i++' . "\n" .
             '  p= i'
         ));
         $expected = '<p>0</p><p>1</p><p>2</p>';
         $this->assertSame($expected, $actual, 'addKeyword should allow to customize available keywords.');
-        $Pug->replaceKeyword('for', new ForKeyword());
-        $actual = trim($Pug->render(
+        $pug->replaceKeyword('for', new ForKeyword());
+        $actual = trim($pug->render(
             'for $i = 0; $i < 3; $i++' . "\n" .
             '  p'
         ));
         $expected = '$i = 0; $i < 3; $i++<p></p>';
         $this->assertSame($expected, $actual, 'The keyword action can be an callable class.');
 
-        $Pug->removeKeyword('for');
-        $actual = trim($Pug->render('for ;;'));
+        $pug->removeKeyword('for');
+        $actual = trim($pug->render('for ;;'));
         $expected = '<for>;;</for>';
         $this->assertSame($expected, $actual, 'After removing keyword, a word render as a tag.');
     }
 
     public function testHtmlKeyWord()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
-        ));
+        ]);
 
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = '<user>Bob<img src="bob.png"></user>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
-        $Pug->addKeyword('user', function ($args) {
+        $pug->addKeyword('user', function ($args) {
             return array(
                 'begin' => '<div class="user" title="' . $args . '">',
                 'end' => '</div>',
             );
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
@@ -161,39 +163,40 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testKeyWordBeginAndEnd()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
-        ));
+        ]);
 
-        $Pug->setKeyword('foo', function ($args) {
+        $pug->setKeyword('foo', function ($args) {
             return 'bar';
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = 'bar<img src="bob.png">';
         $this->assertSame($expected, $actual, 'If addKeyword return a string, it\'s rendeder before the block.');
 
-        $Pug->setKeyword('foo', function ($args) {
+        $pug->setKeyword('foo', function ($args) {
             return array(
                 'begin' => $args . '/',
             );
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
         $expected = 'Bob/<img src="bob.png">';
         $this->assertSame($expected, $actual, 'If addKeyword return a begin entry, it\'s rendeder before the block.');
 
-        $Pug->setKeyword('foo', function ($args) {
+        $pug->setKeyword('foo', function ($args) {
             return array(
                 'end' => 'bar',
             );
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "foo Bob\n" .
             '  img(src="bob.png")'
         ));
@@ -203,25 +206,26 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
     public function testKeyWordArguments()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
-        ));
+        ]);
 
         $foo = function ($args, $block, $keyWord) {
             return $keyWord;
         };
-        $Pug->setKeyword('foo', $foo);
-        $actual = trim($Pug->render("foo\n"));
+        $pug->setKeyword('foo', $foo);
+        $actual = trim($pug->render("foo\n"));
         $expected = 'foo';
         $this->assertSame($expected, $actual);
 
-        $Pug->setKeyword('bar', $foo);
-        $actual = trim($Pug->render("bar\n"));
+        $pug->setKeyword('bar', $foo);
+        $actual = trim($pug->render("bar\n"));
         $expected = 'bar';
         $this->assertSame($expected, $actual);
 
-        $Pug->setKeyword('minify', function ($args, $block) {
+        $pug->setKeyword('minify', function ($args, $block) {
             $names = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
@@ -233,7 +237,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
             return '<link href="' . implode('-', $names) . '.min.css">';
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "minify\n" .
             "  link(href='foo.css')\n" .
             "  link(href='bar.css')\n"
@@ -241,7 +245,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $expected = '<link href="foo-bar.min.css">';
         $this->assertSame($expected, $actual);
 
-        $Pug->setKeyword('concat-to', function ($args, $block) {
+        $pug->setKeyword('concat-to', function ($args, $block) {
             $names = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
@@ -251,7 +255,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
             return '<link href="' . $args . '">';
         });
-        $actual = trim($Pug->render(
+        $actual = trim($pug->render(
             "concat-to app.css\n" .
             "  link(href='foo.css')\n" .
             "  link(href='bar.css')\n"

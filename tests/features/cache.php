@@ -43,11 +43,11 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
      */
     public function testMissingDirectory()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'singleQuote' => false,
             'cache' => '///cannot/be/created'
         ));
-        $Pug->render(__DIR__ . '/../templates/attrs.pug');
+        $pug->render(__DIR__ . '/../templates/attrs.pug');
     }
 
     /**
@@ -66,17 +66,17 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         } else {
             mkdir($dir);
         }
-        $Pug = new PugTest(array(
+        $pug = new PugTest(array(
             'cache' => $dir
         ));
-        $this->assertSame(0, $Pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
-        $this->assertSame(0, $Pug->getCompilationsCount(), 'Should have done no compilations yet');
-        $Pug->render("header\n  h1#foo Hello World!\nfooter");
-        $this->assertSame(1, $Pug->getCompilationsCount(), 'Should have done 1 compilation');
-        $Pug->render("header\n  h1#foo Hello World!\nfooter");
-        $this->assertSame(1, $Pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
-        $Pug->render("header\n  h1#foo Hello World?\nfooter");
-        $this->assertSame(2, $Pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        $this->assertSame(0, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        $this->assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
+        $pug->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
+        $pug->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
+        $pug->render("header\n  h1#foo Hello World?\nfooter");
+        $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->emptyDirectory($dir);
     }
 
@@ -98,11 +98,11 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             }
             $dir = $parent;
         }
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'singleQuote' => false,
             'cache' => $dir,
         ));
-        $Pug->cache(__DIR__ . '/../templates/attrs.pug');
+        $pug->cache(__DIR__ . '/../templates/attrs.pug');
     }
 
     private function cacheSystem($keepBaseName)
@@ -113,14 +113,14 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             mkdir($cacheDirectory, 0777, true);
         }
         $file = tempnam(sys_get_temp_dir(), 'Pug-test-');
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'singleQuote' => false,
             'keepBaseName' => $keepBaseName,
             'cache' => $cacheDirectory,
         ));
         copy(__DIR__ . '/../templates/attrs.pug', $file);
         $name = basename($file);
-        $stream = $Pug->cache($file);
+        $stream = $pug->cache($file);
         $phpFiles = array_values(array_map(function ($file) use ($cacheDirectory) {
             return $cacheDirectory . DIRECTORY_SEPARATOR . $file;
         }, array_filter(scandir($cacheDirectory), function ($file) {
@@ -131,15 +131,15 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         $this->assertSame(1, count($phpFiles), 'The cached file should now exist.');
         $cachedFile = realpath($phpFiles[0]);
         $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
-        $this->assertSame($stream, $Pug->stream($Pug->compile($file)), 'Should return the stream of attrs.pug.');
+        $this->assertSame($stream, $pug->stream($pug->compile($file)), 'Should return the stream of attrs.pug.');
         $this->assertStringEqualsFile($cachedFile, substr($stream, strlen($start)), 'The cached file should contains the same contents.');
         touch($file, time() - 3600);
-        $path = $Pug->cache($file);
+        $path = $pug->cache($file);
         $this->assertSame(realpath($path), $cachedFile, 'The cached file should be used instead if untouched.');
         copy(__DIR__ . '/../templates/mixins.pug', $file);
         touch($file, time() + 3600);
-        $stream = $Pug->cache($file);
-        $this->assertSame($stream, $Pug->stream($Pug->compile(__DIR__ . '/../templates/mixins.pug')), 'The cached file should be the stream of mixins.pug.');
+        $stream = $pug->cache($file);
+        $this->assertSame($stream, $pug->stream($pug->compile(__DIR__ . '/../templates/mixins.pug')), 'The cached file should be the stream of mixins.pug.');
         unlink($file);
     }
 
@@ -170,11 +170,11 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             mkdir($cacheDirectory, 0777, true);
         }
         $templatesDirectory = __DIR__ . '/../templates';
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'basedir' => $templatesDirectory,
             'cache' => $cacheDirectory,
         ));
-        list($success, $errors) = $Pug->cacheDirectory($templatesDirectory);
+        list($success, $errors) = $pug->cacheDirectory($templatesDirectory);
         $filesCount = count(array_filter(scandir($cacheDirectory), function ($file) {
             return $file !== '.' && $file !== '..';
         }));
@@ -187,7 +187,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         }));
         $this->emptyDirectory($cacheDirectory);
         $templatesDirectory = __DIR__ . '/../templates/subdirectory/subsubdirectory';
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'basedir' => $templatesDirectory,
             'cache' => $cacheDirectory,
         ));

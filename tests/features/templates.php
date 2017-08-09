@@ -6,7 +6,7 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 {
     public function caseProvider()
     {
-        $cases = array();
+        $cases = [];
 
         foreach (build_list(find_tests()) as $arr) {
             foreach ($arr as $e) {
@@ -16,7 +16,7 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
                     continue;
                 }
 
-                $cases[] = array($name);
+                $cases[] = [$name];
             }
         }
 
@@ -43,27 +43,27 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
     public function testVariablesHandle()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => false,
             'terse' => true,
-        ));
+        ]);
 
         $html = $pug->render('input(type="checkbox", checked=true)');
 
         $this->assertSame('<input type="checkbox" checked>', $html, 'Static boolean values should render as simple attributes.');
 
-        $html = $pug->render('input(type="checkbox", checked=isChecked)', array(
+        $html = $pug->render('input(type="checkbox", checked=isChecked)', [
             'isChecked' => true,
-        ));
+        ]);
 
         $this->assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
     }
 
     public function testSpacesRender()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'prettyprint' => false,
-        ));
+        ]);
 
         $html = $pug->render("i a\ni b");
 

@@ -10,11 +10,12 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             return;
         }
 
-        $pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'pugjs' => true,
-        ));
+        ]);
 
-        $html = $pug->render('h1=name', array('name' => 'Yop'));
+        $html = $pug->render('h1=name', ['name' => 'Yop']);
 
         $this->assertSame('<h1>Yop</h1>', $html);
 
@@ -96,9 +97,10 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             throw new \RuntimeException('emulate "is not a valid class name" exception');
         }
 
-        $pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'pugjs' => true,
-        ));
+        ]);
 
         $pug->render('./bar/basic.pug');
     }

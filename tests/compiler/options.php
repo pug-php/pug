@@ -17,12 +17,12 @@ class PugCompilerOptionsTest extends PHPUnit_Framework_TestCase
 
     public function testEngineOptions()
     {
-        $Pug = new Pug(array(
+        $pug = new Pug(array(
             'terse' => false,
             'indentChar' => '@',
         ));
-        $compiler = new Compiler($Pug);
-        $Pug->setCustomOption('foo', 'bar');
+        $compiler = new Compiler($pug);
+        $pug->setCustomOption('foo', 'bar');
         $this->assertFalse($compiler->getOption('terse'));
         $this->assertSame('@', $compiler->getOption('indentChar'));
         $this->assertSame('bar', $compiler->getOption('foo'));

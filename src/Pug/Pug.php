@@ -31,6 +31,18 @@ class Pug extends PugJsEngine
         'javascript' => 'Pug\Filter\Javascript',
     );
 
+    public function __construct($options = null)
+    {
+        $normalize = function ($name) {
+            return str_replace('_', '', strtolower($name));
+        };
+        $this->addOptionNameHandlers(function ($name) use ($normalize) {
+            return is_array($name) ? array_map($normalize, $name) : $normalize($name);
+        });
+
+        parent::__construct($options);
+    }
+
     /**
      * Returns true if suhosin extension is loaded and the stream name
      * is missing in the executor include whitelist.
@@ -85,37 +97,76 @@ class Pug extends PugJsEngine
     /**
      * Render using the PHP engine.
      *
-     * @param string $input pug input or file
-     * @param array  $vars  to pass to the view
+     * @param string $input    pug input or file
+     * @param array  $vars     to pass to the view
+     * @param string $filename optional file path
      *
      * @throws \Exception
      *
      * @return string
      */
-    public function renderWithPhp($input, array $vars)
+    public function renderWithPhp($input, array $vars, $filename = null)
     {
-        return parent::render($input, $vars);
+        return parent::render($input, $vars, $filename);
+    }
+
+    /**
+     * Render using the PHP engine.
+     *
+     * @param string $path pug input or file
+     * @param array  $vars to pass to the view
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function renderFileWithPhp($path, array $vars)
+    {
+        return parent::renderFile($path, $vars);
     }
 
     /**
      * Compile HTML code from a Pug input or a Pug file.
      *
      * @param string $input    pug input or file
+     * @param array  $vars     to pass to the view
      * @param string $filename optional file path
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function render($input, array $vars = [], $filename = null)
+    {
+        $fallback = function () use ($input, $vars, $filename) {
+            return $this->renderWithPhp($input, $vars, $filename);
+        };
+
+        if ($this->options['pugjs']) {
+            return $this->renderWithJs($input, null, $vars, $fallback);
+        }
+
+        return call_user_func($fallback);
+    }
+
+    /**
+     * Compile HTML code from a Pug input or a Pug file.
+     *
+     * @param string $input    pug file
      * @param array  $vars     to pass to the view
      *
      * @throws \Exception
      *
      * @return string
      */
-    public function render($path, array $vars = [])
+    public function renderFile($path, array $vars = [])
     {
         $fallback = function () use ($path, $vars) {
-            return $this->renderWithPhp($path, $vars);
+            return $this->renderFileWithPhp($path, $vars);
         };
 
         if ($this->options['pugjs']) {
-            return $this->renderWithJs($path, null, $vars, $fallback);
+            return $this->renderFileWithJs($path, $vars, $fallback);
         }
 
         return call_user_func($fallback);
