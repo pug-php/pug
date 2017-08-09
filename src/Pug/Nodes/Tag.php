@@ -4,7 +4,7 @@ namespace Pug\Nodes;
 
 class Tag extends Attributes
 {
-    protected static $inlineTags = array(
+    protected static $inlineTags = [
         'a',
         'abbr',
         'acronym',
@@ -24,12 +24,12 @@ class Tag extends Attributes
         'strong',
         'sub',
         'sup',
-    );
-    protected static $whiteSpacesTags = array(
+    ];
+    protected static $whiteSpacesTags = [
         'pre',
         'script',
         'textarea',
-    );
+    ];
     public $name;
     public $attributes;
     public $block;
@@ -43,7 +43,7 @@ class Tag extends Attributes
             ? $block
             : new Block();
 
-        $this->attributes = array();
+        $this->attributes = [];
     }
 
     public function isInline()

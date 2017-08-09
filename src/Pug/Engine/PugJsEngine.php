@@ -106,16 +106,16 @@ class PugJsEngine extends Options
             file_put_contents($filename, $input);
         }
 
-        $options = array(
-            'path' => realpath($filename),
+        $options = [
+            'path'    => realpath($filename),
             'basedir' => $this->options['basedir'],
-            'pretty' => $this->options['prettyprint'],
-            'out' => $workDirectory,
-        );
+            'pretty'  => $this->options['prettyprint'],
+            'out'     => $workDirectory,
+        ];
         if (!empty($vars)) {
             $options['obj'] = json_encode($vars);
         }
-        $args = array();
+        $args = [];
 
         if (!empty($options['pretty'])) {
             $args[] = '--pretty';
@@ -124,7 +124,7 @@ class PugJsEngine extends Options
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $function = in_array($option, array('pretty', 'obj'))
+                $function = in_array($option, ['pretty', 'obj'])
                     ? 'json_encode'
                     : 'escapeshellarg';
                 $value = call_user_func($function, $value);

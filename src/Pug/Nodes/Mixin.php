@@ -15,7 +15,7 @@ class Mixin extends Attributes
         $this->name = $name;
         $this->arguments = $arguments;
         $this->block = $block;
-        $this->attributes = array();
+        $this->attributes = [];
         $this->call = $call;
     }
 }

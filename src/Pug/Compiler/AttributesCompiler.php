@@ -46,8 +46,8 @@ abstract class AttributesCompiler extends CompilerFacade
                 $classes[] = $statements[0][0];
             }
             $addClasses = '" " . implode(" ", array(' . implode(', ', $classes) . '))';
-            $classes = array();
-            $classesCheck = array();
+            $classes = [];
+            $classesCheck = [];
         }
         $value = empty($attr['value']) ? 'attributes' : $attr['value'];
         $statements = $this->createStatements($value);
@@ -186,8 +186,8 @@ abstract class AttributesCompiler extends CompilerFacade
     protected function compileAttributes($attributes)
     {
         $items = '';
-        $classes = array();
-        $classesCheck = array();
+        $classes = [];
+        $classesCheck = [];
 
         foreach ($attributes as $attr) {
             $items .= $this->getAttributeCode($attr, $classes, $classesCheck);

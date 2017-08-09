@@ -75,7 +75,7 @@ abstract class CompilerUtils extends Indenter
 
         return preg_replace_callback(
             str_replace('%s', $pattern, $regexp),
-            array(get_class(), 'convertVarPathCallback'),
+            [get_class(), 'convertVarPathCallback'],
             $arg
         );
     }

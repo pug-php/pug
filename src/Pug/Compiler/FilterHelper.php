@@ -8,7 +8,7 @@ namespace Pug\Compiler;
  */
 class FilterHelper
 {
-    protected $filters = array();
+    protected $filters = [];
     protected $filterAutoLoad = true;
 
     public function __construct(array $filters, $filterAutoLoad)
@@ -44,7 +44,7 @@ class FilterHelper
         }
 
         // Else check if a class with a name that match can be loaded
-        foreach (array('Pug', 'Jade') as $namespace) {
+        foreach (['Pug', 'Jade'] as $namespace) {
             $filter = $namespace . '\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
             if (class_exists($filter)) {
                 return $filter;

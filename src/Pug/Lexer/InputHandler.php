@@ -15,17 +15,17 @@ abstract class InputHandler
     /**
      * @var array
      */
-    protected $deferred = array();
+    protected $deferred = [];
 
     /**
      * @var array
      */
-    protected $indentStack = array();
+    protected $indentStack = [];
 
     /**
      * @var array
      */
-    protected $stash = array();
+    protected $stash = [];
 
     /**
      * Set lexer input.
@@ -36,9 +36,9 @@ abstract class InputHandler
     {
         $this->input = preg_replace("/\r\n|\r/", "\n", $input);
         $this->lineno = 1;
-        $this->deferred = array();
-        $this->indentStack = array();
-        $this->stash = array();
+        $this->deferred = [];
+        $this->indentStack = [];
+        $this->stash = [];
     }
 
     /**
@@ -71,10 +71,10 @@ abstract class InputHandler
             $this->identRE = $indent;
         }
 
-        return array(
+        return [
             "\n" . $matches[0],
             $matches[0],
-        );
+        ];
     }
 
     protected function getNextIndent()
@@ -84,10 +84,10 @@ abstract class InputHandler
         }
 
         $indents = isset($this->identRE)
-            ? array($this->identRE)
+            ? [$this->identRE]
             : ($this->allowMixedIndent
-                ? array('[\\t ]*')
-                : array('\\t+', ' *')
+                ? ['[\\t ]*']
+                : ['\\t+', ' *']
             );
 
         foreach ($indents as $indent) {

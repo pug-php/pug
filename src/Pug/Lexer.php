@@ -32,15 +32,15 @@ class Lexer extends Scanner
     /**
      * @var array
      */
-    protected $customKeywords = array();
+    protected $customKeywords = [];
 
     /**
      * @param $input
      */
-    public function __construct($input, array $options = array())
+    public function __construct($input, array $options = [])
     {
         $this->allowMixedIndent = isset($options['allowMixedIndent']) && $options['allowMixedIndent'];
-        $this->customKeywords = isset($options['customKeywords']) ? $options['customKeywords'] : array();
+        $this->customKeywords = isset($options['customKeywords']) ? $options['customKeywords'] : [];
         $this->setInput($input);
     }
 
@@ -54,11 +54,11 @@ class Lexer extends Scanner
      */
     public function token($type, $value = null)
     {
-        return (object) array(
-            'type' => $type,
-            'line' => $this->lineno,
+        return (object) [
+            'type'  => $type,
+            'line'  => $this->lineno,
             'value' => $value,
-        );
+        ];
     }
 
     /**
@@ -150,7 +150,7 @@ class Lexer extends Scanner
         if ($token = $this->deferred()) {
             return $token;
         }
-        foreach (array(
+        foreach ([
             'Blank',
             'EOS',
             'PipelessText',
@@ -182,7 +182,7 @@ class Lexer extends Scanner
             'Colon',
             'AndAttributes',
             'Text',
-        ) as $tokenType) {
+        ] as $tokenType) {
             if ($token = $this->{'scan' . $tokenType}()) {
                 return $token;
             }

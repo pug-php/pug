@@ -23,13 +23,13 @@ class Pug extends PugJsEngine
      *
      * @var array
      */
-    protected $filters = array(
+    protected $filters = [
         'php'        => 'Pug\Filter\Php',
         'css'        => 'Pug\Filter\Css',
         'cdata'      => 'Pug\Filter\Cdata',
         'escaped'    => 'Pug\Filter\Escaped',
         'javascript' => 'Pug\Filter\Javascript',
-    );
+    ];
 
     public function __construct($options = null)
     {
@@ -77,11 +77,11 @@ class Pug extends PugJsEngine
      */
     public function requirements($name = null)
     {
-        $requirements = array(
-            'streamWhiteListed' => !$this->whiteListNeeded('suhosin'),
-            'cacheFolderExists' => !$this->options['cache'] || is_dir($this->options['cache']),
+        $requirements = [
+            'streamWhiteListed'     => !$this->whiteListNeeded('suhosin'),
+            'cacheFolderExists'     => !$this->options['cache'] || is_dir($this->options['cache']),
             'cacheFolderIsWritable' => !$this->options['cache'] || is_writable($this->options['cache']),
-        );
+        ];
 
         if ($name) {
             if (!isset($requirements[$name])) {
@@ -152,8 +152,8 @@ class Pug extends PugJsEngine
     /**
      * Compile HTML code from a Pug input or a Pug file.
      *
-     * @param string $input    pug file
-     * @param array  $vars     to pass to the view
+     * @param string $input pug file
+     * @param array  $vars  to pass to the view
      *
      * @throws \Exception
      *

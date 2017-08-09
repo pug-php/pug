@@ -25,7 +25,7 @@ class CommonUtils
         }
         $firstChar = substr($call, 0, 1);
         if (
-            !in_array($firstChar, array('$', '\\')) &&
+            !in_array($firstChar, ['$', '\\']) &&
             !preg_match('#^(?:' . CompilerConfig::VARNAME . '\\s*\\(|(?:null|false|true)(?![a-z]))#i', $call) &&
             preg_match('#^(_*' . CompilerConfig::VARNAME . ')(?!\()#', $call)
         ) {

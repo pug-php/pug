@@ -40,11 +40,11 @@ class Options extends ExpressionCompiler
     /**
      * @var array
      */
-    protected $customKeywords = array();
+    protected $customKeywords = [];
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = [];
 
     protected function setOptionType($option, $type)
     {
@@ -63,22 +63,22 @@ class Options extends ExpressionCompiler
      */
     protected function setOptions($options)
     {
-        $optionTypes = array(
-            'prettyprint' => 'boolean',
-            'phpSingleLine' => 'boolean',
+        $optionTypes = [
+            'prettyprint'        => 'boolean',
+            'phpSingleLine'      => 'boolean',
             'allowMixinOverride' => 'boolean',
             'keepNullAttributes' => 'boolean',
-            'filterAutoLoad' => 'boolean',
-            'restrictedScope' => 'boolean',
-            'indentSize' => 'integer',
+            'filterAutoLoad'     => 'boolean',
+            'restrictedScope'    => 'boolean',
+            'indentSize'         => 'integer',
             'expressionLanguage' => 'string|integer',
-            'indentChar' => 'string',
-            'customKeywords' => 'array',
-        );
+            'indentChar'         => 'string',
+            'customKeywords'     => 'array',
+        ];
 
         if ($options instanceof Pug) {
             $this->jade = $options;
-            $options = array();
+            $options = [];
 
             foreach ($optionTypes as $option => $type) {
                 $this->$option = $this->jade->getOption($option);

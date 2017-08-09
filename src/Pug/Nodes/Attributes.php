@@ -10,7 +10,7 @@ class Attributes extends Node
     /**
      * @var array
      */
-    public $attributes = array();
+    public $attributes = [];
 
     /**
      * @param      $name

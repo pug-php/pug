@@ -29,11 +29,11 @@ class Compiler extends Options
     /**
      * @var array
      */
-    protected $buffer = array();
+    protected $buffer = [];
     /**
      * @var array
      */
-    protected $filters = array();
+    protected $filters = [];
 
     /**
      * @var Pug
@@ -54,7 +54,7 @@ class Compiler extends Options
      * @param array|Pug $options
      * @param array     $filters
      */
-    public function __construct($options = array(), array $filters = array(), $filename = null, $jsPhpize = null)
+    public function __construct($options = [], array $filters = [], $filename = null, $jsPhpize = null)
     {
         $this->options = $this->setOptions($options);
         $this->filters = $filters;
@@ -112,7 +112,7 @@ class Compiler extends Options
 
         if ($this->phpSingleLine) {
             // Separate in several lines to get a useable line number in case of an error occurs
-            $code = str_replace(array('<?php', '?>'), array("<?php\n", "\n" . $this->closingTag()), $code);
+            $code = str_replace(['<?php', '?>'], ["<?php\n", "\n" . $this->closingTag()], $code);
         }
 
         return $code;
@@ -156,7 +156,7 @@ class Compiler extends Options
             throw new \BadMethodCallException(sprintf('Method %s do not exists', $method), 7);
         }
 
-        return call_user_func_array(array($this, $method), $arguments);
+        return call_user_func_array([$this, $method], $arguments);
     }
 
     /**
@@ -211,8 +211,8 @@ class Compiler extends Options
      */
     public function handleString($input)
     {
-        $result = array();
-        $resultsString = array();
+        $result = [];
+        $resultsString = [];
 
         $separators = preg_split(
             '/[+](?!\\()/', // concatenation operator - only js
@@ -262,7 +262,7 @@ class Compiler extends Options
      */
     public function interpolate($text)
     {
-        return preg_replace_callback('/(\\\\)?([#!]){(.*?)}/', array($this, 'interpolateFromCapture'), $text);
+        return preg_replace_callback('/(\\\\)?([#!]){(.*?)}/', [$this, 'interpolateFromCapture'], $text);
     }
 
     /**
@@ -289,8 +289,8 @@ class Compiler extends Options
         }
 
         $arguments = func_get_args();
-        $statements = array();
-        $variables = array();
+        $statements = [];
+        $variables = [];
 
         foreach ($arguments as $arg) {
             // skip all if we have a well-formatted variable
@@ -312,7 +312,7 @@ class Compiler extends Options
 
             $code = $this->getExpressionLanguage() !== Pug::EXP_JS
                 ? $this->handleArgumentValue($arg)
-                : array($arg);
+                : [$arg];
 
             $statements = array_merge($statements, array_slice($code, 0, -1));
             array_push($variables, array_pop($code));

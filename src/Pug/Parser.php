@@ -19,23 +19,23 @@ class Parser
     protected $input;
     protected $lexer;
     protected $notFound;
-    protected $options = array();
+    protected $options = [];
     protected $preRender;
 
-    protected $blocks = array();
-    protected $mixins = array();
-    protected $contexts = array();
+    protected $blocks = [];
+    protected $mixins = [];
+    protected $contexts = [];
 
-    public function __construct($input, $filename = null, array $options = array())
+    public function __construct($input, $filename = null, array $options = [])
     {
-        $defaultOptions = array(
+        $defaultOptions = [
             'allowMixedIndent' => true,
-            'basedir' => null,
-            'customKeywords' => array(),
-            'extension' => array('.pug', '.jade'),
-            'notFound' => null,
-            'preRender' => null,
-        );
+            'basedir'          => null,
+            'customKeywords'   => [],
+            'extension'        => ['.pug', '.jade'],
+            'notFound'         => null,
+            'preRender'        => null,
+        ];
         foreach ($defaultOptions as $key => $default) {
             $this->$key = isset($options[$key]) ? $options[$key] : $default;
             $this->options[$key] = $this->$key;
@@ -222,7 +222,7 @@ class Parser
 
     protected function parseExpression()
     {
-        $_types = array('tag', 'mixin', 'block', 'case', 'when', 'default', 'extends', 'include', 'doctype', 'filter', 'comment', 'text', 'each', 'customKeyword', 'code', 'call', 'interpolation');
+        $_types = ['tag', 'mixin', 'block', 'case', 'when', 'default', 'extends', 'include', 'doctype', 'filter', 'comment', 'text', 'each', 'customKeyword', 'code', 'call', 'interpolation'];
 
         if (in_array($this->peekType(), $_types)) {
             $_method = 'parse' . ucfirst($this->peekType());

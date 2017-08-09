@@ -13,7 +13,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
     {
         $arguments = $mixin->arguments;
         $block = $mixin->block;
-        $defaultAttributes = array();
+        $defaultAttributes = [];
         $containsOnlyArrays = true;
         $arguments = $this->parseMixinArguments($mixin->arguments, $containsOnlyArrays, $defaultAttributes);
 
@@ -26,7 +26,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
             $this->renderClosureClosing('});');
         }
 
-        $strings = array();
+        $strings = [];
         $arguments = preg_replace_callback(
             '#([\'"])(.*(?!<\\\\)(?:\\\\{2})*)\\1#U',
             function ($match) use (&$strings) {
@@ -56,7 +56,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
 
         $variables = array_pop($statements);
         if ($mixin->call && $containsOnlyArrays) {
-            array_splice($variables, 1, 0, array('null'));
+            array_splice($variables, 1, 0, ['null']);
         }
         $variables = implode(', ', $variables);
         array_push($statements, $variables);
@@ -97,14 +97,14 @@ abstract class MixinVisitor extends MixinVisitorUtils
         $previousVisitedMixin = isset($this->visitedMixin) ? $this->visitedMixin : null;
         $this->visitedMixin = $mixin;
         if ($arguments === null || empty($arguments)) {
-            $arguments = array();
+            $arguments = [];
         } elseif (!is_array($arguments)) {
-            $arguments = array($arguments);
+            $arguments = [$arguments];
         }
 
         array_unshift($arguments, 'attributes');
         $arguments = $this->splitArguments(implode(',', $arguments));
-        array_walk($arguments, array(get_class(), 'initArgToNull'));
+        array_walk($arguments, [get_class(), 'initArgToNull']);
         $this->visitMixinCodeAndBlock($name, $block, $arguments);
 
         if (is_null($previousVisitedMixin)) {
@@ -127,12 +127,12 @@ abstract class MixinVisitor extends MixinVisitorUtils
             if ($this->allowMixinOverride) {
                 $blockName = '(' . $this->phpizeExpression('addDollarIfNeeded', $match[1]) . ') . \'_mixin\'';
 
-                return array('$GLOBALS[' . $blockName . ']', $blockName);
+                return ['$GLOBALS[' . $blockName . ']', $blockName];
             }
 
             $name = '$__callee = (' . $this->phpizeExpression('addDollarIfNeeded', $match[1]) . ') . \'_mixin\'; $__callee';
 
-            return array($name, $name);
+            return [$name, $name];
         }
 
         $name = strtr($mixin->name, '-', '_') . '_mixin';
@@ -141,7 +141,7 @@ abstract class MixinVisitor extends MixinVisitorUtils
             $name = '$GLOBALS[\'' . $name . '\']';
         }
 
-        return array($name, var_export($mixin->name, true));
+        return [$name, var_export($mixin->name, true)];
     }
 
     /**

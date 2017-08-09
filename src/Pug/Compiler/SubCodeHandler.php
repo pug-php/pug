@@ -64,7 +64,7 @@ class SubCodeHandler
                 array_push(
                     $arguments,
                     $handleRecursion(
-                        array($start, $end),
+                        [$start, $end],
                         intval($name) * 10 + count($arguments)
                     )
                 );
@@ -106,15 +106,15 @@ class SubCodeHandler
         $input = $this->input;
 
         return function () use (&$separators, $input, $scanSeparators) {
-            $arguments = array();
+            $arguments = [];
 
             $start = current($separators);
-            $endPair = array(
+            $endPair = [
                 '[' => ']',
                 '{' => '}',
                 '(' => ')',
                 ',' => false,
-            );
+            ];
             $open = $start[0];
             $close = $endPair[$start[0]];
 
@@ -148,7 +148,7 @@ class SubCodeHandler
     public function addToOutput(&$output, &$key, &$value)
     {
         return function () use (&$output, &$key, &$value) {
-            foreach (array('key', 'value') as $var) {
+            foreach (['key', 'value'] as $var) {
                 ${$var} = trim(${$var});
                 if (empty(${$var})) {
                     continue;

@@ -5,7 +5,7 @@ namespace Pug\Nodes;
 class Block extends Node
 {
     public $isBlock = true;
-    public $nodes = array();
+    public $nodes = [];
 
     public function __construct($node = null)
     {
