@@ -37,6 +37,7 @@ class Options extends Keywords
         'stream'             => null,
         'upToDateCheck'      => true,
     );
+
     /**
      * @param array  $arrays
      * @param string $functionName

@@ -13,8 +13,8 @@ abstract class CompilerFacade extends ValuesCompiler
     /**
      * Record a closure as a mixin block during execution pug template time.
      *
-     * @param string  $name mixin name
-     * @param string  $func mixin block treatment
+     * @param string $name mixin name
+     * @param string $func mixin block treatment
      */
     public static function recordMixinBlock($name, $func = null)
     {
@@ -27,8 +27,8 @@ abstract class CompilerFacade extends ValuesCompiler
     /**
      * Record a closure as a mixin block during execution pug template time.
      *
-     * @param string  $name       mixin name
-     * @param string  $attribtues mixin block treatment
+     * @param string $name       mixin name
+     * @param string $attribtues mixin block treatment
      */
     public static function callMixinBlock($name, $attributes = array())
     {
