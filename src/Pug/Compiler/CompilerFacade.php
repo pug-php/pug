@@ -8,7 +8,7 @@ namespace Pug\Compiler;
  */
 abstract class CompilerFacade extends ValuesCompiler
 {
-    protected static $mixinBlocks = array();
+    protected static $mixinBlocks = [];
 
     /**
      * Record a closure as a mixin block during execution pug template time.
@@ -19,7 +19,7 @@ abstract class CompilerFacade extends ValuesCompiler
     public static function recordMixinBlock($name, $func = null)
     {
         if (!isset(static::$mixinBlocks[$name])) {
-            static::$mixinBlocks[$name] = array();
+            static::$mixinBlocks[$name] = [];
         }
         array_push(static::$mixinBlocks[$name], $func);
     }
@@ -30,7 +30,7 @@ abstract class CompilerFacade extends ValuesCompiler
      * @param string $name       mixin name
      * @param string $attribtues mixin block treatment
      */
-    public static function callMixinBlock($name, $attributes = array())
+    public static function callMixinBlock($name, $attributes = [])
     {
         if (isset(static::$mixinBlocks[$name]) && is_array($mixinBlocks = static::$mixinBlocks[$name])) {
             $func = end($mixinBlocks);
@@ -48,7 +48,7 @@ abstract class CompilerFacade extends ValuesCompiler
      * @param &array $varHandler variables handler propagated from parent scope
      * @param string $attributes mixin block treatment
      */
-    public static function callMixinBlockWithVars($name, &$varHandler, $attributes = array())
+    public static function callMixinBlockWithVars($name, &$varHandler, $attributes = [])
     {
         if (isset(static::$mixinBlocks[$name]) && is_array($mixinBlocks = static::$mixinBlocks[$name])) {
             $func = end($mixinBlocks);
@@ -85,7 +85,7 @@ abstract class CompilerFacade extends ValuesCompiler
             : (method_exists($anything, $method = 'get' . ucfirst($key))
                 ? $anything->$method()
                 : (method_exists($anything, $key)
-                    ? array($anything, $key)
+                    ? [$anything, $key]
                     : null
                 )
             );

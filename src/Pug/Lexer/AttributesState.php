@@ -7,7 +7,7 @@ namespace Pug\Lexer;
  */
 class AttributesState
 {
-    protected $states = array('key');
+    protected $states = ['key'];
 
     public function current()
     {
@@ -31,14 +31,14 @@ class AttributesState
 
     public function popFor()
     {
-        if (call_user_func_array(array($this, 'isIn'), func_get_args())) {
+        if (call_user_func_array([$this, 'isIn'], func_get_args())) {
             $this->pop();
         }
     }
 
     public function pushFor($value)
     {
-        if (call_user_func_array(array($this, 'isIn'), array_slice(func_get_args(), 1))) {
+        if (call_user_func_array([$this, 'isIn'], array_slice(func_get_args(), 1))) {
             $this->push($value);
         }
     }

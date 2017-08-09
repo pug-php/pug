@@ -37,7 +37,7 @@ abstract class Visitor extends KeywordsCompiler
         try {
             return $this->$method($node);
         } catch (\ErrorException $e) {
-            if (!in_array($e->getCode(), array(8, 33))) {
+            if (!in_array($e->getCode(), [8, 33])) {
                 throw $e;
             }
 

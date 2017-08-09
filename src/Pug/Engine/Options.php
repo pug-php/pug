@@ -10,19 +10,19 @@ class Options extends Keywords
     /**
      * @var array
      */
-    protected $options = array(
+    protected $options = [
         'allowMixedIndent'   => true,
         'allowMixinOverride' => true,
         'basedir'            => null,
         'cache'              => null,
         'classAttribute'     => null,
-        'customKeywords'     => array(),
+        'customKeywords'     => [],
         'expressionLanguage' => 'auto',
-        'extension'          => array('.pug', '.jade'),
+        'extension'          => ['.pug', '.jade'],
         'filterAutoLoad'     => true,
         'indentChar'         => ' ',
         'indentSize'         => 2,
-        'jsLanguage'         => array(),
+        'jsLanguage'         => [],
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
         'nodePath'           => null,
@@ -36,7 +36,7 @@ class Options extends Keywords
         'singleQuote'        => false,
         'stream'             => null,
         'upToDateCheck'      => true,
-    );
+    ];
 
     /**
      * @param array  $arrays

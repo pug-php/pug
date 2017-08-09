@@ -170,6 +170,6 @@ class CacheHelper
             }
         }
 
-        return array($success, $errors);
+        return [$success, $errors];
     }
 }

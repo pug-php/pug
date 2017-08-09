@@ -27,7 +27,7 @@ class CodeHandler extends CompilerUtils
         $this->compiler = $compiler;
         $this->input = trim(preg_replace('/\bvar\b/', '', $input));
         $this->name = $name;
-        $this->separators = array();
+        $this->separators = [];
     }
 
     public function innerCode($input, $name)
@@ -40,7 +40,7 @@ class CodeHandler extends CompilerUtils
     public function parse()
     {
         if ($this->isQuotedString()) {
-            return array($this->input);
+            return [$this->input];
         }
 
         if (strpos('=,;?', substr($this->input, 0, 1)) !== false) {
@@ -68,11 +68,11 @@ class CodeHandler extends CompilerUtils
                 //$this->input = static::addDollarIfNeeded($this->input);
             }
 
-            return array($this->input);
+            return [$this->input];
         }
 
         // add a pseudo separator for the end of the input
-        array_push($this->separators, array(null, strlen($this->input)));
+        array_push($this->separators, [null, strlen($this->input)]);
 
         return $this->parseBetweenSeparators();
     }
@@ -144,7 +144,7 @@ class CodeHandler extends CompilerUtils
 
     protected function parseArray($input, $subCodeHandler)
     {
-        $output = array();
+        $output = [];
         $key = '';
         $value = null;
         $addToOutput = $subCodeHandler->addToOutput($output, $key, $value);
@@ -173,7 +173,7 @@ class CodeHandler extends CompilerUtils
 
         $handleRecursion = $subCodeHandler->handleRecursion($result);
 
-        return $handleRecursion(array($sep, end($separators)));
+        return $handleRecursion([$sep, end($separators)]);
     }
 
     protected function parseSeparator($sep, &$separators, &$result, &$varname, $subCodeHandler, $innerName)
@@ -226,7 +226,7 @@ class CodeHandler extends CompilerUtils
     {
         $separators = $this->separators;
 
-        $result = array();
+        $result = [];
 
         $varname = $this->getVarname($separators[0]);
 

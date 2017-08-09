@@ -19,7 +19,7 @@ class ExpressionCompiler extends MixinVisitor
     public function getArgumentExpression($arg)
     {
         if ($this->getExpressionLanguage() === Jade::EXP_JS) {
-            return $this->getPhpCodeFromJs(array($arg));
+            return $this->getPhpCodeFromJs([$arg]);
         }
 
         $arg = static::convertVarPath($arg);
@@ -60,19 +60,19 @@ class ExpressionCompiler extends MixinVisitor
         }
 
         if ($this->jsPhpize === null) {
-            $this->jsPhpize = new JsPhpize(array_merge_recursive(array(
+            $this->jsPhpize = new JsPhpize(array_merge_recursive([
                 'catchDependencies' => true,
-            ), $this->getOption('jsLanguage', array())));
+            ], $this->getOption('jsLanguage', [])));
         }
 
-        return rtrim(trim(call_user_func(array($this->jsPhpize, 'compileCode'), $arguments[0])), ';');
+        return rtrim(trim(call_user_func([$this->jsPhpize, 'compileCode'], $arguments[0])), ';');
     }
 
     protected function jsToPhp($method, $arguments)
     {
         $code = $this->getPhpCodeFromJs($arguments);
 
-        return in_array($method, array('handleCodePhp')) ? array($code) : $code;
+        return in_array($method, ['handleCodePhp']) ? [$code] : $code;
     }
 
     public function phpizeExpression($method)
@@ -86,6 +86,6 @@ class ExpressionCompiler extends MixinVisitor
                 return $this->jsToPhp($method, $arguments);
         }
 
-        return call_user_func_array(array(get_called_class(), $method), $arguments);
+        return call_user_func_array([get_called_class(), $method], $arguments);
     }
 }

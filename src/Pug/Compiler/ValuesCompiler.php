@@ -46,7 +46,7 @@ abstract class ValuesCompiler extends CompilerUtils
         if (is_array($val) && !is_string(key($val))) {
             $val = implode(';', $val);
         } elseif (is_array($val) || is_object($val)) {
-            $style = array();
+            $style = [];
             foreach ($val as $key => $property) {
                 $style[] = $key . ':' . $property;
             }

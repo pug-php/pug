@@ -17,7 +17,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
 
     protected function splitArguments($argumentsString)
     {
-        $arguments = array();
+        $arguments = [];
         if (is_string($argumentsString) && strlen($argumentsString)) {
             while (preg_match(
                 '/^((?:[^,"\'\\(\\)]+|' . Scanner::QUOTED_STRING . '|' . Scanner::PARENTHESES . ')*),/',
@@ -37,7 +37,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
     {
         if (is_null($newArrayKey)) {
             $newArrayKey = $key;
-            $argument = array();
+            $argument = [];
 
             return;
         }
@@ -102,7 +102,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
             return "(isset(\$attributes)) ? \$attributes : array($defaultAttributes)";
         }
 
-        $parsedAttributes = array();
+        $parsedAttributes = [];
         foreach ($attributes as $data) {
             $parsedAttributes[$data['name']] = $this->parseMixinAttribute($data);
         }
@@ -136,7 +136,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
         );
     }
 
-    protected function renderClosureClosing($code, $arguments = array())
+    protected function renderClosureClosing($code, $arguments = [])
     {
         if (!$this->restrictedScope) {
             $arguments = array_filter(array_map(function ($argument) {
@@ -167,7 +167,7 @@ abstract class MixinVisitorUtils extends CodeVisitor
         $this->renderClosureOpenning(
             $this->allowMixinOverride
                 ? "{$name} = "
-                : array("if(!function_exists('{$name}')) { ", $name),
+                : ["if(!function_exists('{$name}')) { ", $name],
             implode(',', $arguments)
         );
         $this->indents++;

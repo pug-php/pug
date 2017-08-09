@@ -50,7 +50,7 @@ abstract class KeywordsCompiler extends AttributesCompiler
     protected function visitWhen(When $node)
     {
         $code = '';
-        $arguments = array();
+        $arguments = [];
 
         if (isset($this->switchNode)) {
             $code .= 'switch (%s) {';
@@ -64,7 +64,7 @@ abstract class KeywordsCompiler extends AttributesCompiler
 
         array_unshift($arguments, $code);
 
-        $code = call_user_func_array(array($this, 'createCode'), $arguments);
+        $code = call_user_func_array([$this, 'createCode'], $arguments);
 
         $this->buffer($code);
 
@@ -165,16 +165,16 @@ abstract class KeywordsCompiler extends AttributesCompiler
         $data = $action($node->args, $node->block, $node->keyWord);
 
         if (is_string($data)) {
-            $data = array(
+            $data = [
                 'begin' => $data,
-            );
+            ];
         }
 
         if (!is_array($data) && !($data instanceof \ArrayAccess)) {
             throw new \ErrorException("The keyword {$node->keyWord} returned an invalid value type, string or array was expected.", 33);
         }
 
-        foreach (array('begin', 'end') as $key) {
+        foreach (['begin', 'end'] as $key) {
             $data[$key] = (isset($data[$key . 'Php'])
                 ? $this->createCode($data[$key . 'Php'])
                 : ''

@@ -9,7 +9,7 @@ class ExtensionsHelper
     public function __construct($extensions)
     {
         $this->extensions = is_string($extensions)
-            ? array($extensions)
+            ? [$extensions]
             : array_unique($extensions);
     }
 

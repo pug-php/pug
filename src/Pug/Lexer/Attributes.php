@@ -19,7 +19,7 @@ class Attributes
     protected function parseSpace($states, $escapedAttribute, &$key, &$val, $char, $previousNonBlankChar, $nextChar)
     {
         if (
-            in_array($states->current(), array('expr', 'array', 'string', 'object')) ||
+            in_array($states->current(), ['expr', 'array', 'string', 'object']) ||
             (
                 ($char === ' ' || $char === "\t") &&
                 (
@@ -42,7 +42,7 @@ class Attributes
         }
 
         $key = preg_replace(
-            array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
+            ['/^[\'\"]|[\'\"]$/', '/\!/'], '', $key
         );
         $this->token->escaped[$key] = $escapedAttribute;
 
@@ -69,7 +69,7 @@ class Attributes
 
     protected function interpolate($attr)
     {
-        return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', array($this, 'replaceInterpolationsInStrings'), $attr);
+        return preg_replace_callback('/([\'"]).*?(?<!\\\\)(?:\\\\\\\\)*\1/', [$this, 'replaceInterpolationsInStrings'], $attr);
     }
 
     protected function parseEqual($states, &$escapedAttribute, &$key, &$val, $char, $previousChar)
@@ -136,7 +136,7 @@ class Attributes
 
             return;
         }
-        ${in_array($states->current(), array('key', 'key char')) ? 'key' : 'val'} .= $char;
+        ${in_array($states->current(), ['key', 'key char']) ? 'key' : 'val'} .= $char;
     }
 
     public function parseChar($char, &$nextChar, &$key, &$val, &$quote, $states, &$escapedAttribute, &$previousChar, &$previousNonBlankChar)

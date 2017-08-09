@@ -240,8 +240,8 @@ abstract class Scanner extends MixinScanner
             //$str = preg_replace('/()([a-zA-Z0-9_\\x7f-\\xff\\)\\]\\}"\'])(\s+[a-zA-Z_])/', '$1,$2', $str);
 
             $token = $this->token('attributes');
-            $token->attributes = array();
-            $token->escaped = array();
+            $token->attributes = [];
+            $token->escaped = [];
             $token->selfClosing = false;
 
             $parser = new Attributes($token);
