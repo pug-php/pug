@@ -5,7 +5,8 @@
     convertErrorsToExceptions="true"
     convertNoticesToExceptions="true"
     convertWarningsToExceptions="true"
-    >
+    strict="true"
+>
     <testsuites>
         <testsuite name="WhiteSpace">
             <file>tests/features/whiteSpace.php</file>
