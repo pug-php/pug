@@ -3,6 +3,7 @@
 namespace Pug;
 
 use InvalidArgumentException;
+use JsPhpize\JsPhpizePhug;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\PugJsEngine;
 
@@ -41,6 +42,12 @@ class Pug extends PugJsEngine
         });
 
         parent::__construct($options);
+
+        if ($this->hasOption('expressionLanguage') &&
+            strtolower($this->getOption('expressionLanguage')) !== 'php'
+        ) {
+            $this->addModule(JsPhpizePhug::class);
+        }
     }
 
     /**
