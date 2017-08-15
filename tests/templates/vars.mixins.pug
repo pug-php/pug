@@ -1,28 +1,28 @@
 mixin foo
   div
-    a=answear
-    - answear++
+    a=answer
+    - answer++
     i
       block
-    - answear++
-    =answear
-    if answear === 100
-      +foo
-        - answear -= 2
-        strong=answear
-        
-- var answear = 100
+    - answer++
+    =answer
+    if answer === 100
+      //+foo
+        - answer -= 2
+        strong=answer
+
+- var answer = 100
 +foo
-  b=answear
-  - answear += 10
-  u=answear
-  - answear += 20
-  em=answear
-  - answear += 40
+  b=answer
+  - answer += 10
+  u=answer
+  - answer += 20
+  em=answer
+  - answer += 40
   +foo
     code
-      =answear
-      - answear = 100
-  - answear = 90
-- answear += 100
-footer=answear
+      =answer
+      - answer = 100
+  - answer = 90
+- answer += 100
+footer=answer

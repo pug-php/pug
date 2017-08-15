@@ -23,22 +23,22 @@ class PugSettingsTest extends PHPUnit_Framework_TestCase
      */
     public function testKeepNullAttributes()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => false,
             'keepNullAttributes' => false,
             'prettyprint' => true,
-        ));
+        ]);
         $templates = dirname(__FILE__) . '/../templates/';
         $actual = $pug->render(file_get_contents($templates . 'mixin.attrs.pug'));
         $expected = file_get_contents($templates . 'mixin.attrs.html');
 
         $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Keep null attributes disabled');
 
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => false,
             'keepNullAttributes' => true,
             'prettyprint' => true,
-        ));
+        ]);
         $templates = dirname(__FILE__) . '/../templates/';
         $actual = $pug->render(file_get_contents($templates . 'mixin.attrs.pug'));
         $expected = file_get_contents($templates . 'mixin.attrs-keep-null-attributes.html');
@@ -65,10 +65,10 @@ mixin centered(title)
   p Some important content.
 ';
 
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => true,
             'prettyprint' => true,
-        ));
+        ]);
         $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $pug->render($template)))));
         $expected = str_replace("\r", '', '<div id=\'Second\' class=\'centered\'>
 <h1 class=\'foo\'>Section 1</h1>
@@ -77,10 +77,10 @@ mixin centered(title)
 
         $this->assertSame($expected, $actual, 'Pretty print enabled');
 
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => true,
             'prettyprint' => false,
-        ));
+        ]);
         $actual = preg_replace('`[ \t]+`', ' ', $pug->render($template));
         $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
 
@@ -106,10 +106,10 @@ mixin centered(title)
   p Some important content.
 ';
 
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => true,
             'prettyprint' => false,
-        ));
+        ]);
         $this->assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
         $pug->setOption('prettyprint', true);
         $this->assertTrue($pug->getOption('prettyprint'), 'getOption should return current setting');
