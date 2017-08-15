@@ -46,8 +46,6 @@ class Options extends Keywords
      */
     private function setOptionArrays(array $arrays, $functionName)
     {
-        var_dump($arrays);
-        exit;
         array_unshift($arrays, $this->options);
         $this->options = call_user_func_array($functionName, array_filter($arrays, 'is_array'));
 
@@ -62,8 +60,6 @@ class Options extends Keywords
      */
     private function withOptionsReference(&$keys, $callback)
     {
-        var_dump($keys);
-        exit;
         $options = &$this->options;
         if (is_array($keys)) {
             foreach (array_slice($keys, 0, -1) as $key) {
