@@ -161,10 +161,12 @@ class Jade extends PugJsEngine
 
         extract(array_merge($this->sharedVariables, $vars));
         ob_start();
+
         try {
             include $file;
         } catch (\Exception $e) {
             ob_end_clean();
+
             throw $e;
         }
 

@@ -101,6 +101,7 @@ class Parser
         }
 
         $value = $value ?: $path;
+
         throw new \InvalidArgumentException("The included file '$value' does not exists.", 22);
     }
 
@@ -210,6 +211,7 @@ class Parser
         $lineNumber = $this->line();
         $lines = explode("\n", $this->input);
         $lineString = isset($lines[$lineNumber]) ? $lines[$lineNumber] : '';
+
         throw new \ErrorException("\n" . sprintf('Expected %s, but got %s in %dth line : %s', $type, $this->peekType(), $lineNumber, $lineString) . "\n", 24);
     }
 
@@ -465,6 +467,7 @@ class Parser
         $parser->mixins = $this->mixins;
 
         $this->context($parser);
+
         try {
             $ast = $parser->parse();
         } catch (\Exception $e) {
