@@ -10,28 +10,23 @@
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
 
 
-Pug.php adds inline PHP scripting support to the [Pug](http://jade-lang.com) template compiler.
+Pug.php adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler.
 
 > Pug has been recently re-named from Jade. If you're new to Pug, you should install the pug-php/pug package on composer.
 
 ##### [The Pug Syntax Reference](https://github.com/pugjs/pug#readme)
 ##### [See Pug.php demo](https://pug-demo.herokuapp.com/)
 
-## Implementation details
+## Install
 
-The fork is a complete rewrite, all the code is ported from the original jade project.
+First you need composer if you have'nt yet: https://getcomposer.org/download/
 
-All the features from the original are supported but undertested, including inheritance
-and mixins.
-
-### Install using composer
+Then run:
 ```sh
 composer require pug-php/pug
-composer install
 ```
-[pug-php/pug on packagist.org](https://packagist.org/packages/pug-php/pug)
 
-### Pug in your favorite framework
+## Pug in your favorite framework
 
 Phalcon: https://github.com/pug-php/pug-phalcon
 
@@ -45,7 +40,7 @@ Yii 2: https://github.com/rmrevin/yii2-pug
 
 Slim 3: https://github.com/MarcelloDuarte/pug-slim
 
-### Pug options
+## Pug options
 
 Pug options should be passed to the Jade construction
 
@@ -57,7 +52,7 @@ $pug = new Pug(array(
 ));
 ```
 
-### Supports for local variables
+## Supports for local variables
 
 ```php
 $pug = new Pug();
@@ -66,7 +61,7 @@ $output = $pug->render('file', array(
 ));
 ```
 
-### Supports for custom filters
+## Supports for custom filters
 
 Filters must be callable: It can be a class that implements the *__invoke()* method, or an anonymous function.
 
@@ -83,7 +78,7 @@ $pug->filter('escaped', function($node, $compiler){
 });
 ```
 
-#### Built-in filters
+### Built-in filters
 
 * :css
 * :php
@@ -91,15 +86,15 @@ $pug->filter('escaped', function($node, $compiler){
 * :escaped
 * :cdata
 
-#### Install other filters with composer
+### Install other filters with composer
 
 http://pug-filters.selfbuild.fr/
 
-#### Publish your own filter
+### Publish your own filter
 
 https://github.com/kylekatarnls/jade-filter-base#readme
 
-### Supports for custom keywords
+## Supports for custom keywords
 
 You can add custom keywords, here are some examples:
 
@@ -170,7 +165,7 @@ A keyword must return an array (containing **begin** and/or **end** entires) or 
 
 The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** as in the first example to render PHP codes that will wrap the rendered block if there is one.
 
-### PHP Helpers functions
+## PHP Helpers functions
 
 If you want to make a php function available in a template or in all of them for convenience, use closures ans pass them like any other variables:
 
@@ -197,7 +192,7 @@ $pug->render('p=$myClosure("Pink")');
 
 This will render the same HTML than the previous example. Also note that `share` allow you to pass any type of value.
 
-### Cache
+## Cache
 
 **Important**: to improve performance in production, enable the Pug cache by setting the **cache** option to a writable directory, you can first cache all your template at once (during deployment):
 ```php
@@ -221,7 +216,7 @@ $pug = new Pug(array(
 $pug->render('path/to/pug/templates/my-page.pug');
 ```
 
-### Templates from pug-js
+## Templates from pug-js
 
 First remember pug-php is a PHP template engine. Pug-js and Pug-php provide both a HAML-like syntax
 for markup, but for expression and raw code, pug-js use JS, and pug-php use PHP. By default, we did
@@ -262,7 +257,22 @@ magic methods will be striginfied in JSON as simple objects) and you will not be
 features like mixed indent, pre/post render hooks but in this mode you will get exact same
 output as in pug-js.
 
-### Check requirements
+### Write locals object to json file with pugjs
+
+If your locals object is large it may cause a `RuntimeException` error. This is because
+locals object passed directly to pug-cli as argument. To fix this problem you can use
+`localsJsonFile` option:
+
+```php
+$pug = new Pug(array(
+    'pugjs' => true,
+    'localsJsonFile' => true
+);
+```
+
+Then your locals will be written to json file and path to file will be passed to compiler.
+
+## Check requirements
 
 To check if all requirements are ready to use Pug, use the requirements method:
 ```php

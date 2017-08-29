@@ -161,6 +161,7 @@ class CacheHelper
             }
             if ($extensions->hasValidTemplateExtension($object)) {
                 $this->isCacheUpToDate($input, $path);
+
                 try {
                     file_put_contents($path, $this->pug->compile($input));
                     $success++;
