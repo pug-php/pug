@@ -23,6 +23,7 @@ class Options extends Keywords
         'indentChar'         => ' ',
         'indentSize'         => 2,
         'jsLanguage'         => [],
+        'localsJsonFile'     => false,
         'keepBaseName'       => false,
         'keepNullAttributes' => false,
         'nodePath'           => null,

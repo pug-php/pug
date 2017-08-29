@@ -50,7 +50,7 @@ class PugJsEngine extends Options
         chdir($directory);
         file_put_contents($renderFile,
             'console.log(require(' . json_encode($realPath) . ')' .
-            '(' . (empty($options['obj']) ? '{}' : (!$this->options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')')) . '));'
+            '(' . (empty($options['obj']) ? '{}' : (!$options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')')) . '));'
         );
 
         $node = $this->getNodeEngine();
@@ -76,7 +76,7 @@ class PugJsEngine extends Options
             unlink($path);
         }
 
-        if ($this->options['localsJsonFile']) {
+        if ($options['localsJsonFile']) {
             unlink($options['obj']);
         }
 
@@ -111,10 +111,11 @@ class PugJsEngine extends Options
         }
 
         $options = [
-            'path'    => realpath($filename),
-            'basedir' => $this->options['basedir'],
-            'pretty'  => $this->options['prettyprint'],
-            'out'     => $workDirectory,
+            'path'           => realpath($filename),
+            'basedir'        => $this->options['basedir'],
+            'localsJsonFile' => $this->options['localsJsonFile'],
+            'pretty'         => $this->options['prettyprint'],
+            'out'            => $workDirectory,
         ];
         if (!empty($vars)) {
             $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
@@ -135,8 +136,8 @@ class PugJsEngine extends Options
         }
 
         // options that need be encoded by json_encode
-        $jsonOptions = array('pretty');
-        if (!$this->options['localsJsonFile']) {
+        $jsonOptions = ['pretty'];
+        if (!$options['localsJsonFile']) {
             $jsonOptions[] = 'obj';
         }
 
