@@ -260,6 +260,9 @@ if $entryopen and !$submitted
         $this->assertSame($expected, $actual);
     }
 
+    /**
+     * https://github.com/BKWLD/laravel-pug/issues/28
+     */
     public function testMethodCallsInStatements()
     {
         foreach (array('js', 'auto') as $expressionLanguage) {
@@ -277,5 +280,27 @@ if $entryopen and !$submitted
 
             $this->assertRegExp($expected, $actual);
         }
+    }
+
+    /**
+     * @group i
+     */
+    public function testI()
+    {
+
+        $pug = new Pug();
+        $actual = trim($pug->render("h1 J'aime \#[strong beaucoup] #[strong beaucoup] \\#[strong Jade]"));
+        $expected = "<h1>J'aime #[strong beaucoup] <strong>beaucoup</strong> \#[strong Jade]</h1>";
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testIssue154()
+    {
+        $pug = new Pug();
+        $actual = trim($pug->render('p #[em #[strong Yow!]]'));
+        $expected = '<p><em><strong>Yow!</strong></em></p>';
+
+        $this->assertSame($expected, $actual);
     }
 }
