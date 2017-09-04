@@ -259,4 +259,23 @@ if $entryopen and !$submitted
 
         $this->assertSame($expected, $actual);
     }
+
+    public function testMethodCallsInStatements()
+    {
+        foreach (array('js', 'auto') as $expressionLanguage) {
+            $pug = new Pug(array(
+                'expressionLanguage' => $expressionLanguage,
+            ));
+            $actual = trim($pug->render(implode("\n", array(
+                'if zone.getLocation()',
+                '  each val in zone.getLocation()',
+                '    p=val',
+            )), array(
+                'zone' => new DateTimeZone("Europe/Prague"),
+            )));
+            $expected = '`<p>CZ</p><p>[\d.]+</p><p>[\d.]+</p><p></p>`';
+
+            $this->assertRegExp($expected, $actual);
+        }
+    }
 }
