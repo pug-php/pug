@@ -39,7 +39,7 @@ class JadeCachePerformanceTest extends PHPUnit_Framework_TestCase
     /**
      * Cache weight.
      */
-    public function testCacheWeihgt()
+    public function testCacheWeight()
     {
         $this->assertSame('<p>Hello world!</p>', $this->getPhp('p Hello world!'), 'Simple template should output simple code.');
     }

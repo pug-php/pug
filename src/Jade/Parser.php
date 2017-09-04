@@ -7,8 +7,6 @@ use Jade\Parser\ExtensionsHelper;
 
 class Parser
 {
-    const INLINE_TAG = '/^(.*?)#\[([^\]\n]+)\]/';
-
     public static $includeNotFound = '.alert.alert-danger Page not found.';
 
     protected $allowMixedIndent;
@@ -256,7 +254,7 @@ class Parser
     protected function parseText()
     {
         $token = $this->expect('text');
-        if (preg_match(static::INLINE_TAG, $token->value)) {
+        if (strpos($token->value, '#[') !== false) {
             $block = new Nodes\Block();
             $this->parseInlineTags($block, $token->value);
 
@@ -632,28 +630,82 @@ class Parser
         return $this->tag($tag);
     }
 
+    protected function getNextInterpolation($str, $offset)
+    {
+        $open = strpos($str, '#[', $offset);
+        $close = strpos($str, ']', $offset);
+
+        if ($open === false && $close === false) {
+            return false;
+        }
+
+        $position = $close;
+        $opened = false;
+        if ($open !== false && ($close === false || $close > $open)) {
+            $opened = true;
+            $position = $open;
+        }
+
+        return (object) array(
+            'position' => $position,
+            'opened'   => $opened,
+        );
+    }
+
     public function parseInlineTags($block, $str)
     {
         $removeWhiteSpace = substr($str, 0, 1) === ' ';
-        while (preg_match(static::INLINE_TAG, $str, $matches)) {
-            $removeWhiteSpace = false;
-            if (!empty($matches[1])) {
-                $text = new Nodes\Text($matches[1]);
-                $text->line = $this->line();
-                $block->push($text);
+        $depth = 0;
+        $offset = 0;
+        while ($token = $this->getNextInterpolation($str, $offset)) {
+            if ($token->position > 0 && $token->opened && substr($str, $token->position - 1, 1) === '\\') {
+                $str = substr($str, $token->position - 1) . substr($str, $token->position);
+                $offset = $token->position + 1;
+
+                continue;
             }
-            $parser = $this->subParser($matches[2]);
-            $tag = $parser->parse();
-            $tag->line = $this->line();
-            $block->push($tag);
-            $str = substr($str, strlen($matches[0]));
+
+            $previousDepth = $depth;
+            $depth = max(0, $depth + ($token->opened ? 1 : -1));
+
+            if ($token->opened && $depth === 1) {
+                if ($token->position > 0) {
+                    $removeWhiteSpace = false;
+                    $text = new Nodes\Text(substr($str, 0, $token->position));
+                    $text->line = $this->line();
+                    $block->push($text);
+                }
+                $str = substr($str, $token->position + 2);
+                $offset = 0;
+
+                continue;
+            }
+
+            if (!$token->opened && $previousDepth === 1) {
+                if ($token->position > 0) {
+                    $removeWhiteSpace = false;
+                    $parser = $this->subParser(substr($str, 0, $token->position));
+                    $tag = $parser->parse();
+                    $tag->line = $this->line();
+                    $block->push($tag);
+                }
+                $str = substr($str, $token->position + 1);
+                $offset = 0;
+
+                continue;
+            }
+
+            $offset = $token->position + 1;
         }
+
         if ($removeWhiteSpace) {
             $str = substr($str, 1);
         }
-        $text = new Nodes\Text($str);
-        $text->line = $this->line();
-        $block->push($text);
+        if ($str) {
+            $text = new Nodes\Text($str);
+            $text->line = $this->line();
+            $block->push($text);
+        }
     }
 
     protected function peekType()
