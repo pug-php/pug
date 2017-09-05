@@ -305,7 +305,7 @@ if $entryopen and !$submitted
 
     public function testCoffeeScriptFilterRegression()
     {
-        $input = implode("\n", [
+        $input = implode("\n", array(
             'body',
             '  :coffee-script',
             '    # Assignment:',
@@ -326,8 +326,8 @@ if $entryopen and !$submitted
             '      root:   Math.sqrt',
             '      square: square',
             '      cube:   (x) -> x * square x',
-        ]);
-        $expected = implode("\n", [
+        ));
+        $expected = implode("\n", array(
             '<body># Assignment:',
             'number   = 42',
             'opposite = true',
@@ -347,7 +347,7 @@ if $entryopen and !$submitted
             '  square: square',
             '  cube:   (x) -> x * square x',
             '</body>',
-        ]);
+        ));
         $pug = new Pug();
         $pug->filter('coffee-script', 'TestVerbatimFilter');
 
