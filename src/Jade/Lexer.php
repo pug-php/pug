@@ -143,7 +143,7 @@ class Lexer extends Scanner
     }
 
     /**
-     * @return bool|mixed|null|object|void
+     * @return bool|mixed|null|object
      */
     public function nextToken()
     {

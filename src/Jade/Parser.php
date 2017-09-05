@@ -659,7 +659,7 @@ class Parser
         $offset = 0;
         while ($token = $this->getNextInterpolation($str, $offset)) {
             if ($token->position > 0 && $token->opened && substr($str, $token->position - 1, 1) === '\\') {
-                $str = substr($str, $token->position - 1) . substr($str, $token->position);
+                $str = substr($str, 0, $token->position - 1) . substr($str, $token->position);
                 $offset = $token->position + 1;
 
                 continue;
