@@ -654,11 +654,9 @@ class Parser
 
     protected function appendInlineText($block, $str)
     {
-        if ($str) {
-            $text = new Nodes\Text($str);
-            $text->line = $this->line();
-            $block->push($text);
-        }
+        $text = new Nodes\Text($str);
+        $text->line = $this->line();
+        $block->push($text);
     }
 
     protected function appendInlineTag($block, $str)
@@ -674,7 +672,9 @@ class Parser
     protected function handleInterpolation($block, $str, $token, $depth, $previousDepth)
     {
         if ($token->opened && $depth === 1) {
-            $this->appendInlineText($block, substr($str, 0, $token->position));
+            if ($token->position > 0) {
+                $this->appendInlineText($block, substr($str, 0, $token->position));
+            }
 
             return 2;
         }
@@ -701,12 +701,12 @@ class Parser
                 continue;
             }
 
-            $interpolationsFound = true;
             $previousDepth = $depth;
             $depth = max(0, $depth + ($token->opened ? 1 : -1));
             $trimOffset = $this->handleInterpolation($block, $str, $token, $depth, $previousDepth);
 
             if ($trimOffset) {
+                $interpolationsFound = true;
                 $str = substr($str, $token->position + $trimOffset);
                 $offset = 0;
 

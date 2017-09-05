@@ -1,6 +1,18 @@
 <?php
 
+use Jade\Compiler;
+use Jade\Nodes\Filter;
+use Pug\Filter\AbstractFilter;
 use Pug\Pug;
+
+class TestVerbatimFilter extends AbstractFilter
+{
+    public function __invoke(Filter $node, Compiler $compiler)
+    {
+        return $this->getNodeString($node, $compiler);
+    }
+}
+
 
 class JadeIssuesTest extends PHPUnit_Framework_TestCase
 {
@@ -288,6 +300,58 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('p #[em #[strong Yow!]]'));
         $expected = '<p><em><strong>Yow!</strong></em></p>';
 
+        $this->assertSame($expected, $actual);
+    }
+
+    public function testCoffeeScriptFilterRegression()
+    {
+        $input = implode("\n", [
+            'body',
+            '  :coffee-script',
+            '    # Assignment:',
+            '    number   = 42',
+            '    opposite = true',
+            '',
+            '    # Conditions:',
+            '    number = -42 if opposite',
+            '',
+            '    # Functions:',
+            '    square = (x) -> x * x',
+            '',
+            '    # Arrays:',
+            '    list = [1, 2, 3, 4, 5]',
+            '',
+            '    # Objects:',
+            '    math =',
+            '      root:   Math.sqrt',
+            '      square: square',
+            '      cube:   (x) -> x * square x',
+        ]);
+        $expected = implode("\n", [
+            '<body># Assignment:',
+            'number   = 42',
+            'opposite = true',
+            '',
+            '# Conditions:',
+            'number = -42 if opposite',
+            '',
+            '# Functions:',
+            'square = (x) -> x * x',
+            '',
+            '# Arrays:',
+            'list = [1, 2, 3, 4, 5]',
+            '',
+            '# Objects:',
+            'math =',
+            '  root:   Math.sqrt',
+            '  square: square',
+            '  cube:   (x) -> x * square x',
+            '</body>',
+        ]);
+        $pug = new Pug();
+        $pug->filter('coffee-script', 'TestVerbatimFilter');
+
+        $actual = $pug->render($input);
         $this->assertSame($expected, $actual);
     }
 }
