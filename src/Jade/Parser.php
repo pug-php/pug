@@ -673,7 +673,6 @@ class Parser
 
     protected function handleInterpolation($block, $str, $token, $depth, $previousDepth)
     {
-
         if ($token->opened && $depth === 1) {
             $this->appendInlineText($block, substr($str, 0, $token->position));
 
