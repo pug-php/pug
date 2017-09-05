@@ -671,6 +671,24 @@ class Parser
         }
     }
 
+    protected function handleInterpolation($block, $str, $token, $depth, $previousDepth)
+    {
+
+        if ($token->opened && $depth === 1) {
+            $this->appendInlineText($block, substr($str, 0, $token->position));
+
+            return 2;
+        }
+
+        if (!$token->opened && $previousDepth === 1) {
+            $this->appendInlineTag($block, substr($str, 0, $token->position));
+
+            return 1;
+        }
+
+        return 0;
+    }
+
     protected function parseInterpolations($block, &$str)
     {
         $interpolationsFound = false;
@@ -687,18 +705,10 @@ class Parser
             $interpolationsFound = true;
             $previousDepth = $depth;
             $depth = max(0, $depth + ($token->opened ? 1 : -1));
+            $trimOffset = $this->handleInterpolation($block, $str, $token, $depth, $previousDepth);
 
-            if ($token->opened && $depth === 1) {
-                $this->appendInlineText($block, substr($str, 0, $token->position));
-                $str = substr($str, $token->position + 2);
-                $offset = 0;
-
-                continue;
-            }
-
-            if (!$token->opened && $previousDepth === 1) {
-                $this->appendInlineTag($block, substr($str, 0, $token->position));
-                $str = substr($str, $token->position + 1);
+            if ($trimOffset) {
+                $str = substr($str, $token->position + $trimOffset);
                 $offset = 0;
 
                 continue;
