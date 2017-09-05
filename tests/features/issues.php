@@ -282,19 +282,6 @@ if $entryopen and !$submitted
         }
     }
 
-    /**
-     * @group i
-     */
-    public function testI()
-    {
-
-        $pug = new Pug();
-        $actual = trim($pug->render("h1 J'aime \#[strong beaucoup] #[strong beaucoup] \\#[strong Jade]"));
-        $expected = "<h1>J'aime #[strong beaucoup] <strong>beaucoup</strong> \#[strong Jade]</h1>";
-
-        $this->assertSame($expected, $actual);
-    }
-
     public function testIssue154()
     {
         $pug = new Pug();
