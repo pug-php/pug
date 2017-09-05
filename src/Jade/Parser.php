@@ -671,9 +671,9 @@ class Parser
         }
     }
 
-    public function parseInlineTags($block, $str)
+    protected function parseInterpolations($block, &$str)
     {
-        $removeWhiteSpace = substr($str, 0, 1) === ' ';
+        $interpolationsFound = false;
         $depth = 0;
         $offset = 0;
         while ($token = $this->getNextInterpolation($str, $offset)) {
@@ -684,7 +684,7 @@ class Parser
                 continue;
             }
 
-            $removeWhiteSpace = false;
+            $interpolationsFound = true;
             $previousDepth = $depth;
             $depth = max(0, $depth + ($token->opened ? 1 : -1));
 
@@ -707,9 +707,19 @@ class Parser
             $offset = $token->position + 1;
         }
 
-        if ($removeWhiteSpace) {
+        return $interpolationsFound;
+    }
+
+    public function parseInlineTags($block, $str)
+    {
+        $startsWithWhiteSpace = substr($str, 0, 1) === ' ';
+
+        $interpolationsFound = $this->parseInterpolations($block, $str);
+
+        if ($startsWithWhiteSpace && !$interpolationsFound) {
             $str = substr($str, 1);
         }
+
         $this->appendInlineText($block, $str);
     }
 
