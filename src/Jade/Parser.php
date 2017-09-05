@@ -652,6 +652,25 @@ class Parser
         );
     }
 
+    protected function appendInlineText($block, $str)
+    {
+        if ($str) {
+            $text = new Nodes\Text($str);
+            $text->line = $this->line();
+            $block->push($text);
+        }
+    }
+
+    protected function appendInlineTag($block, $str)
+    {
+        if ($str) {
+            $parser = $this->subParser($str);
+            $tag = $parser->parse();
+            $tag->line = $this->line();
+            $block->push($tag);
+        }
+    }
+
     public function parseInlineTags($block, $str)
     {
         $removeWhiteSpace = substr($str, 0, 1) === ' ';
@@ -665,16 +684,12 @@ class Parser
                 continue;
             }
 
+            $removeWhiteSpace = false;
             $previousDepth = $depth;
             $depth = max(0, $depth + ($token->opened ? 1 : -1));
 
             if ($token->opened && $depth === 1) {
-                if ($token->position > 0) {
-                    $removeWhiteSpace = false;
-                    $text = new Nodes\Text(substr($str, 0, $token->position));
-                    $text->line = $this->line();
-                    $block->push($text);
-                }
+                $this->appendInlineText($block, substr($str, 0, $token->position));
                 $str = substr($str, $token->position + 2);
                 $offset = 0;
 
@@ -682,13 +697,7 @@ class Parser
             }
 
             if (!$token->opened && $previousDepth === 1) {
-                if ($token->position > 0) {
-                    $removeWhiteSpace = false;
-                    $parser = $this->subParser(substr($str, 0, $token->position));
-                    $tag = $parser->parse();
-                    $tag->line = $this->line();
-                    $block->push($tag);
-                }
+                $this->appendInlineTag($block, substr($str, 0, $token->position));
                 $str = substr($str, $token->position + 1);
                 $offset = 0;
 
@@ -701,11 +710,7 @@ class Parser
         if ($removeWhiteSpace) {
             $str = substr($str, 1);
         }
-        if ($str) {
-            $text = new Nodes\Text($str);
-            $text->line = $this->line();
-            $block->push($text);
-        }
+        $this->appendInlineText($block, $str);
     }
 
     protected function peekType()
