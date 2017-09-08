@@ -1,18 +1,6 @@
 <?php
 
-use Jade\Compiler;
-use Jade\Nodes\Filter;
-use Pug\Filter\AbstractFilter;
 use Pug\Pug;
-
-class TestVerbatimFilter extends AbstractFilter
-{
-    public function __invoke(Filter $node, Compiler $compiler)
-    {
-        return $this->getNodeString($node, $compiler);
-    }
-}
-
 
 class PugIssuesTest extends PHPUnit_Framework_TestCase
 {
@@ -307,7 +295,7 @@ if $entryopen and !$submitted
     {
         $input = implode("\n", array(
             'body',
-            '  :coffee-script',
+            '  :verbatim',
             '    # Assignment:',
             '    number   = 42',
             '    opposite = true',
@@ -349,7 +337,6 @@ if $entryopen and !$submitted
             '</body>',
         ));
         $pug = new Pug();
-        $pug->filter('coffee-script', 'TestVerbatimFilter');
 
         $actual = $pug->render($input);
         $this->assertSame($expected, $actual);
