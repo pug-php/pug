@@ -102,7 +102,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             'prettyprint' => false,
         ]);
 
-        $actual = trim($pug->render('for ;;'));
+        $actual = trim($pug->render('#{"for"};;'));
         $expected = '<for>;;</for>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
