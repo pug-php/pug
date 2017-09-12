@@ -43,10 +43,11 @@ class Pug extends PugJsEngine
 
         parent::__construct($options);
 
-        if ($this->hasOption('expressionLanguage') &&
+        if (!$this->hasOption('expressionLanguage') ||
             strtolower($this->getOption('expressionLanguage')) !== 'php'
         ) {
-            $this->addModule(JsPhpizePhug::class);
+            $compiler = $this->getCompiler();
+            $compiler->addModule(new JsPhpizePhug($compiler));
         }
     }
 

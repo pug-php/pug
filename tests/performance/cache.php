@@ -17,7 +17,7 @@ class PugCachePerformanceTest extends PHPUnit_Framework_TestCase
     protected function getPhp($template)
     {
         $pug = new Pug([
-            'debug' => true,
+            'debug' => false,
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,

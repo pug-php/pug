@@ -23,7 +23,7 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
         )));
     }
 
-    protected function getRenderedFile($file)
+    protected function getExpectedFile($file)
     {
         return $this->simpleHtml(file_get_contents(__DIR__ . '/render/' . $file . '.html'));
     }
@@ -33,7 +33,7 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testIndex()
     {
-        $this->assertSame($this->browse(), $this->getRenderedFile('index'));
+        $this->assertSame($this->getExpectedFile('index'), $this->browse());
     }
 
     /**
@@ -41,7 +41,7 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testLogin()
     {
-        $this->assertSame($this->browse('login'), $this->getRenderedFile('login'));
+        $this->assertSame($this->getExpectedFile('login'), $this->browse('login'));
     }
 
     /**
@@ -49,6 +49,6 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testCities()
     {
-        $this->assertSame($this->browse('cities'), $this->getRenderedFile('cities'));
+        $this->assertSame($this->getExpectedFile('cities'), $this->browse('cities'));
     }
 }

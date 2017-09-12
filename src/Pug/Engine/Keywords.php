@@ -65,7 +65,7 @@ abstract class Keywords extends Renderer
     public function replaceKeyword($keyword, $action)
     {
         if (!$this->hasKeyword($keyword)) {
-            throw new \InvalidArgumentException("The keyword $keyword is not set.", 32);
+            throw new InvalidArgumentException("The keyword $keyword is not set.", 32);
         }
 
         $this->setKeyword($keyword, $action);
