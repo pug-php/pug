@@ -576,16 +576,17 @@ body
     public function testNoBaseDir()
     {
         $pug = new Pug();
-        $pug->render(__DIR__ . '/../templates/auxiliary/include-sibling.pug');
+        $pug->renderFile(__DIR__ . '/../templates/auxiliary/include-sibling.pug');
     }
 
     public function renderWithBaseDir($basedir, $template)
     {
         $pug = new Pug(array(
-            'prettyprint' => true,
+            'pretty' => true,
             'basedir' => $basedir,
+            'not_found_template' => '.alert.alert-danger Page not found.',
         ));
-        $code = $pug->render($template);
+        $code = $pug->renderFile($template);
 
         return trim(preg_replace('/\n\s+/', "\n", str_replace("\r", '', $code)));
     }

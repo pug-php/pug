@@ -31,3 +31,11 @@ on your own to configure it correctly:
   
   - If you use the stream adapter, you will need to whiltelist pug.stream
   in your **php.ini**: `suhosin.executor.include.whitelist = pug.stream`
+
+- Missing include throws exception now by default but you can still get the
+pug-php 2 behavior with the following option:
+```php
+$pug->setOption('not_found_template', '.alert.alert-danger Page not found.');
+```
+This will output `<div class="alert alert-danger">Page not found.</div>` when
+you will try to include a file that does not exist.
