@@ -9,6 +9,7 @@ class ShareTest extends PHPUnit_Framework_TestCase
         $pug = new Pug([
             'debug' => true,
         ]);
+
         $pug->share('answear', 42);
         $pug->share([
             'foo' => 'Hello',

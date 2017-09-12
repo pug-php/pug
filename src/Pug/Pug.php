@@ -43,6 +43,14 @@ class Pug extends PugJsEngine
 
         parent::__construct($options);
 
+        // TODO: find a better way to apply snake_case options to the compiler
+        $compiler = $this->getCompiler();
+        if (!$compiler->hasOption('memory_limit')) {
+            $compiler->setOption('memory_limit', $this->getOption('memory_limit'));
+        }
+        if (!$compiler->hasOption('execution_max_time')) {
+            $compiler->setOption('execution_max_time', $this->getOption('memory_limit'));
+        }
         if (!$this->hasOption('expressionLanguage') ||
             strtolower($this->getOption('expressionLanguage')) !== 'php'
         ) {
@@ -51,22 +59,9 @@ class Pug extends PugJsEngine
         }
     }
 
-    /**
-     * Returns true if suhosin extension is loaded and the stream name
-     * is missing in the executor include whitelist.
-     * Returns false in any other case.
-     *
-     * @param string $extension PHP extension name
-     *
-     * @return bool
-     */
-    protected function whiteListNeeded($extension)
+    public function filter()
     {
-        return extension_loaded($extension) &&
-            false === strpos(
-                ini_get($extension . '.executor.include.whitelist'),
-                $this->options['stream']
-            );
+        throw new \Exception('todo');
     }
 
     /**
@@ -86,7 +81,6 @@ class Pug extends PugJsEngine
     public function requirements($name = null)
     {
         $requirements = [
-            'streamWhiteListed'     => !$this->whiteListNeeded('suhosin'),
             'cacheFolderExists'     => !$this->options['cache'] || is_dir($this->options['cache']),
             'cacheFolderIsWritable' => !$this->options['cache'] || is_writable($this->options['cache']),
         ];

@@ -1,7 +1,7 @@
 # Pug.php
 [![Latest Stable Version](https://poser.pugx.org/pug-php/pug/v/stable.png)](https://packagist.org/packages/pug-php/pug)
 [![Monthly Downloads](https://poser.pugx.org/pug-php/pug/d/monthly)](https://packagist.org/packages/pug-php/pug)
-[![Reference Status](https://www.versioneye.com/php/kylekatarnls:jade-php/reference_badge.svg?style=flat)](https://www.versioneye.com/php/kylekatarnls:jade-php/references)
+[![Reference Status](https://www.versioneye.com/php/pug-php:pug/reference_badge.svg?style=flat-square)](https://www.versioneye.com/php/pug-php:pug/references)
 [![License](https://poser.pugx.org/pug-php/pug/license)](https://packagist.org/packages/pug-php/pug)
 
 [![Build Status](https://travis-ci.org/pug-php/pug.svg?branch=master)](https://travis-ci.org/pug-php/pug)
@@ -11,8 +11,6 @@
 
 
 Pug.php adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler.
-
-> Pug has been recently re-named from Jade. If you're new to Pug, you should install the pug-php/pug package on composer.
 
 ##### [The Pug Syntax Reference](https://github.com/pugjs/pug#readme)
 ##### [See Pug.php demo](https://pug-demo.herokuapp.com/)
@@ -42,12 +40,11 @@ Slim 3: https://github.com/MarcelloDuarte/pug-slim
 
 ## Pug options
 
-Pug options should be passed to the Jade construction
+Pug options should be passed to the constructor
 
 ```php
 $pug = new Pug(array(
-    'prettyprint' => true,
-    'extension' => '.pug',
+    'pretty' => true,
     'cache' => 'pathto/writable/cachefolder/'
 ));
 ```
@@ -60,6 +57,15 @@ $output = $pug->render('file', array(
     'title' => 'Hello World'
 ));
 ```
+
+## New in pug-php 3
+
+pug-php 3 is now aligned on [pugjs 2](github.com/pugjs/pug), it aims to be a perfect
+port of the JS project. That's why there are breaking changes in this new version.
+
+[See the changelog to know what's new](https://github.com/pug-php/pug/blob/master/CHANGELOG.md)
+
+[See the migration guide if you want to upgrade from pug-php 2 to 3](https://github.com/pug-php/pug/blob/master/MIGRATION_GUIDE.md)
 
 ## Supports for custom filters
 
@@ -92,7 +98,7 @@ http://pug-filters.selfbuild.fr/
 
 ### Publish your own filter
 
-https://github.com/kylekatarnls/jade-filter-base#readme
+https://github.com/pug-php/pug-filter-base#readme
 
 ## Supports for custom keywords
 
@@ -120,7 +126,7 @@ This will render:
 <p>3</p>
 ```
 
-Note that the existing ```for..in``` operator will have the precedance on this custom ```for``` keyword.
+Note that the existing ```for..in``` operator will have the precedence on this custom ```for``` keyword.
 
 **Invokable class**:
 ```php
