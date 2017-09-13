@@ -32,14 +32,34 @@ class Pug extends PugJsEngine
         'javascript' => 'Pug\Filter\Javascript',
     ];
 
+    /**
+     * Built-in filters.
+     *
+     * @var array
+     */
+    protected $optionsAliases = [
+        'prettyprint' => 'pretty',
+    ];
+
     public function __construct($options = null)
     {
         $normalize = function ($name) {
             return str_replace('_', '', strtolower($name));
         };
         $this->addOptionNameHandlers(function ($name) use ($normalize) {
+            if (is_string($name) && isset($this->optionsAliases[$name])) {
+                $name = $this->optionsAliases[$name];
+            } else if (is_array($name) && isset($this->optionsAliases[$name[0]])) {
+                $name[0] = $this->optionsAliases[$name[0]];
+            }
+
             return is_array($name) ? array_map($normalize, $name) : $normalize($name);
         });
+        foreach ($this->optionsAliases as $from => $to) {
+            if (isset($options[$from]) && !isset($options[$to])) {
+                $options[$to] = $options[$from];
+            }
+        }
 
         parent::__construct($options);
 
@@ -60,6 +80,16 @@ class Pug extends PugJsEngine
     }
 
     public function filter()
+    {
+        throw new \Exception('todo');
+    }
+
+    public function hasFilter()
+    {
+        throw new \Exception('todo');
+    }
+
+    public function getFilter()
     {
         throw new \Exception('todo');
     }

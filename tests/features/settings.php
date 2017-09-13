@@ -528,9 +528,7 @@ body
 
         $pug = new Pug(array(
             'singleQuote' => false,
-            'prettyprint' => true,
-            'indentSize' => 2,
-            'indentChar' => ' ',
+            'prettyprint' => '  ',
         ));
         $actual = str_replace("\r", '', $pug->render($template));
         $expected = str_replace("\r", '', '<body>
@@ -548,9 +546,7 @@ body
 
         $pug = new Pug(array(
             'singleQuote' => false,
-            'prettyprint' => true,
-            'indentSize' => 4,
-            'indentChar' => ' ',
+            'prettyprint' => '    ',
         ));
         $actual = str_replace("\r", '', $pug->render($template));
         $expected = str_replace('  ', '    ', $expected);
@@ -558,9 +554,7 @@ body
 
         $pug = new Pug(array(
             'singleQuote' => false,
-            'prettyprint' => true,
-            'indentSize' => 1,
-            'indentChar' => "\t",
+            'prettyprint' => "\t",
         ));
         $actual = str_replace("\r", '', $pug->render($template));
         $expected = str_replace('    ', "\t", $expected);

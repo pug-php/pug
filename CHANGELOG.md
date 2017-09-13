@@ -39,3 +39,11 @@ $pug->setOption('not_found_template', '.alert.alert-danger Page not found.');
 ```
 This will output `<div class="alert alert-danger">Page not found.</div>` when
 you will try to include a file that does not exist.
+
+- New options:
+  - `pretty` can be `true` (2 spaces), `false` (no indent) or a string used as
+  indent string. New lines comes with consistent indent.
+
+- Following options are deprecated: `prettyprint`
+
+- Following options no longer exist: `indentChar`, `indentSize`

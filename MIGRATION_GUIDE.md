@@ -14,3 +14,11 @@ composer require pug-php/pug:3.*
 
 Else, go the [releases](https://github.com/pug-php/pug/releases), download
 the release and replace your own copy of pug with the archive content.
+
+## New options
+
+### Pretty output
+
+The `prettyprint` should no longer be used and `indentChar` and `indentSize`
+has been removed. Now you should just use `pretty` option to prettify the HTML
+output. `true`
