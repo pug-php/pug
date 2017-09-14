@@ -21,4 +21,28 @@ the release and replace your own copy of pug with the archive content.
 
 The `prettyprint` should no longer be used and `indentChar` and `indentSize`
 has been removed. Now you should just use `pretty` option to prettify the HTML
-output. `true`
+output. `true` indent with 4 spaces, `false` does not indent, else you can
+pass a string to indent with.
+
+### Format options
+
+The `phpSingleLine` option no longer exists and by default, there
+is no new lines added, but you can patterns option:
+```php
+$pug = new Pug([
+ 'patterns' => [
+   'php_handle_code' => "<?php %s ?>\n",
+   'php_nested_html' => "<?= %s ?>\n",
+ ],
+]);
+```
+ 
+The `singleQuote` option no longer exists but you can patterns option:
+```php
+$pug = new Pug([
+  'patterns' => [
+    'attribute_pattern'         => " %s='%s'",
+    'boolean_attribute_pattern' => " %s='%s'",
+  ],
+]);
+```

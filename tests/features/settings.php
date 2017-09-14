@@ -250,11 +250,11 @@ mixin foo()
             'prettyprint' => true,
         ));
 
-        $actual = static::rawHtml($pug->render(__DIR__ . '/../templates/xml.pug'));
+        $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/xml.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/xml.html'));
         $this->assertSame($expected, $actual);
 
-        $actual = static::rawHtml($pug->render(__DIR__ . '/../templates/mixins.dynamic.pug'));
+        $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/mixins.dynamic.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
         $this->assertSame($expected, $actual);
 
@@ -262,7 +262,7 @@ mixin foo()
             'allowMixinOverride' => true,
             'prettyprint' => true,
         ));
-        $actual = static::rawHtml($pug->render(__DIR__ . '/../templates/mixins.dynamic.pug'));
+        $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/mixins.dynamic.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
         $this->assertSame($expected, $actual);
     }
@@ -276,66 +276,43 @@ mixin foo()
 
         $pug = new Pug(array(
             'prettyprint' => true,
-            'singleQuote' => true,
+            'patterns' => [
+                'attribute_pattern'         => " %s='%s'",
+                'boolean_attribute_pattern' => " %s='%s'",
+            ],
         ));
         $actual = $pug->render($template);
-        $expected = "<h1 id='foo' style='color: red;' class='bar'>Hello</h1>";
+        $expected = "<h1 id='foo' class='bar' style='color: red;'>Hello</h1>";
 
         $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote enabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote enabled on attrs-data.complex');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote enabled on attrs-data');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote enabled on object-to-css');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote enabled on interpolation');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on interpolation');
 
         $pug = new Pug(array(
             'prettyprint' => true,
-            'singleQuote' => false,
+            'patterns' => [
+                'attribute_pattern'         => ' %s="%s"',
+                'boolean_attribute_pattern' => ' %s="%s"',
+            ],
         ));
         $actual = $pug->render($template);
-        $expected = '<h1 id="foo" style="color: red;" class="bar">Hello</h1>';
+        $expected = '<h1 id="foo" class="bar" style="color: red;">Hello</h1>';
 
         $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote disabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote disabled on attrs-data.complex');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote disabled on attrs-data');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote disabled on object-to-css');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->render($file . '.pug')), 'Single quote disabled on interpolation');
-    }
-
-    /**
-     * phpSingleLine setting test
-     */
-    public function testPhpSingleLine()
-    {
-        $template = '
-- $foo = "bar"
-- $bar = 42
-p(class=$foo)=$bar
-';
-
-        $pug = new Pug(array(
-            'phpSingleLine' => true,
-        ));
-        $compile = $pug->compile($template);
-        $actual = substr_count($compile, "\n");
-        $expected = substr_count($compile, '<?php') * 2 + 1;
-
-        $this->assertSame($expected, $actual, 'PHP single line enabled');
-        $this->assertGreaterThan(5, $actual, 'PHP single line enabled');
-
-        $pug = new Pug(array(
-            'phpSingleLine' => false,
-        ));
-        $actual = substr_count(trim($pug->compile($template)), "\n");
-
-        $this->assertLessThan(2, $actual,'PHP single line disabled');
+        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on interpolation');
     }
 
     /**
@@ -358,8 +335,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 20
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledTabSpaces()
     {
@@ -371,8 +348,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 20
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTab()
     {
@@ -384,8 +361,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 20
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTabAfterSpaces()
     {
@@ -397,8 +374,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 25
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesAfterTab()
     {
@@ -410,21 +387,8 @@ p(class=$foo)=$bar
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 25
-     */
-    public function testAllowMixedIndentDisabledSpacesTextAfterTab()
-    {
-        $pug = new Pug(array(
-            'allowMixedIndent' => false,
-        ));
-
-        $pug->render('p' . "\n\t" . 'i Hi' . "\np.\n    " . 'Hi');
-    }
-
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 25
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTabTextAfterTab()
     {
@@ -436,44 +400,14 @@ p(class=$foo)=$bar
     }
 
     /**
-     * Static includeNotFound is deprecated, use the notFound option instead.
-     *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 22
-     */
-    public function testIncludeNotFoundDisabledViaStaticVariable()
-    {
-        $save = \Pug\Parser::$includeNotFound;
-        $pug = new Pug();
-        \Pug\Parser::$includeNotFound = false;
-
-        $error = null;
-
-        try {
-            $pug->render('include does-not-exists');
-        } catch (\Exception $e) {
-            $error = $e;
-        }
-
-        \Pug\Parser::$includeNotFound = $save;
-
-        if ($error) {
-            throw $error;
-        }
-    }
-
-    /**
      * notFound option replace the static variable includeNotFound.
      *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 22
-     * @expectedExceptionMessageRegExp /does-not-exists/
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Source file does-not-exists not found
      */
     public function testIncludeNotFoundDisabledViaOption()
     {
-        $pug = new Pug(array(
-            'notFound' => false
-        ));
+        $pug = new Pug();
         $pug->render('include does-not-exists');
     }
 
@@ -564,8 +498,8 @@ body
     /**
      * notFound option replace the static variable includeNotFound.
      *
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 29
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage Either the "basedir" or "paths" option is required
      */
     public function testNoBaseDir()
     {

@@ -46,4 +46,6 @@ you will try to include a file that does not exist.
 
 - Following options are deprecated: `prettyprint`
 
-- Following options no longer exist: `indentChar`, `indentSize`
+- Following options no longer exist:
+  - `indentChar`, `indentSize`: see `pretty` instead.
+  - `phpSingleLine`, `singleQuote`: see `patterns` instead.

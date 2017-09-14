@@ -38,7 +38,8 @@ class Pug extends PugJsEngine
      * @var array
      */
     protected $optionsAliases = [
-        'prettyprint' => 'pretty',
+        'prettyprint'      => 'pretty',
+        'allowMixedIndent' => 'allow_mixed_indent',
     ];
 
     public function __construct($options = null)
