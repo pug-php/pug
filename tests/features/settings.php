@@ -603,14 +603,17 @@ body
         $this->assertSame($expected, $actual);
     }
 
+    /**
+     * @group i
+     */
     public function testClassAttribute()
     {
         $pug = new Pug(array(
             'singleQuote' => false,
             'classAttribute' => 'className',
         ));
-        $actual = trim($pug->render('.foo.bar Hello'));
-        $expected = '<div className="foo bar">Hello</div>';
+        $actual = trim($pug->render('.foo.bar(a="b") Hello'));
+        $expected = '<div className="foo bar" a="b">Hello</div>';
         $this->assertSame($expected, $actual);
     }
 }

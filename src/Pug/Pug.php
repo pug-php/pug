@@ -4,8 +4,13 @@ namespace Pug;
 
 use InvalidArgumentException;
 use JsPhpize\JsPhpizePhug;
+use Phug\Compiler\Event\ElementEvent;
+use Phug\Formatter\Element\AssignmentElement;
+use Phug\Formatter\Element\MarkupElement;
+use Phug\Formatter\Event\NewFormatEvent;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\PugJsEngine;
+use SplObjectStorage;
 
 /**
  * Class Pug\Pug.
@@ -77,6 +82,47 @@ class Pug extends PugJsEngine
         ) {
             $compiler = $this->getCompiler();
             $compiler->addModule(new JsPhpizePhug($compiler));
+        }
+        if (isset($options['classAttribute'])) {
+            $classAttribute = $options['classAttribute'];
+            $options['on_element'] = function (ElementEvent $event) {
+                $element = $event->getElement();
+                if ($element instanceof MarkupElement) {
+                    $element->getAssignments()->attach(new AssignmentElement('attributes', new SplObjectStorage(), $element));
+                }
+            };
+            $options['on_new_format'] = function (NewFormatEvent $event) use (&$copyFormatter, $classAttribute) {
+                $copyFormatter = $event->getFormatter();
+                $newFormat = clone $event->getFormat();
+                $newFormat
+                    ->registerHelper('class_attribute_name', $classAttribute)
+                    ->provideHelper('attributes_assignment', [
+                        'merge_attributes',
+                        'class_attribute_name',
+                        'pattern',
+                        'pattern.attribute_pattern',
+                        'pattern.boolean_attribute_pattern',
+                        function ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
+                            return function () use ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
+                                $attributes = call_user_func_array($mergeAttributes, func_get_args());
+                                $code = '';
+                                foreach ($attributes as $name => $value) {
+                                    if ($value) {
+                                        if ($name === 'class') {
+                                            $name = $classAttribute;
+                                        }
+                                        $code .= $value === true
+                                            ? $pattern($booleanPattern, $name, $name)
+                                            : $pattern($attributePattern, $name, $value);
+                                    }
+                                }
+
+                                return $code;
+                            };
+                        },
+                    ]);
+                $event->setFormat($newFormat);
+            };
         }
     }
 
