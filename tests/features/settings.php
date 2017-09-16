@@ -603,9 +603,6 @@ body
         $this->assertSame($expected, $actual);
     }
 
-    /**
-     * @group i
-     */
     public function testClassAttribute()
     {
         $pug = new Pug(array(

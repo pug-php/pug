@@ -66,23 +66,6 @@ class Pug extends PugJsEngine
                 $options[$to] = $options[$from];
             }
         }
-
-        parent::__construct($options);
-
-        // TODO: find a better way to apply snake_case options to the compiler
-        $compiler = $this->getCompiler();
-        if (!$compiler->hasOption('memory_limit')) {
-            $compiler->setOption('memory_limit', $this->getOption('memory_limit'));
-        }
-        if (!$compiler->hasOption('execution_max_time')) {
-            $compiler->setOption('execution_max_time', $this->getOption('memory_limit'));
-        }
-        if (!$this->hasOption('expressionLanguage') ||
-            strtolower($this->getOption('expressionLanguage')) !== 'php'
-        ) {
-            $compiler = $this->getCompiler();
-            $compiler->addModule(new JsPhpizePhug($compiler));
-        }
         if (isset($options['classAttribute'])) {
             $classAttribute = $options['classAttribute'];
             $options['on_element'] = function (ElementEvent $event) {
@@ -123,6 +106,23 @@ class Pug extends PugJsEngine
                     ]);
                 $event->setFormat($newFormat);
             };
+        }
+
+        parent::__construct($options);
+
+        // TODO: find a better way to apply snake_case options to the compiler
+        $compiler = $this->getCompiler();
+        if (!$compiler->hasOption('memory_limit')) {
+            $compiler->setOption('memory_limit', $this->getOption('memory_limit'));
+        }
+        if (!$compiler->hasOption('execution_max_time')) {
+            $compiler->setOption('execution_max_time', $this->getOption('memory_limit'));
+        }
+        if (!$this->hasOption('expressionLanguage') ||
+            strtolower($this->getOption('expressionLanguage')) !== 'php'
+        ) {
+            $compiler = $this->getCompiler();
+            $compiler->addModule(new JsPhpizePhug($compiler));
         }
     }
 
