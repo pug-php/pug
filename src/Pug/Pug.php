@@ -46,15 +46,19 @@ class Pug extends PugJsEngine
      * @var array
      */
     protected $optionsAliases = [
-        'cache'            => 'cachedir',
-        'prettyprint'      => 'pretty',
-        'allowMixedIndent' => 'allow_mixed_indent',
+        'cache'              => 'cachedir',
+        'prettyprint'        => 'pretty',
+        'expressionLanguage' => 'expressionlanguage',
+        'allowMixedIndent'   => 'allow_mixed_indent',
+        'keepBaseName'       => 'keep_base_name',
     ];
 
     public function __construct($options = null)
     {
         $normalize = function ($name) {
-            return str_replace('_', '', strtolower($name));
+            return isset($this->optionsAliases[$name])
+                ? $this->optionsAliases[$name]
+                : str_replace('_', '', strtolower($name));
         };
         $this->addOptionNameHandlers(function ($name) use ($normalize) {
             if (is_string($name) && isset($this->optionsAliases[$name])) {
@@ -70,6 +74,7 @@ class Pug extends PugJsEngine
                 $options[$to] = $options[$from];
             }
         }
+        $options['filters'] = array_merge($this->filters, isset($options['filters']) ? $options['filters'] : []);
         if (isset($options['cachedir']) && $options['cachedir']) {
             $options['adapterclassname'] = FileAdapter::class;
         }
@@ -197,8 +202,8 @@ class Pug extends PugJsEngine
     public function requirements($name = null)
     {
         $requirements = [
-            'cacheFolderExists'     => !$this->hasOption('cache_dir') || is_dir($this->getOption('cache_dir')),
-            'cacheFolderIsWritable' => !$this->hasOption('cache_dir') || is_writable($this->getOption('cache_dir')),
+            'cacheFolderExists'     => !$this->getDefaultOption('cache_dir') || is_dir($this->getOption('cache_dir')),
+            'cacheFolderIsWritable' => !$this->getDefaultOption('cache_dir') || is_writable($this->getOption('cache_dir')),
         ];
 
         if ($name) {

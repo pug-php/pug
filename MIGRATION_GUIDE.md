@@ -17,6 +17,17 @@ the release and replace your own copy of pug with the archive content.
 
 ## Syntax changes
 
+### Variables assignations
+
+Variables assignations like `myVar = 'myValue` is no longer supported,
+now use simply raw code instead: `- myVar = 'myValue`
+
+### Mixin calls
+
+In pug-php 2 `mixin foo()` was valid code for both declarations and calls,
+now the only way to call them is: `+foo()` and `mixin` keyword is reserved
+for declaration.
+
 ### Attribute string interpolation
 
 The attribute interpolation has been dropped (to match pugjs 2 specifications),
@@ -116,6 +127,12 @@ div
     p=let foo = 3
   p=foo
 ```
+
+The `keepNullAttributes` option no longer exists, now null and false
+attributes are just always removed like in pugjs.
+
+The `terse` no longer exists, now attribute format can be set via patterns
+or using the matching doctype.
 
 ## Dropped features
 

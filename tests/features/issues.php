@@ -40,7 +40,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
             ),
         )));
 
-        $this->assertSame('<input type="checkbox" name="group[4]">', $actual);
+        $this->assertSame('<input type="checkbox" name="group[4]" />', $actual);
     }
 
     public function testIssue73()
@@ -106,7 +106,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         $pug = new Pug(array(
             'expressionLanguage' => 'php',
         ));
-        $actual = trim($pug->render('p= \'$test\'
+        $actual = str_replace("\n", '', trim($pug->render('p= \'$test\'
 p= "$test"
 p= \'#{$test}\'
 p= "#{$test}"
@@ -119,7 +119,7 @@ p(
     data-d="#{$test}"
 ) test', array(
             'test' => 'foo',
-        )));
+        ))));
         $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="$test" data-c="foo" data-d="foo">test</p>';
 
         $this->assertSame($expected, $actual);
@@ -192,7 +192,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=\'background-position: 50% -402px; background-image: url("\' + strtolower(\'/img.PNG\') + \'");\')
 '));
-        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
         $this->assertSame($expected, $actual);
@@ -200,7 +200,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style={\'background-position\': "50% -402px", \'background-image\': \'url("\' + strtolower(\'/img.PNG\') + \'")\'})
 '));
-        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as object
         $this->assertSame($expected, $actual);
@@ -214,7 +214,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=(\'background-position: 50% -402px; background-image: url("\' . strtolower(\'/img.PNG\') . \'");\'))
 '));
-        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
         $this->assertSame($expected, $actual);
@@ -222,7 +222,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=array(\'background-position\' => "50% -402px", \'background-image\' => \'url("\' . strtolower(\'/img.PNG\') . \'")\'))
 '));
-        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as array
         $this->assertSame($expected, $actual);
@@ -233,7 +233,7 @@ if $entryopen and !$submitted
         $pug = new Pug(array(
             'expressionLanguage' => 'js',
         ));
-        $actual = trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
+        $actual = str_replace("\n", '', trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
             'item' => array(
                 'name' => 'Foo',
                 'price' => 12,
@@ -243,7 +243,7 @@ if $entryopen and !$submitted
                     return $type . '-' . $price;
                 },
             ),
-        )));
+        ))));
         $expected = '<p>Example Foo money-12</p>';
 
         $this->assertSame($expected, $actual);
@@ -285,7 +285,7 @@ if $entryopen and !$submitted
     public function testIssue154()
     {
         $pug = new Pug();
-        $actual = trim($pug->render('p #[em #[strong Yow!]]'));
+        $actual = str_replace("\n", '', trim($pug->render('p #[em #[strong Yow!]]')));
         $expected = '<p><em><strong>Yow!</strong></em></p>';
 
         $this->assertSame($expected, $actual);

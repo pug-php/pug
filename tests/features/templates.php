@@ -43,9 +43,11 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
     public function testVariablesHandle()
     {
+        $a = null;
+        $a['name'] = 'foo';
         $pug = new Pug([
             'singleQuote' => false,
-            'terse' => true,
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
 
         $html = $pug->render('input(type="checkbox", checked=true)');
@@ -73,7 +75,7 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<i>a</i> <i>b</i>', $html);
 
-        $html = $pug->render("p\n  | #[i a] #[i b]");
+        $html = str_replace("\n", '', $pug->render("p\n  | #[i a] #[i b]"));
 
         $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
 
@@ -81,7 +83,7 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<p>this is<a href="#">test</a>string</p>', $html);
 
-        $html = $pug->render("p this is #[a(href='#') test string]");
+        $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
         $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
 
@@ -89,7 +91,7 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<p>this is <a href="#">test</a> string</p>', $html);
 
-        $html = $pug->render("p this is #[a(href='#') test string]");
+        $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
         $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
     }

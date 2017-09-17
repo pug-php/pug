@@ -17,6 +17,7 @@ class BadOptionType
 class PugKeywordTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * @group keywords
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 30
      */
@@ -27,6 +28,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group keywords
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 31
      */
@@ -42,6 +44,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group keywords
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 32
      */
@@ -54,6 +57,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group keywords
      * @expectedException \ErrorException
      * @expectedExceptionCode 34
      */
@@ -66,6 +70,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $pug->render('foo');
     }
 
+    /**
+     * @group keywords
+     */
     public function testBadReturnPreviousException()
     {
         if (defined('HHVM_VERSION')) {
@@ -85,6 +92,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $this->assertSame(33, $code, 'Expected previous exception code should be 8 for BadReturn.');
     }
 
+    /**
+     * @group keywords
+     */
     public function testBadCustomKeywordOptionType()
     {
         $pug = new Pug();
@@ -95,6 +105,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $this->assertSame('foo', $pug->render('foo'));
     }
 
+    /**
+     * @group keywords
+     */
     public function testPhpKeyWord()
     {
         $pug = new Pug([
@@ -132,6 +145,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual, 'After removing keyword, a word render as a tag.');
     }
 
+    /**
+     * @group keywords
+     */
     public function testHtmlKeyWord()
     {
         $pug = new Pug([
@@ -161,6 +177,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual, 'addKeyword should allow to customize available tags.');
     }
 
+    /**
+     * @group keywords
+     */
     public function testKeyWordBeginAndEnd()
     {
         $pug = new Pug([
@@ -204,6 +223,9 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $actual, 'If addKeyword return an end entry, it\'s rendeder after the block.');
     }
 
+    /**
+     * @group keywords
+     */
     public function testKeyWordArguments()
     {
         $pug = new Pug([

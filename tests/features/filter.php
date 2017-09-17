@@ -5,6 +5,7 @@ use Pug\Pug;
 class PugFilterTest extends PHPUnit_Framework_TestCase
 {
     /**
+     * @group filters
      * custom filter test
      */
     public function testFilter()
@@ -38,6 +39,7 @@ div
     }
 
     /**
+     * @group filters
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 18
      */
@@ -58,6 +60,9 @@ div
 ');
     }
 
+    /**
+     * @group filters
+     */
     public function testFilterAutoload()
     {
         $pug = new Pug([
@@ -89,6 +94,7 @@ div
     }
 
     /**
+     * @group filters
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 17
      */
@@ -107,6 +113,9 @@ div
 ');
     }
 
+    /**
+     * @group filters
+     */
     public function testInlineFilter()
     {
         $pug = new Pug([
@@ -135,6 +144,7 @@ h1
     }
 
     /**
+     * @group filters
      * @group php-filter-prettyprint
      */
     public function testPhpFilterWithoutPrettyprint()
@@ -181,6 +191,7 @@ h1
     }
 
     /**
+     * @group filters
      * @group php-filter-prettyprint
      */
     public function testPhpFilterWithPrettyprint()

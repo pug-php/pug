@@ -131,3 +131,16 @@ that caused the error.
 
 - Drop `\Pug\Parser::$includeNotFound` and `notFound` option. Now use
 `not_found_template` option instead.
+
+- `mixin` keyword is now reserved for declaration, you no longer can
+call a mixin with `mixin foo()`, now the only way to call them is:
+`+foo()`
+
+- `keepNullAttributes` option no longer exists, now null and false
+attributes are just always removed like in pugjs.
+
+- `terse` no longer exists, now attribute format can be set via patterns
+or using the matching doctype.
+
+- Variables assignations like `myVar = 'myValue` is no longer supported,
+use raw code instead: `- myVar = 'myValue`

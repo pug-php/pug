@@ -7,8 +7,8 @@ mixin comment(title, str)
 #user
   h1 Tobi
   .comments
-    mixin comment('This', 'is a text')
-    mixin comment('"This"', "'is a text'")
+    +comment('This', 'is a text')
+    +comment('"This"', "'is a text'")
 
 mixin list()
   ul
@@ -17,16 +17,10 @@ mixin list()
     li baz
 
 mixin image(img, width, height)
-  - $ratio = $height / $width * 100
-  div.image(style='background-image: url(' . $img . '); padding-bottom: ' . $ratio . '%')
-
-mixin image2(img, width, height)
-  - $ratio = $height / $width * 100
+  - ratio = height / width * 100
   div.image(style='background-image: url(' + img + '); padding-bottom: ' + ratio + '%')
 
 body
-  mixin list()
+  +list()
   +image('foo', 200, 100)
   +image('bar', 157, 233)
-  +image2('foo', 200, 100)
-  +image2('bar', 157, 233)

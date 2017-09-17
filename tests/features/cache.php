@@ -11,6 +11,13 @@ class PugTest extends Pug
         return $this->compilationsCount;
     }
 
+    public function compile($input, $filename = null)
+    {
+        $this->compilationsCount++;
+
+        return parent::compile($input, $filename);
+    }
+
     public function compileFile($input)
     {
         $this->compilationsCount++;
@@ -39,8 +46,8 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 5
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage ///cannot/be/created: Cache directory doesn't exist
      */
     public function testMissingDirectory()
     {
@@ -49,6 +56,36 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             'cache' => '///cannot/be/created'
         ));
         $pug->render(__DIR__ . '/../templates/attrs.pug');
+    }
+
+    /**
+     * Cache from string input
+     */
+    public function testStringInputCache()
+    {
+        $dir = sys_get_temp_dir() . '/pug';
+        if (file_exists($dir)) {
+            if (is_file($dir)) {
+                unlink($dir);
+                mkdir($dir);
+            } else {
+                $this->emptyDirectory($dir);
+            }
+        } else {
+            mkdir($dir);
+        }
+        $pug = new PugTest(array(
+            'debug' => false,
+            'cache' => $dir
+        ));
+        $this->assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
+        $pug->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
+        $pug->render("header\n  h1#foo Hello World!\nfooter");
+        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
+        $pug->render("header\n  h1#foo Hello World2\nfooter");
+        $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        $this->emptyDirectory($dir);
     }
 
     /**
@@ -69,6 +106,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         }
         $test = "$dir/test.pug";
         file_put_contents($test, "header\n  h1#foo Hello World!\nfooter");
+        sleep(1);
         $pug = new PugTest(array(
             'debug' => false,
             'cache' => $dir

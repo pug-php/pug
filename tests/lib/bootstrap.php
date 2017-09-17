@@ -59,7 +59,18 @@ function build_list($test_list)
     return $group_list;
 }
 
-function get_php_code($file, $vars = [])
+function get_php_code($code, $vars = [])
+{
+    $pug = new Pug([
+        'debug' => true,
+        'singleQuote' => false,
+        'prettyprint' => true,
+    ]);
+
+    return $pug->render($code, $vars);
+}
+
+function get_php_file($file, $vars = [])
 {
     $pug = new Pug([
         'debug' => true,
@@ -83,7 +94,7 @@ function compile_php($file)
 
 function get_html_code($name)
 {
-    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.pug'));
+    return get_generated_html(get_php_file(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.pug'));
 }
 
 function init_tests()
@@ -139,7 +150,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
         echo "* rendering test '$name'\n";
     }
     try {
-        $new = get_php_code($path . '.pug');
+        $new = get_php_file($path . '.pug');
     } catch(Exception $err) {
         if($verbose) {
             echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";

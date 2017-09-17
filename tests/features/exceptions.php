@@ -16,22 +16,6 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException \Exception
      */
-    public function testDoNotUnderstand()
-    {
-        get_php_code('a(href=="a")');
-    }
-
-    /**
-     * @expectedException \Exception
-     */
-    public function testDoubleDoubleArrow()
-    {
-        get_php_code('a(href=["a" => "b" => "c"])');
-    }
-
-    /**
-     * @expectedException \Exception
-     */
     public function testAbsoluteIncludeWithNoBaseDir()
     {
         $pug = new Pug();
@@ -71,8 +55,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 21
+     * @expectedException \Phug\LexerException
+     * @expectedExceptionMessage Unclosed attribute block
      */
     public function testUnableToFindAttributesClosingParenthesis()
     {
@@ -80,69 +64,33 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 24
-     */
-    public function testExpectedIndent()
-    {
-        get_php_code(':a()');
-    }
-
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 25
-     */
-    public function testUnexpectingToken()
-    {
-        get_php_code('a:' . "\n" . '!!!5');
-    }
-
-    /**
-     * @expectedException EmulateBugException
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage EmulateBugException
      */
     public function testExceptionThroughtPug()
     {
-        get_php_code('a(href=\PugExceptionsTest::emulateBug())');
+        $pug = new Pug([
+            'expressionLanguage' => 'php',
+        ]);
+        $pug->render('a(href=\PugExceptionsTest::emulateBug())');
     }
 
     /**
-     * @expectedException Pug\Parser\Exception
-     * @expectedExceptionCode 10
+     * @expectedException \Phug\LexerException
+     * @expectedExceptionMessage The syntax for each is
      */
     public function testNonParsableExtends()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/extends-failure.pug');
+        get_php_file(__DIR__ . '/../templates/auxiliary/extends-failure.pug');
     }
 
     /**
-     * @expectedException EmulateBugException
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage EmulateBugException
      */
     public function testBrokenExtends()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/extends-exception.pug');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 3
-     */
-    public function testSetInvalidOption()
-    {
-        $pug = new Pug();
-        $pug->setOption('i-do-not-exists', 'wrong');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 3
-     */
-    public function testSetInvalidOptions()
-    {
-        $pug = new Pug();
-        $pug->setOptions(array(
-            'prettyprint' => true,
-            'i-do-not-exists' => 'right',
-        ));
+        get_php_file(__DIR__ . '/../templates/auxiliary/extends-exception.pug');
     }
 
     /**
@@ -156,6 +104,7 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group filters
      * @expectedException EmulateBugException
      */
     public function testExtendsWithFilterException()
@@ -168,40 +117,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test OnlyOnceException
-     */
-    public function testExtendsWithParserException()
-    {
-        $parser = new ExtendParser(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
-        $message = null;
-        try {
-            $parser->parse();
-        } catch (\Exception $e) {
-            $message = $e->getMessage();
-        }
-        $this->assertTrue($message !== null, 'Extends with ExtendParser should throw an exception');
-        $this->assertTrue(strpos($message, 'E: Works only once') !== false, 'Extends with ExtendParser should throw an exception with the initial message of the exception inside');
-    }
-
-    /**
-     * Test OnlyOnceException
-     */
-    public function testIncludesWithParserException()
-    {
-        $parser = new IncludeParser(__DIR__ . '/../templates/auxiliary/include-exception-filter.pug');
-        $message = null;
-        try {
-            $parser->parse();
-        } catch (\Exception $e) {
-            $message = $e->getMessage();
-        }
-        $this->assertTrue($message !== null, 'Extends with IncludeParser should throw an exception');
-        $this->assertTrue(strpos($message, 'I: Works only once') !== false, 'Include with IncludeParser should throw an exception with the initial message of the exception inside');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 17
+     * @expectedException \Phug\CompilerException
+     * @expectedExceptionMessage Unknown filter foo
      */
     public function testFilterDoesNotExist()
     {
@@ -209,10 +126,11 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException EmulateBugException
+     * @expectedException \Phug\RendererException
+     * @expectedExceptionMessage EmulateBugException in
      */
     public function testBrokenInclude()
     {
-        get_php_code(__DIR__ . '/../templates/auxiliary/include-exception.pug');
+        get_php_file(__DIR__ . '/../templates/auxiliary/include-exception.pug');
     }
 }

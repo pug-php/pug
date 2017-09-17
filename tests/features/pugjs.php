@@ -4,6 +4,9 @@ use Pug\Pug;
 
 class PugJsTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @group pugjs
+     */
     public function testPugJsOption()
     {
         if (version_compare(PHP_VERSION, '5.4.0') < 0) {
@@ -36,7 +39,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = trim($pug->renderFile($source));
         clearstatcache();
 
-        //$this->assertTrue(file_exists($cache));
+        $this->assertTrue(file_exists($cache));
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
