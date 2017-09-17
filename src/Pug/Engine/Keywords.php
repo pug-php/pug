@@ -11,15 +11,20 @@ use Phug\Renderer;
  */
 abstract class Keywords extends Renderer
 {
+    protected function getDefaultOption($name, $defaultValue = null)
+    {
+        return $this->hasOption($name) ? $this->getOption($name) : $defaultValue;
+    }
+
     protected function hasKeyword($keyword)
     {
-        return $this->hasValidCustomKeywordsOption() && $this->getOption(['custom_keywords', $keyword]);
+        return $this->hasValidCustomKeywordsOption() && $this->getDefaultOption(['custom_keywords', $keyword]);
     }
 
     protected function hasValidCustomKeywordsOption()
     {
-        return is_array($this->getOption('custom_keywords')) ||
-            $this->getOption('custom_keywords') instanceof ArrayAccess;
+        return is_array($this->getDefaultOption('custom_keywords')) ||
+            $this->getDefaultOption('custom_keywords') instanceof ArrayAccess;
     }
 
     /**

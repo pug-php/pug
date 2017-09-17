@@ -66,23 +66,21 @@ mixin centered(title)
 ';
 
         $pug = new Pug([
-            'singleQuote' => true,
             'prettyprint' => true,
         ]);
         $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $pug->render($template)))));
-        $expected = str_replace("\r", '', '<div id=\'Second\' class=\'centered\'>
-<h1 class=\'foo\'>Section 1</h1>
+        $expected = str_replace("\r", '', '<div class="centered" id="Second">
+<h1 class="foo">Section 1</h1>
 <p>Some important content.</p>
 </div>');
 
         $this->assertSame($expected, $actual, 'Pretty print enabled');
 
         $pug = new Pug([
-            'singleQuote' => true,
             'prettyprint' => false,
         ]);
         $actual = preg_replace('`[ \t]+`', ' ', $pug->render($template));
-        $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
+        $expected =  '<div class="centered" id="Second"><h1 class="foo">Section 1</h1><p>Some important content.</p></div>';
 
         $this->assertSame($expected, $actual, 'Pretty print disabled');
     }
@@ -107,26 +105,25 @@ mixin centered(title)
 ';
 
         $pug = new Pug([
-            'singleQuote' => true,
             'prettyprint' => false,
         ]);
         $this->assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
         $pug->setOption('prettyprint', true);
         $this->assertTrue($pug->getOption('prettyprint'), 'getOption should return current setting');
         $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $pug->render($template)))));
-        $expected = str_replace("\r", '', '<div id=\'Second\' class=\'centered\'>
-<h1 class=\'foo\'>Section 1</h1>
+        $expected = str_replace("\r", '', '<div class="centered" id="Second">
+<h1 class="foo">Section 1</h1>
 <p>Some important content.</p>
 </div>');
 
-        $this->assertSame($actual, $expected, 'Pretty print enabled');
+        $this->assertSame($expected, $actual, 'Pretty print enabled');
 
         $pug->setOption('prettyprint', false);
         $this->assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
         $actual = preg_replace('`[ \t]+`', ' ', $pug->render($template));
-        $expected =  '<div id=\'Second\' class=\'centered\'><h1 class=\'foo\'>Section 1</h1><p>Some important content.</p></div>';
+        $expected =  '<div class="centered" id="Second"><h1 class="foo">Section 1</h1><p>Some important content.</p></div>';
 
-        $this->assertSame($actual, $expected, 'Pretty print disabled');
+        $this->assertSame($expected, $actual, 'Pretty print disabled');
     }
 
     /**
@@ -204,43 +201,6 @@ mixin foo()
     }
 
     /**
-     * allowMixinOverride setting test
-     */
-    public function testRestrictedScope()
-    {
-        $template = '
-mixin foo()
-  if isset($bar)
-    h1=bar
-  else
-    h1 Not found
-  block
-
-- bar="Hello"
-
-+foo
-  if isset($bar)
-    h2=bar
-  else
-    h2 Not found
-';
-
-        $pug = new Pug(array(
-            'restrictedScope' => true,
-        ));
-        $actual = $pug->render($template);
-        $expected = '<h1>Not found</h1><h2>Not found</h2>';
-
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Restricted scope enabled');
-
-        $pug->setOption('restrictedScope', false);
-        $actual = $pug->render($template);
-        $expected = '<h1>Hello</h1><h2>Hello</h2>';
-
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Restricted scope disabled');
-    }
-
-    /**
      * allowMixinOverride setting test with dynamic mixin name
      */
     public function testOverrideDynamicMixin()
@@ -279,6 +239,7 @@ mixin foo()
             'patterns' => [
                 'attribute_pattern'         => " %s='%s'",
                 'boolean_attribute_pattern' => " %s='%s'",
+                'html_expression_escape'    => 'htmlspecialchars(%s, ENT_QUOTES)',
             ],
         ));
         $actual = $pug->render($template);
@@ -292,7 +253,11 @@ mixin foo()
         $file = __DIR__ . '/../templates/object-to-css';
         $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on interpolation');
+        $this->assertSame(
+            str_replace("\n", '', static::simpleHtml(file_get_contents($file . '.single-quote.html'))),
+            str_replace("\n", '', static::simpleHtml($pug->renderFile($file . '.pug'))),
+            'Single quote enabled on interpolation'
+        );
 
         $pug = new Pug(array(
             'prettyprint' => true,
@@ -312,7 +277,11 @@ mixin foo()
         $file = __DIR__ . '/../templates/object-to-css';
         $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on interpolation');
+        $this->assertSame(
+            str_replace("\n", '', static::simpleHtml(static::simpleHtml(file_get_contents($file . '.html')))),
+            str_replace("\n", '', static::simpleHtml($pug->renderFile($file . '.pug'))),
+            'Single quote disabled on interpolation'
+        );
     }
 
     /**
@@ -335,7 +304,7 @@ mixin foo()
     }
 
     /**
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\LexerException
      * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledTabSpaces()
@@ -348,7 +317,7 @@ mixin foo()
     }
 
     /**
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\LexerException
      * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTab()
@@ -361,7 +330,7 @@ mixin foo()
     }
 
     /**
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\LexerException
      * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTabAfterSpaces()
@@ -374,7 +343,7 @@ mixin foo()
     }
 
     /**
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\LexerException
      * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesAfterTab()
@@ -387,7 +356,7 @@ mixin foo()
     }
 
     /**
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\LexerException
      * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
      */
     public function testAllowMixedIndentDisabledSpacesTabTextAfterTab()
@@ -396,38 +365,19 @@ mixin foo()
             'allowMixedIndent' => false,
         ));
 
-        $pug->render('p' . "\n\t\t" . 'i Hi' . "\np\n    \t" . 'i Hi');
+        $pug->render('p' . "\n\t    " . 'i Hi' . "\np\n    \t" . 'i Hi');
     }
 
     /**
      * notFound option replace the static variable includeNotFound.
      *
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\CompilerException
      * @expectedExceptionMessage Source file does-not-exists not found
      */
     public function testIncludeNotFoundDisabledViaOption()
     {
         $pug = new Pug();
         $pug->render('include does-not-exists');
-    }
-
-    /**
-     * includeNotFound return an error included in content if a file miss.
-     */
-    public function testIncludeNotFoundEnabledViaStatic()
-    {
-        $pug = new Pug();
-        $this->assertTrue(!empty(\Pug\Parser::$includeNotFound), 'includeNotFound should be set by default.');
-
-        $actual = $pug->render('include does-not-exists');
-        $notFound = $pug->render(\Pug\Parser::$includeNotFound);
-        $this->assertSame($actual, $notFound, 'A file not found when included should return default includeNotFound value if touched.');
-
-        $save = \Pug\Parser::$includeNotFound;
-        \Pug\Parser::$includeNotFound = 'h1 Hello';
-        $actual = $pug->render('include does-not-exists');
-        $this->assertSame($actual, '<h1>Hello</h1>', 'A file not found when included should return includeNotFound value if set.');
-        \Pug\Parser::$includeNotFound = $save;
     }
 
     /**
@@ -498,7 +448,7 @@ body
     /**
      * notFound option replace the static variable includeNotFound.
      *
-     * @expectedException \Phug\RendererException
+     * @expectedException \Phug\CompilerException
      * @expectedExceptionMessage Either the "basedir" or "paths" option is required
      */
     public function testNoBaseDir()

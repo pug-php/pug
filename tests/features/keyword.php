@@ -144,7 +144,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
-        $expected = '<user>Bob<img src="bob.png"></user>';
+        $expected = '<user>Bob<img src="bob.png" /></user>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
         $pug->addKeyword('user', function ($args) {

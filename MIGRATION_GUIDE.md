@@ -15,7 +15,61 @@ composer require pug-php/pug:3.*
 Else, go the [releases](https://github.com/pug-php/pug/releases), download
 the release and replace your own copy of pug with the archive content.
 
+## Syntax changes
+
+### Attribute string interpolation
+
+The attribute interpolation has been dropped (to match pugjs 2 specifications),
+but you still can use simple concatenation instead:
+```pug
+a(href="?id=#{feature.foo}")
+```
+Become:
+```pug
+a(href="?id=" + feature.foo)
+```
+**Important** This only concerns string interpolations in attributes, it's still
+valid in texts:
+```pug
+p #{feature.foo}
+```
+
+### Attributes order
+
+Attribute order and merge you get in pug-php 2 could not be the same in
+pug-php 3. Example:
+```pug
+div.d(a="b" class="c")
+```
+Will output:
+
+| in pug-php 2                    | in pug-php 3                    |
+|:-------------------------------:|:-------------------------------:|
+| `<div a="b" class="d c"></div>` | `<div class="d c" a="b"></div>` |
+
 ## New options
+
+### Includes
+
+Now, by default, including a file that does not exist throw a exception.
+We recommend you always include files that cannot be missing and also
+avoid any trick that would include a dynamic path.
+
+However you can still set a default template that will replace missing
+includes:
+
+```php
+$pug = new Pug(['not_found_template' => 'p Coming soon']);
+$pug->render(
+    "h1 Video page\n".
+    "include video.pug\n"
+);
+```
+If `video.pug` does not exists, you will get:
+```html
+<h1>Video page</h1>
+<p>Coming soon</p>
+```
 
 ### Pretty output
 
@@ -43,6 +97,33 @@ $pug = new Pug([
   'patterns' => [
     'attribute_pattern'         => " %s='%s'",
     'boolean_attribute_pattern' => " %s='%s'",
+    'html_expression_escape'    => 'htmlspecialchars(%s, ENT_QUOTES)',
   ],
 ]);
 ```
+Note: Adding ENT_QUOTES is needed to escape `'` inside attributes values.
+
+The `restrictedScope` option no longer exists. Instead, you can scope
+variables with the let keyword:
+```pug
+mixin test
+  p=let foo = 1
+  block
+div
+  p=foo
+  p=let foo = 2
+  +test
+    p=let foo = 3
+  p=foo
+```
+
+## Dropped features
+
+The `cache` option no longer works for string rendering but only for
+file rendering.
+
+## Errors
+
+If you used `try {} catch {}` on pug exceptions, be aware that most
+exceptions code and messages will be different because theyr are now
+handled by our new engine phug.

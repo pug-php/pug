@@ -49,3 +49,85 @@ you will try to include a file that does not exist.
 - Following options no longer exist:
   - `indentChar`, `indentSize`: see `pretty` instead.
   - `phpSingleLine`, `singleQuote`: see `patterns` instead.
+  - `restrictedScope`: now variables from parent scope are always available:
+```pug
+mixin test
+  p=foo
+  block
+div
+  p=foo
+  +test
+    p=foo
+```
+Supposing you pass it as locals: `$pug->render($file, ['foo' => 'bar'])`,
+you will get:
+```html
+<div>
+  <p>bar</p>
+  <p>bar</p>
+  <p>bar</p>
+</div>
+```
+But now you can create scoped variables inside expressions or codes with
+the `let` keyword:
+```pug
+mixin test
+  p=let foo = 1
+  block
+div
+  p=foo
+  p=let foo = 2
+  +test
+    p=let foo = 3
+  p=foo
+```
+to get:
+```html
+<div>
+  <p>bar</p>
+  <p>2</p>
+  <p>1</p>
+  <p>3</p>
+  <p>bar</p>
+</div>
+```
+
+- pugjs 2 dropped attribute string interpolation with the pug syntax, and
+so we dropped it. You can use simple concatenation instead:
+
+The following code in pug-php 2:
+```pug
+a(href="?id=#{feature.foo}")
+```
+
+Become this in pug-php 3:
+```pug
+a(href="?id=" + feature.foo)
+```
+
+But text interpolation is still valid and can be escaped or not:
+
+```pug
+- var danger = '<b>Yop</b>'
+p #{danger}
+p !{danger}
+```
+
+Output this in both pug-php 2 and 3:
+
+```html
+<p>&lt;b&gt;Yop&lt;/b&gt;</p>
+<p><b>Yop</b></p>
+```
+
+- attributes order are not guaranteed, for example, the class attribute
+came last in pug-php 2 and first in pug-php 3.
+
+- `cache` option is now only available for files, no longer for strings.
+
+- exceptions and errors have now different types, codes and messages, and
+in debug mode, provide information about the pug source line and offset
+that caused the error.
+
+- Drop `\Pug\Parser::$includeNotFound` and `notFound` option. Now use
+`not_found_template` option instead.

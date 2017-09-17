@@ -13,7 +13,7 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
             },
         ]);
         $html = $pug->render('a#foo.bar(**btn title="Foo") Hello');
-        $expected = '<a id="foo" data-button="on" title="Foo" class="bar btn btn-primary">Hello</a>';
+        $expected = '<a id="foo" class="bar btn btn-primary" data-button="on" title="Foo">Hello</a>';
 
         $this->assertSame($expected, $html);
     }
@@ -55,11 +55,11 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
         $pug = new Pug([
             'debug' => true,
             'postRender' => function ($phpCode) {
-                return str_replace('?>>', '?> data-dynamic="true">', $phpCode);
+                return str_replace('">', '" data-contains-attributes="true">', $phpCode);
             },
         ]);
         $html = $pug->render('a#foo(title=5*3) Hello');
-        $expected = '<a id="foo" title="15" data-dynamic="true">Hello</a>';
+        $expected = '<a id="foo" title="15" data-contains-attributes="true">Hello</a>';
 
         $this->assertSame($expected, $html);
     }

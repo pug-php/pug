@@ -11,7 +11,7 @@ class PugAliasTest extends PHPUnit_Framework_TestCase
     {
         $pug = new Pug();
 
-        $this->assertSame($pug->getOption('stream'), 'pug.stream');
+        $this->assertSame($pug->getDefaultOption('stream'), 'pug.stream');
         $this->assertSame($pug->render('p Hello'), '<p>Hello</p>');
         $this->assertSame($pug->getExtension(), '.pug');
         $this->assertTrue(in_array('.pug', $pug->getExtensions()));

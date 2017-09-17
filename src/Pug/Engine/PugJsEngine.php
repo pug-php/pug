@@ -7,7 +7,7 @@ use NodejsPhpFallback\NodejsPhpFallback;
 /**
  * Class Pug\PugJsEngine.
  */
-class PugJsEngine extends Options
+class PugJsEngine extends Keywords
 {
     /**
      * @var NodejsPhpFallback
@@ -20,7 +20,10 @@ class PugJsEngine extends Options
     public function getNodeEngine()
     {
         if (!$this->nodeEngine) {
-            $this->nodeEngine = new NodejsPhpFallback($this->options['nodePath']);
+            $this->nodeEngine = new NodejsPhpFallback($this->hasOption('node_path')
+                ? $this->getDefaultOption('node_path')
+                : 'node'
+            );
         }
 
         return $this->nodeEngine;
@@ -28,7 +31,7 @@ class PugJsEngine extends Options
 
     protected function getHtml($file, array &$options)
     {
-        if (empty($this->options['cache'])) {
+        if (empty($this->getDefaultOption('cache_dir'))) {
             $html = file_get_contents($file);
             unlink($file);
 
@@ -102,9 +105,9 @@ class PugJsEngine extends Options
             $filename = null;
         }
 
-        $workDirectory = empty($this->options['cache'])
+        $workDirectory = empty($this->getDefaultOption('cache_dir'))
             ? sys_get_temp_dir()
-            : $this->options['cache'];
+            : $this->getOption('cache_dir');
         if ($toDelete = !$filename) {
             $filename = $workDirectory . '/source-' . mt_rand(0, 999999999) . '.pug';
             file_put_contents($filename, $input);
@@ -112,9 +115,9 @@ class PugJsEngine extends Options
 
         $options = [
             'path'           => realpath($filename),
-            'basedir'        => $this->options['basedir'],
-            'localsJsonFile' => $this->options['localsJsonFile'],
-            'pretty'         => $this->options['prettyprint'],
+            'basedir'        => $this->getDefaultOption('basedir'),
+            'localsJsonFile' => $this->getDefaultOption('localsJsonFile'),
+            'pretty'         => $this->getDefaultOption('prettyprint'),
             'out'            => $workDirectory,
         ];
         if (!empty($vars)) {
@@ -151,12 +154,12 @@ class PugJsEngine extends Options
             }
         }
 
-        if (!empty($this->options['cache'])) {
+        if (!empty($this->getDefaultOption('cache_dir'))) {
             $args[] = '--client';
             $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($filename)) . '.js';
             if (file_exists($renderFile) && (
                 ($mTime = filemtime($renderFile)) >= filemtime($filename) ||
-                !$this->options['upToDateCheck']
+                !$this->getDefaultOption('upToDateCheck')
             )) {
                 if (!$input) {
                     $input = file_get_contents($filename);

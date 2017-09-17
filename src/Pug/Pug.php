@@ -5,9 +5,12 @@ namespace Pug;
 use InvalidArgumentException;
 use JsPhpize\JsPhpizePhug;
 use Phug\Compiler\Event\ElementEvent;
+use Phug\Compiler\Event\OutputEvent;
 use Phug\Formatter\Element\AssignmentElement;
 use Phug\Formatter\Element\MarkupElement;
 use Phug\Formatter\Event\NewFormatEvent;
+use Phug\Lexer\Event\LexEvent;
+use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\PugJsEngine;
 use SplObjectStorage;
@@ -43,6 +46,7 @@ class Pug extends PugJsEngine
      * @var array
      */
     protected $optionsAliases = [
+        'cache'            => 'cachedir',
         'prettyprint'      => 'pretty',
         'allowMixedIndent' => 'allow_mixed_indent',
     ];
@@ -55,7 +59,7 @@ class Pug extends PugJsEngine
         $this->addOptionNameHandlers(function ($name) use ($normalize) {
             if (is_string($name) && isset($this->optionsAliases[$name])) {
                 $name = $this->optionsAliases[$name];
-            } else if (is_array($name) && isset($this->optionsAliases[$name[0]])) {
+            } elseif (is_array($name) && isset($this->optionsAliases[$name[0]])) {
                 $name[0] = $this->optionsAliases[$name[0]];
             }
 
@@ -66,15 +70,52 @@ class Pug extends PugJsEngine
                 $options[$to] = $options[$from];
             }
         }
+        if (isset($options['cachedir']) && $options['cachedir']) {
+            $options['adapterclassname'] = FileAdapter::class;
+        }
+        if (isset($options['preRender'])) {
+            $preRender = $options['preRender'];
+            $onLex = isset($options['on_lex']) ? $options['on_lex'] : null;
+            $options['on_lex'] = function (LexEvent $event) use ($onLex, $preRender) {
+                if ($onLex) {
+                    call_user_func($onLex, $event);
+                }
+                $event->setInput(call_user_func($preRender, $event->getInput()));
+            };
+        }
+        if (isset($options['postRender'])) {
+            $postRender = $options['postRender'];
+            $onOutput = isset($options['on_output']) ? $options['on_output'] : null;
+            $options['on_output'] = function (OutputEvent $event) use ($onOutput, $postRender) {
+                if ($onOutput) {
+                    call_user_func($onOutput, $event);
+                }
+                $event->setOutput(call_user_func($postRender, $event->getOutput()));
+            };
+        }
+        if (isset($options['jsLanguage'])) {
+            if (!isset($options['module_options'])) {
+                $options['module_options'] = [];
+            }
+            $options['module_options']['jsphpize'] = $options['jsLanguage'];
+        }
         if (isset($options['classAttribute'])) {
             $classAttribute = $options['classAttribute'];
-            $options['on_element'] = function (ElementEvent $event) {
+            $onElement = isset($options['on_element']) ? $options['on_element'] : null;
+            $options['on_element'] = function (ElementEvent $event) use ($onElement) {
+                if ($onElement) {
+                    call_user_func($onElement, $event);
+                }
                 $element = $event->getElement();
                 if ($element instanceof MarkupElement) {
                     $element->getAssignments()->attach(new AssignmentElement('attributes', new SplObjectStorage(), $element));
                 }
             };
-            $options['on_new_format'] = function (NewFormatEvent $event) use (&$copyFormatter, $classAttribute) {
+            $onNewFormat = isset($options['on_new_format']) ? $options['on_new_format'] : null;
+            $options['on_new_format'] = function (NewFormatEvent $event) use (&$copyFormatter, $classAttribute, $onNewFormat) {
+                if ($onNewFormat) {
+                    call_user_func($onNewFormat, $event);
+                }
                 $copyFormatter = $event->getFormatter();
                 $newFormat = clone $event->getFormat();
                 $newFormat
@@ -118,9 +159,7 @@ class Pug extends PugJsEngine
         if (!$compiler->hasOption('execution_max_time')) {
             $compiler->setOption('execution_max_time', $this->getOption('memory_limit'));
         }
-        if (!$this->hasOption('expressionLanguage') ||
-            strtolower($this->getOption('expressionLanguage')) !== 'php'
-        ) {
+        if (strtolower($this->getDefaultOption('expressionLanguage')) !== 'php') {
             $compiler = $this->getCompiler();
             $compiler->addModule(new JsPhpizePhug($compiler));
         }
@@ -158,8 +197,8 @@ class Pug extends PugJsEngine
     public function requirements($name = null)
     {
         $requirements = [
-            'cacheFolderExists'     => !$this->options['cache'] || is_dir($this->options['cache']),
-            'cacheFolderIsWritable' => !$this->options['cache'] || is_writable($this->options['cache']),
+            'cacheFolderExists'     => !$this->hasOption('cache_dir') || is_dir($this->getOption('cache_dir')),
+            'cacheFolderIsWritable' => !$this->hasOption('cache_dir') || is_writable($this->getOption('cache_dir')),
         ];
 
         if ($name) {
@@ -221,7 +260,7 @@ class Pug extends PugJsEngine
             return $this->renderWithPhp($input, $vars, $filename);
         };
 
-        if ($this->options['pugjs']) {
+        if ($this->getDefaultOption('pugjs')) {
             return $this->renderWithJs($input, null, $vars, $fallback);
         }
 
@@ -244,7 +283,7 @@ class Pug extends PugJsEngine
             return $this->renderFileWithPhp($path, $vars);
         };
 
-        if ($this->options['pugjs']) {
+        if ($this->getDefaultOption('pugjs')) {
             return $this->renderFileWithJs($path, $vars, $fallback);
         }
 

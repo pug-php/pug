@@ -49,7 +49,7 @@ div
         $this->assertFalse($pug->hasFilter('bar'));
         $pug->filter('bar', 'nonexists');
         $this->assertTrue($pug->hasFilter('bar'));
-        $actual = $pug->render('
+        $pug->render('
 div
     p
         :bar
@@ -98,7 +98,7 @@ div
             'debug' => true,
         ]);
         $this->assertFalse($pug->hasFilter('bar-foo'));
-        $actual = $pug->render('
+        $pug->render('
 div
     p
         :bar-foo
