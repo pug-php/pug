@@ -134,6 +134,20 @@ attributes are just always removed like in pugjs.
 The `terse` no longer exists, now attribute format can be set via patterns
 or using the matching doctype.
 
+### Mixin override
+
+The `allowMixinOverride` option no longer exists, but you can get the
+same behavior with `mixin_merge_mode`, see below the option values:
+
+| `mixin_merge_mode` (pug-php 3) | `allowMixinOverride` (pug-php 2) | New declaration of a existing mixin |
+|--------------------------------|----------------------------------|-------------------------------------|
+| `'replace'` (default)          | `true` (default)                 | replace the first one               |
+| `'ignore'`                     | `false`                          | is ignored                          |
+| `'fail'`                       | no equivalent                    | throws an exception                 |
+
+Caution: this behavior is now only valid for mixins declared in the same
+scope (file and block).
+
 ## Dropped features
 
 The `cache` option no longer works for string rendering but only for

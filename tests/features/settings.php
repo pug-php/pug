@@ -182,7 +182,6 @@ mixin foo()
 ';
 
         $pug = new Pug(array(
-            'singleQuote' => false,
             'allowMixinOverride' => true,
         ));
         $actual = $pug->render($template);
@@ -191,7 +190,6 @@ mixin foo()
         $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override enabled');
 
         $pug = new Pug(array(
-            'singleQuote' => false,
             'allowMixinOverride' => false,
         ));
         $actual = $pug->render($template);

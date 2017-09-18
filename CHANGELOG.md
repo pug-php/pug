@@ -144,3 +144,10 @@ or using the matching doctype.
 
 - Variables assignations like `myVar = 'myValue` is no longer supported,
 use raw code instead: `- myVar = 'myValue`
+
+- `allowMixinOverride` option no longer exists, instead you can use
+`'mixin_merge_mode' => 'replace'` (default value and equivalent to
+`'allowMixinOverride' => true`), or `'mixin_merge_mode' => 'ignore'`
+(equivalent to `'allowMixinOverride' => false`), or the new mode
+`'mixin_merge_mode' => 'fail'` to throw an exception if a mixin
+is declared twice.
