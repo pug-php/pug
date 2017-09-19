@@ -4,16 +4,11 @@ namespace Pug;
 
 use InvalidArgumentException;
 use JsPhpize\JsPhpizePhug;
-use Phug\Compiler\Event\ElementEvent;
 use Phug\Compiler\Event\OutputEvent;
-use Phug\Formatter\Element\AssignmentElement;
-use Phug\Formatter\Element\MarkupElement;
-use Phug\Formatter\Event\NewFormatEvent;
 use Phug\Lexer\Event\LexEvent;
 use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\PugJsEngine;
-use SplObjectStorage;
 
 /**
  * Class Pug\Pug.
