@@ -105,53 +105,10 @@ class Pug extends PugJsEngine
             $options['module_options']['jsphpize'] = $options['jsLanguage'];
         }
         if (isset($options['classAttribute'])) {
-            $classAttribute = $options['classAttribute'];
-            $onElement = isset($options['on_element']) ? $options['on_element'] : null;
-            $options['on_element'] = function (ElementEvent $event) use ($onElement) {
-                if ($onElement) {
-                    call_user_func($onElement, $event);
-                }
-                $element = $event->getElement();
-                if ($element instanceof MarkupElement) {
-                    $element->getAssignments()->attach(new AssignmentElement('attributes', new SplObjectStorage(), $element));
-                }
-            };
-            $onNewFormat = isset($options['on_new_format']) ? $options['on_new_format'] : null;
-            $options['on_new_format'] = function (NewFormatEvent $event) use (&$copyFormatter, $classAttribute, $onNewFormat) {
-                if ($onNewFormat) {
-                    call_user_func($onNewFormat, $event);
-                }
-                $copyFormatter = $event->getFormatter();
-                $newFormat = clone $event->getFormat();
-                $newFormat
-                    ->registerHelper('class_attribute_name', $classAttribute)
-                    ->provideHelper('attributes_assignment', [
-                        'merge_attributes',
-                        'class_attribute_name',
-                        'pattern',
-                        'pattern.attribute_pattern',
-                        'pattern.boolean_attribute_pattern',
-                        function ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
-                            return function () use ($mergeAttributes, $classAttribute, $pattern, $attributePattern, $booleanPattern) {
-                                $attributes = call_user_func_array($mergeAttributes, func_get_args());
-                                $code = '';
-                                foreach ($attributes as $name => $value) {
-                                    if ($value) {
-                                        if ($name === 'class') {
-                                            $name = $classAttribute;
-                                        }
-                                        $code .= $value === true
-                                            ? $pattern($booleanPattern, $name, $name)
-                                            : $pattern($attributePattern, $name, $value);
-                                    }
-                                }
-
-                                return $code;
-                            };
-                        },
-                    ]);
-                $event->setFormat($newFormat);
-            };
+            if (!isset($options['attributes_mapping'])) {
+                $options['attributes_mapping'] = [];
+            }
+            $options['attributes_mapping']['class'] = $options['classAttribute'];
         }
 
         parent::__construct($options);
