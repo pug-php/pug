@@ -55,11 +55,11 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
         $pug = new Pug([
             'debug' => true,
             'postRender' => function ($phpCode) {
-                return str_replace('">', '" data-contains-attributes="true">', $phpCode);
+                return str_replace('<a', '<a data-contains-attributes="true"', $phpCode);
             },
         ]);
         $html = $pug->render('a#foo(title=5*3) Hello');
-        $expected = '<a id="foo" title="15" data-contains-attributes="true">Hello</a>';
+        $expected = '<a data-contains-attributes="true" id="foo" title="15">Hello</a>';
 
         $this->assertSame($expected, $html);
     }

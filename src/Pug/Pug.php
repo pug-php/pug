@@ -73,6 +73,11 @@ class Pug extends PugJsEngine
         if (isset($options['cachedir']) && $options['cachedir']) {
             $options['adapterclassname'] = FileAdapter::class;
         }
+        if (isset($options['allowMixinOverride'])) {
+            $options['mixin_merge_mode'] = $options['allowMixinOverride']
+                ? 'replace'
+                : 'ignore';
+        }
         if (isset($options['preRender'])) {
             $preRender = $options['preRender'];
             $onLex = isset($options['on_lex']) ? $options['on_lex'] : null;
