@@ -2,6 +2,8 @@
 
 use Pug\Pug;
 
+include_once __DIR__.'/../lib/escape.php';
+
 class PugSettingsTest extends PHPUnit_Framework_TestCase
 {
     static private function rawHtml($html, $convertSingleQuote = true)
@@ -238,6 +240,7 @@ mixin foo()
                 'attribute_pattern'         => " %s='%s'",
                 'boolean_attribute_pattern' => " %s='%s'",
                 'html_expression_escape'    => 'htmlspecialchars(%s, ENT_QUOTES)',
+                'html_text_escape'          => '__escape',
             ],
         ));
         $actual = $pug->render($template);
