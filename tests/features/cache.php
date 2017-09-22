@@ -104,7 +104,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         } else {
             mkdir($dir);
         }
-        $test = "$dir/test.pug";
+        $test = "$dir/test".mt_rand(0,9999999).'.pug';
         file_put_contents($test, "header\n  h1#foo Hello World!\nfooter");
         sleep(1);
         $pug = new PugTest(array(
@@ -120,31 +120,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         $pug->renderFile($test);
         $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->emptyDirectory($dir);
-    }
-
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 6
-     */
-    public function testReadOnlyDirectory()
-    {
-        $dir = __DIR__;
-        while (is_writeable($dir)) {
-            $parent = realpath($dir . '/..');
-            if ($parent === $dir) {
-                $dir = 'C:';
-                if (!file_exists($dir) || is_writable($dir)) {
-                    throw new \ErrorException('No read-only directory found to do the test', 6);
-                }
-                break;
-            }
-            $dir = $parent;
-        }
-        $pug = new Pug(array(
-            'singleQuote' => false,
-            'cache' => $dir,
-        ));
-        $pug->cache(__DIR__ . '/../templates/attrs.pug');
+        unlink($test);
     }
 
     private function cacheSystem($keepBaseName)
@@ -154,35 +130,26 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         if (!is_dir($cacheDirectory)) {
             mkdir($cacheDirectory, 0777, true);
         }
-        $file = tempnam(sys_get_temp_dir(), 'Pug-test-');
+        $base = 'Pug';
+        $file = tempnam(sys_get_temp_dir(), $base);
         $pug = new Pug(array(
             'singleQuote' => false,
             'keepBaseName' => $keepBaseName,
             'cache' => $cacheDirectory,
         ));
         copy(__DIR__ . '/../templates/attrs.pug', $file);
-        $name = basename($file);
-        $stream = $pug->cache($file);
+        $pug->renderFile($file);
         $phpFiles = array_values(array_map(function ($file) use ($cacheDirectory) {
             return $cacheDirectory . DIRECTORY_SEPARATOR . $file;
         }, array_filter(scandir($cacheDirectory), function ($file) {
             return substr($file, -4) === '.php';
         })));
-        $start = 'Pug.stream://data;';
-        $this->assertTrue(strpos($stream, $start) === 0, 'Fresh content should be a stream.');
         $this->assertSame(1, count($phpFiles), 'The cached file should now exist.');
         $cachedFile = realpath($phpFiles[0]);
         $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
-        $this->assertSame($stream, $pug->stream($pug->compile($file)), 'Should return the stream of attrs.pug.');
-        $this->assertStringEqualsFile($cachedFile, substr($stream, strlen($start)), 'The cached file should contains the same contents.');
-        touch($file, time() - 3600);
-        $path = $pug->cache($file);
-        $this->assertSame(realpath($path), $cachedFile, 'The cached file should be used instead if untouched.');
-        copy(__DIR__ . '/../templates/mixins.pug', $file);
-        touch($file, time() + 3600);
-        $stream = $pug->cache($file);
-        $this->assertSame($stream, $pug->stream($pug->compile(__DIR__ . '/../templates/mixins.pug')), 'The cached file should be the stream of mixins.pug.');
-        unlink($file);
+        $containsBase = strpos($cachedFile, $base) !== false;
+        $this->assertTrue($containsBase === $keepBaseName, 'The cached file name should contains base name if keepBaseName is true.');
+        unlink($cachedFile);
     }
 
     /**
