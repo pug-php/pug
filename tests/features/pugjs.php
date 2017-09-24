@@ -96,16 +96,12 @@ class PugJsTest extends PHPUnit_Framework_TestCase
      */
     public function testPugJsOptionException()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            throw new \RuntimeException('emulate "is not a valid class name" exception');
-        }
-
         $pug = new Pug([
             'debug' => true,
             'pugjs' => true,
         ]);
 
-        $pug->renderFile('./bar/basic.pug');
+        $pug->render('./\ç@');
     }
 
     public function testIssue147()

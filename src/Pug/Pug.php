@@ -5,6 +5,7 @@ namespace Pug;
 use InvalidArgumentException;
 use JsPhpize\JsPhpizePhug;
 use Phug\Compiler\Event\OutputEvent;
+use Phug\Formatter\Format\HtmlFormat;
 use Phug\Lexer\Event\LexEvent;
 use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
@@ -46,6 +47,7 @@ class Pug extends PugJsEngine
         'expressionLanguage' => 'expressionlanguage',
         'allowMixedIndent'   => 'allow_mixed_indent',
         'keepBaseName'       => 'keep_base_name',
+        'notFound'           => 'not_found_template',
     ];
 
     public function __construct($options = null)
@@ -68,6 +70,15 @@ class Pug extends PugJsEngine
             if (isset($options[$from]) && !isset($options[$to])) {
                 $options[$to] = $options[$from];
             }
+        }
+        if (!isset($options['formats'])) {
+            $options['formats'] = [];
+        }
+        if (!isset($options['formats']['default'])) {
+            $options['formats']['default'] = HtmlFormat::class;
+        }
+        if (!isset($options['formats']['5'])) {
+            $options['formats']['5'] = HtmlFormat::class;
         }
         $options['filters'] = array_merge($this->filters, isset($options['filters']) ? $options['filters'] : []);
         if (isset($options['cachedir']) && $options['cachedir']) {
@@ -125,6 +136,16 @@ class Pug extends PugJsEngine
             $compiler = $this->getCompiler();
             $compiler->addModule(new JsPhpizePhug($compiler));
         }
+    }
+
+    public function setCustomOption($name, $value)
+    {
+        return $this->$this->setOption($name, $value);
+    }
+
+    public function setCustomOptions($options)
+    {
+        return $this->$this->setOptions($options);
     }
 
     public function filter()

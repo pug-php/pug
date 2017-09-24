@@ -151,3 +151,7 @@ use raw code instead: `- myVar = 'myValue`
 (equivalent to `'allowMixinOverride' => false`), or the new mode
 `'mixin_merge_mode' => 'fail'` to throw an exception if a mixin
 is declared twice.
+
+- Methods `setCustomOption` and `setCustomOptions` are deprecated
+since `setOption` and `setOptions` now work with both system and
+custom options.

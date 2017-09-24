@@ -145,30 +145,6 @@ mixin centered(title)
     }
 
     /**
-     * setCustomOption test
-     */
-    public function testSetCustomOption()
-    {
-        $pug = new Pug();
-        $pug->setCustomOption('i-do-not-exists', 'right');
-        $this->assertSame($pug->getOption('i-do-not-exists'), 'right', 'getOption should return custom setting');
-    }
-
-    /**
-     * setOptions test
-     */
-    public function testSetCustomOptions()
-    {
-        $pug = new Pug();
-        $pug->setCustomOptions(array(
-            'prettyprint' => false,
-            'foo' => 'bar',
-        ));
-        $this->assertFalse($pug->getOption('prettyprint'));
-        $this->assertSame($pug->getOption('foo'), 'bar');
-    }
-
-    /**
      * allowMixinOverride setting test
      */
     public function testAllowMixinOverride()
@@ -386,11 +362,6 @@ mixin foo()
      */
     public function testIncludeNotFoundEnabledViaOption()
     {
-        $pug = new Pug();
-        $actual = $pug->render('include does-not-exists');
-        $notFound = $pug->render(\Pug\Parser::$includeNotFound);
-        $this->assertSame($actual, $notFound, 'A file not found when included should return default includeNotFound value if the notFound option is not set.');
-
         $pug = new Pug(array(
             'notFound' => 'p My Not Found Error'
         ));
