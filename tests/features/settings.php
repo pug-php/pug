@@ -21,34 +21,6 @@ class PugSettingsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * keepNullAttributes setting test
-     */
-    public function testKeepNullAttributes()
-    {
-        $pug = new Pug([
-            'singleQuote' => false,
-            'keepNullAttributes' => false,
-            'prettyprint' => true,
-        ]);
-        $templates = dirname(__FILE__) . '/../templates/';
-        $actual = $pug->render(file_get_contents($templates . 'mixin.attrs.pug'));
-        $expected = file_get_contents($templates . 'mixin.attrs.html');
-
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Keep null attributes disabled');
-
-        $pug = new Pug([
-            'singleQuote' => false,
-            'keepNullAttributes' => true,
-            'prettyprint' => true,
-        ]);
-        $templates = dirname(__FILE__) . '/../templates/';
-        $actual = $pug->render(file_get_contents($templates . 'mixin.attrs.pug'));
-        $expected = file_get_contents($templates . 'mixin.attrs-keep-null-attributes.html');
-
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Keep null attributes enabled');
-    }
-
-    /**
      * prettyprint setting test
      */
     public function testPrettyprint()

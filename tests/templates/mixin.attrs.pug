@@ -43,9 +43,9 @@ body
   +field(false)(prefilled=false, title="foo")
   +field(null)(prefilled=null)
   +field(null)
-  +field(0, foo='bar')(prefilled=0, name="bar")
-  +field('', foo='bar', bar=45)(prefilled='', title=null)
+  +field(0, {foo: 'bar'})(prefilled=0, name="bar")
+  +field('', {foo: 'bar', bar: 45})(prefilled='', title=null)
   +field(false, 32)(prefilled=false, title="foo")
-  +field(null, a=false, b=null, c=0)(prefilled=null)
-  +field(null, a=false, b=null, c=0)
+  +field(null, {a: false, b: null, c: 0})(prefilled=null)
+  +field(null, {a: false, b: null, c: 0})
   +classy().g(class=['h', 'i']).f

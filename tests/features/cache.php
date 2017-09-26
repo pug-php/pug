@@ -120,7 +120,9 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         $pug->renderFile($test);
         $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->emptyDirectory($dir);
-        unlink($test);
+        if (file_exists($test)) {
+            unlink($test);
+        }
     }
 
     private function cacheSystem($keepBaseName)
@@ -149,7 +151,9 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
         $containsBase = strpos($cachedFile, $base) !== false;
         $this->assertTrue($containsBase === $keepBaseName, 'The cached file name should contains base name if keepBaseName is true.');
-        unlink($cachedFile);
+        if (file_exists($cachedFile)) {
+            unlink($cachedFile);
+        }
     }
 
     /**
