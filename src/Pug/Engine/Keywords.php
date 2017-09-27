@@ -9,7 +9,7 @@ use Phug\Renderer;
 /**
  * Class Pug\Engine\Keywords.
  */
-abstract class Keywords extends Renderer
+abstract class Keywords extends Filters
 {
     protected function getDefaultOption($name, $defaultValue = null)
     {

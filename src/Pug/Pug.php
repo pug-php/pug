@@ -28,13 +28,7 @@ class Pug extends PugJsEngine
      *
      * @var array
      */
-    protected $filters = [
-        'php'        => 'Pug\Filter\Php',
-        'css'        => 'Pug\Filter\Css',
-        'cdata'      => 'Pug\Filter\Cdata',
-        'escaped'    => 'Pug\Filter\Escaped',
-        'javascript' => 'Pug\Filter\Javascript',
-    ];
+    protected $filters;
 
     /**
      * Built-in filters.
@@ -52,6 +46,34 @@ class Pug extends PugJsEngine
 
     public function __construct($options = null)
     {
+        if (!isset($options['filterAutoLoad']) || $options['filterAutoLoad']) {
+            if (!isset($options['filter_resolvers'])) {
+                $options['filter_resolvers'] = [];
+            }
+
+            $options['filter_resolvers'][] = function ($name) {
+                if (isset($this->filters[$name])) {
+                    return $this->filters[$name];
+                }
+
+                foreach (['Pug', 'Jade'] as $namespace) {
+                    $filter = $namespace . '\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
+
+                    if (class_exists($filter)) {
+                        $this->filters[$name] = method_exists($filter, '__pug3Invoke')
+                            ? [new $filter(), '__pug3Invoke']
+                            : (method_exists($filter, 'parse')
+                                ? [new $filter(), 'parse']
+                                : $filter
+                            );
+
+                        return $this->filters[$name];
+                    }
+
+                    return null;
+                }
+            };
+        }
         $normalize = function ($name) {
             return isset($this->optionsAliases[$name])
                 ? $this->optionsAliases[$name]
@@ -80,7 +102,6 @@ class Pug extends PugJsEngine
         if (!isset($options['formats']['5'])) {
             $options['formats']['5'] = HtmlFormat::class;
         }
-        $options['filters'] = array_merge($this->filters, isset($options['filters']) ? $options['filters'] : []);
         if (isset($options['cachedir']) && $options['cachedir']) {
             $options['adapterclassname'] = FileAdapter::class;
         }
@@ -146,21 +167,6 @@ class Pug extends PugJsEngine
     public function setCustomOptions($options)
     {
         return $this->$this->setOptions($options);
-    }
-
-    public function filter()
-    {
-        throw new \Exception('todo');
-    }
-
-    public function hasFilter()
-    {
-        throw new \Exception('todo');
-    }
-
-    public function getFilter()
-    {
-        throw new \Exception('todo');
     }
 
     /**

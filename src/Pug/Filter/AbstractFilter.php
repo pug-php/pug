@@ -51,4 +51,19 @@ abstract class AbstractFilter implements FilterInterface
 
         return $code;
     }
+
+    public function __pug3Invoke($code, array $options = null)
+    {
+        if (method_exists($this, 'parse')) {
+            $code = $this->parse($code);
+        }
+
+        if (isset($this->tag)) {
+            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
+                $code .
+                '</' . $this->tag . '>';
+        }
+
+        return $code;
+    }
 }

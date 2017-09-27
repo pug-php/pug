@@ -20,4 +20,9 @@ class Javascript extends AbstractFilter
     {
         return '<script type="text/javascript">' . $this->getNodeString($node, $compiler) . '</script>';
     }
+
+    public function parse($code)
+    {
+        return '<script type="text/javascript">' . $code . '</script>';
+    }
 }

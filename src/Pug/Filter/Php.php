@@ -32,4 +32,9 @@ class Php implements FilterInterface
 
         return $data ? $compiler->wrapInPhp($data) : $data;
     }
+
+    public function parse($code)
+    {
+        return "<?php\n$code\n?>";
+    }
 }

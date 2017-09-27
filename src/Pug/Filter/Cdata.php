@@ -11,4 +11,9 @@ class Cdata extends AbstractFilter
     {
         return "<![CDATA[\n" . $this->getNodeString($node, $compiler) . "\n]]>";
     }
+
+    public function parse($code)
+    {
+        return "<![CDATA[\n$code\n]]>";
+    }
 }

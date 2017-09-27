@@ -5,7 +5,7 @@ namespace Pug\Engine;
 /**
  * Class Pug\Engine\Options.
  */
-class Options extends Keywords
+abstract class Options extends Keywords
 {
     /**
      * @var array

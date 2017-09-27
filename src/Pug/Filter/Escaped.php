@@ -11,4 +11,9 @@ class Escaped extends AbstractFilter
     {
         return htmlentities($this->getNodeString($node, $compiler));
     }
+
+    public function parse($code)
+    {
+        return htmlentities($code);
+    }
 }
