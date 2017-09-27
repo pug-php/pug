@@ -43,8 +43,6 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
     public function testVariablesHandle()
     {
-        $a = null;
-        $a['name'] = 'foo';
         $pug = new Pug([
             'singleQuote' => false,
             'default_format' => \Phug\Formatter\Format\HtmlFormat::class,

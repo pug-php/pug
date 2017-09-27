@@ -120,16 +120,53 @@ class Pug extends PugJsEngine
                 $event->setInput(call_user_func($preRender, $event->getInput()));
             };
         }
-        if (isset($options['postRender'])) {
-            $postRender = $options['postRender'];
-            $onOutput = isset($options['on_output']) ? $options['on_output'] : null;
-            $options['on_output'] = function (OutputEvent $event) use ($onOutput, $postRender) {
-                if ($onOutput) {
-                    call_user_func($onOutput, $event);
+        $postRender = isset($options['postRender']) ? $options['postRender'] : null;
+        $onOutput = isset($options['on_output']) ? $options['on_output'] : null;
+        $options['on_output'] = function (OutputEvent $event) use ($onOutput, $postRender) {
+            if ($onOutput) {
+                call_user_func($onOutput, $event);
+            }
+            $output = $event->getOutput();
+            if (stripos($output, 'namespace') !== false) {
+                $namespace = null;
+                $tokens = array_slice(token_get_all('?>' . $output), 1);
+                $afterNamespace = false;
+                $start = 0;
+                $end = 0;
+                foreach ($tokens as $token) {
+                    if (is_string($token)) {
+                        $length = mb_strlen($token);
+                        if (!$afterNamespace) {
+                            $start += $length;
+                        }
+                        $end += $length;
+
+                        continue;
+                    }
+                    if ($token[0] === T_NAMESPACE) {
+                        $afterNamespace = true;
+                    }
+                    $length = mb_strlen($token[1]);
+                    if (!$afterNamespace) {
+                        $start += $length;
+                    }
+                    $end += $length;
+                    if ($afterNamespace && $token[0] === T_STRING) {
+                        $namespace = $token[1];
+                        break;
+                    }
                 }
-                $event->setOutput(call_user_func($postRender, $event->getOutput()));
-            };
-        }
+                if ($namespace) {
+                    $output = "<?php\n\nnamespace $namespace;\n\n?>" .
+                        mb_substr($output, 0, $start) .
+                        ltrim(mb_substr($output, $end), ' ;');
+                }
+            }
+            if ($postRender) {
+                $output = call_user_func($postRender, $output);
+            }
+            $event->setOutput($output);
+        };
         if (isset($options['jsLanguage'])) {
             if (!isset($options['module_options'])) {
                 $options['module_options'] = [];

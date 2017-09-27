@@ -96,7 +96,7 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
         $pug->filter('throw-exception', function () {
             throw new EmulateBugException("Bad filter", 1);
         });
-        $pug->render(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
+        $pug->renderFile(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
     }
 
     /**
