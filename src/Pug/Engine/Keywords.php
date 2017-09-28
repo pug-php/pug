@@ -4,7 +4,6 @@ namespace Pug\Engine;
 
 use ArrayAccess;
 use InvalidArgumentException;
-use Phug\Renderer;
 
 /**
  * Class Pug\Engine\Keywords.

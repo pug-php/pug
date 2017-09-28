@@ -70,7 +70,7 @@ class Pug extends PugJsEngine
                         return $this->filters[$name];
                     }
 
-                    return null;
+                    return;
                 }
             };
         }

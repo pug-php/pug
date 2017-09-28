@@ -2,8 +2,6 @@
 
 namespace Pug\Engine;
 
-use ArrayAccess;
-use InvalidArgumentException;
 use Phug\Renderer;
 
 /**
@@ -23,6 +21,7 @@ abstract class Filters extends Renderer
     {
         return $this->getCompiler()->setFilter($name, $filter);
     }
+
     /**
      * Check if a filter is registered.
      *
@@ -34,6 +33,7 @@ abstract class Filters extends Renderer
     {
         return $this->getCompiler()->hasFilter($name);
     }
+
     /**
      * Get a registered filter by name.
      *
