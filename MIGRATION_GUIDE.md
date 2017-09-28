@@ -5,6 +5,9 @@ working with pug-php 3.
 
 ## Update the dependency
 
+First if you use a PHP version lower than 5.5, you will need to upgrade it.
+We recommend you PHP 7.1.
+ 
 Supposing you manage your project dependencies with
 [composer](https://getcomposer.org/)
 (this really is the recommended way), you should run the following command:
@@ -158,3 +161,37 @@ file rendering.
 If you used `try {} catch {}` on pug exceptions, be aware that most
 exceptions code and messages will be different because theyr are now
 handled by our new engine phug.
+
+## Filters
+
+You can now longer insert raw texts in filter contents, and your custom
+filters may no longer work since now filters receive 2 params: contents
+as a string matching the raw input contents given to your filter and
+options. Example:
+
+```php
+$pug = new Pug([
+  'filters' => [
+    'foo' => function ($contents, array $options) {
+      return json_encode($options)."\n".$contents;
+    },
+  ],
+]);
+
+$pug->render(
+  ":foo(a=1 b="2")\n".
+  "  bar"
+);
+```
+This will output:
+```html
+{"a":1,"b":"2"}
+bar
+```
+
+## Custom keywords
+
+The second argument received by your custom keyword functions is now a
+`KeywordElement` instance. We added some backward-compatible API to
+make it close the the node instance you get before but some complex
+keywords functions may need to be refactored.

@@ -224,6 +224,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group i
      * @group keywords
      */
     public function testKeyWordArguments()

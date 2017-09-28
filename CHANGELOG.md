@@ -1,5 +1,8 @@
 # 3.0.0
 
+- Drop PHP 5.3 and 5.4 support, pug-php require at least PHP 5.5 and
+support every version until PHP 7.2 (including HHVM 3).
+
 - Support complex JS expression everywhere thanks to
 [js-phpize](https://github.com/pug-php/js-phpize) now used by default,
 example:
