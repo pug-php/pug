@@ -58,8 +58,8 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
     /**
      * @group keywords
-     * @expectedException \ErrorException
-     * @expectedExceptionCode 34
+     * @expectedException \Phug\FormatterException
+     * @expectedExceptionMessage The keyword foo returned an invalid value type
      */
     public function testBadReturn()
     {
@@ -68,28 +68,6 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             return 32;
         });
         $pug->render('foo');
-    }
-
-    /**
-     * @group keywords
-     */
-    public function testBadReturnPreviousException()
-    {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('Not compatible with HHVM');
-        }
-
-        try {
-            $pug = new Pug();
-            $pug->addKeyword('foo', function () {
-                return 32;
-            });
-            $pug->render('foo');
-        } catch (\Exception $e) {
-            $code = $e->getPrevious()->getCode();
-        }
-
-        $this->assertSame(33, $code, 'Expected previous exception code should be 8 for BadReturn.');
     }
 
     /**
@@ -113,35 +91,36 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         $pug = new Pug([
             'debug' => true,
             'prettyprint' => false,
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
 
-        $actual = trim($pug->render('#{"for"};;'));
-        $expected = '<for>;;</for>';
+        $actual = trim($pug->render('#{"xfor"};;'));
+        $expected = '<xfor>;;</xfor>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
-        $pug->addKeyword('for', function ($args) {
+        $pug->addKeyword('xfor', function ($args) {
             return array(
                 'beginPhp' => 'for (' . $args . ') {',
                 'endPhp' => '}',
             );
         });
         $actual = trim($pug->render(
-            'for $i = 0; $i < 3; $i++' . "\n" .
+            'xfor $i = 0; $i < 3; $i++' . "\n" .
             '  p= i'
         ));
         $expected = '<p>0</p><p>1</p><p>2</p>';
         $this->assertSame($expected, $actual, 'addKeyword should allow to customize available keywords.');
-        $pug->replaceKeyword('for', new ForKeyword());
+        $pug->replaceKeyword('xfor', new ForKeyword());
         $actual = trim($pug->render(
-            'for $i = 0; $i < 3; $i++' . "\n" .
+            'xfor $i = 0; $i < 3; $i++' . "\n" .
             '  p'
         ));
         $expected = '$i = 0; $i < 3; $i++<p></p>';
         $this->assertSame($expected, $actual, 'The keyword action can be an callable class.');
 
-        $pug->removeKeyword('for');
-        $actual = trim($pug->render('for ;;'));
-        $expected = '<for>;;</for>';
+        $pug->removeKeyword('xfor');
+        $actual = trim($pug->render('xfor ;;'));
+        $expected = '<xfor>;;</xfor>';
         $this->assertSame($expected, $actual, 'After removing keyword, a word render as a tag.');
     }
 
@@ -154,13 +133,14 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
 
         $actual = trim($pug->render(
             "user Bob\n" .
             '  img(src="bob.png")'
         ));
-        $expected = '<user>Bob<img src="bob.png" /></user>';
+        $expected = '<user>Bob<img src="bob.png"></user>';
         $this->assertSame($expected, $actual, 'Before adding keyword, a word render as a tag.');
 
         $pug->addKeyword('user', function ($args) {
@@ -186,6 +166,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
 
         $pug->setKeyword('foo', function ($args) {
@@ -224,7 +205,6 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @group i
      * @group keywords
      */
     public function testKeyWordArguments()
@@ -233,6 +213,7 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
             'debug' => true,
             'singleQuote' => false,
             'prettyprint' => false,
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
 
         $foo = function ($args, $block, $keyWord) {
@@ -250,13 +231,16 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
         $pug->setKeyword('minify', function ($args, $block) {
             $names = array();
+            $nodes = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
                     $href = $tag->getAttribute('href');
-                    $names[] = substr($href['value'], 1, -5);
-                    unset($block->nodes[$index]);
+                    $names[] = substr($href->getValue(), 0, -4);
+                    continue;
                 }
+                $nodes[] = $tag;
             }
+            $block->nodes = $nodes;
 
             return '<link href="' . implode('-', $names) . '.min.css">';
         });
@@ -270,11 +254,14 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
 
         $pug->setKeyword('concat-to', function ($args, $block) {
             $names = array();
+            $nodes = array();
             foreach ($block->nodes as $index => $tag) {
                 if ($tag->name === 'link') {
-                    unset($block->nodes[$index]);
+                    continue;
                 }
+                $nodes[] = $tag;
             }
+            $block->nodes = $nodes;
 
             return '<link href="' . $args . '">';
         });

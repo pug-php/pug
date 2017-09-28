@@ -17,13 +17,13 @@ abstract class Keywords extends Filters
 
     protected function hasKeyword($keyword)
     {
-        return $this->hasValidCustomKeywordsOption() && $this->getDefaultOption(['custom_keywords', $keyword]);
+        return $this->hasValidCustomKeywordsOption() && $this->getDefaultOption(['keywords', $keyword]);
     }
 
     protected function hasValidCustomKeywordsOption()
     {
-        return is_array($this->getDefaultOption('custom_keywords')) ||
-            $this->getDefaultOption('custom_keywords') instanceof ArrayAccess;
+        return is_array($this->getDefaultOption('keywords')) ||
+            $this->getDefaultOption('keywords') instanceof ArrayAccess;
     }
 
     /**
@@ -39,10 +39,10 @@ abstract class Keywords extends Filters
         }
 
         if (!$this->hasValidCustomKeywordsOption()) {
-            $this->setOption('custom_keywords', []);
+            $this->setOption('keywords', []);
         }
 
-        $this->setOption(['custom_keywords', $keyword], $action);
+        $this->setOption(['keywords', $keyword], $action);
     }
 
     /**
@@ -83,7 +83,7 @@ abstract class Keywords extends Filters
     public function removeKeyword($keyword)
     {
         if ($this->hasKeyword($keyword)) {
-            $this->unsetOption(['custom_keywords', $keyword]);
+            $this->unsetOption(['keywords', $keyword]);
         }
     }
 }

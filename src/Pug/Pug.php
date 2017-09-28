@@ -42,6 +42,7 @@ class Pug extends PugJsEngine
         'allowMixedIndent'   => 'allow_mixed_indent',
         'keepBaseName'       => 'keep_base_name',
         'notFound'           => 'not_found_template',
+        'customKeywords'     => 'keywords',
     ];
 
     public function __construct($options = null)
