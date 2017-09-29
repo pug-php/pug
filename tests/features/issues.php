@@ -127,7 +127,7 @@ p(
 
     public function testIssue92()
     {
-        $pug = new Pug();
+        $pug = new Pug(['debug' => false]);
         $actual = trim($pug->render('
 mixin simple-paragraph(str)
     p=str
@@ -137,13 +137,13 @@ mixin simple-paragraph(str)
 
         $this->assertSame($expected, $actual);
 
-        $actual = trim($pug->render('
+        $actual = trim($pug->compile('
 mixin simple-paragraph(str)
     p=str
 +simple-paragraph(strtoupper(substr("foo
 ---\'(bar
-", 0, 3)) . \'\\""\' . (substr(\'")5\', 1)))
-+simple-paragraph(strtoupper(\'b\') . "foo")
+", 0, 3)) + \'\\""\' + (substr(\'")5\', 1)))
++simple-paragraph(strtoupper(\'b\') + "foo")
 '));
         $expected = '<p>FOO\\&quot;&quot;)5</p><p>Bfoo</p>';
 
@@ -316,7 +316,8 @@ if $entryopen and !$submitted
             '      cube:   (x) -> x * square x',
         ));
         $expected = implode("\n", array(
-            '<body># Assignment:',
+            '<body>',
+            '# Assignment:',
             'number   = 42',
             'opposite = true',
             '',
@@ -333,10 +334,15 @@ if $entryopen and !$submitted
             'math =',
             '  root:   Math.sqrt',
             '  square: square',
-            '  cube:   (x) -> x * square x',
-            '</body>',
+            '  cube:   (x) -> x * square x</body>',
         ));
-        $pug = new Pug();
+        $pug = new Pug([
+            'filters' => [
+                'verbatim' => function ($string) {
+                    return $string;
+                },
+            ],
+        ]);
 
         $actual = $pug->render($input);
         $this->assertSame($expected, $actual);

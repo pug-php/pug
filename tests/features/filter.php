@@ -39,7 +39,7 @@ div
     /**
      * @group filters
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 18
+     * @expectedExceptionMessage Invalid bar filter given
      */
     public function testNonCallableFilter()
     {
@@ -48,14 +48,6 @@ div
         ]);
         $this->assertFalse($pug->hasFilter('bar'));
         $pug->filter('bar', 'nonexists');
-        $this->assertTrue($pug->hasFilter('bar'));
-        $pug->render('
-div
-    p
-        :bar
-            article <span>foo</span> bar <img title="foo" />
-            <div>section</div>
-');
     }
 
     /**

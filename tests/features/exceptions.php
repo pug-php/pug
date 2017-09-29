@@ -77,16 +77,6 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 2
-     */
-    public function testGetInvalidOption()
-    {
-        $pug = new Pug();
-        $pug->getOption('i-do-not-exists');
-    }
-
-    /**
      * @group filters
      * @expectedException EmulateBugException
      */
