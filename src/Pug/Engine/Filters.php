@@ -26,7 +26,7 @@ abstract class Filters extends Renderer
             method_exists($filter, 'parse')
         )) {
             throw new InvalidArgumentException(
-                'Invalid '.$name.' filter given: '.
+                'Invalid ' . $name . ' filter given: ' .
                 'it must be a callable or a class name.'
             );
         }
