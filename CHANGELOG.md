@@ -158,3 +158,5 @@ is declared twice.
 - Methods `setCustomOption` and `setCustomOptions` are deprecated
 since `setOption` and `setOptions` now work with both system and
 custom options.
+
+- Syntax `if condition:` has been dropped.

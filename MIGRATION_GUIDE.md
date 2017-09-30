@@ -61,6 +61,10 @@ Will output:
 |:-------------------------------:|:-------------------------------:|
 | `<div a="b" class="d c"></div>` | `<div class="d c" a="b"></div>` |
 
+### Dropped syntax
+
+`if condition:` no longer exists, just use `if condition`
+
 ## New options
 
 ### Includes
@@ -164,10 +168,10 @@ handled by our new engine phug.
 
 ## Filters
 
-You can now longer insert raw texts in filter contents, and your custom
-filters may no longer work since now filters receive 2 params: contents
-as a string matching the raw input contents given to your filter and
-options. Example:
+You can now longer insert raw texts or interpolations in filter contents,
+and your custom filters may no longer work since now filters receive 2
+params: contents as a string matching the raw input contents given to
+your filter and options. Example:
 
 ```php
 $pug = new Pug([

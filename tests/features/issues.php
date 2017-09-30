@@ -104,7 +104,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
     public function testIssue90()
     {
         $pug = new Pug(array(
-            'expressionLanguage' => 'php',
+            'expressionLanguage' => 'js',
         ));
         $actual = str_replace("\n", '', trim($pug->render('p= \'$test\'
 p= "$test"
@@ -120,7 +120,29 @@ p(
 ) test', array(
             'test' => 'foo',
         ))));
-        $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="$test" data-c="foo" data-d="foo">test</p>';
+        $expected = '<p>$test</p><p>$test</p><p>#{$test}</p><p>#{$test}</p><p>foo</p><p data-a="$test" data-b="$test" data-c="#{$test}" data-d="#{$test}">test</p>';
+
+        $this->assertSame($expected, $actual);
+
+        $pug = new Pug(array(
+            'expressionLanguage' => 'php',
+        ));
+        $actual = str_replace("\n", '', trim($pug->render('p= \'$test\'
+p= "$test"
+p= \'#{$test}\'
+p= "#{$test}"
+p #{$test}
+
+p(
+    data-a=\'$test\'
+    data-b="$test"
+    data-c=\'#{$test}\'
+    data-d="#{$test}"
+    data-e="#${test}"
+) test', array(
+            'test' => 'foo',
+        ))));
+        $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="foo" data-c="#{$test}" data-d="#foo" data-e="#foo">test</p>';
 
         $this->assertSame($expected, $actual);
     }
@@ -137,7 +159,7 @@ mixin simple-paragraph(str)
 
         $this->assertSame($expected, $actual);
 
-        $actual = trim($pug->compile('
+        $actual = trim($pug->render('
 mixin simple-paragraph(str)
     p=str
 +simple-paragraph(strtoupper(substr("foo
