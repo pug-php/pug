@@ -9,8 +9,8 @@ use Phug\Formatter\Format\HtmlFormat;
 use Phug\Lexer\Event\LexEvent;
 use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
-use Phug\Test\XmlHhvmFormat;
 use Pug\Engine\PugJsEngine;
+use Pug\Format\XmlHhvmFormat;
 
 /**
  * Class Pug\Pug.
