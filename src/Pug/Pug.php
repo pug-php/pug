@@ -9,6 +9,7 @@ use Phug\Formatter\Format\HtmlFormat;
 use Phug\Lexer\Event\LexEvent;
 use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
+use Phug\Test\XmlHhvmFormat;
 use Pug\Engine\PugJsEngine;
 
 /**
@@ -103,6 +104,11 @@ class Pug extends PugJsEngine
         if (!isset($options['formats']['5'])) {
             $options['formats']['5'] = HtmlFormat::class;
         }
+        // @codeCoverageIgnoreStart
+        if (!isset($options['formats']['xml']) && defined('HHVM_VERSION')) {
+            $options['formats']['xml'] = XmlHhvmFormat::class;
+        }
+        // @codeCoverageIgnoreEnd
         if (isset($options['cachedir']) && $options['cachedir']) {
             $options['adapterclassname'] = FileAdapter::class;
         }
