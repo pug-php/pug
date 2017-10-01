@@ -30,6 +30,17 @@ abstract class AbstractFilter implements FilterInterface
         });
     }
 
+    public function wrapInTag($code)
+    {
+        if (isset($this->tag)) {
+            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
+                $code .
+                '</' . $this->tag . '>';
+        }
+
+        return $code;
+    }
+
     public function __invoke(Filter $node, Compiler $compiler)
     {
         $nodes = $node->block->nodes;
@@ -43,13 +54,7 @@ abstract class AbstractFilter implements FilterInterface
             $code = $this->parse($code);
         }
 
-        if (isset($this->tag)) {
-            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
-                $code .
-                '</' . $this->tag . '>';
-        }
-
-        return $code;
+        return $this->wrapInTag($code);
     }
 
     public function __pug3Invoke($code, array $options = null)
@@ -58,12 +63,6 @@ abstract class AbstractFilter implements FilterInterface
             $code = $this->parse($code);
         }
 
-        if (isset($this->tag)) {
-            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
-                $code .
-                '</' . $this->tag . '>';
-        }
-
-        return $code;
+        return $this->wrapInTag($code);
     }
 }
