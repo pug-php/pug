@@ -1,6 +1,7 @@
 <?php
 
 namespace Pug\Engine;
+
 use JsPhpize\JsPhpizePhug;
 use Phug\Compiler\Event\OutputEvent;
 use Phug\Formatter\Format\HtmlFormat;
@@ -58,8 +59,8 @@ abstract class Options extends PugJsEngine
                     $filter = $namespace . '\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
 
                     if (class_exists($filter)) {
-                        $this->filters[$name] = method_exists($filter, '__pug3Invoke')
-                            ? [new $filter(), '__pug3Invoke']
+                        $this->filters[$name] = method_exists($filter, '__pugInvoke')
+                            ? [new $filter(), '__pugInvoke']
                             : (method_exists($filter, 'parse')
                                 ? [new $filter(), 'parse']
                                 : $filter

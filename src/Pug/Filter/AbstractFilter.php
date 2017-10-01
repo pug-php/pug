@@ -11,23 +11,11 @@ use Pug\Nodes\Filter;
 abstract class AbstractFilter implements FilterInterface
 {
     /**
-     * Returns the node string value, line by line.
-     * If the compiler is present, that means we need
-     * to interpolate line contents.
-     *
-     * @param Filter   $node
-     * @param Compiler $compiler
-     *
-     * @return mixed
+     * @obsolete
      */
-    protected function getNodeString(Filter $node, Compiler $compiler = null)
+    protected function getNodeString()
     {
-        return array_reduce($node->block->nodes, function ($result, $line) use ($compiler) {
-            return $result . ($compiler
-                    ? $compiler->interpolate($line->value)
-                    : $line->value
-                ) . "\n";
-        });
+        throw new \RuntimeException('->getNodeString is no longer supported since you get now contents as a string.');
     }
 
     public function wrapInTag($code)
@@ -43,24 +31,13 @@ abstract class AbstractFilter implements FilterInterface
 
     public function __invoke(Filter $node, Compiler $compiler)
     {
-        $nodes = $node->block->nodes;
-        $indent = strlen($nodes[0]->value) - strlen(ltrim($nodes[0]->value));
-        $code = '';
-        foreach ($nodes as $line) {
-            $code .= substr($compiler->interpolate($line->value), $indent) . "\n";
-        }
-
-        if (method_exists($this, 'parse')) {
-            $code = $this->parse($code);
-        }
-
-        return $this->wrapInTag($code);
+        throw new \RuntimeException('Pug\Filter\FilterInterface is no longer supported. Now use Pug\FilterInterface instead.');
     }
 
-    public function __pug3Invoke($code, array $options = null)
+    public function __pugInvoke($code, array $options = null)
     {
         if (method_exists($this, 'parse')) {
-            $code = $this->parse($code);
+            $code = $this->parse($code, $options);
         }
 
         return $this->wrapInTag($code);

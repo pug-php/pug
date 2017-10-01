@@ -3,14 +3,8 @@
 namespace Pug;
 
 use InvalidArgumentException;
-use JsPhpize\JsPhpizePhug;
-use Phug\Compiler\Event\OutputEvent;
-use Phug\Formatter\Format\HtmlFormat;
-use Phug\Lexer\Event\LexEvent;
-use Phug\Renderer\Adapter\FileAdapter;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\Options;
-use Pug\Format\XmlHhvmFormat;
 
 /**
  * Class Pug\Pug.
