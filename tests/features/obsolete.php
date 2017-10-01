@@ -5,7 +5,7 @@ class JadeFilter extends \Jade\Filter\AbstractFilter
     // Obsolete
 }
 
-class PugExceptionsTest extends PHPUnit_Framework_TestCase
+class PugObsoleteTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @expectedException \InvalidArgumentException
@@ -50,5 +50,15 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     public function testJadeFilter()
     {
         new JadeFilter();
+    }
+
+    /**
+     * @expectedException \ErrorException
+     * @expectedExceptionMessage ->stream() is no longer available
+     */
+    public function testStream()
+    {
+        $pug = new \Pug\Pug();
+        $pug->stream();
     }
 }

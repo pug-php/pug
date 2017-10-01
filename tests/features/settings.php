@@ -507,4 +507,19 @@ body
         $expected = '<div className="foo bar" a="b">Hello</div>';
         $this->assertSame($expected, $actual);
     }
+
+    public function testCustomOptions()
+    {
+        $pug = new Pug();
+        $copy = $pug
+            ->setCustomOptions([
+                'foo' => 'bar',
+                'bar' => 'baz',
+            ])
+            ->setCustomOption('biz', 'foz');
+        $this->assertSame($copy, $pug);
+        $this->assertSame('bar', $pug->getOption('foo'));
+        $this->assertSame('baz', $pug->getOption('bar'));
+        $this->assertSame('foz', $pug->getOption('biz'));
+    }
 }
