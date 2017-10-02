@@ -9,7 +9,7 @@ We worked hard to provide this pug port. And we get any profit of it. That's why
 Please report any security issue or risk by emailing pug@selfbuild.fr. Please don't disclose security bugs publicly until they have been handled by us.
 
 For any other bug or issue, please click this link and follow the template if applicable:
-[Create new issue](https://github.com/pug-php/pug/issues/new?body=Hello%2C%0A%0AI%20encountered%20an%20issue%20with%20the%20following%20code%3A%0A%60%60%60pug%0Ap%20Some%20example%0A%60%60%60%0A%0AI%20expected%20to%20get%3A%0A%60%60%60html%0A%3Cp%3ESome%20example%3C%2Fp%3E%0A%60%60%60%0A%0ABut%20I%20actually%20get%3A%0A%60%60%60html%0A%3Cp%3ESomething%20else%3C%2Fp%3E%0A%60%60%60%0A%0AThanks!)
+[Create new issue](https://github.com/pug-php/pug/issues/new)
 
 This template will help your provide us the informations we need for most issues (the PHP and/or Pug code you use, the expected behaviour and the current behaviour).
 
