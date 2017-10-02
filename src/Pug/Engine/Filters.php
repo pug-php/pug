@@ -63,48 +63,11 @@ abstract class Filters extends Renderer
      */
     public function getFilter($name)
     {
-        return $this->getCompiler()->getFilter($name);
-    }
-
-    /**
-     * Add filter.
-     *
-     * @param string   $name   filter name
-     * @param callable $filter filter treatment
-     */
-    public function addKeyword($name, $filter)
-    {
-        if ($this->hasFilter($name)) {
-            throw new InvalidArgumentException("The filter $name is already set.", 31);
+        $filter = $this->getCompiler()->getFilter($name);
+        if (is_string($filter) && !function_exists($filter) && class_exists($filter)) {
+            $filter = new $filter();
         }
 
-        $this->setFilter($name, $filter);
-    }
-
-    /**
-     * Replace filter.
-     *
-     * @param string   $name   filter name
-     * @param callable $filter filter treatment
-     */
-    public function replaceKeyword($name, $filter)
-    {
-        if (!$this->hasFilter($name)) {
-            throw new InvalidArgumentException("The filter $name is not set.", 32);
-        }
-
-        $this->setFilter($name, $filter);
-    }
-
-    /**
-     * Remove filter.
-     *
-     * @param string $name the filter to be removed.
-     */
-    public function removeFilter($name)
-    {
-        if ($this->hasFilter($name)) {
-            $this->getCompiler()->unsetFilter($name);
-        }
+        return $filter;
     }
 }

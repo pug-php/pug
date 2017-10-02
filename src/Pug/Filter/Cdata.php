@@ -2,16 +2,10 @@
 
 namespace Pug\Filter;
 
-use Pug\Compiler;
-use Pug\Nodes\Filter;
+use Pug\AbstractFilter as FilterBase;
 
-class Cdata extends AbstractFilter
+class Cdata extends FilterBase
 {
-    public function __invoke(Filter $node, Compiler $compiler)
-    {
-        return "<![CDATA[\n" . $this->getNodeString($node, $compiler) . "\n]]>";
-    }
-
     public function parse($code)
     {
         return "<![CDATA[\n$code\n]]>";

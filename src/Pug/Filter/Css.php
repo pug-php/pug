@@ -2,16 +2,10 @@
 
 namespace Pug\Filter;
 
-use Pug\Compiler;
-use Pug\Nodes\Filter;
+use Pug\AbstractFilter as FilterBase;
 
-class Css extends AbstractFilter
+class Css extends FilterBase
 {
-    public function __invoke(Filter $node, Compiler $compiler)
-    {
-        return '<style type="text/css">' . $this->getNodeString($node, $compiler) . '</style>';
-    }
-
     public function parse($code)
     {
         return '<style type="text/css">' . $code . '</style>';

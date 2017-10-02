@@ -3,16 +3,14 @@
 namespace Pug\Engine;
 
 use JsPhpize\JsPhpizePhug;
-use Phug\Compiler\Event\OutputEvent;
 use Phug\Formatter\Format\HtmlFormat;
-use Phug\Lexer\Event\LexEvent;
 use Phug\Renderer\Adapter\FileAdapter;
 use Pug\Format\XmlHhvmFormat;
 
 /**
  * Class Pug\Engine\Keywords.
  */
-abstract class Options extends PugJsEngine
+abstract class Options extends OptionsHandler
 {
     /**
      * expressionLanguage option values.
@@ -27,21 +25,6 @@ abstract class Options extends PugJsEngine
      * @var array
      */
     protected $filters;
-
-    /**
-     * Built-in filters.
-     *
-     * @var array
-     */
-    protected $optionsAliases = [
-        'cache'              => 'cachedir',
-        'prettyprint'        => 'pretty',
-        'expressionLanguage' => 'expressionlanguage',
-        'allowMixedIndent'   => 'allow_mixed_indent',
-        'keepBaseName'       => 'keep_base_name',
-        'notFound'           => 'not_found_template',
-        'customKeywords'     => 'keywords',
-    ];
 
     protected function setUpFilterAutoload(&$options)
     {
@@ -68,29 +51,16 @@ abstract class Options extends PugJsEngine
 
                         return $this->filters[$name];
                     }
-
-                    return;
                 }
+
+                return;
             };
         }
     }
 
     protected function setUpOptionsAliases(&$options)
     {
-        $normalize = function ($name) {
-            return isset($this->optionsAliases[$name])
-                ? $this->optionsAliases[$name]
-                : str_replace('_', '', strtolower($name));
-        };
-        $this->addOptionNameHandlers(function ($name) use ($normalize) {
-            if (is_string($name) && isset($this->optionsAliases[$name])) {
-                $name = $this->optionsAliases[$name];
-            } elseif (is_array($name) && isset($this->optionsAliases[$name[0]])) {
-                $name[0] = $this->optionsAliases[$name[0]];
-            }
-
-            return is_array($name) ? array_map($normalize, $name) : $normalize($name);
-        });
+        $this->setUpOptionNameHandlers();
         foreach ($this->optionsAliases as $from => $to) {
             if (isset($options[$from]) && !isset($options[$to])) {
                 $options[$to] = $options[$from];
@@ -110,7 +80,7 @@ abstract class Options extends PugJsEngine
             $options['formats']['5'] = HtmlFormat::class;
         }
         // @codeCoverageIgnoreStart
-        if (!isset($options['formats']['xml']) && defined('HHVM_VERSION')) {
+        if (!isset($options['formats']['xml'])) {
             $options['formats']['xml'] = XmlHhvmFormat::class;
         }
         // @codeCoverageIgnoreEnd
@@ -134,63 +104,8 @@ abstract class Options extends PugJsEngine
 
     protected function setUpEvents(&$options)
     {
-        if (isset($options['preRender'])) {
-            $preRender = $options['preRender'];
-            $onLex = isset($options['on_lex']) ? $options['on_lex'] : null;
-            $options['on_lex'] = function (LexEvent $event) use ($onLex, $preRender) {
-                if ($onLex) {
-                    call_user_func($onLex, $event);
-                }
-                $event->setInput(call_user_func($preRender, $event->getInput()));
-            };
-        }
-        $postRender = isset($options['postRender']) ? $options['postRender'] : null;
-        $onOutput = isset($options['on_output']) ? $options['on_output'] : null;
-        $options['on_output'] = function (OutputEvent $event) use ($onOutput, $postRender) {
-            if ($onOutput) {
-                call_user_func($onOutput, $event);
-            }
-            $output = $event->getOutput();
-            if (stripos($output, 'namespace') !== false) {
-                $namespace = null;
-                $tokens = array_slice(token_get_all('?>' . $output), 1);
-                $afterNamespace = false;
-                $start = 0;
-                $end = 0;
-                foreach ($tokens as $token) {
-                    if (is_string($token)) {
-                        $length = mb_strlen($token);
-                        if (!$afterNamespace) {
-                            $start += $length;
-                        }
-                        $end += $length;
-
-                        continue;
-                    }
-                    if ($token[0] === T_NAMESPACE) {
-                        $afterNamespace = true;
-                    }
-                    $length = mb_strlen($token[1]);
-                    if (!$afterNamespace) {
-                        $start += $length;
-                    }
-                    $end += $length;
-                    if ($afterNamespace && $token[0] === T_STRING) {
-                        $namespace = $token[1];
-                        break;
-                    }
-                }
-                if ($namespace) {
-                    $output = "<?php\n\nnamespace $namespace;\n\n?>" .
-                        mb_substr($output, 0, $start) .
-                        ltrim(mb_substr($output, $end), ' ;');
-                }
-            }
-            if ($postRender) {
-                $output = call_user_func($postRender, $output);
-            }
-            $event->setOutput($output);
-        };
+        $this->setUpPreRender($options);
+        $this->setUpPostRender($options);
     }
 
     protected function setUpJsPhpize(&$options)

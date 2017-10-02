@@ -2,16 +2,10 @@
 
 namespace Pug\Filter;
 
-use Pug\Compiler;
-use Pug\Nodes\Filter;
+use Pug\AbstractFilter as FilterBase;
 
-class Escaped extends AbstractFilter
+class Escaped extends FilterBase
 {
-    public function __invoke(Filter $node, Compiler $compiler)
-    {
-        return htmlentities($this->getNodeString($node, $compiler));
-    }
-
     public function parse($code)
     {
         return htmlentities($code);

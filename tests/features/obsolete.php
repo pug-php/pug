@@ -5,6 +5,14 @@ class JadeFilter extends \Jade\Filter\AbstractFilter
     // Obsolete
 }
 
+class NodeStringFilter extends \Pug\Filter\AbstractFilter
+{
+    public function test()
+    {
+        $this->getNodeString();
+    }
+}
+
 class PugObsoleteTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -50,6 +58,16 @@ class PugObsoleteTest extends PHPUnit_Framework_TestCase
     public function testJadeFilter()
     {
         new JadeFilter();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage ->getNodeString is no longer supported since you get now contents as a string.
+     */
+    public function testGetNodeString()
+    {
+        $filter = new NodeStringFilter();
+        $filter->test();
     }
 
     /**
