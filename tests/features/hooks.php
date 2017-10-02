@@ -6,14 +6,6 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
 {
     public function testPreRender()
     {
-        if (defined('HHVM_VERSION')) {
-            $pug = new Pug();
-            $code = $pug->compileFile(__DIR__ . '/../templates/xml.pug');
-            file_put_contents('temp.php', $code);
-            echo "\n\n$code\n\n";
-            include 'temp.php';
-            exit;
-        }
         $pug = new Pug([
             'debug' => true,
             'preRender' => function ($pugCode) {

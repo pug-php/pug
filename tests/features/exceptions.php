@@ -47,8 +47,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Phug\RendererException
-     * @expectedExceptionMessage EmulateBugException
+     * @expectedException \Exception
+     * @expectedExceptionMessage Error Processing Request
      */
     public function testExceptionThroughtPug()
     {
@@ -68,8 +68,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Phug\RendererException
-     * @expectedExceptionMessage EmulateBugException
+     * @expectedException \Exception
+     * @expectedExceptionMessage Error Processing Request
      */
     public function testBrokenExtends()
     {
@@ -78,13 +78,14 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @group filters
-     * @expectedException EmulateBugException
+     * @expectedException \Exception
+     * @expectedExceptionMessage Bad filter
      */
     public function testExtendsWithFilterException()
     {
         $pug = new Pug();
         $pug->filter('throw-exception', function () {
-            throw new EmulateBugException("Bad filter", 1);
+            throw new EmulateBugException('Bad filter', 1);
         });
         $pug->renderFile(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
     }
@@ -99,8 +100,8 @@ class PugExceptionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Phug\RendererException
-     * @expectedExceptionMessage EmulateBugException in
+     * @expectedException \Exception
+     * @expectedExceptionMessage Error Processing Request
      */
     public function testBrokenInclude()
     {
