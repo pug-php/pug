@@ -63,4 +63,26 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame($expected, $html);
     }
+
+    public function testEventsOrder()
+    {
+        $pug = new Pug([
+            'on_lex' => function (\Phug\Lexer\Event\LexEvent $event) {
+                $event->setInput(str_replace('#foo', '#bar', $event->getInput()));
+            },
+            'preRender' => function ($pugCode) {
+                return str_replace('#bar', '.bar', $pugCode);
+            },
+            'on_output' => function (\Phug\Compiler\Event\OutputEvent $event) {
+                $event->setOutput(str_replace('bar', 'baz', $event->getOutput()));
+            },
+            'postRender' => function ($phpCode) {
+                return str_replace('baz', 'biz', $phpCode);
+            },
+        ]);
+        $html = $pug->render('#foo');
+        $expected = '<div class="biz"></div>';
+
+        $this->assertSame($expected, $html);
+    }
 }
