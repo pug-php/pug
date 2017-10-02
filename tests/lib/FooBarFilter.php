@@ -1,21 +1,15 @@
 <?php
 
-namespace Jade\Filter;
+namespace Pug\Filter;
 
-use Jade\Compiler;
-use Jade\Nodes\Filter;
+use Pug\Compiler;
+use Pug\Nodes\Filter;
 
 class FooBar extends AbstractFilter
 {
-    /**
-     * @param Filter   $node
-     * @param Compiler $compiler
-     *
-     * @return string
-     */
-    public function __invoke(Filter $node, Compiler $compiler)
+    public function parse($code)
     {
-        return strtr(strtoupper($this->getNodeString($node, $compiler)), array(
+        return strtr(strtoupper($code), array(
             '(' => ')',
             'SMALL' => 'TALL',
         ));

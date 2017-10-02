@@ -2,37 +2,8 @@
 
 use Pug\Pug;
 
-class PugRequirementsSuhosinFailure extends Pug
+class PugRequirementsTest extends PHPUnit_Framework_TestCase
 {
-    protected function whiteListNeeded($extension)
-    {
-        return true;
-    }
-
-}
-
-class PugRequirementsSuhosinSuccess extends Pug
-{
-    protected function whiteListNeeded($extension)
-    {
-        return false;
-    }
-
-}
-
-class JadeRequirementsTest extends PHPUnit_Framework_TestCase
-{
-    public function testStreamWhiteListed()
-    {
-        $pug = new PugRequirementsSuhosinFailure();
-        $requirements = $pug->requirements();
-        $this->assertFalse($requirements['streamWhiteListed'], 'streamWhiteListed requirement should be false with PugRequirementsSuhosinFailure');
-
-        $pug = new PugRequirementsSuhosinSuccess();
-        $requirements = $pug->requirements();
-        $this->assertTrue($pug->requirements('streamWhiteListed'), 'streamWhiteListed requirement should be true with PugRequirementsSuhosinSuccess');
-    }
-
     public function testCacheFolderExists()
     {
         $pug = new Pug(array(

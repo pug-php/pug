@@ -1,0 +1,15 @@
+| Start with a #[small small] tag
+h1 J'aime #[strong Pug]
+h1 J'aime #[strong beaucoup] #[strong Pug]
+h1 J'aime \#[strong beaucoup] #[strong beaucoup] \\#[strong Pug]
+div
+  div
+    h1 J'aime #[strong beaucoup] #[strong Pug]
+p.
+  This is an #[emph example] paragraph. For more information on #[span.foo whatever],
+  click #[a(href="#") here]!
+  This line has no tag.
+#foo: article#bar #[blockquote#baz: p#foz #]
+  | This is an #[emph example] paragraph. For more information on #[span.foo whatever],
+  | click #[a(href="#") here]!
+  | This line has no tag.

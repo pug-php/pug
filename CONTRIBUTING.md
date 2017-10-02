@@ -18,10 +18,11 @@ This template will help your provide us the informations we need for most issues
 Fork the [GitHub project](https://github.com/pug-php/pug) and chek out your copy locally:
 
 ```shell
-git clone git@github.com:username/pug.git
+git clone https://github.com/<username>/pug.git
 cd pug
-git remote add upstream git://github.com/pug-php/pug.git
+git remote add upstream https://github.com/pug-php/pug.git
 ```
+Replace `<username>` with your GitHub username.
 
 Then, you can work on the master or create a specific branch for your development:
 
@@ -56,8 +57,8 @@ git commit -m "#21 Fix this or that"
 Use git rebase (not git merge) to sync your work from time to time:
 
 ```shell
-git fetch upstream
-git rebase upstream/master
+git fetch origin
+git rebase origin/master
 ```
 
 Please add some tests for bug fixes and features (for example a pug file and the expected HTML file in /tests/templates), then check all is right with phpunit:

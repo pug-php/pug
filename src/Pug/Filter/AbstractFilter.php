@@ -2,54 +2,35 @@
 
 namespace Pug\Filter;
 
-use Jade\Compiler;
-use Jade\Filter\FilterInterface as JadeFilterInterface;
-use Jade\Nodes\Filter;
+use Pug\Compiler;
+use Pug\Nodes\Filter;
 
 /**
  * Class Pug\Filter\AbstractFilter.
  */
-abstract class AbstractFilter implements JadeFilterInterface
+abstract class AbstractFilter implements FilterInterface
 {
+    use WrapTagTrait;
+
     /**
-     * Returns the node string value, line by line.
-     * If the compiler is present, that means we need
-     * to interpolate line contents.
-     *
-     * @param Filter   $node
-     * @param Compiler $compiler
-     *
-     * @return mixed
+     * @obsolete
      */
-    protected function getNodeString(Filter $node, Compiler $compiler = null)
+    protected function getNodeString()
     {
-        return array_reduce($node->block->nodes, function ($result, $line) use ($compiler) {
-            return $result . ($compiler
-                    ? $compiler->interpolate($line->value)
-                    : $line->value
-                ) . "\n";
-        });
+        throw new \RuntimeException('->getNodeString is no longer supported since you get now contents as a string.');
     }
 
     public function __invoke(Filter $node, Compiler $compiler)
     {
-        $nodes = $node->block->nodes;
-        $indent = strlen($nodes[0]->value) - strlen(ltrim($nodes[0]->value));
-        $code = '';
-        foreach ($nodes as $line) {
-            $code .= substr($compiler->interpolate($line->value), $indent) . "\n";
-        }
+        throw new \RuntimeException('Pug\Filter\FilterInterface is no longer supported. Now use Pug\FilterInterface instead.');
+    }
 
+    public function pugInvoke($code, array $options = null)
+    {
         if (method_exists($this, 'parse')) {
-            $code = $this->parse($code);
+            $code = $this->parse($code, $options);
         }
 
-        if (isset($this->tag)) {
-            $code = '<' . $this->tag . (isset($this->textType) ? ' type="text/' . $this->textType . '"' : '') . '>' .
-                $code .
-                '</' . $this->tag . '>';
-        }
-
-        return $code;
+        return $this->wrapInTag($code);
     }
 }

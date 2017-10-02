@@ -1,20 +1,8 @@
 <?php
 
-use Jade\Compiler;
-use Jade\Nodes\Filter;
-use Pug\Filter\AbstractFilter;
 use Pug\Pug;
 
-class TestVerbatimFilter extends AbstractFilter
-{
-    public function __invoke(Filter $node, Compiler $compiler)
-    {
-        return $this->getNodeString($node, $compiler);
-    }
-}
-
-
-class JadeIssuesTest extends PHPUnit_Framework_TestCase
+class PugIssuesTest extends PHPUnit_Framework_TestCase
 {
     public function testIssue62()
     {
@@ -52,7 +40,7 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
             ),
         )));
 
-        $this->assertSame('<input type="checkbox" name="group[4]">', $actual);
+        $this->assertSame('<input type="checkbox" name="group[4]" />', $actual);
     }
 
     public function testIssue73()
@@ -116,9 +104,9 @@ class JadeIssuesTest extends PHPUnit_Framework_TestCase
     public function testIssue90()
     {
         $pug = new Pug(array(
-            'expressionLanguage' => 'php',
+            'expressionLanguage' => 'js',
         ));
-        $actual = trim($pug->render('p= \'$test\'
+        $actual = str_replace("\n", '', trim($pug->render('p= \'$test\'
 p= "$test"
 p= \'#{$test}\'
 p= "#{$test}"
@@ -131,15 +119,37 @@ p(
     data-d="#{$test}"
 ) test', array(
             'test' => 'foo',
-        )));
-        $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="$test" data-c="foo" data-d="foo">test</p>';
+        ))));
+        $expected = '<p>$test</p><p>$test</p><p>#{$test}</p><p>#{$test}</p><p>foo</p><p data-a="$test" data-b="$test" data-c="#{$test}" data-d="#{$test}">test</p>';
+
+        $this->assertSame($expected, $actual);
+
+        $pug = new Pug(array(
+            'expressionLanguage' => 'php',
+        ));
+        $actual = str_replace("\n", '', trim($pug->render('p= \'$test\'
+p= "$test"
+p= \'#{$test}\'
+p= "#{$test}"
+p #{$test}
+
+p(
+    data-a=\'$test\'
+    data-b="$test"
+    data-c=\'#{$test}\'
+    data-d="#{$test}"
+    data-e="#${test}"
+) test', array(
+            'test' => 'foo',
+        ))));
+        $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="foo" data-c="#{$test}" data-d="#foo" data-e="#foo">test</p>';
 
         $this->assertSame($expected, $actual);
     }
 
     public function testIssue92()
     {
-        $pug = new Pug();
+        $pug = new Pug(['debug' => false]);
         $actual = trim($pug->render('
 mixin simple-paragraph(str)
     p=str
@@ -154,8 +164,8 @@ mixin simple-paragraph(str)
     p=str
 +simple-paragraph(strtoupper(substr("foo
 ---\'(bar
-", 0, 3)) . \'\\""\' . (substr(\'")5\', 1)))
-+simple-paragraph(strtoupper(\'b\') . "foo")
+", 0, 3)) + \'\\""\' + (substr(\'")5\', 1)))
++simple-paragraph(strtoupper(\'b\') + "foo")
 '));
         $expected = '<p>FOO\\&quot;&quot;)5</p><p>Bfoo</p>';
 
@@ -204,7 +214,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=\'background-position: 50% -402px; background-image: url("\' + strtolower(\'/img.PNG\') + \'");\')
 '));
-        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
         $this->assertSame($expected, $actual);
@@ -212,7 +222,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style={\'background-position\': "50% -402px", \'background-image\': \'url("\' + strtolower(\'/img.PNG\') + \'")\'})
 '));
-        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as object
         $this->assertSame($expected, $actual);
@@ -226,7 +236,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=(\'background-position: 50% -402px; background-image: url("\' . strtolower(\'/img.PNG\') . \'");\'))
 '));
-        $expected = '<div style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
         $this->assertSame($expected, $actual);
@@ -234,7 +244,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render('
 .foo(style=array(\'background-position\' => "50% -402px", \'background-image\' => \'url("\' . strtolower(\'/img.PNG\') . \'")\'))
 '));
-        $expected = '<div style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)" class="foo"></div>';
+        $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as array
         $this->assertSame($expected, $actual);
@@ -245,7 +255,7 @@ if $entryopen and !$submitted
         $pug = new Pug(array(
             'expressionLanguage' => 'js',
         ));
-        $actual = trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
+        $actual = str_replace("\n", '', trim($pug->render('p Example #{item.name} #{helpers.format(\'money\', item.price)}', array(
             'item' => array(
                 'name' => 'Foo',
                 'price' => 12,
@@ -255,7 +265,7 @@ if $entryopen and !$submitted
                     return $type . '-' . $price;
                 },
             ),
-        )));
+        ))));
         $expected = '<p>Example Foo money-12</p>';
 
         $this->assertSame($expected, $actual);
@@ -297,7 +307,7 @@ if $entryopen and !$submitted
     public function testIssue154()
     {
         $pug = new Pug();
-        $actual = trim($pug->render('p #[em #[strong Yow!]]'));
+        $actual = str_replace("\n", '', trim($pug->render('p #[em #[strong Yow!]]')));
         $expected = '<p><em><strong>Yow!</strong></em></p>';
 
         $this->assertSame($expected, $actual);
@@ -307,7 +317,7 @@ if $entryopen and !$submitted
     {
         $input = implode("\n", array(
             'body',
-            '  :coffee-script',
+            '  :verbatim',
             '    # Assignment:',
             '    number   = 42',
             '    opposite = true',
@@ -328,7 +338,8 @@ if $entryopen and !$submitted
             '      cube:   (x) -> x * square x',
         ));
         $expected = implode("\n", array(
-            '<body># Assignment:',
+            '<body>',
+            '# Assignment:',
             'number   = 42',
             'opposite = true',
             '',
@@ -345,11 +356,15 @@ if $entryopen and !$submitted
             'math =',
             '  root:   Math.sqrt',
             '  square: square',
-            '  cube:   (x) -> x * square x',
-            '</body>',
+            '  cube:   (x) -> x * square x</body>',
         ));
-        $pug = new Pug();
-        $pug->filter('coffee-script', 'TestVerbatimFilter');
+        $pug = new Pug([
+            'filters' => [
+                'verbatim' => function ($string) {
+                    return $string;
+                },
+            ],
+        ]);
 
         $actual = $pug->render($input);
         $this->assertSame($expected, $actual);

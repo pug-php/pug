@@ -2,33 +2,21 @@
 
 use Pug\Pug;
 
-class JadeTemplatesTest extends PHPUnit_Framework_TestCase
+class PugTemplatesTest extends PHPUnit_Framework_TestCase
 {
-    static private $skipped = array(
-        // Not supported in HHVM
-        'xml' => 'hhvm',
-
-        // Add here tests for future features not yet implemented
-    );
-
     public function caseProvider()
     {
-        $cases = array();
+        $cases = [];
 
         foreach (build_list(find_tests()) as $arr) {
             foreach ($arr as $e) {
                 $name = $e['name'];
 
-                if ($name === 'index' || in_array($name, self::$skipped)) {
+                if ($name === 'index') {
                     continue;
                 }
-                if (isset(self::$skipped[$name])) {
-                    if (defined('HHVM_VERSION') && self::$skipped[$name] === 'hhvm') {
-                        continue;
-                    }
-                }
 
-                $cases[] = array($name);
+                $cases[] = [$name];
             }
         }
 
@@ -38,8 +26,24 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider caseProvider
      */
-    public function testJadeGeneration($name)
+    public function testPugGeneration($name)
     {
+        if ($name === 'xml' && defined('HHVM_VERSION')) {
+            $pug = new Pug([
+                'debug' => true,
+                'singleQuote' => false,
+                'prettyprint' => true,
+            ]);
+            $code = $pug->compileFile(__DIR__ . '/../templates/xml.pug');
+            file_put_contents('temp.php', $code);
+            ob_start();
+            include 'temp.php';
+            $html = trim(ob_get_contents());
+            ob_end_clean();
+            $this->assertSame($html, trim(file_get_contents(__DIR__ . '/../templates/xml.html')), $name);
+
+            return;
+        }
         $result = get_test_result($name);
         $result = $result[1];
 
@@ -55,27 +59,27 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
     public function testVariablesHandle()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'singleQuote' => false,
-            'terse' => true,
-        ));
+            'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
+        ]);
 
         $html = $pug->render('input(type="checkbox", checked=true)');
 
         $this->assertSame('<input type="checkbox" checked>', $html, 'Static boolean values should render as simple attributes.');
 
-        $html = $pug->render('input(type="checkbox", checked=isChecked)', array(
+        $html = $pug->render('input(type="checkbox", checked=isChecked)', [
             'isChecked' => true,
-        ));
+        ]);
 
         $this->assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
     }
 
     public function testSpacesRender()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'prettyprint' => false,
-        ));
+        ]);
 
         $html = $pug->render("i a\ni b");
 
@@ -85,7 +89,7 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<i>a</i> <i>b</i>', $html);
 
-        $html = $pug->render("p\n  | #[i a] #[i b]");
+        $html = str_replace("\n", '', $pug->render("p\n  | #[i a] #[i b]"));
 
         $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
 
@@ -93,7 +97,7 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<p>this is<a href="#">test</a>string</p>', $html);
 
-        $html = $pug->render("p this is #[a(href='#') test string]");
+        $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
         $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
 
@@ -101,7 +105,7 @@ class JadeTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<p>this is <a href="#">test</a> string</p>', $html);
 
-        $html = $pug->render("p this is #[a(href='#') test string]");
+        $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
         $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
     }

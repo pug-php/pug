@@ -4,35 +4,35 @@ use Pug\Pug;
 
 class PugJsTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @group pugjs
+     */
     public function testPugJsOption()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
-        $pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'pugjs' => true,
-        ));
+        ]);
 
-        $html = $pug->render('h1=name', array('name' => 'Yop'));
+        $html = $pug->render('h1=name', ['name' => 'Yop']);
 
         $this->assertSame('<h1>Yop</h1>', $html);
 
-        $html = $pug->render(__DIR__ . '/../templates/basic.jade');
+        $html = $pug->renderFile(__DIR__ . '/../templates/basic.pug');
 
         $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         $pug->setOption('cache', sys_get_temp_dir());
         $name = 'basic-copy-' . mt_rand(0, 99999999);
-        $source = sys_get_temp_dir() . '/' . $name . '.jade';
+        $source = sys_get_temp_dir() . '/' . $name . '.pug';
         $cache = sys_get_temp_dir() . '/' . $name . '.js';
-        copy(__DIR__ . '/../templates/basic.jade', $source);
+        copy(__DIR__ . '/../templates/basic.pug', $source);
 
         if (file_exists($cache)) {
             unlink($cache);
         }
 
-        $html = trim($pug->render($source));
+        $html = trim($pug->renderFile($source));
         clearstatcache();
 
         $this->assertTrue(file_exists($cache));
@@ -44,7 +44,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         touch($cache, time() + 10);
         clearstatcache();
 
-        $html = trim($pug->render($source, array(
+        $html = trim($pug->renderFile($source, array(
             'greet' => 'Hello'
         )));
 
@@ -53,13 +53,13 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         touch($cache, time() - 20);
         clearstatcache();
 
-        $html = trim($pug->render($source, array(
+        $html = trim($pug->renderFile($source, array(
             'greet' => 'Hello'
         )));
 
         $this->assertSame('<p>Hello</p>', $html);
 
-        $html = trim($pug->render($source, array(
+        $html = trim($pug->renderFile($source, array(
             'greet' => 'Bye'
         )));
 
@@ -69,7 +69,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         touch($cache, time() - 20);
         clearstatcache();
 
-        $html = trim($pug->render($source));
+        $html = trim($pug->renderFile($source));
 
         $this->assertSame('<div><p></p></div>', $html);
 
@@ -78,7 +78,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         touch($cache, time() - 20);
         clearstatcache();
 
-        $html = trim($pug->render($source));
+        $html = trim($pug->renderFile($source));
 
         $this->assertSame("<div>\n  <p></p>\n</div>", $html);
 
@@ -87,28 +87,60 @@ class PugJsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group pugjs
+     */
+    public function testPugJsBasename()
+    {
+        sys_get_temp_dir();
+        $name = 'basic-copy-' . mt_rand(0, 99999999);
+        $source = sys_get_temp_dir() . '/' . $name . '.pug';
+        $cache = sys_get_temp_dir() . '/' . $name . '.js';
+        copy(__DIR__ . '/../templates/basic.pug', $source);
+        chdir(sys_get_temp_dir());
+        $pug = new Pug([
+            'pugjs' => true,
+            'cache' => '.',
+        ]);
+        $html = trim($pug->renderFile($name . '.pug'));
+
+        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+
+        unlink($source);
+        unlink($cache);
+    }
+
+    /**
+     * @group pugjs
      * @expectedException \RuntimeException
      * @expectedExceptionMessage is not a valid class name
      */
     public function testPugJsOptionException()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            throw new \RuntimeException('emulate "is not a valid class name" exception');
-        }
-
-        $pug = new Pug(array(
+        $pug = new Pug([
+            'debug' => true,
             'pugjs' => true,
-        ));
+        ]);
 
-        $pug->render('./bar/basic.jade');
+        $pug->render('./\ç@');
     }
 
+    /**
+     * @group pugjs
+     */
+    public function testPugJsNodePath()
+    {
+        $pug = new Pug([
+            'nodePath' => 'bin/node',
+        ]);
+
+        self::assertSame('bin/node', $pug->getNodeEngine()->getNodePath());
+    }
+
+    /**
+     * @group pugjs
+     */
     public function testIssue147()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
         $pug = new Pug(array(
             'pugjs' => true,
         ));
@@ -121,12 +153,11 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
     }
 
+    /**
+     * @group pugjs
+     */
     public function testLocalsJsonFile()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
         $pug = new Pug(array(
             'pugjs' => true,
             'localsJsonFile' => true
@@ -135,6 +166,25 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = $pug->render(
             'link(rel="shortcut icon", href=site.favicon, type="image/png")',
             array('site' => array('favicon' => '/favicon.png'))
+        );
+
+        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+    }
+
+    /**
+     * @group pugjs
+     */
+    public function testRenderWithoutFilename()
+    {
+        $pug = new Pug(array(
+            'pugjs' => true,
+            'localsJsonFile' => true
+        ));
+
+        $html = $pug->renderWithJs(
+            'link(rel="shortcut icon", href=site.favicon, type="image/png")',
+            array('site' => array('favicon' => '/favicon.png')),
+            function () {}
         );
 
         $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);

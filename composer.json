@@ -122,9 +122,10 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": ">=5.3.0",
-        "js-phpize/js-phpize": "^1.2",
-        "nodejs-php-fallback/nodejs-php-fallback": "^1.2"
+        "php": ">=5.5.0",
+        "js-phpize/js-phpize-phug": "^1.1",
+        "nodejs-php-fallback/nodejs-php-fallback": "^1.2",
+        "phug/phug": "^0.1.0"
     },
     "extra": {
         "npm": {

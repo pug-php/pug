@@ -2,11 +2,12 @@
 
 namespace Jade\Filter;
 
-use Pug\Filter\AbstractFilter as PugAbstractFilter;
-
-/**
- * Class Jade\Filter\AbstractFilter.
- */
-abstract class AbstractFilter extends PugAbstractFilter implements FilterInterface
+abstract class AbstractFilter
 {
+    public function __construct()
+    {
+        throw new \InvalidArgumentException(
+            'Jade namespace is no longer available, use Pug instead.'
+        );
+    }
 }

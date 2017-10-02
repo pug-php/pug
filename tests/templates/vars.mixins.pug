@@ -1,0 +1,28 @@
+mixin foo
+  div
+    a=answer
+    - answer++
+    i
+      block
+    - answer++
+    =answer
+    if answer === 100
+      //+foo
+        - answer -= 2
+        strong=answer
+
+- var answer = 100
++foo
+  b=answer
+  - answer += 10
+  u=answer
+  - answer += 20
+  em=answer
+  - answer += 40
+  +foo
+    code
+      =answer
+      - answer = 100
+  - answer = 90
+- answer += 100
+footer=answer

@@ -1,46 +1,51 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
 class ShareTest extends PHPUnit_Framework_TestCase
 {
     public function testShare()
     {
-        $jade = new Jade();
-        $jade->share('answear', 42);
-        $jade->share(array(
+        $pug = new Pug([
+            'debug' => true,
+        ]);
+
+        $pug->share('answear', 42);
+        $pug->share([
             'foo' => 'Hello',
             'bar' => 'world',
-        ));
-        $html = $jade->render("p=foo\ndiv=answear");
+        ]);
+        $html = $pug->render("p=\$foo\ndiv=\$answear");
         $this->assertSame('<p>Hello</p><div>42</div>', $html);
 
-        $html = $jade->render("p=foo\ndiv=answear", array(
+        $html = $pug->render("p=\$foo\ndiv=\$answear", [
             'answear' => 16,
-        ));
+        ]);
         $this->assertSame('<p>Hello</p><div>16</div>', $html);
 
-        $html = $jade->render("p\n  =foo\n  =' '\n  =bar\n  | !");
+        $html = $pug->render("p\n  ?=\$foo\n  =' '\n  =\$bar\n  | !");
         $this->assertSame('<p>Hello world!</p>', $html);
     }
 
     public function testResetSharedVariables()
     {
-        $jade = new Jade();
-        $jade->share('answear', 42);
-        $jade->share(array(
+        $pug = new Pug([
+            'debug' => true,
+        ]);
+        $pug->share('answear', 42);
+        $pug->share([
             'foo' => 'Hello',
             'bar' => 'world',
-        ));
-        $jade->resetSharedVariables();
+        ]);
+        $pug->resetSharedVariables();
 
         $error = null;
         try {
-            $jade->render("p\n  =foo\n=' '\n=bar\n  | !");
+            $pug->render("p\n  ?=\$foo\n=' '\n=\$bar\n  | !");
         } catch (\Exception $e) {
             $error = $e->getMessage();
         }
 
-        $this->assertSame('Undefined variable: foo', $error);
+        $this->assertRegExp('/Undefined variable: foo/', $error);
     }
 }

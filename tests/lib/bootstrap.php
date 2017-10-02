@@ -1,6 +1,6 @@
 <?php
 
-use Jade\Jade;
+use Pug\Pug;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -40,48 +40,61 @@ function setup_autoload()
 function find_tests()
 {
     // find the tests
-    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.jade');
+    return glob(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . '*.pug');
 }
 
 function build_list($test_list)
 {
-    $group_list = array();
+    $group_list = [];
     foreach ($test_list as $test) {
-        $name = basename($test, '.jade');
+        $name = basename($test, '.pug');
         $parts = preg_split('/[.-]/', $name);
 
         if (!isset($group_list[$parts[0]])) {
-            $group_list[$parts[0]] = array();
+            $group_list[$parts[0]] = [];
         }
-        $group_list[$parts[0]][] = array('link' => $test, 'name' => $name);
+        $group_list[$parts[0]][] = ['link' => $test, 'name' => $name];
     }
 
     return $group_list;
 }
 
-function get_php_code($file, $vars = array())
+function get_php_code($code, $vars = [])
 {
-    $jade = new Jade(array(
+    $pug = new Pug([
+        'debug' => true,
         'singleQuote' => false,
         'prettyprint' => true,
-    ));
+    ]);
 
-    return $jade->render($file, $vars);
+    return $pug->render($code, $vars);
+}
+
+function get_php_file($file, $vars = [])
+{
+    $pug = new Pug([
+        'debug' => true,
+        'singleQuote' => false,
+        'prettyprint' => true,
+    ]);
+
+    return $pug->renderFile($file, $vars);
 }
 
 function compile_php($file)
 {
-    $jade = new Jade(array(
+    $pug = new Pug([
+        'debug' => true,
         'singleQuote' => false,
         'prettyprint' => true,
-    ));
+    ]);
 
-    return $jade->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.jade'));
+    return $pug->compile(file_get_contents(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $file . '.pug'));
 }
 
 function get_html_code($name)
 {
-    return get_generated_html(get_php_code(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.jade'));
+    return get_generated_html(get_php_file(TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name . '.pug'));
 }
 
 function init_tests()
@@ -100,7 +113,7 @@ function get_generated_html($contents)
         ob_end_clean();
         error_reporting(E_ALL);
     } else {
-        $file = tempnam(sys_get_temp_dir(), 'jade');
+        $file = tempnam(sys_get_temp_dir(), 'Pug');
         file_put_contents($file, $contents);
         $contents = `php -d error_reporting="E_ALL & ~E_NOTICE" {$file}`;
         unlink($file);
@@ -130,30 +143,30 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
             echo "! sample for test '$name' not found.\n";
         }
 
-        return array(false, array($name, null, "! sample for test '$name' not found.\n"));
+        return [false, [$name, null, "! sample for test '$name' not found.\n"]];
     }
 
     if($verbose) {
         echo "* rendering test '$name'\n";
     }
     try {
-        $new = get_php_code($path . '.jade');
+        $new = get_php_file($path . '.pug');
     } catch(Exception $err) {
         if($verbose) {
             echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
         }
 
-        return array(false, array($name, null, "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n"));
+        return [false, [$name, null, "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n"]];
     }
 
     if(is_null($new)) {
-        return array(false, array($name, null, "! FATAL: " . $path . ".jade returns null\n"));
+        return [false, [$name, null, "! FATAL: " . $path . ".pug returns null\n"]];
     }
 
     $actualHtml = get_generated_html($new);
 
-    $from = array("'", "\r", "<!DOCTYPEhtml>");
-    $to = array('"', '', '');
+    $from = ["'", "\r", "<!DOCTYPEhtml>"];
+    $to = ['"', '', ''];
     if ($mergeSpace) {
         array_push($from, "\n", "\t", " ");
         array_push($to, '', '', '');
@@ -166,7 +179,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
     }
     $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
     $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
-    $result = array($name, $minifiedExpectedHtml, $minifiedActualHtml);
+    $result = [$name, $minifiedExpectedHtml, $minifiedActualHtml];
 
     if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
         if($verbose) {
@@ -183,10 +196,10 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
             echo "  PHP     : " . compile_php($name);
         }
 
-        return array(false, $result);
+        return [false, $result];
     }
 
-    return array(true, $result);
+    return [true, $result];
 }
 
 function array_remove(&$array, $value)
@@ -212,7 +225,7 @@ function get_tests_results($verbose = false)
 
     $success = 0;
     $failures = 0;
-    $results = array();
+    $results = [];
 
     foreach($nav_list as $type => $arr) {
         foreach($arr as $e) {
@@ -239,11 +252,11 @@ function get_tests_results($verbose = false)
         }
     }
 
-    return array(
+    return [
         'success' => $success,
         'failures' => $failures,
         'results' => $results
-    );
+    ];
 }
 
 init_tests();
