@@ -202,7 +202,7 @@ h1
     {
         $filter = new SpecialScript();
 
-        $this->assertSame('<script>foo</script>', $filter->__pugInvoke('foo'));
+        $this->assertSame('<script>foo</script>', $filter->pugInvoke('foo'));
     }
 
     /**

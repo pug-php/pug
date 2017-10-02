@@ -42,12 +42,12 @@ abstract class Options extends OptionsHandler
                     $filter = $namespace . '\\Filter\\' . implode('', array_map('ucfirst', explode('-', $name)));
 
                     if (class_exists($filter)) {
-                        $this->filters[$name] = method_exists($filter, '__pugInvoke')
-                            ? [new $filter(), '__pugInvoke']
+                        $this->filters[$name] = method_exists($filter, 'pugInvoke')
+                            ? [new $filter(), 'pugInvoke']
                             : (method_exists($filter, 'parse')
                                 ? [new $filter(), 'parse']
                                 : $filter
-                            );
+                            ); // @codeCoverageIgnore
 
                         return $this->filters[$name];
                     }
@@ -128,13 +128,12 @@ abstract class Options extends OptionsHandler
 
     protected function initializeLimits()
     {
-        // TODO: find a better way to apply snake_case options to the compiler
         $compiler = $this->getCompiler();
-        if (!$compiler->hasOption('memory_limit')) {
-            $compiler->setOption('memory_limit', $this->getOption('memory_limit'));
-        }
-        if (!$compiler->hasOption('execution_max_time')) {
-            $compiler->setOption('execution_max_time', $this->getOption('memory_limit'));
+        // Options that propagation will fail due to snake_case
+        foreach (['memory_limit', 'execution_max_time'] as $option) {
+            if (!$compiler->hasOption($option)) {
+                $compiler->setOption($option, $this->getOption($option));
+            }
         }
     }
 
