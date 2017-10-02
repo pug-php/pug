@@ -83,7 +83,7 @@ class PugJsEngine extends Keywords
         return $html;
     }
 
-    protected function callPugCli($input, $filename, $options, $toDelete, $fallback)
+    protected function getPugCliArguments($options)
     {
         $args = [];
 
@@ -107,6 +107,13 @@ class PugJsEngine extends Keywords
                 $args[] = '--' . $option . ' ' . $value;
             }
         }
+
+        return $args;
+    }
+
+    protected function callPugCli($input, $filename, $options, $toDelete, $fallback)
+    {
+        $args = $this->getPugCliArguments($options);
 
         if (!empty($this->getDefaultOption('cache_dir'))) {
             $args[] = '--client';
