@@ -34,12 +34,6 @@ abstract class OptionsHandler extends PugJsEngine
     protected function setUpOptionNameHandlers()
     {
         $this->addOptionNameHandlers(function ($name) {
-            if (is_string($name) && isset($this->optionsAliases[$name])) {
-                $name = $this->optionsAliases[$name];
-            } elseif (is_array($name) && isset($this->optionsAliases[$name[0]])) {
-                $name[0] = $this->optionsAliases[$name[0]];
-            }
-
             return is_array($name)
                 ? array_map([$this, 'normalizeOptionName'], $name)
                 : $this->normalizeOptionName($name);

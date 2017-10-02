@@ -112,8 +112,12 @@ mixin centered(title)
             'indentChar' => '-',
         ));
         $this->assertTrue($pug->getOption('prettyprint'));
-        $this->assertSame($pug->getOption('cache'), 'abc');
-        $this->assertSame($pug->getOption('indentChar'), '-');
+        $this->assertSame('abc', $pug->getOption('cache'));
+        $this->assertSame('-', $pug->getOption('indentChar'));
+        $pug->setOption('cache', 'def');
+        $this->assertSame('def', $pug->getOption(['cache']));
+        $pug->setOption('indentChar', '_');
+        $this->assertSame('_', $pug->getOption(['indentChar']));
     }
 
     /**
