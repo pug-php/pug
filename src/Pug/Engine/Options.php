@@ -52,8 +52,6 @@ abstract class Options extends OptionsHandler
                         return $this->filters[$name];
                     }
                 }
-
-                return;
             };
         }
     }
@@ -80,7 +78,7 @@ abstract class Options extends OptionsHandler
             $options['formats']['5'] = HtmlFormat::class;
         }
         // @codeCoverageIgnoreStart
-        if (!isset($options['formats']['xml'])) {
+        if (!isset($options['formats']['xml']) && defined('HHVM_VERSION')) {
             $options['formats']['xml'] = XmlHhvmFormat::class;
         }
         // @codeCoverageIgnoreEnd

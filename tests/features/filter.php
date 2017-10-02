@@ -2,6 +2,19 @@
 
 use Pug\Pug;
 
+class ParseMethodFilter
+{
+    public function parse($code)
+    {
+        return strtolower($code);
+    }
+}
+
+class SpecialScript extends \Pug\Filter\AbstractFilter
+{
+    protected $tag = 'script';
+}
+
 class PugFilterTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -133,6 +146,63 @@ h1
         $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
 
         $this->assertRegExp($expected, $actual, 'In-line filter');
+    }
+
+    /**
+     * @group filters
+     */
+    public function testParseMethod()
+    {
+        $pug = new Pug([
+            'debug' => true,
+        ]);
+        $pug->filter('lower', ParseMethodFilter::class);
+        $actual = $pug->render('
+h1
+    | BAR-
+    :lower FOO
+    | -BAR
+');
+        $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'One-line filter');
+
+        $actual = $pug->render('h1 BAR-#[:lower FOO]-BAR');
+
+        $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
+
+        $this->assertRegExp($expected, $actual, 'In-line filter');
+    }
+
+    /**
+     * @group filters
+     */
+    public function testCData()
+    {
+        $filter = new \Pug\Filter\Cdata();
+
+        $this->assertSame("<![CDATA[\nfoo\n]]>", $filter('foo'));
+    }
+
+    /**
+     * @group filters
+     */
+    public function testParseAutoload()
+    {
+        include_once __DIR__ . '/../lib/AutoloadParseFilter.php';
+        $pug = new Pug();
+
+        $this->assertSame('foobar', $pug->render(':autoload-parse-filter'));
+    }
+
+    /**
+     * @group filters
+     */
+    public function testWrapInTag()
+    {
+        $filter = new SpecialScript();
+
+        $this->assertSame('<script>foo</script>', $filter->__pugInvoke('foo'));
     }
 
     /**

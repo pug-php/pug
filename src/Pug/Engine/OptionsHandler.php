@@ -20,9 +20,12 @@ abstract class OptionsHandler extends PugJsEngine
         'keepBaseName'       => 'keep_base_name',
         'notFound'           => 'not_found_template',
         'customKeywords'     => 'keywords',
+        'localsJsonFile'     => 'localsjsonfile',
+        'nodePath'           => 'nodepath',
     ];
 
-    protected function normalizeOptionName($name) {
+    protected function normalizeOptionName($name)
+    {
         return isset($this->optionsAliases[$name])
             ? $this->optionsAliases[$name]
             : str_replace('_', '', strtolower($name));
@@ -43,7 +46,8 @@ abstract class OptionsHandler extends PugJsEngine
         });
     }
 
-    protected function setUpPreRender(&$options) {
+    protected function setUpPreRender(&$options)
+    {
         if (isset($options['preRender'])) {
             $preRender = $options['preRender'];
             $onLex = isset($options['on_lex']) ? $options['on_lex'] : null;

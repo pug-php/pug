@@ -13,6 +13,8 @@ class NodeStringFilter extends \Pug\Filter\AbstractFilter
     }
 }
 
+include_once __DIR__ . '/../lib/LegacyFilterNode.php';
+
 class PugObsoleteTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -68,6 +70,16 @@ class PugObsoleteTest extends PHPUnit_Framework_TestCase
     {
         $filter = new NodeStringFilter();
         $filter->test();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Pug\Filter\FilterInterface is no longer supported. Now use Pug\FilterInterface instead.
+     */
+    public function testInvoke()
+    {
+        $filter = new NodeStringFilter();
+        $filter(new \Pug\Nodes\Filter(), new \Pug\Compiler());
     }
 
     /**

@@ -40,9 +40,6 @@ class PugJsEngine extends Keywords
 
         $currentDirectory = getcwd();
         $realPath = realpath($file);
-        if (!file_exists($realPath)) {
-            $realPath = realpath($currentDirectory . DIRECTORY_SEPARATOR . $file);
-        }
 
         $handler = fopen($file, 'a');
         fwrite($handler, 'module.exports=template;');
@@ -86,51 +83,8 @@ class PugJsEngine extends Keywords
         return $html;
     }
 
-    /**
-     * Render using the native Pug JS engine.
-     *
-     * @param string   $input    pug input or file
-     * @param string   $filename optional file path
-     * @param array    $vars     to pass to the view
-     * @param callable $fallback called if JS engine not available
-     *
-     * @throws \Exception
-     *
-     * @return string
-     */
-    public function renderWithJs($input, $filename, array $vars, $fallback)
+    protected function callPugCli($input, $filename, $options, $toDelete, $fallback)
     {
-        if (is_array($filename)) {
-            $vars = $filename;
-            $filename = null;
-        }
-
-        $workDirectory = empty($this->getDefaultOption('cache_dir'))
-            ? sys_get_temp_dir()
-            : $this->getOption('cache_dir');
-        if ($toDelete = !$filename) {
-            $filename = $workDirectory . '/source-' . mt_rand(0, 999999999) . '.pug';
-            file_put_contents($filename, $input);
-        }
-
-        $options = [
-            'path'           => realpath($filename),
-            'basedir'        => $this->getDefaultOption('basedir'),
-            'localsJsonFile' => $this->getDefaultOption('localsJsonFile'),
-            'pretty'         => $this->getDefaultOption('prettyprint'),
-            'out'            => $workDirectory,
-        ];
-        if (!empty($vars)) {
-            $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
-
-            $options['obj'] = $locals;
-
-            if ($options['localsJsonFile']) {
-                $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.json';
-                file_put_contents($optionsFile, $locals);
-                $options['obj'] = $optionsFile;
-            }
-        }
         $args = [];
 
         if (!empty($options['pretty'])) {
@@ -158,9 +112,9 @@ class PugJsEngine extends Keywords
             $args[] = '--client';
             $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($filename)) . '.js';
             if (file_exists($renderFile) && (
-                ($mTime = filemtime($renderFile)) >= filemtime($filename) ||
-                !$this->getDefaultOption('upToDateCheck')
-            )) {
+                    ($mTime = filemtime($renderFile)) >= filemtime($filename) ||
+                    !$this->getDefaultOption('upToDateCheck')
+                )) {
                 if (!$input) {
                     $input = file_get_contents($filename);
                 }
@@ -187,6 +141,58 @@ class PugJsEngine extends Keywords
         chdir($currentDirectory);
 
         return $this->parsePugJsResult($result, $filename, $toDelete, $options);
+    }
+
+    /**
+     * Render using the native Pug JS engine.
+     *
+     * @param string   $input    pug input or file
+     * @param string   $filename optional file path
+     * @param array    $vars     to pass to the view
+     * @param callable $fallback called if JS engine not available
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function renderWithJs($input, $filename, $vars = null, $fallback = null)
+    {
+        if (is_array($filename)) {
+            if (!is_null($vars)) {
+                $fallback = $vars;
+            }
+            $vars = $filename;
+            $filename = null;
+        }
+
+        $workDirectory = empty($this->getDefaultOption('cache_dir'))
+            ? sys_get_temp_dir()
+            : $this->getOption('cache_dir');
+        if ($toDelete = !$filename) {
+            $filename = $workDirectory . '/source-' . mt_rand(0, 999999999) . '.pug';
+            file_put_contents($filename, $input);
+        }
+
+        $options = [
+            'path'           => realpath($filename),
+            'basedir'        => $this->getDefaultOption('basedir'),
+            'localsJsonFile' => $this->getDefaultOption('locals_json_file'),
+            'pretty'         => $this->getDefaultOption('prettyprint'),
+            'out'            => $workDirectory,
+        ];
+        if (!empty($vars)) {
+            $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
+
+            $options['obj'] = $locals;
+
+            if ($options['localsJsonFile']) {
+                $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.json';
+                file_put_contents($optionsFile, $locals);
+                $options['obj'] = $optionsFile;
+            }
+        }
+
+        return $this->callPugCli($input, $filename, $options, $toDelete, $fallback);
     }
 
     /**

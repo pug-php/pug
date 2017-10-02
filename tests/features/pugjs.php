@@ -9,10 +9,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
      */
     public function testPugJsOption()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
         $pug = new Pug([
             'debug' => true,
             'pugjs' => true,
@@ -91,6 +87,30 @@ class PugJsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @group pugjs
+     */
+    public function testPugJsBasename()
+    {
+        sys_get_temp_dir();
+        $name = 'basic-copy-' . mt_rand(0, 99999999);
+        $source = sys_get_temp_dir() . '/' . $name . '.pug';
+        $cache = sys_get_temp_dir() . '/' . $name . '.js';
+        copy(__DIR__ . '/../templates/basic.pug', $source);
+        chdir(sys_get_temp_dir());
+        $pug = new Pug([
+            'pugjs' => true,
+            'cache' => '.',
+        ]);
+        $html = trim($pug->renderFile($name . '.pug'));
+
+        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+
+        unlink($source);
+        unlink($cache);
+    }
+
+    /**
+     * @group pugjs
      * @expectedException \RuntimeException
      * @expectedExceptionMessage is not a valid class name
      */
@@ -104,12 +124,23 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $pug->render('./\ç@');
     }
 
+    /**
+     * @group pugjs
+     */
+    public function testPugJsNodePath()
+    {
+        $pug = new Pug([
+            'nodePath' => 'bin/node',
+        ]);
+
+        self::assertSame('bin/node', $pug->getNodeEngine()->getNodePath());
+    }
+
+    /**
+     * @group pugjs
+     */
     public function testIssue147()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
         $pug = new Pug(array(
             'pugjs' => true,
         ));
@@ -122,12 +153,11 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
     }
 
+    /**
+     * @group pugjs
+     */
     public function testLocalsJsonFile()
     {
-        if (version_compare(PHP_VERSION, '5.4.0') < 0) {
-            return;
-        }
-
         $pug = new Pug(array(
             'pugjs' => true,
             'localsJsonFile' => true
@@ -136,6 +166,25 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = $pug->render(
             'link(rel="shortcut icon", href=site.favicon, type="image/png")',
             array('site' => array('favicon' => '/favicon.png'))
+        );
+
+        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+    }
+
+    /**
+     * @group pugjs
+     */
+    public function testRenderWithoutFilename()
+    {
+        $pug = new Pug(array(
+            'pugjs' => true,
+            'localsJsonFile' => true
+        ));
+
+        $html = $pug->renderWithJs(
+            'link(rel="shortcut icon", href=site.favicon, type="image/png")',
+            array('site' => array('favicon' => '/favicon.png')),
+            function () {}
         );
 
         $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
