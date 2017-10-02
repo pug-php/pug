@@ -28,6 +28,22 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
      */
     public function testPugGeneration($name)
     {
+        if ($name === 'xml' && defined('HHVM_VERSION')) {
+            $pug = new Pug([
+                'debug' => true,
+                'singleQuote' => false,
+                'prettyprint' => true,
+            ]);
+            $code = $pug->compileFile(__DIR__ . '/../templates/xml.pug');
+            file_put_contents('temp.php', $code);
+            ob_start();
+            include 'temp.php';
+            $html = trim(ob_get_contents());
+            ob_end_clean();
+            $this->assertSame($html, trim(file_get_contents(__DIR__ . '/../templates/xml.html')), $name);
+
+            return;
+        }
         $result = get_test_result($name);
         $result = $result[1];
 

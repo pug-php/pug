@@ -86,7 +86,7 @@ abstract class Options extends OptionsHandler
 
     protected function setUpCache(&$options)
     {
-        if (isset($options['cachedir']) && $options['cachedir'] || defined('HHVM_VERSION')) {
+        if (isset($options['cachedir']) && $options['cachedir']) {
             $options['adapterclassname'] = FileAdapter::class;
         }
     }
