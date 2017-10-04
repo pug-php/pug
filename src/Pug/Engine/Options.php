@@ -26,6 +26,19 @@ abstract class Options extends OptionsHandler
      */
     protected $filters;
 
+    protected function setUpDefaultOptions(&$options)
+    {
+        $defaultOptions = [
+            'environment' => 'development',
+            'formats'     => [],
+        ];
+        foreach ($defaultOptions as $key => $value) {
+            if (!isset($options[$key])) {
+                $options[$key] = $value;
+            }
+        }
+    }
+
     protected function setUpFilterAutoload(&$options)
     {
         if (!isset($options['filterAutoLoad']) || $options['filterAutoLoad']) {

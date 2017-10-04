@@ -15,13 +15,10 @@ abstract class OptionsHandler extends PugJsEngine
     protected $optionsAliases = [
         'cache'              => 'cachedir',
         'prettyprint'        => 'pretty',
-        'expressionLanguage' => 'expressionlanguage',
         'allowMixedIndent'   => 'allow_mixed_indent',
         'keepBaseName'       => 'keep_base_name',
         'notFound'           => 'not_found_template',
         'customKeywords'     => 'keywords',
-        'localsJsonFile'     => 'localsjsonfile',
-        'nodePath'           => 'nodepath',
     ];
 
     protected function normalizeOptionName($name)
@@ -29,6 +26,16 @@ abstract class OptionsHandler extends PugJsEngine
         return isset($this->optionsAliases[$name])
             ? $this->optionsAliases[$name]
             : str_replace('_', '', strtolower($name));
+    }
+
+    protected function copyNormalizedOptions(&$options)
+    {
+        foreach ($options as $key => $value) {
+            $lowerKey = $this->normalizeOptionName($key);
+            if ($lowerKey !== $key) {
+                $options[$lowerKey] = $value;
+            }
+        }
     }
 
     protected function setUpOptionNameHandlers()
