@@ -26,6 +26,19 @@ abstract class Options extends OptionsHandler
      */
     protected $filters;
 
+    protected function setUpDefaultOptions(&$options)
+    {
+        $defaultOptions = [
+            'environment' => 'development',
+            'formats'     => [],
+        ];
+        foreach ($defaultOptions as $key => $value) {
+            if (!isset($options[$key])) {
+                $options[$key] = $value;
+            }
+        }
+    }
+
     protected function setUpFilterAutoload(&$options)
     {
         if (!isset($options['filterAutoLoad']) || $options['filterAutoLoad']) {
@@ -62,15 +75,12 @@ abstract class Options extends OptionsHandler
         foreach ($this->optionsAliases as $from => $to) {
             if (isset($options[$from]) && !isset($options[$to])) {
                 $options[$to] = $options[$from];
-            }
+            } // @codeCoverageIgnore
         }
     }
 
     protected function setUpFormats(&$options)
     {
-        if (!isset($options['formats'])) {
-            $options['formats'] = [];
-        }
         if (!isset($options['formats']['default'])) {
             $options['formats']['default'] = HtmlFormat::class;
         }

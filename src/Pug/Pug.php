@@ -13,6 +13,8 @@ class Pug extends Options
 {
     public function __construct($options = null)
     {
+        $this->setUpDefaultOptions($options);
+        $this->copyNormalizedOptions($options);
         $this->setUpFilterAutoload($options);
         $this->setUpOptionsAliases($options);
         $this->setUpFormats($options);
