@@ -75,15 +75,12 @@ abstract class Options extends OptionsHandler
         foreach ($this->optionsAliases as $from => $to) {
             if (isset($options[$from]) && !isset($options[$to])) {
                 $options[$to] = $options[$from];
-            }
+            } // @codeCoverageIgnore
         }
     }
 
     protected function setUpFormats(&$options)
     {
-        if (!isset($options['formats'])) {
-            $options['formats'] = [];
-        }
         if (!isset($options['formats']['default'])) {
             $options['formats']['default'] = HtmlFormat::class;
         }
