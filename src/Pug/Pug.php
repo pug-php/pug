@@ -12,7 +12,7 @@ use Pug\Engine\Options;
  */
 class Pug extends Options
 {
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         $this->setUpDefaultOptions($options);
         $this->extractExtensionsFromKeywords($options);
