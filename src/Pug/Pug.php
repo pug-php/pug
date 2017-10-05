@@ -104,7 +104,7 @@ class Pug extends Options
     }
 
     /**
-     * Compile HTML code from a Pug input or a Pug file.
+     * Render HTML code from a Pug input string.
      *
      * @param string $input    pug input or file
      * @param array  $vars     to pass to the view
@@ -114,7 +114,7 @@ class Pug extends Options
      *
      * @return string
      */
-    public function render($input, array $vars = [], $filename = null)
+    public function renderString($input, array $vars = [], $filename = null)
     {
         $fallback = function () use ($input, $vars, $filename) {
             return $this->renderWithPhp($input, $vars, $filename);
@@ -128,7 +128,31 @@ class Pug extends Options
     }
 
     /**
-     * Compile HTML code from a Pug input or a Pug file.
+     * Render HTML code from a Pug input or a Pug file.
+     *
+     * @param string $input    pug input or file
+     * @param array  $vars     to pass to the view
+     * @param string $filename optional file path
+     *
+     * @throws \Exception
+     *
+     * @return string
+     */
+    public function render($input, array $vars = [], $filename = null)
+    {
+        if (!$this->getOption('strict') && strpos($input, "\n") === false && file_exists($input) && !is_dir($input) && is_readable($input)) {
+            $extension = pathinfo($input, PATHINFO_EXTENSION);
+            $extension = $extension === '' ? '' : '.' . $extension;
+            if (in_array($extension, $this->getOption('extensions'))) {
+                return $this->renderFile($input, $vars);
+            }
+        }
+
+        return $this->renderString($input, $vars, $filename);
+    }
+
+    /**
+     * Render HTML code from a Pug input or a Pug file.
      *
      * @param string $input pug file
      * @param array  $vars  to pass to the view

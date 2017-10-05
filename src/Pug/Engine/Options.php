@@ -31,6 +31,7 @@ abstract class Options extends OptionsHandler
         $defaultOptions = [
             'environment' => 'development',
             'formats'     => [],
+            'strict'      => false,
         ];
         foreach ($defaultOptions as $key => $value) {
             if (!isset($options[$key])) {

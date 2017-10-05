@@ -18,6 +18,29 @@ composer require pug-php/pug:3.*
 Else, go the [releases](https://github.com/pug-php/pug/releases), download
 the release and replace your own copy of pug with the archive content.
 
+## API changes
+
+In Pug-php 2 `->render` could be used for both input string or input file.
+This means we first detect if the argument passed is a file. This was not
+good for performance and could create unexpected behaviour.
+
+Now `->renderFile` exists and we highly recommend you to use it when you
+render files. This also has the advantage to match the pug-js API:
+
+```php
+$pug = new Pug([
+  'strict' => true, // disable the file detection
+]);
+
+$pug->render('div.pug'); // render <div class="pug"></div>
+$pug->renderFile('div.pug'); // render the file ./div.pug
+```
+
+Consider to use strict mode when possible. When `strict` is `true`, it
+will follow best practices and throw exception when something is
+deprecated. By default `strict` is `false` and keep as much as possible
+backward compatibility with pug-php 2.
+
 ## Syntax changes
 
 ### Variables assignations

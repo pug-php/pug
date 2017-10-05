@@ -109,4 +109,23 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
     }
+
+    public function testRender()
+    {
+        $dir = getcwd();
+        $pug = new Pug();
+        chdir(__DIR__ . '/../templates');
+        $actual = $pug->render('basic.pug');
+        $expected = $pug->render(file_get_contents('basic.pug'));
+
+        $this->assertSame($actual, $expected, '->render should fallback to ->renderFile if strict = false.');
+
+        $pug = new Pug(array('strict' => true));
+        $actual = $pug->render('basic.pug');
+        $expected = '<basic class="pug"></basic>';
+
+        $this->assertSame($actual, $expected, '->render should not fallback to ->renderFile if strict = true.');
+
+        chdir($dir);
+    }
 }
