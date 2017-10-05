@@ -3,6 +3,7 @@
 namespace Pug;
 
 use InvalidArgumentException;
+use Phug\Phug;
 use Phug\Renderer\Adapter\StreamAdapter;
 use Pug\Engine\Options;
 
@@ -11,9 +12,10 @@ use Pug\Engine\Options;
  */
 class Pug extends Options
 {
-    public function __construct($options = null)
+    public function __construct($options = array())
     {
         $this->setUpDefaultOptions($options);
+        $this->extractExtensionsFromKeywords($options);
         $this->copyNormalizedOptions($options);
         $this->setUpFilterAutoload($options);
         $this->setUpOptionsAliases($options);
@@ -28,6 +30,11 @@ class Pug extends Options
 
         $this->initializeLimits();
         $this->initializeJsPhpize();
+    }
+
+    public static function init()
+    {
+        Phug::setRendererClassName(static::class);
     }
 
     public function setCustomOption($name, $value)

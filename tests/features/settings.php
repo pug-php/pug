@@ -1,5 +1,6 @@
 <?php
 
+use Phug\Phug;
 use Pug\Pug;
 
 include_once __DIR__.'/../lib/escape.php';
@@ -525,5 +526,12 @@ body
         $this->assertSame('bar', $pug->getOption('foo'));
         $this->assertSame('baz', $pug->getOption('bar'));
         $this->assertSame('foz', $pug->getOption('biz'));
+    }
+
+    public function testInit()
+    {
+        Pug::init();
+
+        $this->assertInstanceOf(Pug::class, Phug::getRenderer());
     }
 }

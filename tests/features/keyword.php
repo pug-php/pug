@@ -1,5 +1,9 @@
 <?php
 
+use Phug\AbstractExtension;
+use Phug\Compiler\Event\NodeEvent;
+use Phug\Parser\Node\ElementNode;
+use Pug\ExtensionContainerInterface;
 use Pug\Pug;
 
 class ForKeyword
@@ -7,6 +11,34 @@ class ForKeyword
     public function __invoke($args)
     {
         return $args;
+    }
+}
+
+class PhugTestExtension extends AbstractExtension
+{
+    public function getEvents()
+    {
+        return [
+            'on_node' => function (NodeEvent $event) {
+                $node = $event->getNode();
+                if ($node instanceof ElementNode) {
+                    $node->setName('div');
+                }
+            },
+        ];
+    }
+}
+
+class KeywordWithExtension implements ExtensionContainerInterface
+{
+    public function getExtension()
+    {
+        return new PhugTestExtension();
+    }
+
+    public function __invoke($args)
+    {
+        return ['begin' => $args];
     }
 }
 
@@ -272,5 +304,24 @@ class PugKeywordTest extends PHPUnit_Framework_TestCase
         ));
         $expected = '<link href="app.css">';
         $this->assertSame($expected, $actual);
+    }
+
+    public function testKeywordWithExtension()
+    {
+        $pug = new Pug([
+            'keywords' => [
+                'foo' => new KeywordWithExtension(),
+            ],
+        ]);
+
+        $html = trim($pug->render("foo bar\n  bar"));
+
+        self::assertSame('bar<div></div>', $html);
+        $pug = new Pug();
+        $pug->setKeyword('foo', new KeywordWithExtension());
+
+        $html = trim($pug->render("foo bar\n  bar"));
+
+        self::assertSame('bar<div></div>', $html);
     }
 }

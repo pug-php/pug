@@ -4,7 +4,9 @@ namespace Pug\Engine;
 
 use JsPhpize\JsPhpizePhug;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\Phug;
 use Phug\Renderer\Adapter\FileAdapter;
+use Pug\ExtensionContainerInterface;
 use Pug\Format\XmlHhvmFormat;
 
 /**
@@ -134,6 +136,17 @@ abstract class Options extends OptionsHandler
                 $options['attributes_mapping'] = [];
             }
             $options['attributes_mapping']['class'] = $options['classAttribute'];
+        }
+    }
+
+    protected function extractExtensionsFromKeywords(&$options)
+    {
+        if (isset($options['keywords'])) {
+            foreach ($options['keywords'] as $keyword) {
+                if ($keyword instanceof ExtensionContainerInterface) {
+                    $options = array_merge($options, Phug::getExtensionsOptions([$keyword->getExtension()]));
+                }
+            }
         }
     }
 

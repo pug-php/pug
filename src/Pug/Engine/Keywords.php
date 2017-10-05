@@ -4,15 +4,36 @@ namespace Pug\Engine;
 
 use ArrayAccess;
 use InvalidArgumentException;
+use Phug\ExtensionInterface;
+use Phug\Phug;
+use Pug\ExtensionContainerInterface;
 
 /**
  * Class Pug\Engine\Keywords.
  */
 abstract class Keywords extends Filters
 {
+    /**
+     * @var array
+     */
+    protected $extensions = [];
+
     protected function getDefaultOption($name, $defaultValue = null)
     {
         return $this->hasOption($name) ? $this->getOption($name) : $defaultValue;
+    }
+
+    public function addExtension(ExtensionInterface $extension)
+    {
+        if (!in_array($extension, $this->extensions)) {
+            $this->extensions[] = $extension;
+            $options = Phug::getExtensionsOptions([$extension]);
+            foreach ([$this, $this->getCompiler()] as $instance) {
+                $instance->setOptionsRecursive($options);
+            }
+
+            $this->initCompiler();
+        }
     }
 
     protected function hasKeyword($keyword)
@@ -40,6 +61,10 @@ abstract class Keywords extends Filters
 
         if (!$this->hasValidCustomKeywordsOption()) {
             $this->setOption('keywords', []);
+        }
+
+        if ($action instanceof ExtensionContainerInterface) {
+            $this->addExtension($action->getExtension());
         }
 
         $this->setOption(['keywords', $keyword], $action);
