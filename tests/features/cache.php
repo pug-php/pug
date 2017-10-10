@@ -93,7 +93,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
      */
     public function testFileCache()
     {
-        $dir = sys_get_temp_dir() . '/pug';
+        $dir = sys_get_temp_dir() . '/pug' . mt_rand(0,9999999);
         if (file_exists($dir)) {
             if (is_file($dir)) {
                 unlink($dir);
@@ -104,7 +104,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         } else {
             mkdir($dir);
         }
-        $test = "$dir/test".mt_rand(0,9999999).'.pug';
+        $test = "$dir/test" . mt_rand(0,9999999) . '.pug';
         file_put_contents($test, "header\n  h1#foo Hello World!\nfooter");
         sleep(1);
         $pug = new PugTest(array(
@@ -123,6 +123,36 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         if (file_exists($test)) {
             unlink($test);
         }
+    }
+
+    public function testDifferentCacheForDifferentPaths()
+    {
+        $dir = sys_get_temp_dir() . '/pug' . mt_rand(0,9999999);
+        if (file_exists($dir)) {
+            if (is_file($dir)) {
+                unlink($dir);
+                mkdir($dir);
+            } else {
+                $this->emptyDirectory($dir);
+            }
+        } else {
+            mkdir($dir);
+        }
+        $pug = new Pug(array(
+            'cache' => $dir,
+        ));
+        $count = function () use ($dir) {
+            return count(array_filter(scandir($dir), function ($item) {
+                return substr($item, 0, 1) !== '.';
+            }));
+        };
+        self::assertSame(0, $count());
+        $pug->renderFile(__DIR__ . '/../templates/basic.pug');
+        self::assertSame(1, $count());
+        $pug->renderFile(__DIR__ . '/../templates/case.pug');
+        self::assertSame(2, $count());
+        $pug->renderFile(__DIR__ . '/../templates/basic.pug');
+        self::assertSame(2, $count());
     }
 
     private function cacheSystem($keepBaseName)
