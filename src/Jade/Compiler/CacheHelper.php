@@ -145,6 +145,7 @@ class CacheHelper
     {
         $success = 0;
         $errors = 0;
+        $errorDetails = [];
 
         $extensions = new ExtensionsHelper($this->pug->getOption('extension'));
 
@@ -167,10 +168,16 @@ class CacheHelper
                     $success++;
                 } catch (\Exception $e) {
                     $errors++;
+                    $errorDetails[] = [
+                        'directory' => $directory,
+                        'inputFile' => $input,
+                        'path' => $path,
+                        'error' => $e,
+                    ];
                 }
             }
         }
 
-        return array($success, $errors);
+        return array($success, $errors, $errorDetails);
     }
 }
