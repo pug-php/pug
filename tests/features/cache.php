@@ -153,6 +153,27 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         self::assertSame(2, $count());
         $pug->renderFile(__DIR__ . '/../templates/basic.pug');
         self::assertSame(2, $count());
+
+        $this->emptyDirectory($dir);
+
+        $pug = new Pug(array(
+            'base_dir' => __DIR__ . '/../templates',
+            'cache' => $dir,
+        ));
+        $count = function () use ($dir) {
+            return count(array_filter(scandir($dir), function ($item) {
+                return substr($item, 0, 1) !== '.';
+            }));
+        };
+        self::assertSame(0, $count());
+        $pug->renderFile('basic.pug');
+        self::assertSame(1, $count());
+        $pug->renderFile('case.pug');
+        self::assertSame(2, $count());
+        $pug->renderFile('basic.pug');
+        self::assertSame(2, $count());
+
+        $this->emptyDirectory($dir);
     }
 
     private function cacheSystem($keepBaseName)
