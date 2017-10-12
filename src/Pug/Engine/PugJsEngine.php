@@ -15,6 +15,8 @@ class PugJsEngine extends Keywords
     protected $nodeEngine;
 
     /**
+     * Return the NodejsPhpFallback instance used to execute pug-cli via node.
+     *
      * @return NodejsPhpFallback
      */
     public function getNodeEngine()

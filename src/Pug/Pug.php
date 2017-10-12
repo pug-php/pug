@@ -12,6 +12,11 @@ use Pug\Engine\Options;
  */
 class Pug extends Options
 {
+    /**
+     * Pug constructor.
+     *
+     * @param array|\ArrayAccess $options
+     */
     public function __construct($options = [])
     {
         $this->setUpDefaultOptions($options);
@@ -32,16 +37,41 @@ class Pug extends Options
         $this->initializeJsPhpize();
     }
 
+    /**
+     * Set statically the Pug class as the phug default renderer. By default, Phug facade use Phug\Renderer, after
+     * you call `Pug::init()`, it will use Pug instead. This will also works for any class that extends Pug.
+     */
     public static function init()
     {
         Phug::setRendererClassName(static::class);
     }
 
+    /**
+     * This method is kept for backward compatibility but now you should use ->setOption for any option.
+     *
+     * @deprecated
+     * @alias setOption
+     *
+     * @param $name
+     * @param $value
+     *
+     * @return $this
+     */
     public function setCustomOption($name, $value)
     {
         return $this->setOption($name, $value);
     }
 
+    /**
+     * This method is kept for backward compatibility but now you should use ->setOptions for any option.
+     *
+     * @deprecated
+     * @alias setOptions
+     *
+     * @param $options
+     *
+     * @return $this
+     */
     public function setCustomOptions($options)
     {
         return $this->setOptions($options);
@@ -182,7 +212,9 @@ class Pug extends Options
     }
 
     /**
-     * Obsolete.
+     * ->stream() is no longer available, please use Phug\Renderer\Adapter\StreamAdapter instead.
+     *
+     * @deprecated
      *
      * @throws \ErrorException
      */

@@ -23,6 +23,22 @@ abstract class Keywords extends Filters
         return $this->hasOption($name) ? $this->getOption($name) : $defaultValue;
     }
 
+    protected function hasKeyword($keyword)
+    {
+        return $this->hasValidCustomKeywordsOption() && $this->getDefaultOption(['keywords', $keyword]);
+    }
+
+    protected function hasValidCustomKeywordsOption()
+    {
+        return is_array($this->getDefaultOption('keywords')) ||
+            $this->getDefaultOption('keywords') instanceof ArrayAccess;
+    }
+
+    /**
+     * Plug an Phug extension to Pug.
+     *
+     * @param ExtensionInterface $extension
+     */
     public function addExtension(ExtensionInterface $extension)
     {
         if (!in_array($extension, $this->extensions)) {
@@ -34,17 +50,6 @@ abstract class Keywords extends Filters
 
             $this->initCompiler();
         }
-    }
-
-    protected function hasKeyword($keyword)
-    {
-        return $this->hasValidCustomKeywordsOption() && $this->getDefaultOption(['keywords', $keyword]);
-    }
-
-    protected function hasValidCustomKeywordsOption()
-    {
-        return is_array($this->getDefaultOption('keywords')) ||
-            $this->getDefaultOption('keywords') instanceof ArrayAccess;
     }
 
     /**
