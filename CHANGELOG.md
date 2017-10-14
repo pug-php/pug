@@ -145,8 +145,8 @@ attributes are just always removed like in pugjs.
 - `terse` no longer exists, now attribute format can be set via patterns
 or using the matching doctype.
 
-- Variables assignations like `myVar = 'myValue` is no longer supported,
-use raw code instead: `- myVar = 'myValue`
+- Variables assignations like `myVar = 'myValue'` is no longer supported,
+use raw code instead: `- myVar = 'myValue'`
 
 - `allowMixinOverride` option no longer exists, instead you can use
 `'mixin_merge_mode' => 'replace'` (default value and equivalent to
