@@ -7,7 +7,6 @@ use Phug\Formatter\Format\HtmlFormat;
 use Phug\Phug;
 use Phug\Renderer\Adapter\FileAdapter;
 use Pug\ExtensionContainerInterface;
-use Pug\Format\XmlHhvmFormat;
 
 /**
  * Class Pug\Engine\Keywords.
@@ -90,11 +89,6 @@ abstract class Options extends OptionsHandler
         if (!isset($options['formats']['5'])) {
             $options['formats']['5'] = HtmlFormat::class;
         }
-        // @codeCoverageIgnoreStart
-        if (!isset($options['formats']['xml']) && defined('HHVM_VERSION')) {
-            $options['formats']['xml'] = XmlHhvmFormat::class;
-        }
-        // @codeCoverageIgnoreEnd
     }
 
     protected function setUpCache(&$options)
