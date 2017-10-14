@@ -32,7 +32,7 @@ Symfony: https://github.com/pug-php/pug-symfony
 
 Laravel: https://github.com/BKWLD/laravel-pug
 
-CodeIgniter: https://github.com/pug-php/ci-pug
+CodeIgniter: https://github.com/pug-php/ci-pug-engine
 
 Yii 2: https://github.com/rmrevin/yii2-pug
 
