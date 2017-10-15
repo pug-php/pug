@@ -34,6 +34,17 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
         $this->assertSame($result[1], $result[2], $name);
     }
 
+    /**
+     * @group debug
+     */
+    public function testDebug()
+    {
+        $pug = new Pug();
+
+        echo $pug->compileFile(__DIR__ . '/../templates/xml.pug');
+        exit;
+    }
+
     public function testEmptyTemplate()
     {
         $pug = new Pug();
