@@ -105,19 +105,6 @@ function init_tests()
 
 function get_generated_html($contents)
 {
-    if(intval(ini_get('allow_url_include')) !== 0) {
-        error_reporting(E_ALL & ~E_NOTICE);
-        ob_start();
-        include "data://text/plain;base64," . base64_encode($contents);
-        $contents = ob_get_contents();
-        ob_end_clean();
-        error_reporting(E_ALL);
-    } else {
-        $file = tempnam(sys_get_temp_dir(), 'Pug');
-        file_put_contents($file, $contents);
-        $contents = `php -d error_reporting="E_ALL & ~E_NOTICE" {$file}`;
-        unlink($file);
-    }
     return $contents;
 }
 
