@@ -18,7 +18,7 @@ matrix:
           sudo: required
 
 before_script:
-  - if [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; then echo "hhvm.enable_short_tags = Off" >> /etc/hhvm/php.ini; fi
+  - if [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; then echo "hhvm.enable_short_tags = On" >> /etc/hhvm/php.ini; fi
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
 
