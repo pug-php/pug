@@ -42,6 +42,8 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
         $pug = new Pug();
 
         echo $pug->compileFile(__DIR__ . '/../templates/xml.pug');
+        echo "\n\n";
+        $pug->displayFile(__DIR__ . '/../templates/xml.pug');
         exit;
     }
 
