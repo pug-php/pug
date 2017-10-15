@@ -18,6 +18,12 @@ matrix:
           sudo: required
 
 before_script:
+  - echo "<?php var_dump(ini_get('short_open_tag')); " | php
+  - echo "short_open_tags = Off" >> /etc/hhvm/php.ini
+  - echo "<?php var_dump(ini_get('short_open_tag')); " | php
+  - echo "<?php var_dump(ini_get('hhvm.enable_short_tags')); " | php
+  - echo "hhvm.enable_short_tags = Off" >> /etc/hhvm/php.ini
+  - echo "<?php var_dump(ini_get('hhvm.enable_short_tags')); " | php
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
 
