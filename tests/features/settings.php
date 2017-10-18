@@ -49,7 +49,7 @@ mixin centered(title)
 <p>Some important content.</p>
 </div>');
 
-        $this->assertSame($expected, $actual, 'Pretty print enabled');
+        self::assertSame($expected, $actual, 'Pretty print enabled');
 
         $pug = new Pug([
             'prettyprint' => false,
@@ -57,7 +57,7 @@ mixin centered(title)
         $actual = preg_replace('`[ \t]+`', ' ', $pug->render($template));
         $expected =  '<div class="centered" id="Second"><h1 class="foo">Section 1</h1><p>Some important content.</p></div>';
 
-        $this->assertSame($expected, $actual, 'Pretty print disabled');
+        self::assertSame($expected, $actual, 'Pretty print disabled');
     }
 
     /**
@@ -82,23 +82,23 @@ mixin centered(title)
         $pug = new Pug([
             'prettyprint' => false,
         ]);
-        $this->assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
+        self::assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
         $pug->setOption('prettyprint', true);
-        $this->assertTrue($pug->getOption('prettyprint'), 'getOption should return current setting');
+        self::assertTrue($pug->getOption('prettyprint'), 'getOption should return current setting');
         $actual = trim(preg_replace('`\n[\s\n]+`', "\n", str_replace("\r", '', preg_replace('`[ \t]+`', ' ', $pug->render($template)))));
         $expected = str_replace("\r", '', '<div class="centered" id="Second">
 <h1 class="foo">Section 1</h1>
 <p>Some important content.</p>
 </div>');
 
-        $this->assertSame($expected, $actual, 'Pretty print enabled');
+        self::assertSame($expected, $actual, 'Pretty print enabled');
 
         $pug->setOption('prettyprint', false);
-        $this->assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
+        self::assertFalse($pug->getOption('prettyprint'), 'getOption should return current setting');
         $actual = preg_replace('`[ \t]+`', ' ', $pug->render($template));
         $expected =  '<div class="centered" id="Second"><h1 class="foo">Section 1</h1><p>Some important content.</p></div>';
 
-        $this->assertSame($expected, $actual, 'Pretty print disabled');
+        self::assertSame($expected, $actual, 'Pretty print disabled');
     }
 
     /**
@@ -112,13 +112,13 @@ mixin centered(title)
             'cache' => 'abc',
             'indentChar' => '-',
         ));
-        $this->assertTrue($pug->getOption('prettyprint'));
-        $this->assertSame('abc', $pug->getOption('cache'));
-        $this->assertSame('-', $pug->getOption('indentChar'));
+        self::assertTrue($pug->getOption('prettyprint'));
+        self::assertSame('abc', $pug->getOption('cache'));
+        self::assertSame('-', $pug->getOption('indentChar'));
         $pug->setOption('cache', 'def');
-        $this->assertSame('def', $pug->getOption(['cache']));
+        self::assertSame('def', $pug->getOption(['cache']));
         $pug->setOption('indentChar', '_');
-        $this->assertSame('_', $pug->getOption(['indentChar']));
+        self::assertSame('_', $pug->getOption(['indentChar']));
     }
 
     /**
@@ -142,7 +142,7 @@ mixin foo()
         $actual = $pug->render($template);
         $expected = '<h2>Hello</h2>';
 
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override enabled');
+        self::assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override enabled');
 
         $pug = new Pug(array(
             'allowMixinOverride' => false,
@@ -150,7 +150,7 @@ mixin foo()
         $actual = $pug->render($template);
         $expected = '<h1>Hello</h1>';
 
-        $this->assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override disabled');
+        self::assertSame(static::rawHtml($actual), static::rawHtml($expected), 'Allow mixin override disabled');
     }
 
     /**
@@ -165,11 +165,11 @@ mixin foo()
 
         $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/xml.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/xml.html'));
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/mixins.dynamic.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $pug = new Pug(array(
             'allowMixinOverride' => true,
@@ -177,7 +177,7 @@ mixin foo()
         ));
         $actual = static::rawHtml($pug->renderFile(__DIR__ . '/../templates/mixins.dynamic.pug'));
         $expected = static::rawHtml(file_get_contents(__DIR__ . '/../templates/mixins.dynamic.html'));
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     /**
@@ -199,15 +199,15 @@ mixin foo()
         $actual = $pug->render($template);
         $expected = "<h1 id='foo' class='bar' style='color: red;'>Hello</h1>";
 
-        $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote enabled on a simple header');
+        self::assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote enabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data.complex');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on object-to-css');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.single-quote.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote enabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(
+        self::assertSame(
             str_replace("\n", '', static::simpleHtml(file_get_contents($file . '.single-quote.html'))),
             str_replace("\n", '', static::simpleHtml($pug->renderFile($file . '.pug'))),
             'Single quote enabled on interpolation'
@@ -223,15 +223,15 @@ mixin foo()
         $actual = $pug->render($template);
         $expected = '<h1 id="foo" class="bar" style="color: red;">Hello</h1>';
 
-        $this->assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote disabled on a simple header');
+        self::assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote disabled on a simple header');
         $file = __DIR__ . '/../templates/attrs-data.complex';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data.complex');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data.complex');
         $file = __DIR__ . '/../templates/attrs-data';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on attrs-data');
         $file = __DIR__ . '/../templates/object-to-css';
-        $this->assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on object-to-css');
+        self::assertSame(static::simpleHtml(file_get_contents($file . '.html')), static::simpleHtml($pug->renderFile($file . '.pug')), 'Single quote disabled on object-to-css');
         $file = __DIR__ . '/../templates/interpolation';
-        $this->assertSame(
+        self::assertSame(
             str_replace("\n", '', static::simpleHtml(static::simpleHtml(file_get_contents($file . '.html')))),
             str_replace("\n", '', static::simpleHtml($pug->renderFile($file . '.pug'))),
             'Single quote disabled on interpolation'
@@ -249,12 +249,12 @@ mixin foo()
         $actual = $pug->render('p' . "\n\t    " . 'i Hi' . "\n    \t" . 'i Ho');
         $expected = '<p><i>Hi</i><i>Ho</i></p>';
 
-        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
+        self::assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
 
         $actual = $pug->render('p' . "\n    \t" . 'i Hi' . "\n\t    " . 'i Ho');
         $expected = '<p><i>Hi</i><i>Ho</i></p>';
 
-        $this->assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
+        self::assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
     }
 
     /**
@@ -343,7 +343,7 @@ mixin foo()
             'notFound' => 'p My Not Found Error'
         ));
         $actual = $pug->render('include does-not-exists');
-        $this->assertSame($actual, '<p>My Not Found Error</p>', 'A file not found when included should return notFound value if set.');
+        self::assertSame($actual, '<p>My Not Found Error</p>', 'A file not found when included should return notFound value if set.');
     }
 
     /**
@@ -375,7 +375,7 @@ body
   </section>
 </body>
 ');
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $pug = new Pug(array(
             'singleQuote' => false,
@@ -383,7 +383,7 @@ body
         ));
         $actual = str_replace("\r", '', $pug->render($template));
         $expected = str_replace('  ', '    ', $expected);
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $pug = new Pug(array(
             'singleQuote' => false,
@@ -391,7 +391,7 @@ body
         ));
         $actual = str_replace("\r", '', $pug->render($template));
         $expected = str_replace('    ', "\t", $expected);
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     /**
@@ -430,7 +430,7 @@ body
             "<p>World</p>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
             __DIR__ . '/../templates/',
@@ -442,7 +442,7 @@ body
             "<p>World</p>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
             __DIR__ . '/../templates/auxiliary',
@@ -454,7 +454,7 @@ body
             "<p>World</p>\n" .
             "<p>World</p>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
             __DIR__ . '/../templates/auxiliary/nothing',
@@ -466,7 +466,7 @@ body
             "<p>World</p>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
             __DIR__ . '/../templates/',
@@ -478,7 +478,7 @@ body
             "<p>World</p>\n" .
             "<div class=\"alert alert-danger\">Page not found.</div>\n" .
             "<p>World</p>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $this->renderWithBaseDir(
             __DIR__ . '/../templates/',
@@ -499,7 +499,7 @@ body
             "<p>World</p>\n" .
             "</body>\n" .
             "</html>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testClassAttribute()
@@ -510,7 +510,7 @@ body
         ));
         $actual = trim($pug->render('.foo.bar(a="b") Hello'));
         $expected = '<div className="foo bar" a="b">Hello</div>';
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testCustomOptions()
@@ -522,16 +522,16 @@ body
                 'bar' => 'baz',
             ])
             ->setCustomOption('biz', 'foz');
-        $this->assertSame($copy, $pug);
-        $this->assertSame('bar', $pug->getOption('foo'));
-        $this->assertSame('baz', $pug->getOption('bar'));
-        $this->assertSame('foz', $pug->getOption('biz'));
+        self::assertSame($copy, $pug);
+        self::assertSame('bar', $pug->getOption('foo'));
+        self::assertSame('baz', $pug->getOption('bar'));
+        self::assertSame('foz', $pug->getOption('biz'));
     }
 
     public function testInit()
     {
         Pug::init();
 
-        $this->assertInstanceOf(Pug::class, Phug::getRenderer());
+        self::assertInstanceOf(Pug::class, Phug::getRenderer());
     }
 }

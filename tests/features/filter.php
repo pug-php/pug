@@ -26,12 +26,12 @@ class PugFilterTest extends PHPUnit_Framework_TestCase
         $pug = new Pug([
             'debug' => true,
         ]);
-        $this->assertSame("<?php\nfoo\n?>", call_user_func($pug->getFilter('php'), 'foo'));
-        $this->assertFalse($pug->hasFilter('text'));
+        self::assertSame("<?php\nfoo\n?>", call_user_func($pug->getFilter('php'), 'foo'));
+        self::assertFalse($pug->hasFilter('text'));
         $pug->filter('text', function($code) {
             return strip_tags($code);
         });
-        $this->assertTrue($pug->hasFilter('text'));
+        self::assertTrue($pug->hasFilter('text'));
         $actual = $pug->render('
 div
     p
@@ -46,7 +46,7 @@ div
         $expected = str_replace(' ', '', $expected);
         $actual = str_replace([' ', "\n"], '', $actual);
 
-        $this->assertSame($expected, $actual, 'Custom filter');
+        self::assertSame($expected, $actual, 'Custom filter');
     }
 
     /**
@@ -59,7 +59,7 @@ div
         $pug = new Pug([
             'debug' => true,
         ]);
-        $this->assertFalse($pug->hasFilter('bar'));
+        self::assertFalse($pug->hasFilter('bar'));
         $pug->filter('bar', 'nonexists');
     }
 
@@ -72,7 +72,7 @@ div
             'debug' => true,
             'filterAutoLoad' => false,
         ]);
-        $this->assertFalse($pug->hasFilter('foo-bar'));
+        self::assertFalse($pug->hasFilter('foo-bar'));
         spl_autoload_register(function ($name) {
             $name = explode('\\', $name);
             $file = __DIR__ . '/../lib/' . end($name) . 'Filter.php';
@@ -80,15 +80,15 @@ div
                 include_once $file;
             }
         });
-        $this->assertFalse($pug->hasFilter('foo-bar'));
-        $this->assertSame($pug->getFilter('foo-bar'), null);
+        self::assertFalse($pug->hasFilter('foo-bar'));
+        self::assertSame($pug->getFilter('foo-bar'), null);
 
         $pug = new Pug([
             'debug' => true,
             'filterAutoLoad' => true,
         ]);
-        $this->assertTrue($pug->hasFilter('foo-bar'));
-        $this->assertSame('I\'M SO TALL :)', call_user_func($pug->getFilter('foo-bar'), 'I\'m so small :('));
+        self::assertTrue($pug->hasFilter('foo-bar'));
+        self::assertSame('I\'M SO TALL :)', call_user_func($pug->getFilter('foo-bar'), 'I\'m so small :('));
         $actual = $pug->render('
 div
     p
@@ -97,7 +97,7 @@ div
 ');
         $expected = '<div><p>I\'M SO TALL :)</p></div>';
 
-        $this->assertSame(preg_replace('`\s`', '', $expected), preg_replace('`\s`', '', $actual), 'Autoloaded filter');
+        self::assertSame(preg_replace('`\s`', '', $expected), preg_replace('`\s`', '', $actual), 'Autoloaded filter');
     }
 
     /**
@@ -110,7 +110,7 @@ div
         $pug = new Pug([
             'debug' => true,
         ]);
-        $this->assertFalse($pug->hasFilter('bar-foo'));
+        self::assertFalse($pug->hasFilter('bar-foo'));
         $pug->render('
 div
     p
@@ -139,13 +139,13 @@ h1
 ');
         $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'One-line filter');
+        self::assertRegExp($expected, $actual, 'One-line filter');
 
         $actual = $pug->render('h1 BAR-#[:lower FOO]-BAR');
 
         $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'In-line filter');
+        self::assertRegExp($expected, $actual, 'In-line filter');
     }
 
     /**
@@ -165,13 +165,13 @@ h1
 ');
         $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'One-line filter');
+        self::assertRegExp($expected, $actual, 'One-line filter');
 
         $actual = $pug->render('h1 BAR-#[:lower FOO]-BAR');
 
         $expected = '/^<h1>BAR-\s+foo\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'In-line filter');
+        self::assertRegExp($expected, $actual, 'In-line filter');
     }
 
     /**
@@ -181,7 +181,7 @@ h1
     {
         $filter = new \Pug\Filter\Cdata();
 
-        $this->assertSame("<![CDATA[\nfoo\n]]>", $filter('foo'));
+        self::assertSame("<![CDATA[\nfoo\n]]>", $filter('foo'));
     }
 
     /**
@@ -192,7 +192,7 @@ h1
         include_once __DIR__ . '/../lib/AutoloadParseFilter.php';
         $pug = new Pug();
 
-        $this->assertSame('foobar', $pug->render(':autoload-parse-filter'));
+        self::assertSame('foobar', $pug->render(':autoload-parse-filter'));
     }
 
     /**
@@ -202,7 +202,7 @@ h1
     {
         $filter = new SpecialScript();
 
-        $this->assertSame('<script>foo</script>', $filter->pugInvoke('foo'));
+        self::assertSame('<script>foo</script>', $filter->pugInvoke('foo'));
     }
 
     /**
@@ -223,7 +223,7 @@ h1
 ');
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'Block filter');
+        self::assertRegExp($expected, $actual, 'Block filter');
 
         $actual = $pug->render('
 h1
@@ -234,7 +234,7 @@ h1
 ');
         $expected = '<h1><span>BAR-</span>42<span>-BAR</span></h1>';
 
-        $this->assertSame($expected, $actual, 'Block filter and span');
+        self::assertSame($expected, $actual, 'Block filter and span');
 
         $actual = $pug->render('
 h1
@@ -244,13 +244,13 @@ h1
 ');
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'One-line filter');
+        self::assertRegExp($expected, $actual, 'One-line filter');
 
         $actual = $pug->render('h1 BAR-#[:php echo 6 * 7]-BAR');
 
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'In-line filter');
+        self::assertRegExp($expected, $actual, 'In-line filter');
     }
 
     /**
@@ -272,7 +272,7 @@ h1
 '));
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'Block filter');
+        self::assertRegExp($expected, $actual, 'Block filter');
 
         $actual = trim($pug->render('
 h1
@@ -283,7 +283,7 @@ h1
 '));
         $expected = '/^<h1><span>BAR-<\/span>42<span>-BAR<\/span><\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'Block filter and span');
+        self::assertRegExp($expected, $actual, 'Block filter and span');
 
         $actual = trim($pug->render('
 h1
@@ -293,11 +293,11 @@ h1
 '));
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'One-line filter');
+        self::assertRegExp($expected, $actual, 'One-line filter');
 
         $actual = trim($pug->render('h1 BAR-#[:php echo 6 * 7]-BAR'));
         $expected = '/^<h1>BAR-\s+42\s+-BAR<\/h1>$/';
 
-        $this->assertRegExp($expected, $actual, 'In-line filter');
+        self::assertRegExp($expected, $actual, 'In-line filter');
     }
 }

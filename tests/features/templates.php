@@ -31,14 +31,14 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
         $result = get_test_result($name);
         $result = $result[1];
 
-        $this->assertSame($result[1], $result[2], $name);
+        self::assertSame($result[1], $result[2], $name);
     }
 
     public function testEmptyTemplate()
     {
         $pug = new Pug();
 
-        $this->assertSame('', $pug->render(''), 'Empty string should render empty string.');
+        self::assertSame('', $pug->render(''), 'Empty string should render empty string.');
     }
 
     public function testVariablesHandle()
@@ -50,13 +50,13 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $html = $pug->render('input(type="checkbox", checked=true)');
 
-        $this->assertSame('<input type="checkbox" checked>', $html, 'Static boolean values should render as simple attributes.');
+        self::assertSame('<input type="checkbox" checked>', $html, 'Static boolean values should render as simple attributes.');
 
         $html = $pug->render('input(type="checkbox", checked=isChecked)', [
             'isChecked' => true,
         ]);
 
-        $this->assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
+        self::assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
     }
 
     public function testSpacesRender()
@@ -67,31 +67,31 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         $html = $pug->render("i a\ni b");
 
-        $this->assertSame('<i>a</i><i>b</i>', $html);
+        self::assertSame('<i>a</i><i>b</i>', $html);
 
         $html = $pug->render("i a\n=' '\ni b");
 
-        $this->assertSame('<i>a</i> <i>b</i>', $html);
+        self::assertSame('<i>a</i> <i>b</i>', $html);
 
         $html = str_replace("\n", '', $pug->render("p\n  | #[i a] #[i b]"));
 
-        $this->assertSame('<p><i>a</i> <i>b</i></p>', $html);
+        self::assertSame('<p><i>a</i> <i>b</i></p>', $html);
 
         $html = $pug->render("p this is#[a(href='#') test]string");
 
-        $this->assertSame('<p>this is<a href="#">test</a>string</p>', $html);
+        self::assertSame('<p>this is<a href="#">test</a>string</p>', $html);
 
         $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
-        $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
+        self::assertSame('<p>this is <a href="#">test string</a></p>', $html);
 
         $html = $pug->render("p this is #[a(href='#') test] string");
 
-        $this->assertSame('<p>this is <a href="#">test</a> string</p>', $html);
+        self::assertSame('<p>this is <a href="#">test</a> string</p>', $html);
 
         $html = str_replace("\n", '', $pug->render("p this is #[a(href='#') test string]"));
 
-        $this->assertSame('<p>this is <a href="#">test string</a></p>', $html);
+        self::assertSame('<p>this is <a href="#">test string</a></p>', $html);
     }
 
     public function testRender()
@@ -102,13 +102,13 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
         $actual = $pug->render('basic.pug');
         $expected = $pug->render(file_get_contents('basic.pug'));
 
-        $this->assertSame($actual, $expected, '->render should fallback to ->renderFile if strict = false.');
+        self::assertSame($actual, $expected, '->render should fallback to ->renderFile if strict = false.');
 
         $pug = new Pug(array('strict' => true));
         $actual = $pug->render('basic.pug');
         $expected = '<basic class="pug"></basic>';
 
-        $this->assertSame($actual, $expected, '->render should not fallback to ->renderFile if strict = true.');
+        self::assertSame($actual, $expected, '->render should not fallback to ->renderFile if strict = true.');
 
         chdir($dir);
     }

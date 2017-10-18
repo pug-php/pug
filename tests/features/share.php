@@ -16,15 +16,15 @@ class ShareTest extends PHPUnit_Framework_TestCase
             'bar' => 'world',
         ]);
         $html = $pug->render("p=\$foo\ndiv=\$answear");
-        $this->assertSame('<p>Hello</p><div>42</div>', $html);
+        self::assertSame('<p>Hello</p><div>42</div>', $html);
 
         $html = $pug->render("p=\$foo\ndiv=\$answear", [
             'answear' => 16,
         ]);
-        $this->assertSame('<p>Hello</p><div>16</div>', $html);
+        self::assertSame('<p>Hello</p><div>16</div>', $html);
 
         $html = $pug->render("p\n  ?=\$foo\n  =' '\n  =\$bar\n  | !");
-        $this->assertSame('<p>Hello world!</p>', $html);
+        self::assertSame('<p>Hello world!</p>', $html);
     }
 
     public function testResetSharedVariables()
@@ -46,6 +46,6 @@ class ShareTest extends PHPUnit_Framework_TestCase
             $error = $e->getMessage();
         }
 
-        $this->assertRegExp('/Undefined variable: foo/', $error);
+        self::assertRegExp('/Undefined variable: foo/', $error);
     }
 }

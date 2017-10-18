@@ -10,23 +10,23 @@ class PugWhiteSpaceTest extends PHPUnit_Framework_TestCase
 
         $actual = $pug->render("div\n  textarea");
         $expected = '<div><textarea></textarea></div>';
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $pug->render("div\n  textarea Bob");
         $expected = '<div><textarea>Bob</textarea></div>';
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $pug->render("textarea\n  ='Bob'");
         $expected = '<textarea>Bob</textarea>';
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $pug->render("div\n  textarea.\n    Bob\n    Boby");
         $expected = "<div><textarea>Bob\nBoby</textarea></div>";
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = $pug->render("textarea\n  | Bob");
         $expected = '<textarea>Bob</textarea>';
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testPipeless()
@@ -45,6 +45,6 @@ class PugWhiteSpaceTest extends PHPUnit_Framework_TestCase
         ");
         $expected = '<div><span>Some indented text on many lines but the words must not be sticked. </span></div>';
         $actual = preg_replace('/\s+/', ' ', $actual);
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 }

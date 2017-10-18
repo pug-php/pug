@@ -16,11 +16,11 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $html = $pug->render('h1=name', ['name' => 'Yop']);
 
-        $this->assertSame('<h1>Yop</h1>', $html);
+        self::assertSame('<h1>Yop</h1>', $html);
 
         $html = $pug->renderFile(__DIR__ . '/../templates/basic.pug');
 
-        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+        self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         $pug->setOption('cache', sys_get_temp_dir());
         $name = 'basic-copy-' . mt_rand(0, 99999999);
@@ -35,9 +35,9 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = trim($pug->renderFile($source));
         clearstatcache();
 
-        $this->assertTrue(file_exists($cache));
+        self::assertTrue(file_exists($cache));
 
-        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+        self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         file_put_contents($source, 'p=greet');
         touch($source, time() - 10);
@@ -48,7 +48,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             'greet' => 'Hello'
         )));
 
-        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+        self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         touch($cache, time() - 20);
         clearstatcache();
@@ -57,13 +57,13 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             'greet' => 'Hello'
         )));
 
-        $this->assertSame('<p>Hello</p>', $html);
+        self::assertSame('<p>Hello</p>', $html);
 
         $html = trim($pug->renderFile($source, array(
             'greet' => 'Bye'
         )));
 
-        $this->assertSame('<p>Bye</p>', $html);
+        self::assertSame('<p>Bye</p>', $html);
 
         file_put_contents($source, 'div: p');
         touch($cache, time() - 20);
@@ -71,7 +71,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $html = trim($pug->renderFile($source));
 
-        $this->assertSame('<div><p></p></div>', $html);
+        self::assertSame('<div><p></p></div>', $html);
 
         $pug->setOption('prettyprint', true);
 
@@ -80,7 +80,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
 
         $html = trim($pug->renderFile($source));
 
-        $this->assertSame("<div>\n  <p></p>\n</div>", $html);
+        self::assertSame("<div>\n  <p></p>\n</div>", $html);
 
         unlink($source);
         unlink($cache);
@@ -103,7 +103,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         ]);
         $html = trim($pug->renderFile($name . '.pug'));
 
-        $this->assertSame('<html><body><h1>Title</h1></body></html>', $html);
+        self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
         unlink($source);
         unlink($cache);
@@ -150,7 +150,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             array('site' => array('favicon' => '/favicon.png'))
         );
 
-        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+        self::assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
     }
 
     /**
@@ -168,7 +168,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             array('site' => array('favicon' => '/favicon.png'))
         );
 
-        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+        self::assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
     }
 
     /**
@@ -187,6 +187,6 @@ class PugJsTest extends PHPUnit_Framework_TestCase
             function () {}
         );
 
-        $this->assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+        self::assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
     }
 }

@@ -15,7 +15,7 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
         $html = $pug->render('a#foo.bar(**btn title="Foo") Hello');
         $expected = '<a id="foo" class="bar btn btn-primary" data-button="on" title="Foo">Hello</a>';
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 
     public function testPreRenderIncludeAndExtend()
@@ -47,7 +47,7 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
             '</html>'
         );
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 
     public function testPostRender()
@@ -61,7 +61,7 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
         $html = $pug->render('a#foo(title=5*3) Hello');
         $expected = '<a data-contains-attributes="true" id="foo" title="15">Hello</a>';
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 
     public function testEventsOrder()
@@ -83,6 +83,6 @@ class PugHooksTest extends PHPUnit_Framework_TestCase
         $html = $pug->render('#foo');
         $expected = '<div class="biz"></div>';
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 }

@@ -10,13 +10,13 @@ class PugRequirementsTest extends PHPUnit_Framework_TestCase
             'cache' => '/path/that/does/not/exists',
         ));
         $requirements = $pug->requirements();
-        $this->assertFalse($requirements['cacheFolderExists'], 'cacheFolderExists requirement should be false with /path/that/does/not/exists');
+        self::assertFalse($requirements['cacheFolderExists'], 'cacheFolderExists requirement should be false with /path/that/does/not/exists');
 
         $pug = new Pug(array(
             'cache' => sys_get_temp_dir(),
         ));
         $requirements = $pug->requirements();
-        $this->assertTrue($pug->requirements('cacheFolderExists'), 'cacheFolderExists requirement should be true with sys_get_temp_dir()');
+        self::assertTrue($pug->requirements('cacheFolderExists'), 'cacheFolderExists requirement should be true with sys_get_temp_dir()');
     }
 
     /**

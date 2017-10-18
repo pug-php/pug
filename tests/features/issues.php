@@ -12,7 +12,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         )));
         $expected = '<div class="MyInitialClass MyClass"></div>';
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 
     public function testIssue64()
@@ -25,7 +25,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         )));
         $expected = '<script>var url = "/path/hello/world/file";</script>';
 
-        $this->assertSame($expected, $html);
+        self::assertSame($expected, $html);
     }
 
     public function testIssue71()
@@ -40,7 +40,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
             ),
         )));
 
-        $this->assertSame('<input type="checkbox" name="group[4]" />', $actual);
+        self::assertSame('<input type="checkbox" name="group[4]" />', $actual);
     }
 
     public function testIssue73()
@@ -48,7 +48,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         $pug = new Pug();
         $actual = trim($pug->render('p=__("foo")'));
 
-        $this->assertSame('<p>foo</p>', $actual);
+        self::assertSame('<p>foo</p>', $actual);
     }
 
     public function testIssue75()
@@ -58,8 +58,8 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         ));
         $requirements = $pug->requirements();
 
-        $this->assertTrue($requirements['cacheFolderExists']);
-        $this->assertTrue($requirements['cacheFolderIsWritable']);
+        self::assertTrue($requirements['cacheFolderExists']);
+        self::assertTrue($requirements['cacheFolderIsWritable']);
     }
 
     public function testIssue86()
@@ -75,7 +75,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
         )));
         $expected = '<a href="?m=1">2</a>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testissue89()
@@ -89,7 +89,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
             'errors' => new \FooBarClass(),
         )));
 
-        $this->assertSame('foo', $actual);
+        self::assertSame('foo', $actual);
 
         $pug = new Pug(array(
             'expressionLanguage' => 'js',
@@ -98,7 +98,7 @@ class PugIssuesTest extends PHPUnit_Framework_TestCase
             'errors' => new \FooBarClass(),
         )));
 
-        $this->assertSame('foo', $actual);
+        self::assertSame('foo', $actual);
     }
 
     public function testIssue90()
@@ -122,7 +122,7 @@ p(
         ))));
         $expected = '<p>$test</p><p>$test</p><p>#{$test}</p><p>#{$test}</p><p>foo</p><p data-a="$test" data-b="$test" data-c="#{$test}" data-d="#{$test}">test</p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $pug = new Pug(array(
             'expressionLanguage' => 'php',
@@ -144,7 +144,7 @@ p(
         ))));
         $expected = '<p>$test</p><p>foo</p><p>#{$test}</p><p>#foo</p><p>foo</p><p data-a="$test" data-b="foo" data-c="#{$test}" data-d="#foo" data-e="#foo">test</p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testIssue92()
@@ -157,7 +157,7 @@ mixin simple-paragraph(str)
 '));
         $expected = '<p>FOO</p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = trim($pug->render('
 mixin simple-paragraph(str)
@@ -169,7 +169,7 @@ mixin simple-paragraph(str)
 '));
         $expected = '<p>FOO\\&quot;&quot;)5</p><p>Bfoo</p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testIssue72()
@@ -186,7 +186,7 @@ if entryopen && !submitted
 )));
         $expected = '<button></button>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $pug = new Pug(array(
             'expressionLanguage' => 'php',
@@ -200,7 +200,7 @@ if $entryopen and !$submitted
 )));
         $expected = '<button></button>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testSymfonyIssue6()
@@ -217,7 +217,7 @@ if $entryopen and !$submitted
         $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = trim($pug->render('
 .foo(style={\'background-position\': "50% -402px", \'background-image\': \'url("\' + strtolower(\'/img.PNG\') + \'")\'})
@@ -225,7 +225,7 @@ if $entryopen and !$submitted
         $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as object
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         /**
          * With php expression language.
@@ -239,7 +239,7 @@ if $entryopen and !$submitted
         $expected = '<div class="foo" style="background-position: 50% -402px; background-image: url(&quot;/img.png&quot;);"></div>';
 
         // style as string
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
 
         $actual = trim($pug->render('
 .foo(style=array(\'background-position\' => "50% -402px", \'background-image\' => \'url("\' . strtolower(\'/img.PNG\') . \'")\'))
@@ -247,7 +247,7 @@ if $entryopen and !$submitted
         $expected = '<div class="foo" style="background-position:50% -402px;background-image:url(&quot;/img.png&quot;)"></div>';
 
         // style as array
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testIssue100()
@@ -268,7 +268,7 @@ if $entryopen and !$submitted
         ))));
         $expected = '<p>Example Foo money-12</p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testIssue103()
@@ -279,7 +279,7 @@ if $entryopen and !$submitted
         $actual = trim($pug->render("mixin a\n  p\n+a"));
         $expected = '<p></p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     /**
@@ -300,7 +300,7 @@ if $entryopen and !$submitted
             )));
             $expected = '`<p>CZ</p><p>[\d.]+</p><p>[\d.]+</p><p></p>`';
 
-            $this->assertRegExp($expected, $actual);
+            self::assertRegExp($expected, $actual);
         }
     }
 
@@ -310,7 +310,7 @@ if $entryopen and !$submitted
         $actual = str_replace("\n", '', trim($pug->render('p #[em #[strong Yow!]]')));
         $expected = '<p><em><strong>Yow!</strong></em></p>';
 
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 
     public function testCoffeeScriptFilterRegression()
@@ -367,6 +367,6 @@ if $entryopen and !$submitted
         ]);
 
         $actual = $pug->render($input);
-        $this->assertSame($expected, $actual);
+        self::assertSame($expected, $actual);
     }
 }

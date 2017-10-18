@@ -33,7 +33,7 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testIndex()
     {
-        $this->assertSame($this->getExpectedFile('index'), $this->browse());
+        self::assertSame($this->getExpectedFile('index'), $this->browse());
     }
 
     /**
@@ -41,7 +41,7 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testLogin()
     {
-        $this->assertSame($this->getExpectedFile('login'), $this->browse('login'));
+        self::assertSame($this->getExpectedFile('login'), $this->browse('login'));
     }
 
     /**
@@ -49,6 +49,6 @@ class PugExampleTest extends PHPUnit_Framework_TestCase
      */
     public function testCities()
     {
-        $this->assertSame($this->getExpectedFile('cities'), $this->browse('cities'));
+        self::assertSame($this->getExpectedFile('cities'), $this->browse('cities'));
     }
 }

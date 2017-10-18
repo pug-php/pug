@@ -12,16 +12,16 @@ class PugExpressionLanguageTest extends PHPUnit_Framework_TestCase
         ]);
 
         $actual = trim($pug->render("- a = 2\n- b = 4\n- c = b * a\np=a * b\np=c"));
-        $this->assertSame('<p>8</p><p>8</p>', $actual);
+        self::assertSame('<p>8</p><p>8</p>', $actual);
 
         $actual = trim($pug->render("- a = 2\n- b = 4\np=a + b"));
-        $this->assertSame('<p>6</p>', $actual);
+        self::assertSame('<p>6</p>', $actual);
 
         $actual = trim($pug->render("- a = '2'\n- b = 4\np=a + b"));
-        $this->assertSame('<p>24</p>', $actual);
+        self::assertSame('<p>24</p>', $actual);
 
         $actual = trim($pug->render("mixin test\n  div&attributes(attributes)\nbody\n  +test()(class='test')"));
-        $this->assertSame('<body><div class="test"></div></body>', $actual);
+        self::assertSame('<body><div class="test"></div></body>', $actual);
     }
 
     public function testJsLanguageOptions()
@@ -39,6 +39,6 @@ class PugExpressionLanguageTest extends PHPUnit_Framework_TestCase
         $actual = trim($pug->render('=a.ho', [
             'a' => 'hi '
         ]));
-        $this->assertSame('hi ho', $actual);
+        self::assertSame('hi ho', $actual);
     }
 }

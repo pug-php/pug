@@ -27,6 +27,9 @@
             <exclude>tests/features/issues.php</exclude>
             <exclude>tests/features/exceptions.php</exclude>
         </testsuite>
+        <testsuite name="Facade">
+            <file>tests/features/facade.php</file>
+        </testsuite>
         <testsuite name="Compiler">
             <directory suffix=".php">tests/nodes</directory>
             <directory suffix=".php">tests/compiler</directory>

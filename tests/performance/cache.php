@@ -43,6 +43,6 @@ class PugCachePerformanceTest extends PHPUnit_Framework_TestCase
      */
     public function testCacheWeight()
     {
-        $this->assertSame('<p>Hello world!</p>', $this->getPhp('p Hello world!'), 'Simple template should output simple code.');
+        self::assertSame('<p>Hello world!</p>', $this->getPhp('p Hello world!'), 'Simple template should output simple code.');
     }
 }

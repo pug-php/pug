@@ -78,13 +78,13 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             'debug' => false,
             'cache' => $dir
         ));
-        $this->assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
+        self::assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
         $pug->render("header\n  h1#foo Hello World!\nfooter");
-        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
+        self::assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
         $pug->render("header\n  h1#foo Hello World!\nfooter");
-        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
+        self::assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
         $pug->render("header\n  h1#foo Hello World2\nfooter");
-        $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        self::assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->emptyDirectory($dir);
     }
 
@@ -111,14 +111,14 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
             'debug' => false,
             'cache' => $dir
         ));
-        $this->assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
+        self::assertSame(0, $pug->getCompilationsCount(), 'Should have done no compilations yet');
         $pug->renderFile($test);
-        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
+        self::assertSame(1, $pug->getCompilationsCount(), 'Should have done 1 compilation');
         $pug->renderFile($test);
-        $this->assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
+        self::assertSame(1, $pug->getCompilationsCount(), 'Should have done always 1 compilation because the code is cached');
         file_put_contents($test, "header\n  h1#foo Hello World2\nfooter");
         $pug->renderFile($test);
-        $this->assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
+        self::assertSame(2, $pug->getCompilationsCount(), 'Should have done always 2 compilations because the code changed');
         $this->emptyDirectory($dir);
         if (file_exists($test)) {
             unlink($test);
@@ -197,11 +197,11 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         }, array_filter(scandir($cacheDirectory), function ($file) {
             return substr($file, -4) === '.php';
         })));
-        $this->assertSame(1, count($phpFiles), 'The cached file should now exist.');
+        self::assertSame(1, count($phpFiles), 'The cached file should now exist.');
         $cachedFile = realpath($phpFiles[0]);
-        $this->assertFalse(!$cachedFile, 'The cached file should now exist.');
+        self::assertFalse(!$cachedFile, 'The cached file should now exist.');
         $containsBase = strpos($cachedFile, $base) !== false;
-        $this->assertTrue($containsBase === $keepBaseName, 'The cached file name should contains base name if keepBaseName is true.');
+        self::assertTrue($containsBase === $keepBaseName, 'The cached file name should contains base name if keepBaseName is true.');
         if (file_exists($cachedFile)) {
             unlink($cachedFile);
         }
@@ -258,7 +258,7 @@ class PugCacheTest extends PHPUnit_Framework_TestCase
         $this->emptyDirectory($cacheDirectory);
         rmdir($cacheDirectory);
 
-        $this->assertSame($expectedCount, $success + $errors, 'Each .pug file in the directory to cache should generate a success or an error.');
-        $this->assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
+        self::assertSame($expectedCount, $success + $errors, 'Each .pug file in the directory to cache should generate a success or an error.');
+        self::assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
     }
 }
