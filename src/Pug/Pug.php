@@ -229,6 +229,8 @@ class Pug extends Options
             $extension = $extension === '' ? '' : '.' . $extension;
             if (in_array($extension, $this->getOption('extensions'))) {
                 echo $this->renderFile($input, $vars);
+
+                return;
             }
         }
 
