@@ -211,6 +211,41 @@ class Pug extends Options
         return call_user_func($fallback);
     }
 
+    public function displayString($input, array $vars = [], $filename = null)
+    {
+        if ($this->getDefaultOption('pugjs')) {
+            echo $this->renderString($input, $vars, $filename);
+
+            return;
+        }
+
+        parent::display($input, $vars, $filename);
+    }
+
+    public function display($input, array $vars = [], $filename = null)
+    {
+        if (!$this->getOption('strict') && strpos($input, "\n") === false && file_exists($input) && !is_dir($input) && is_readable($input)) {
+            $extension = pathinfo($input, PATHINFO_EXTENSION);
+            $extension = $extension === '' ? '' : '.' . $extension;
+            if (in_array($extension, $this->getOption('extensions'))) {
+                echo $this->renderFile($input, $vars);
+            }
+        }
+
+        $this->displayString($input, $vars, $filename);
+    }
+
+    public function displayFile($input, array $vars = [])
+    {
+        if ($this->getDefaultOption('pugjs')) {
+            echo $this->renderFile($input, $vars);
+
+            return;
+        }
+
+        parent::displayFile($input, $vars);
+    }
+
     /**
      * ->stream() is no longer available, please use Phug\Renderer\Adapter\StreamAdapter instead.
      *

@@ -11,7 +11,7 @@
     "authors": [
         {
             "name": "kylekatarnls",
-            "email": "jade-php@selfbuild.fr",
+            "email": "pug@selfbuild.fr",
             "homepage": "http://github.com/kylekatarnls",
             "role": "Developer"
         },
@@ -124,12 +124,15 @@
     "require": {
         "php": ">=5.5.0",
         "js-phpize/js-phpize-phug": "^1.1",
-        "nodejs-php-fallback/nodejs-php-fallback": "^1.2",
+        "nodejs-php-fallback/nodejs-php-fallback": "dev-ask-for-install",
         "phug/phug": "^0.1.0"
     },
     "extra": {
         "npm": {
             "pug-cli": "^1.0.0-alpha6"
+        },
+        "npm-confirm": {
+            "pug-cli": "It allows you to use the native JS pug engine instead of the default PHP one with the `pugjs` option set to `true`"
         }
     },
     "require-dev": {
