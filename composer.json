@@ -130,6 +130,9 @@
     "extra": {
         "npm": {
             "pug-cli": "^1.0.0-alpha6"
+        },
+        "npm-confirm": {
+            "pug-cli": "It allows you to use the native JS pug engine instead of the default PHP one with the `pugjs` option set to `true`"
         }
     },
     "require-dev": {
