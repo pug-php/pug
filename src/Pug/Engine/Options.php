@@ -48,7 +48,7 @@ abstract class Options extends OptionsHandler
                 $options['filter_resolvers'] = [];
             }
 
-            $options['filter_resolvers'][] = function ($name) {
+            $options['filter_resolvers']['pugFilterAutoLoad'] = function ($name) {
                 if (isset($this->filters[$name])) {
                     return $this->filters[$name];
                 }
