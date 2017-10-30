@@ -112,4 +112,44 @@ class PugTemplatesTest extends PHPUnit_Framework_TestCase
 
         chdir($dir);
     }
+
+    /**
+     * @group display
+     */
+    public function testDisplay()
+    {
+        $dir = getcwd();
+        $pug = new Pug();
+        chdir(__DIR__ . '/../templates');
+
+        ob_start();
+        $pug->display(file_get_contents('basic.pug'));
+        $expected = ob_get_contents();
+        ob_end_clean();
+
+        ob_start();
+        $pug->display('basic.pug');
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame($actual, $expected, '->display should fallback to ->displayFile if strict = false.');
+
+        ob_start();
+        $pug->displayFile('basic.pug');
+        $actual = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame($actual, $expected, '->display should fallback to ->displayFile if strict = false.');
+
+        $pug = new Pug(array('strict' => true));
+        ob_start();
+        $pug->display('basic.pug');
+        $actual = ob_get_contents();
+        ob_end_clean();
+        $expected = '<basic class="pug"></basic>';
+
+        self::assertSame($actual, $expected, '->display should not fallback to ->displayFile if strict = true.');
+
+        chdir($dir);
+    }
 }

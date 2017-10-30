@@ -89,6 +89,31 @@ class PugJsTest extends PHPUnit_Framework_TestCase
     /**
      * @group pugjs
      */
+    public function testPugJsDisplay()
+    {
+        $pug = new Pug([
+            'debug' => true,
+            'pugjs' => true,
+        ]);
+
+        ob_start();
+        $pug->display('h1=name', ['name' => 'Yop']);
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<h1>Yop</h1>', $html);
+
+        ob_start();
+        $pug->displayFile(__DIR__ . '/../templates/basic.pug');
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
+    }
+
+    /**
+     * @group pugjs
+     */
     public function testPugJsBasename()
     {
         sys_get_temp_dir();

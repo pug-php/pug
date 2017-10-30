@@ -52,7 +52,7 @@ class PugJsEngine extends Keywords
         chdir($directory);
         file_put_contents($renderFile,
             'console.log(require(' . json_encode($realPath) . ')' .
-            '(' . (empty($options['obj']) ? '{}' : (!$options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')')) . '));'
+            '(require(' . json_encode($options['obj']) . ')));'
         );
 
         $node = $this->getNodeEngine();
@@ -78,9 +78,7 @@ class PugJsEngine extends Keywords
             unlink($path);
         }
 
-        if ($options['localsJsonFile']) {
-            unlink($options['obj']);
-        }
+        unlink($options['obj']);
 
         return $html;
     }
@@ -96,9 +94,6 @@ class PugJsEngine extends Keywords
 
         // options that need be encoded by json_encode
         $jsonOptions = ['pretty'];
-        if (!$options['localsJsonFile']) {
-            $jsonOptions[] = 'obj';
-        }
 
         foreach ($options as $option => $value) {
             if (!empty($value)) {
@@ -183,23 +178,18 @@ class PugJsEngine extends Keywords
         }
 
         $options = [
-            'path'           => realpath($filename),
-            'basedir'        => $this->getDefaultOption('basedir'),
-            'localsJsonFile' => $this->getDefaultOption('locals_json_file'),
-            'pretty'         => $this->getDefaultOption('prettyprint'),
-            'out'            => $workDirectory,
+            'path'    => realpath($filename),
+            'basedir' => $this->getDefaultOption('basedir'),
+            'pretty'  => $this->getDefaultOption('prettyprint'),
+            'out'     => $workDirectory,
         ];
-        if (!empty($vars)) {
-            $locals = json_encode($vars, JSON_UNESCAPED_SLASHES);
-
-            $options['obj'] = $locals;
-
-            if ($options['localsJsonFile']) {
-                $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.json';
-                file_put_contents($optionsFile, $locals);
-                $options['obj'] = $optionsFile;
-            }
-        }
+        $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.js';
+        file_put_contents($optionsFile, 'var locals = ' .
+            (empty($vars) ? '{}' : json_encode($vars, JSON_UNESCAPED_SLASHES)) . '; ' .
+            'locals.require || (locals.require = require); ' .
+            'module.exports = locals;'
+        );
+        $options['obj'] = $optionsFile;
 
         return $this->callPugCli($input, $filename, $options, $toDelete, $fallback);
     }
