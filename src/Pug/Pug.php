@@ -33,9 +33,9 @@ class Pug extends Renderer
 
         parent::__construct($options);
 
+        $this->initializeJsTransformer();
         $this->initializeLimits();
         $this->initializeJsPhpize();
-        $this->initializeJsTransformer();
     }
 
     /**
