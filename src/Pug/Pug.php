@@ -35,6 +35,7 @@ class Pug extends Renderer
 
         $this->initializeLimits();
         $this->initializeJsPhpize();
+        $this->initializeJsTransformer();
     }
 
     /**

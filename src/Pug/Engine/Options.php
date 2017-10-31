@@ -4,6 +4,7 @@ namespace Pug\Engine;
 
 use JsPhpize\JsPhpizePhug;
 use Phug\Formatter\Format\HtmlFormat;
+use Phug\JsTransformerExtension;
 use Phug\Phug;
 use Phug\Renderer\Adapter\FileAdapter;
 use Pug\ExtensionContainerInterface;
@@ -161,5 +162,10 @@ abstract class Options extends OptionsHandler
             $compiler = $this->getCompiler();
             $compiler->addModule(new JsPhpizePhug($compiler));
         }
+    }
+
+    protected function initializeJsTransformer()
+    {
+        $this->addExtension(new JsTransformerExtension());
     }
 }

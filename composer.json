@@ -125,7 +125,8 @@
         "php": ">=5.5.0",
         "js-phpize/js-phpize-phug": "^1.1",
         "nodejs-php-fallback/nodejs-php-fallback": "^1.2",
-        "phug/phug": "^0.1.0"
+        "phug/phug": "^0.1.0",
+        "phug/js-transformer-filter": "^1.0"
     },
     "extra": {
         "npm": {

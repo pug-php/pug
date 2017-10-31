@@ -300,4 +300,25 @@ h1
 
         self::assertRegExp($expected, $actual, 'In-line filter');
     }
+
+    /**
+     * @group filters
+     */
+    public function testJsTransformerFilter()
+    {
+        \NodejsPhpFallback\NodejsPhpFallback::installPackages(['jstransformer-scss']);
+        $pug = new Pug();
+        $actual = trim($pug->render('
+style
+    :scss
+        #news {
+            a {
+                font-weight: bold;
+            }
+        }
+'));
+        $expected = '/^<style>\s*#news a\s*\{\s*font-weight:\s*bold;\s*\}\s*<\/style>\s*$/';
+
+        self::assertRegExp($expected, $actual, 'Filter using jstransformer-scss');
+    }
 }
