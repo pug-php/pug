@@ -18,6 +18,14 @@ composer require pug-php/pug:3.*
 Else, go the [releases](https://github.com/pug-php/pug/releases), download
 the release and replace your own copy of pug with the archive content.
 
+## Stay with pug-php 2
+
+If you need to keep PHP 5.3/5.4 support or want to stay with pug-php 2,
+you can require it explicitly to be sure it won't be upgraded:
+```shell
+composer require pug-php/pug:2.*
+```
+
 ## API changes
 
 In Pug-php 2 `->render` could be used for both input string or input file.
