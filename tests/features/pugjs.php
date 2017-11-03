@@ -1,5 +1,6 @@
 <?php
 
+use NodejsPhpFallback\NodejsPhpFallback;
 use Pug\Pug;
 
 class PugJsTest extends PHPUnit_Framework_TestCase
@@ -213,5 +214,21 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         );
 
         self::assertSame('<link rel="shortcut icon" href="/favicon.png" type="image/png"/>', $html);
+    }
+
+    /**
+     * @group pugjs
+     */
+    public function testLibraryInTemplates()
+    {
+        NodejsPhpFallback::installPackages(['moment']);
+
+        $pug = new Pug(array(
+            'pugjs' => true,
+        ));
+
+        $html = $pug->render("- moment = require('moment')\np=moment('12-25-1995', 'MM-DD-YYYY').format('DD-MM-YYYY')");
+
+        self::assertSame('<p>25-12-1995</p>', $html);
     }
 }

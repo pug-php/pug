@@ -183,11 +183,13 @@ class PugJsEngine extends Keywords
             'pretty'  => $this->getDefaultOption('prettyprint'),
             'out'     => $workDirectory,
         ];
+
         $optionsFile = $workDirectory . '/options-' . mt_rand(0, 999999999) . '.js';
-        file_put_contents($optionsFile, 'var locals = ' .
-            (empty($vars) ? '{}' : json_encode($vars, JSON_UNESCAPED_SLASHES)) . '; ' .
-            'locals.require || (locals.require = require); ' .
-            'module.exports = locals;'
+        file_put_contents($optionsFile, 'module.exports = require(' .
+                json_encode(realpath(NodejsPhpFallback::getPrefixPath() . '/require.js')) .
+            ').appendRequireMethod(' .
+                (empty($vars) ? '{}' : json_encode($vars, JSON_UNESCAPED_SLASHES)) .
+            ');'
         );
         $options['obj'] = $optionsFile;
 

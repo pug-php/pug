@@ -53,7 +53,7 @@ class Renderer extends Options
         };
 
         if ($this->getDefaultOption('pugjs')) {
-            return $this->renderWithJs($input, null, $vars, $fallback);
+            return $this->renderWithJs($input, $filename, $vars, $fallback);
         }
 
         return call_user_func($fallback);
