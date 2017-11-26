@@ -1,9 +1,10 @@
 <?php
 
 use NodejsPhpFallback\NodejsPhpFallback;
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
-class PugJsTest extends PHPUnit_Framework_TestCase
+class PugJsTest extends TestCase
 {
     /**
      * @group pugjs
@@ -36,7 +37,7 @@ class PugJsTest extends PHPUnit_Framework_TestCase
         $html = trim($pug->renderFile($source));
         clearstatcache();
 
-        self::assertTrue(file_exists($cache));
+        self::assertFileExists($cache);
 
         self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 

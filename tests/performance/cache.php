@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
-class PugCachePerformanceTest extends PHPUnit_Framework_TestCase
+class PugCachePerformanceTest extends TestCase
 {
     protected function getPerformanceTemplate($template)
     {

@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
-class PugTemplatesTest extends PHPUnit_Framework_TestCase
+class PugTemplatesTest extends TestCase
 {
     public function caseProvider()
     {

@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
 class ParseMethodFilter
@@ -15,7 +16,7 @@ class SpecialScript extends \Pug\Filter\AbstractFilter
     protected $tag = 'script';
 }
 
-class PugFilterTest extends PHPUnit_Framework_TestCase
+class PugFilterTest extends TestCase
 {
     /**
      * @group filters

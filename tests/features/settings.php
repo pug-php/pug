@@ -1,11 +1,12 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Phug\Phug;
 use Pug\Pug;
 
 include_once __DIR__.'/../lib/escape.php';
 
-class PugSettingsTest extends PHPUnit_Framework_TestCase
+class PugSettingsTest extends TestCase
 {
     static private function rawHtml($html, $convertSingleQuote = true)
     {

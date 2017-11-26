@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
 class PugTest extends Pug
@@ -26,7 +27,7 @@ class PugTest extends Pug
     }
 }
 
-class PugCacheTest extends PHPUnit_Framework_TestCase
+class PugCacheTest extends TestCase
 {
     protected function emptyDirectory($dir)
     {

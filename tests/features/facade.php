@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Facade as Pug;
 
-class FacadeTest extends PHPUnit_Framework_TestCase
+class FacadeTest extends TestCase
 {
     public function testFacade()
     {

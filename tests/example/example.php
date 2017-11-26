@@ -1,11 +1,12 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
 /**
  * Test server example
  */
-class PugExampleTest extends PHPUnit_Framework_TestCase
+class PugExampleTest extends TestCase
 {
     protected function simpleHtml($contents)
     {
