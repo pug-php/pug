@@ -37,7 +37,7 @@ class PugJsTest extends TestCase
         $html = trim($pug->renderFile($source));
         clearstatcache();
 
-        self::assertTrue(file_exists($cache));
+        self::assertFileExists($cache);
 
         self::assertSame('<html><body><h1>Title</h1></body></html>', $html);
 
