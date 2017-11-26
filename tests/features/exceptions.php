@@ -1,12 +1,13 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Parser;
 use Pug\Pug;
 
 class EmulateBugException extends \Exception {}
 class OnlyOnceException extends \Exception {}
 
-class PugExceptionsTest extends PHPUnit_Framework_TestCase
+class PugExceptionsTest extends TestCase
 {
     static public function emulateBug()
     {

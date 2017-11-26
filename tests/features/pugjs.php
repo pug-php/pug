@@ -1,9 +1,10 @@
 <?php
 
 use NodejsPhpFallback\NodejsPhpFallback;
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
-class PugJsTest extends PHPUnit_Framework_TestCase
+class PugJsTest extends TestCase
 {
     /**
      * @group pugjs

@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
-class PugExpressionLanguageTest extends PHPUnit_Framework_TestCase
+class PugExpressionLanguageTest extends TestCase
 {
     public function testJsExpression()
     {

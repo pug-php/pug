@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+
 class JadeFilter extends \Jade\Filter\AbstractFilter
 {
     // Obsolete
@@ -15,7 +17,7 @@ class NodeStringFilter extends \Pug\Filter\AbstractFilter
 
 include_once __DIR__ . '/../lib/LegacyFilterNode.php';
 
-class PugObsoleteTest extends PHPUnit_Framework_TestCase
+class PugObsoleteTest extends TestCase
 {
     /**
      * @expectedException \InvalidArgumentException

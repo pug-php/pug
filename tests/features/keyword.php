@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Phug\AbstractExtension;
 use Phug\Compiler\Event\NodeEvent;
 use Phug\Parser\Node\ElementNode;
@@ -46,7 +47,7 @@ class BadOptionType
 {
 }
 
-class PugKeywordTest extends PHPUnit_Framework_TestCase
+class PugKeywordTest extends TestCase
 {
     /**
      * @group keywords
