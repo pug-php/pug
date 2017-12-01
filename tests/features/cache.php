@@ -163,7 +163,7 @@ class PugCacheTest extends TestCase
         ));
         $count = function () use ($dir) {
             return count(array_filter(scandir($dir), function ($item) {
-                return substr($item, 0, 1) !== '.';
+                return substr($item, 0, 1) !== '.' && pathinfo($item, PATHINFO_EXTENSION) !== 'txt';
             }));
         };
         self::assertSame(0, $count());
@@ -241,7 +241,7 @@ class PugCacheTest extends TestCase
         ));
         list($success, $errors) = $pug->cacheDirectory($templatesDirectory);
         $filesCount = count(array_filter(scandir($cacheDirectory), function ($file) {
-            return $file !== '.' && $file !== '..';
+            return $file !== '.' && $file !== '..' && pathinfo($file, PATHINFO_EXTENSION) !== 'txt';
         }));
         $expectedCount = count(array_filter(array_merge(
             scandir($templatesDirectory),
