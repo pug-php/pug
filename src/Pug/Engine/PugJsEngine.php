@@ -169,6 +169,7 @@ class PugJsEngine extends Keywords
             $filename = null;
         }
 
+        $vars = $this->mergeWithSharedVariables($vars);
         $workDirectory = empty($this->getDefaultOption('cache_dir'))
             ? sys_get_temp_dir()
             : $this->getOption('cache_dir');
