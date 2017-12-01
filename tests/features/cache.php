@@ -144,7 +144,7 @@ class PugCacheTest extends TestCase
         ));
         $count = function () use ($dir) {
             return count(array_filter(scandir($dir), function ($item) {
-                return substr($item, 0, 1) !== '.';
+                return substr($item, 0, 1) !== '.' && pathinfo($item, PATHINFO_EXTENSION) !== 'txt';
             }));
         };
         self::assertSame(0, $count());
