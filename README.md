@@ -38,6 +38,38 @@ Yii 2: https://github.com/rmrevin/yii2-pug
 
 Slim 3: https://github.com/MarcelloDuarte/pug-slim
 
+## Use
+
+```php
+<?php
+
+include 'vendor/autoload.php';
+
+$pug = new Pug([
+    // here you can set options
+]);
+
+$pug->displayFile('my-pug-template.pug');
+```
+
+Since **Pug-php** 3.1.2, you no longer need to import the class with
+`use Pug\Pug;` as we provide an alias.
+
+Main methods are `render`, `renderFile`, `compile`, `compileFile`,
+`display`, `displayFile` and `setOption`, see the complete documentation
+here: [phug-lang.com](https://www.phug-lang.com).
+
+You can also the the facade to call methods statically:
+```php
+<?php
+
+use Pug\Facade as PugFacade;
+
+include 'vendor/autoload.php';
+
+$html = PugFacade::renderFile('my-pug-template.pug');
+```
+
 ## Pug options
 
 Pug options should be passed to the constructor
@@ -106,15 +138,17 @@ You can add custom keywords, here are some examples:
 
 **Anonymous function**:
 ```php
-$pug->addKeyword('for', function ($args) {
+$pug->addKeyword('range', function ($args) {
+    list($from, $to) = explode(' ', trim($args));
+
     return array(
-        'beginPhp' => 'for (' . $args . ') {',
+        'beginPhp' => 'for ($i = ' . $from . '; $i <= ' . $to . '; $i++) {',
         'endPhp' => '}',
     );
 });
 
 $pug->render('
-for $i = 1; $i <= 3; $i++
+range 1 3
     p= i
 ');
 ```

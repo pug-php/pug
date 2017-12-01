@@ -60,6 +60,15 @@ class PugTemplatesTest extends TestCase
         self::assertSame('<input type="checkbox" checked>', $html, 'Dynamic boolean values should render as simple attributes.');
     }
 
+    public function testPugAlias()
+    {
+        $pug = new \Pug();
+
+        $html = $pug->render('input(type="checkbox")');
+
+        self::assertSame('<input type="checkbox" />', $html, '\Pug should work the same as \Pug\Pug.');
+    }
+
     public function testSpacesRender()
     {
         $pug = new Pug([
