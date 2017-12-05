@@ -312,6 +312,16 @@ $pug = new Pug(array(
 
 Then your locals will be written to json file and path to file will be passed to compiler.
 
+## Pug CLI
+
+Pug also provide a CLI tool:
+
+```shell
+./vendor/bin/pug render-file dir/my-template.pug --output-file 
+```
+
+See the [complete CLI documentation here](https://www.phug-lang.com/#cli)
+
 ## Check requirements
 
 To check if all requirements are ready to use Pug, use the requirements method:
