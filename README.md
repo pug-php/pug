@@ -1,4 +1,4 @@
-# Pug.php
+# Pug-php
 [![Latest Stable Version](https://poser.pugx.org/pug-php/pug/v/stable.png)](https://packagist.org/packages/pug-php/pug)
 [![Monthly Downloads](https://poser.pugx.org/pug-php/pug/d/monthly)](https://packagist.org/packages/pug-php/pug)
 [![Reference Status](https://www.versioneye.com/php/pug-php:pug/reference_badge.svg?style=flat-square)](https://www.versioneye.com/php/pug-php:pug/references)
@@ -10,10 +10,10 @@
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
 
 
-Pug.php adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler.
+**Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since the version 3, it uses **Phug**, a very customizable Pug template engine made by **Tale-pug** and **Pug-php** developpers as the new PHP Pug engine reference.
 
-##### [The Pug Syntax Reference](https://github.com/pugjs/pug#readme)
-##### [See Pug.php demo](https://pug-demo.herokuapp.com/)
+##### [Official Phug documentation](https://www.phug-lang.com/)
+##### [See Pug-php demo](https://pug-demo.herokuapp.com/)
 
 ## Install
 
