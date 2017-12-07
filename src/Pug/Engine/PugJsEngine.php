@@ -108,6 +108,23 @@ class PugJsEngine extends Keywords
         return $args;
     }
 
+    /**
+     * Returns true if the rendered file is up to date against the source.
+     *
+     * @param string      $renderFile
+     * @param string      $filename
+     * @param PugJsEngine $pug
+     *
+     * @return bool
+     */
+    public static function pugJsCacheCheck($renderFile, $filename, PugJsEngine $pug)
+    {
+        return file_exists($renderFile) && (
+            filemtime($renderFile) >= filemtime($filename) ||
+            !$pug->getDefaultOption('upToDateCheck')
+        );
+    }
+
     protected function callPugCli($input, $filename, $options, $toDelete, $fallback)
     {
         $args = $this->getPugCliArguments($options);
@@ -115,10 +132,9 @@ class PugJsEngine extends Keywords
         if (!empty($this->getDefaultOption('cache_dir'))) {
             $args[] = '--client';
             $renderFile = $options['out'] . '/' . preg_replace('/\.[^.]+$/', '', basename($filename)) . '.js';
-            if (file_exists($renderFile) && (
-                    ($mTime = filemtime($renderFile)) >= filemtime($filename) ||
-                    !$this->getDefaultOption('upToDateCheck')
-                )) {
+            $cacheCheck = $this->getDefaultOption('pugjs_cache_check', [static::class, 'pugJsCacheCheck']);
+            if (call_user_func($cacheCheck, $renderFile, $filename, $this)) {
+                $mTime = filemtime($renderFile);
                 if (!$input) {
                     $input = file_get_contents($filename);
                 }
