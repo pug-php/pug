@@ -117,7 +117,7 @@ class PugJsEngine extends Keywords
      *
      * @return bool
      */
-    public static function pugJsCacheCheck($renderFile, $filename, PugJsEngine $pug)
+    public static function pugJsCacheCheck($renderFile, $filename, self $pug)
     {
         return file_exists($renderFile) && (
             filemtime($renderFile) >= filemtime($filename) ||
