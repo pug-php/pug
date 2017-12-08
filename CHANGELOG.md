@@ -1,3 +1,33 @@
+# [3.1.4](https://github.com/pug-php/pug/compare/3.1.3...3.1.4)
+
+- #174 Provide `pugjs_cache_check` option
+
+
+# [3.1.3](https://github.com/pug-php/pug/compare/3.1.2...3.1.3)
+
+- Implement [CLI tool](https://www.phug-lang.com/#cli)
+
+
+# [3.1.2](https://github.com/pug-php/pug/compare/3.1.1...3.1.2)
+
+- Add non-namespaced Pug class alias.
+- Enable shared variables/globals with pugjs engine.
+
+
+# [3.1.1](https://github.com/pug-php/pug/compare/3.1.0...3.1.1)
+
+- Allow to `require` packages in templates when running with pugjs
+option ()via pug-cli).
+
+
+# [3.1.0](https://github.com/pug-php/pug/compare/3.0.0...3.1.0)
+
+- Allow to enable any jstransformer package as filter by adding it
+to extra.npm section of composer.json.
+- Ask the user before installing pug-cli.
+- Allow to use require() inside templates when pugjs is true.
+
+
 # 3.0.0
 
 - Drop PHP 5.3 and 5.4 support, pug-php require at least PHP 5.5 and
