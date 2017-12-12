@@ -22,6 +22,12 @@ class ShareTest extends PHPUnit_Framework_TestCase
 
         $html = $jade->render("p\n  =foo\n  =' '\n  =bar\n  | !");
         $this->assertSame('<p>Hello world!</p>', $html);
+
+        $this->assertSame(array(
+            'answear' => 42,
+            'foo'     => 'Hello',
+            'bar'     => 'world',
+        ), $jade->getOption('globals'));
     }
 
     public function testResetSharedVariables()

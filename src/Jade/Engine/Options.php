@@ -52,6 +52,13 @@ class Options extends Keywords
      */
     public function getOption($name)
     {
+        switch ($name) {
+            case 'sharedVariables':
+            case 'shared_variables':
+            case 'globals':
+                return isset($this->sharedVariables) ? $this->sharedVariables : null;
+        }
+
         if (!array_key_exists($name, $this->options)) {
             throw new \InvalidArgumentException("$name is not a valid option name.", 2);
         }
