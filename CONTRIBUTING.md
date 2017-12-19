@@ -1,4 +1,4 @@
-# Contributing to Pug.php
+# Contributing to Pug-php
 
 ## Code of Conduct
 
@@ -39,7 +39,7 @@ git config --global user.name "Your Name"
 git config --global user.email "your.email.address@example.com"
 ```
 
-The ```--global``` argument will apply this setting for all your git repositories, remove it to set only the pug copy with them.
+The ```--global``` argument will apply this setting for all your git repositories, remove it to set only your pug fork with them.
 
 Now you can index and commit your modifications as you usually do with git:
 
