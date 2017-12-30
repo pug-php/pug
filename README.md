@@ -59,7 +59,7 @@ Main methods are `render`, `renderFile`, `compile`, `compileFile`,
 `display`, `displayFile` and `setOption`, see the complete documentation
 here: [phug-lang.com](https://www.phug-lang.com).
 
-You can also the the facade to call methods statically:
+You can also use the facade to call methods statically:
 ```php
 <?php
 
