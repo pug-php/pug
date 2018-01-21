@@ -13,7 +13,7 @@ php:
 
 matrix:
  include:
-   - php: hhvm
+   - php: hhvm-3.18
      dist: trusty
      sudo: required
 
