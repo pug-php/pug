@@ -27,9 +27,10 @@ before_script:
 
 script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
+  - EXIT_CODE = $?
 
 after_script:
-  - ./cc-test-reporter after-build --exit-code $?
+  - ./cc-test-reporter after-build --exit-code $EXIT_CODE
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
