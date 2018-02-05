@@ -26,8 +26,7 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
-  - EXIT_CODE = $?
+  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml; export EXIT_CODE = $?
 
 after_script:
   - ./cc-test-reporter after-build --exit-code $EXIT_CODE
