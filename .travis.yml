@@ -37,3 +37,7 @@ after_success:
 addons:
   code_climate:
     repo_token: d16eac66156a1f7a995de17964d4ffdd152821ab52e8470b5dbd5d3406406836
+
+env:
+  global:
+    - CC_TEST_REPORTER_ID=d16eac66156a1f7a995de17964d4ffdd152821ab52e8470b5dbd5d3406406836
