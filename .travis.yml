@@ -21,12 +21,15 @@ before_script:
   - if [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; then echo "hhvm.enable_short_tags = On" >> /etc/hhvm/php.ini; fi
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 script:
   - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 
 after_script:
-  - vendor/bin/test-reporter --coverage-report coverage.xml
+  - ./cc-test-reporter after-build --exit-code $EXIT_CODE
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
