@@ -364,6 +364,6 @@ Please report any security issue or risk by emailing pug@selfbuild.fr. Please do
 
 
 
-Pug-php recommand
+Pug-php recommend
 
 [<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
