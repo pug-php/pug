@@ -38,6 +38,8 @@ Yii 2: https://github.com/rmrevin/yii2-pug
 
 Slim 3: https://github.com/MarcelloDuarte/pug-slim
 
+Zend Expressive: https://github.com/kpicaza/infw-pug
+
 ## Use
 
 ```php
