@@ -262,4 +262,66 @@ class PugCacheTest extends TestCase
         self::assertSame($expectedCount, $success + $errors, 'Each .pug file in the directory to cache should generate a success or an error.');
         self::assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
     }
+
+    /**
+     * @group i
+     */
+    public function testCacheOnExtendsChange()
+    {
+        $directory = sys_get_temp_dir().'/pug'.mt_rand(0, 99999999);
+        $templateDirectory = sys_get_temp_dir().'/pug'.mt_rand(0, 99999999);
+        $this->emptyDirectory($directory);
+        $this->emptyDirectory($templateDirectory);
+        if (!file_exists($directory)) {
+            mkdir($directory);
+        }
+        if (!file_exists($templateDirectory)) {
+            mkdir($templateDirectory);
+        }
+        $renderer = new Pug([
+            'basedir' => $templateDirectory,
+            'cache_dir' => $directory,
+        ]);
+        $base = $templateDirectory.DIRECTORY_SEPARATOR.'base.pug';
+        file_put_contents($base, implode("\n", [
+            'p in base',
+            'block content',
+        ]));
+        $child = $templateDirectory.DIRECTORY_SEPARATOR.'child.pug';
+        file_put_contents($child, implode("\n", [
+            'extends base',
+            'block content',
+            '    p in child',
+        ]));
+
+        $render = function ($path) use ($renderer) {
+            ob_start();
+            $renderer->displayFile($path);
+            $contents = ob_get_contents();
+            ob_end_clean();
+
+            return $contents;
+        };
+
+        self::assertSame('<p>in base</p><p>in child</p>', $render($child));
+
+        file_put_contents($base, implode("\n", [
+            'p in base updated!',
+            'block content',
+        ]));
+        touch($base, time() - 3600);
+        touch($child, time() - 3600);
+        clearstatcache();
+
+        $html = $render($child);
+        self::assertSame('<p>in base</p><p>in child</p>', $html);
+
+        touch($base, time() + 3600);
+        clearstatcache();
+
+        self::assertSame('<p>in base updated!</p><p>in child</p>', $render($child));
+
+        $this->emptyDirectory($directory);
+        $this->emptyDirectory($templateDirectory);
+    }
 }

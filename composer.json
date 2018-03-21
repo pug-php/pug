@@ -141,6 +141,9 @@
     },
     "bin": ["pug"],
     "autoload": {
+        "psr-4": {
+            "": "./src"
+        },
         "psr-0": {
             "Pug\\": "src/",
             "Jade\\": "src/"
