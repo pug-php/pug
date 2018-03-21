@@ -263,9 +263,6 @@ class PugCacheTest extends TestCase
         self::assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
     }
 
-    /**
-     * @group i
-     */
     public function testCacheOnExtendsChange()
     {
         $directory = sys_get_temp_dir().'/pug'.mt_rand(0, 99999999);
