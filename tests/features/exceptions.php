@@ -51,9 +51,11 @@ class PugExceptionsTest extends TestCase
      * @expectedException \Exception
      * @expectedExceptionMessage Error Processing Request
      */
-    public function testExceptionThroughtPug()
+    public function testExceptionThroughPug()
     {
         $pug = new Pug([
+            'debug' => true,
+            'exit_on_error' => false,
             'expressionLanguage' => 'php',
         ]);
         $pug->render('a(href=\PugExceptionsTest::emulateBug())');
@@ -84,7 +86,10 @@ class PugExceptionsTest extends TestCase
      */
     public function testExtendsWithFilterException()
     {
-        $pug = new Pug();
+        $pug = new Pug([
+            'debug' => true,
+            'exit_on_error' => false,
+        ]);
         $pug->filter('throw-exception', function () {
             throw new EmulateBugException('Bad filter', 1);
         });
