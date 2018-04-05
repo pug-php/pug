@@ -53,6 +53,8 @@ class PugCacheTest extends TestCase
     public function testMissingDirectory()
     {
         $pug = new Pug(array(
+            'debug' => true,
+            'exit_on_error' => false,
             'singleQuote' => false,
             'cache' => '///cannot/be/created'
         ));
