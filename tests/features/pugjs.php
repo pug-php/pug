@@ -13,6 +13,7 @@ class PugJsTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'pugjs' => true,
         ]);
 
@@ -95,6 +96,7 @@ class PugJsTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'pugjs' => true,
         ]);
 
@@ -145,6 +147,7 @@ class PugJsTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'pugjs' => true,
         ]);
 

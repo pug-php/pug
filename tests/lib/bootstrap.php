@@ -63,6 +63,7 @@ function get_php_code($code, $vars = [])
 {
     $pug = new Pug([
         'debug' => true,
+        'exit_on_error' => false,
         'singleQuote' => false,
         'prettyprint' => true,
     ]);
@@ -74,6 +75,7 @@ function get_php_file($file, $vars = [])
 {
     $pug = new Pug([
         'debug' => true,
+        'exit_on_error' => false,
         'singleQuote' => false,
         'prettyprint' => true,
     ]);
@@ -85,6 +87,7 @@ function compile_php($file)
 {
     $pug = new Pug([
         'debug' => true,
+        'exit_on_error' => false,
         'singleQuote' => false,
         'prettyprint' => true,
     ]);

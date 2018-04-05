@@ -9,6 +9,7 @@ class PugHooksTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'preRender' => function ($pugCode) {
                 return preg_replace('/\*\*btn/', 'class="btn btn-primary" data-button="on"', $pugCode);
             },
@@ -23,6 +24,7 @@ class PugHooksTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'basedir' => __DIR__ . '/../templates/auxiliary',
             'preRender' => function ($pugCode) {
                 return str_replace(
@@ -55,6 +57,7 @@ class PugHooksTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'postRender' => function ($phpCode) {
                 return str_replace('<a', '<a data-contains-attributes="true"', $phpCode);
             },

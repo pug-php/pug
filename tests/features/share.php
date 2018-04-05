@@ -9,6 +9,7 @@ class ShareTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
 
         $pug->share('answear', 42);
@@ -32,6 +33,7 @@ class ShareTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         $pug->share('answear', 42);
         $pug->share([
