@@ -26,6 +26,7 @@ class PugFilterTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         self::assertSame("<?php\nfoo\n?>", call_user_func($pug->getFilter('php'), 'foo'));
         self::assertFalse($pug->hasFilter('text'));
@@ -59,6 +60,7 @@ div
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         self::assertFalse($pug->hasFilter('bar'));
         $pug->filter('bar', 'nonexists');
@@ -71,6 +73,7 @@ div
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'filterAutoLoad' => false,
         ]);
         self::assertFalse($pug->hasFilter('foo-bar'));
@@ -86,6 +89,7 @@ div
 
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'filterAutoLoad' => true,
         ]);
         self::assertTrue($pug->hasFilter('foo-bar'));
@@ -110,6 +114,7 @@ div
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         self::assertFalse($pug->hasFilter('bar-foo'));
         $pug->render('
@@ -128,6 +133,7 @@ div
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         $pug->filter('lower', function($code){
             return strtolower($code);
@@ -156,6 +162,7 @@ h1
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         $pug->filter('lower', ParseMethodFilter::class);
         $actual = $pug->render('
@@ -214,6 +221,7 @@ h1
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
         ]);
         $actual = $pug->render('
 h1
@@ -262,6 +270,7 @@ h1
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'prettyprint' => true,
         ]);
         $actual = trim($pug->render('

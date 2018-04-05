@@ -123,6 +123,7 @@ class PugKeywordTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'prettyprint' => false,
             'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
         ]);
@@ -164,6 +165,7 @@ class PugKeywordTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'singleQuote' => false,
             'prettyprint' => false,
             'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
@@ -197,6 +199,7 @@ class PugKeywordTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'singleQuote' => false,
             'prettyprint' => false,
             'default_format' => \Phug\Formatter\Format\HtmlFormat::class,
@@ -244,6 +247,7 @@ class PugKeywordTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'singleQuote' => false,
             'prettyprint' => false,
             'default_format' => \Phug\Formatter\Format\HtmlFormat::class,

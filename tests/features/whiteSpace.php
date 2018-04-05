@@ -32,9 +32,9 @@ class PugWhiteSpaceTest extends TestCase
 
     public function testPipeless()
     {
-        $pug = new Pug(array(
+        $pug = new Pug([
             'prettyprint' => false,
-        ));
+        ]);
 
         $actual = $pug->render("div\n  span.
             Some indented text

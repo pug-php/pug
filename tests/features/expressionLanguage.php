@@ -9,6 +9,7 @@ class PugExpressionLanguageTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'expressionLanguage' => 'js',
         ]);
 
@@ -29,6 +30,7 @@ class PugExpressionLanguageTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'expressionLanguage' => 'js',
             'jsLanguage' => [
                 'helpers' => [

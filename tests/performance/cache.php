@@ -31,6 +31,7 @@ class PugCachePerformanceTest extends TestCase
     {
         $pug = new Pug([
             'debug' => true,
+            'exit_on_error' => false,
             'singleQuote' => false,
             'prettyprint' => false,
             'restrictedScope' => true,
