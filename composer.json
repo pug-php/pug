@@ -3,7 +3,7 @@
     "replace": {
         "kylekatarnls/jade-php": "self.version"
     },
-    "description": "HAML-like template engine for PHP 5.3",
+    "description": "HAML-like template engine for PHP",
     "keywords": ["pug", "jade", "minification", "template"],
     "homepage": "https://github.com/pug-php/pug",
     "type": "library",
