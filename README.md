@@ -10,14 +10,14 @@
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
 
 
-**Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since the version 3, it uses **Phug**, a very customizable Pug template engine made by **Tale-pug** and **Pug-php** developpers as the new PHP Pug engine reference.
+**Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since version 3, it uses **Phug**, a very customizable Pug template engine made by the **tale-pug** and **pug-php** developers as the new PHP Pug engine reference.
 
 ##### [Official Phug documentation](https://www.phug-lang.com/)
 ##### [See Pug-php demo](https://pug-demo.herokuapp.com/)
 
 ## Install
 
-First you need composer if you have'nt yet: https://getcomposer.org/download/
+First you need composer if you haven't yet: https://getcomposer.org/download/
 
 Then run:
 ```sh
@@ -54,7 +54,7 @@ $pug = new Pug([
 $pug->displayFile('my-pug-template.pug');
 ```
 
-Since **Pug-php** 3.1.2, you no longer need to import the class with
+Since **pug-php** 3.1.2, you no longer need to import the class with
 `use Pug\Pug;` as we provide an alias.
 
 Main methods are `render`, `renderFile`, `compile`, `compileFile`,
@@ -95,15 +95,15 @@ $output = $pug->render('file', array(
 ## New in pug-php 3
 
 pug-php 3 is now aligned on [pugjs 2](github.com/pugjs/pug), it aims to be a perfect
-port of the JS project. That's why there are breaking changes in this new version.
+implementation of the JS project. That's why there are breaking changes in this new version.
 
 [See the changelog to know what's new](https://github.com/pug-php/pug/blob/master/CHANGELOG.md)
 
 [See the migration guide if you want to upgrade from pug-php 2 to 3](https://github.com/pug-php/pug/blob/master/MIGRATION_GUIDE.md)
 
-## Supports for custom filters
+## Support for custom filters
 
-Filters must be callable: It can be a class that implements the *__invoke()* method, or an anonymous function.
+Filters must be callable: It can be a class that implements the *\_\_invoke()* method or an anonymous function.
 
 ```php
 $pug->filter('escaped', 'My\Callable\Class');
@@ -134,7 +134,7 @@ http://pug-filters.selfbuild.fr/
 
 https://github.com/pug-php/pug-filter-base#readme
 
-## Supports for custom keywords
+## Support for custom keywords
 
 You can add custom keywords, here are some examples:
 
@@ -203,13 +203,13 @@ This will render:
 </div>
 ```
 
-A keyword must return an array (containing **begin** and/or **end** entires) or a string (used as a **begin** entry).
+A keyword must return an array (containing **begin** and/or **end** entries) or a string (used as a **begin** entry).
 
-The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** as in the first example to render PHP codes that will wrap the rendered block if there is one.
+The **begin** and **end** are rendered as raw HTML, but you can also use **beginPhp** and **endPhp** like in the first example to render PHP code that will wrap the rendered block if there is one.
 
-## PHP Helpers functions
+## PHP Helper functions
 
-If you want to make a php function available in a template or in all of them for convenience, use closures ans pass them like any other variables:
+If you want to make a php function available in a template or in all of them for convenience, use closures and pass them like any other variable:
 
 ```php
 $myClosure = function ($string) {
@@ -260,10 +260,8 @@ $pug->render('path/to/pug/templates/my-page.pug');
 
 ## Templates from pug-js
 
-First remember pug-php is a PHP template engine. Pug-js and Pug-php provide both a HAML-like syntax
-for markup, but for expression and raw code, pug-js use JS, and pug-php use PHP. By default, we did
-some magic tricks to transform simple JS syntaxes into PHP. This should help you to migrate smoother
-from pug-js if you already have some template but benefit of PHP advantages.
+First remember pug-php is a PHP template engine. Pug-js and Pug-php provide both, a HAML-like syntax
+for markup and some abstraction of the language behind it (loops, conditions, etc.). But for expressions and raw code, pug-js uses JS, and pug-php uses PHP. By default, we do some magic tricks to transform simple JS syntax into PHP. This should help you to migrate smoother from pug-js if you already have some templates, but benefit from the PHP advantages.
 
 If you start a new project, we highly recommend you to use the following option:
 ```php
@@ -271,20 +269,19 @@ $pug = new Pug(array(
     'expressionLanguage' => 'php'
 );
 ```
-It will disable all translations, so you have to use always explicit PHP syntaxes such as:
+It will disable all translations, so you always have to use explicit PHP syntax:
 ```pug
 - $concat = $foo . $bar
 p=$concat
 ```
 
-If you want expressions closest to JS, you can use:
+If you want expressions very close to JS, you can use:
 ```php
 $pug = new Pug(array(
     'expressionLanguage' => 'js'
 );
 ```
-It will allow both PHP stuff and JS stuff in a JS-style syntax. But you must stick to it,
-you will not be able to mix PHP and JS styles in this mode.
+It will allow both PHP and JS in a JS-style syntax. But you have to stick to it, you will not be able to mix PHP and JS in this mode.
 
 Finally, you can use the native pug-js engine with:
 ```php
@@ -294,16 +291,16 @@ $pug = new Pug(array(
 ```
 
 This mode require node and npm installed as it will install **pug-cli** and directly call it.
-This mode will flat you local vars (it means complex object like DateTime, or classes with
-magic methods will be striginfied in JSON as simple objects) and you will not benefit some
-features like mixed indent, pre/post render hooks but in this mode you will get exact same
+This mode will flatten your local variables (it means complex object like DateTime, or classes with
+magic methods will be stringified in JSON to simple objects) and you will not benefit from some
+features like mixed indent, pre/post render hooks. But in this mode you will get exact same
 output as in pug-js.
 
-### Write locals object to json file with pugjs
+### Write locals object to JSON file with pug-js
 
-If your locals object is large it may cause a `RuntimeException` error. This is because
+If your locals object is large it may cause a `RuntimeException`. This is because
 locals object passed directly to pug-cli as argument. To fix this problem you can use
-`localsJsonFile` option:
+the `localsJsonFile` option:
 
 ```php
 $pug = new Pug(array(
@@ -312,7 +309,7 @@ $pug = new Pug(array(
 );
 ```
 
-Then your locals will be written to json file and path to file will be passed to compiler.
+Then your locals will be written to a JSON file and the path of the file will be passed to the compiler.
 
 ## Pug CLI
 
@@ -326,7 +323,7 @@ See the [complete CLI documentation here](https://www.phug-lang.com/#cli)
 
 ## Check requirements
 
-To check if all requirements are ready to use Pug, use the requirements method:
+To check if your environment is ready to use Pug, use the `requirements` method:
 ```php
 $pug = new Pug(array(
     'cache' => 'pathto/writable/cachefolder/'
@@ -358,7 +355,7 @@ if ($missings) {
 
 ## Contributing
 
-All contributions are welcome, for any bug, issue or merge request (except for secutiry issues) please [refer to CONTRIBUTING.md](CONTRIBUTING.md)
+All contributions are welcome, for any bug, issue or merge request (except for security issues) please [refer to CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Security
 
@@ -366,6 +363,6 @@ Please report any security issue or risk by emailing pug@selfbuild.fr. Please do
 
 
 
-Pug-php recommend
+Pug-php recommends
 
 [<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
