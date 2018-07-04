@@ -231,7 +231,7 @@ class PugCacheTest extends TestCase
      */
     public function testCacheDirectory()
     {
-        $cacheDirectory = sys_get_temp_dir() . '/pug-test';
+        $cacheDirectory = sys_get_temp_dir() . '/pug-test'.mt_rand(0, 999999);
         $this->emptyDirectory($cacheDirectory);
         if (!is_dir($cacheDirectory)) {
             mkdir($cacheDirectory, 0777, true);
@@ -263,6 +263,37 @@ class PugCacheTest extends TestCase
 
         self::assertSame($expectedCount, $success + $errors, 'Each .pug file in the directory to cache should generate a success or an error.');
         self::assertSame($success, $filesCount, 'Each file successfully cached should be in the cache directory.');
+    }
+
+    /**
+     * Test cacheDirectory method dependencies
+     */
+    public function testCacheDirectoryPreserveDependencies()
+    {
+        $cacheDirectory = sys_get_temp_dir() . '/pug-test'.mt_rand(0, 999999);
+        $this->emptyDirectory($cacheDirectory);
+        if (!is_dir($cacheDirectory)) {
+            mkdir($cacheDirectory, 0777, true);
+        }
+        $templatesDirectory = __DIR__ . '/../templates/for-cache';
+        $pug = new Pug(array(
+            'basedir' => $templatesDirectory,
+            'cache' => $cacheDirectory,
+        ));
+        $pug->cacheDirectory($templatesDirectory);
+        $files = glob("$cacheDirectory/*.php");
+        $file = count($files) ? file_get_contents($files[0]) : null;
+        $this->emptyDirectory($cacheDirectory);
+        rmdir($cacheDirectory);
+
+        self::assertNotNull($file);
+        $foo = array('bar' => 'biz');
+        ob_start();
+        eval('?>' . $file);
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        self::assertSame('<p>biz</p>', trim($contents));
     }
 
     public function testCacheOnExtendsChange()
