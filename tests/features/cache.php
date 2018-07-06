@@ -247,6 +247,7 @@ class PugCacheTest extends TestCase
         }));
         $expectedCount = count(array_filter(array_merge(
             scandir($templatesDirectory),
+            scandir($templatesDirectory . '/for-cache'),
             scandir($templatesDirectory . '/auxiliary'),
             scandir($templatesDirectory . '/auxiliary/subdirectory/subsubdirectory')
         ), function ($file) {
