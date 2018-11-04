@@ -42,14 +42,19 @@ abstract class Options extends OptionsHandler
         }
     }
 
+    protected function addFilterResolver(&$options, $name, $filter)
+    {
+        if (!isset($options['filter_resolvers'])) {
+            $options['filter_resolvers'] = [];
+        }
+
+        $options['filter_resolvers'][$name] = $filter;
+    }
+
     protected function setUpFilterAutoload(&$options)
     {
         if (!isset($options['filterAutoLoad']) || $options['filterAutoLoad']) {
-            if (!isset($options['filter_resolvers'])) {
-                $options['filter_resolvers'] = [];
-            }
-
-            $options['filter_resolvers']['pugFilterAutoLoad'] = function ($name) {
+            $this->addFilterResolver($options, 'pugFilterAutoLoad', function ($name) {
                 if (isset($this->filters[$name])) {
                     return $this->filters[$name];
                 }
@@ -68,7 +73,7 @@ abstract class Options extends OptionsHandler
                         return $this->filters[$name];
                     }
                 }
-            };
+            });
         }
     }
 
