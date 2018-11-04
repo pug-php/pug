@@ -7,6 +7,8 @@
 [![StyleCI](https://styleci.io/repos/59010999/shield?style=flat)](https://styleci.io/repos/59010999)
 [![Test Coverage](https://codeclimate.com/github/pug-php/pug/badges/coverage.svg)](https://codecov.io/github/pug-php/pug?branch=master)
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
+[![Backers on Open Collective](https://opencollective.com/pug-php/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/pug-php/sponsors/badge.svg)](#sponsors) 
 
 **Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since version 3, it uses **Phug**, a very customizable Pug template engine made by the **tale-pug** and **pug-php** developers as the new PHP Pug engine reference.
 
@@ -364,3 +366,33 @@ Please report any security issue or risk by emailing pug@selfbuild.fr. Please do
 Pug-php recommends
 
 [<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/pug-php/pug/contributors"><img src="https://opencollective.com/pug-php/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/pug-php#backer)]
+
+<a href="https://opencollective.com/pug-php#backers" target="_blank"><img src="https://opencollective.com/pug-php/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/pug-php#sponsor)]
+
+<a href="https://opencollective.com/pug-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/2/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/3/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/4/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/5/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/6/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/7/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/pug-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/9/avatar.svg"></a>
+
+
