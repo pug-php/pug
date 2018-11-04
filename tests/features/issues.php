@@ -370,4 +370,24 @@ if $entryopen and !$submitted
         $actual = $pug->render($input);
         self::assertSame($expected, $actual);
     }
+
+    public function testNameSpacePresenceAsFalsePositive()
+    {
+        $input = implode("\n", array(
+            'body',
+            '  :php',
+            '    // set str to namespace',
+            '    $str = "namespace"',
+            '  p=str',
+        ));
+        $expected = implode('', array(
+            '<body>',
+            '<p>namespace</p>',
+            '</body>',
+        ));
+        $pug = new Pug();
+
+        $actual = $pug->render($input);
+        self::assertSame($expected, $actual);
+    }
 }
