@@ -366,6 +366,10 @@ Please report any security issue or risk by emailing pug@selfbuild.fr. Please do
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/pug-php/pug/contributors"><img src="https://opencollective.com/pug-php/contributors.svg?width=890&button=false" /></a>
 
+And all the people contributing to our depedencies, in particular:
+The [Phug engine](https://github.com/phug-php)
+The JS syntax converter [Js-Phpize](https://github.com/pug-php/js-phpize)
+
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/pug-php#backer)]
