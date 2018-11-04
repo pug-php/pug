@@ -361,24 +361,16 @@ All contributions are welcome, for any bug, issue or merge request (except for s
 
 Please report any security issue or risk by emailing pug@selfbuild.fr. Please don't disclose security bugs publicly until they have been handled by us.
 
-
-
-Pug-php recommends
-
-[<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
-
 ## Contributors
 
 This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
 <a href="https://github.com/pug-php/pug/contributors"><img src="https://opencollective.com/pug-php/contributors.svg?width=890&button=false" /></a>
-
 
 ## Backers
 
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/pug-php#backer)]
 
 <a href="https://opencollective.com/pug-php#backers" target="_blank"><img src="https://opencollective.com/pug-php/backers.svg?width=890"></a>
-
 
 ## Sponsors
 
@@ -395,4 +387,6 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/pug-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/pug-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/pug-php/sponsor/9/avatar.svg"></a>
 
+And a big thank-you to Jet Brains who provides such a great IDE:
 
+[<img src="http://jet-brains.selfbuild.fr/PhpStorm-text.svg" width="150" height="26">](https://www.jetbrains.com/phpstorm/)
