@@ -1,5 +1,5 @@
 ---
-engines:
+plugins:
   duplication:
     enabled: true
     config:
@@ -16,7 +16,6 @@ engines:
         enabled: false
       UnusedFormalParameter:
         enabled: false
-plugins:
   phpcodesniffer:
     enabled: true
   phpmd:
@@ -25,14 +24,6 @@ plugins:
     enabled: true
   phan:
     enabled: true
-ratings:
-  paths:
-  - "**.inc"
-  - "**.js"
-  - "**.jsx"
-  - "**.module"
-  - "**.php"
-  - "**.py"
-  - "**.rb"
-exclude_paths:
-- tests/
+version: "2"
+exclude_patterns:
+- "tests/"

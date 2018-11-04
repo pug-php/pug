@@ -1,4 +1,4 @@
-# Pug-php
+# <img src="http://pug.selfbuild.fr/pug.png" width="32" height="32"> Pug-php
 
 [![Latest Stable Version](https://poser.pugx.org/pug-php/pug/v/stable.png)](https://packagist.org/packages/pug-php/pug)
 [![Monthly Downloads](https://poser.pugx.org/pug-php/pug/d/monthly)](https://packagist.org/packages/pug-php/pug)
