@@ -6,13 +6,14 @@ require 'bootstrap.php';
  * Home pages list
  */
 $app->action('/', function (&$view) {
-    $view  = 'index';
-    $items = array(
-        array('route' => 'login', 'name' => 'The Login page example'),
-        array('route' => 'cities', 'name' => 'The City API search example'),
-    );
+    $view = 'index';
 
-    return compact('items');
+    return [
+        'items' => [
+            ['route' => 'login', 'name' => 'The Login page example'],
+            ['route' => 'cities', 'name' => 'The City API search example'],
+        ],
+    ];
 });
 
 /**
@@ -30,10 +31,10 @@ $app->action('login', function () {
         $message['success'] = true;
     }
 
-    return array(
+    return [
         'message' => $message,
-        'user'    => compact('username', 'password', 'invalid')
-    );
+        'user'    => compact('username', 'password')
+    ];
 });
 
 /**
@@ -41,7 +42,7 @@ $app->action('login', function () {
  */
 $app->action('cities', function () {
     $query  = isset($_GET['q']) ? trim($_GET['q']) : null;
-    $cities = array('total' => 0, 'result' => null);
+    $cities = ['total' => 0, 'result' => null];
 
     if ($query) {
         $ch = curl_init('http://gd.geobytes.com/AutoCompleteCity?q=' . $query);
