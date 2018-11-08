@@ -14,6 +14,7 @@
 
 ##### [Official Phug documentation](https://www.phug-lang.com/)
 ##### [See Pug-php demo](https://pug-demo.herokuapp.com/)
+##### [Get supported pug-php/pug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-pug-php-pug?utm_source=packagist-pug-php-pug&utm_medium=referral&utm_campaign=readme)
 
 ## Install
 
