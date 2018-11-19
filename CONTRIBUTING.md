@@ -15,7 +15,7 @@ This template will help you provide us the informations we need for most issues 
 
 ## Code Contributions
 
-Fork the [GitHub project](https://github.com/pug-php/pug) and chek out your copy locally:
+Fork the [GitHub project](https://github.com/pug-php/pug) and `checkout` your copy locally:
 
 ```shell
 git clone https://github.com/<username>/pug.git
