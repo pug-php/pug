@@ -11,7 +11,7 @@ Please report any security issue or risk by emailing pug@selfbuild.fr. Please do
 For any other bug or issue, please click this link and follow the template if applicable:
 [Create new issue](https://github.com/pug-php/pug/issues/new)
 
-This template will help your provide us the informations we need for most issues (the PHP and/or Pug code you use, the expected behaviour and the current behaviour).
+This template will help you provide us the informations we need for most issues (the PHP and/or Pug code you use, the expected behaviour and the current behaviour).
 
 ## Code Contributions
 
