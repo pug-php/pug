@@ -754,12 +754,12 @@ class Parser
                         : $peek->attributes[$type];
                     $tag->setAttribute($token->type, $value, $escaped);
                     unset($peek->attributes[$type]);
-                    continue;
+                    continue 2;
 
                 case 'class':
                     $token = $this->advance();
                     $tag->setAttribute($token->type, "'" . $token->value . "'");
-                    continue;
+                    continue 2;
 
                 case 'attributes':
                     $token = $this->advance();
@@ -779,12 +779,12 @@ class Parser
                         }
                         $tag->setAttribute($name, $value, $escaped[$name]);
                     }
-                    continue;
+                    continue 2;
 
                 case '&attributes':
                     $token = $this->advance();
                     $tag->setAttribute('&attributes', $token->value);
-                    continue;
+                    continue 2;
 
                 default:
                     break 2;
