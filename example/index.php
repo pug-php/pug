@@ -32,7 +32,7 @@ $app->action('login', function () {
 
     return array(
         'message' => $message,
-        'user'    => compact('username', 'password', 'invalid')
+        'user'    => compact('username', 'password'),
     );
 });
 
