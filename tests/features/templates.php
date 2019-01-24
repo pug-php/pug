@@ -162,4 +162,40 @@ class PugTemplatesTest extends TestCase
 
         chdir($dir);
     }
+
+    public function testMixinNestedScope()
+    {
+        $code = implode("\n", [
+            'mixin paragraph($text)',
+            '  p= $text',
+            '  block',
+            '+paragraph(\'1\')',
+            '  +paragraph($text)',
+            '+paragraph($text)',
+        ]);
+
+        $renderer = new Pug();
+
+        $html = $renderer->render($code, [
+            'text' => '2',
+        ]);
+
+        self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
+
+        $code = implode("\n", [
+            '- $text = "2"',
+            'mixin paragraph($text)',
+            '  p= $text',
+            '  block',
+            '+paragraph(\'1\')',
+            '  +paragraph($text)',
+            '+paragraph($text)',
+        ]);
+
+        $renderer = new Pug();
+
+        $html = $renderer->render($code);
+
+        self::assertSame('<p>1</p><p>2</p><p>2</p>', $html);
+    }
 }
