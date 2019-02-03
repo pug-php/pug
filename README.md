@@ -8,8 +8,6 @@
 [![Test Coverage](https://codeclimate.com/github/pug-php/pug/badges/coverage.svg)](https://codecov.io/github/pug-php/pug?branch=master)
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
 [![Dependencies](https://tidelift.com/badges/github/pug-php/pug)](https://tidelift.com/subscription/pkg/packagist-pug-php-pug?utm_source=packagist-pug-php-pug&utm_medium=referral&utm_campaign=readme)
-[![Backers on Open Collective](https://opencollective.com/pug-php/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/pug-php/sponsors/badge.svg)](#sponsors)
 
 **Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since version 3, it uses **Phug**, a very customizable Pug template engine made by the **tale-pug** and **pug-php** developers as the new PHP Pug engine reference.
 
@@ -371,12 +369,6 @@ This project exists thanks to all the people who contribute.
 And all the people contributing to our depedencies, in particular:
 The [Phug engine](https://github.com/phug-php)
 The JS syntax converter [Js-Phpize](https://github.com/pug-php/js-phpize)
-
-## Backers
-
-[Become a backer](https://opencollective.com/pug-php#backer) and apear below. 🙏
-
-<a href="https://opencollective.com/pug-php#backers" target="_blank"><img src="https://opencollective.com/pug-php/backers.svg?width=890"></a>
 
 ## Sponsors
 
