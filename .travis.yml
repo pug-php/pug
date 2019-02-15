@@ -14,7 +14,9 @@ php:
   - nightly
 
 before_script:
-  - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; fi
+  - COMPOSER_FLAGS=''
+  - PHPUNIT_FLAGS=''
+  - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; PHPUNIT_FLAGS='--process-isolation --debug'; fi
   - travis_retry composer self-update
   - travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source --dev
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -22,7 +24,7 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  - vendor/bin/phpunit --verbose --coverage-text --coverage-clover=clover.xml
+  - vendor/bin/phpunit ${PHPUNIT_FLAGS} --verbose --coverage-text --coverage-clover=clover.xml
 
 after_script:
   - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT
