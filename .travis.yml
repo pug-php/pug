@@ -16,7 +16,7 @@ php:
 before_script:
   - COMPOSER_FLAGS=''
   - PHPUNIT_FLAGS=''
-  - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; PHPUNIT_FLAGS='--process-isolation --debug'; fi
+  - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; PHPUNIT_FLAGS='--debug'; fi
   - travis_retry composer self-update
   - travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source --dev
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
