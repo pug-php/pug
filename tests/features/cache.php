@@ -231,6 +231,10 @@ class PugCacheTest extends TestCase
      */
     public function testCacheDirectory()
     {
+        if (version_compare(PHP_VERSION, '8.0.0-dev', '>=')) {
+            self::markTestSkipped('Test not ready for PHP 8.');
+        }
+
         $cacheDirectory = sys_get_temp_dir() . '/pug-test'.mt_rand(0, 999999);
         $this->emptyDirectory($cacheDirectory);
         if (!is_dir($cacheDirectory)) {
