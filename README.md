@@ -359,7 +359,9 @@ All contributions are welcome, for any bug, issue or merge request (except for s
 
 ## Security
 
-Please report any security issue or risk by emailing pug@selfbuild.fr. Please don't disclose security bugs publicly until they have been handled by us.
+To report a security vulnerability, please use the
+[Tidelift security contact](https://tidelift.com/security).
+Tidelift will coordinate the fix and disclosure.
 
 ## Contributors
 
