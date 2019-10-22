@@ -100,6 +100,11 @@ class PugCachePerformanceTest extends TestCase
         $json = json_encode($options);
         shell_exec("$command compile-directory views cache '$json'");
 
+        // Optional step: the views directory is no longer needed as cached,
+        // it can be deleted.
+        $this->removeDirectory('views');
+        clearstatcache();
+
         // On runtime, use \Pug\Optimizer::call to render/display the pre-compiled views
         // with local variables
         $variables = [
