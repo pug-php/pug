@@ -88,10 +88,10 @@ class PugCachePerformanceTest extends TestCase
 
         // Use cache option and no up_to_date_check
         $options = [
-            'up_to_date_check ' => false,
-            'debug'             => false,
-            'cache_dir'         => 'cache',
-            'paths'             => ['views'],
+            'up_to_date_check' => false,
+            'debug'            => false,
+            'cache_dir'        => 'cache',
+            'paths'            => ['views'],
         ];
 
         // On deploy, run ./vendor/bin/pug compile-directory views cache '{...}'
@@ -101,9 +101,9 @@ class PugCachePerformanceTest extends TestCase
         shell_exec("$command compile-directory views cache '$json'");
 
         // Optional step: the views directory is no longer needed as cached,
-        // it can be deleted.
-        $this->removeDirectory('views');
-        clearstatcache();
+        // it can be emptied.
+        file_put_contents('views/index.pug', '');
+        file_put_contents('views/inc.pug', '');
 
         // On runtime, use \Pug\Optimizer::call to render/display the pre-compiled views
         // with local variables
