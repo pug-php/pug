@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use Phug\Cli;
 use Pug\Optimizer;
 use Pug\Pug;
 
@@ -73,7 +74,7 @@ class PugCachePerformanceTest extends TestCase
     public function testCliAndOptimizerTogether()
     {
         // Load the pug CLI command (will be ./vendor/bin/pug in real life).
-        $command = escapeshellcmd(realpath(__DIR__.'/../../pug'));
+        $command = escapeshellarg(realpath(__DIR__.'/../../pug'));
 
         // Working directory has a views directory and a cache directory.
         $baseDir = sys_get_temp_dir() . '/pug-' . mt_rand(0, 9999999);
@@ -98,7 +99,28 @@ class PugCachePerformanceTest extends TestCase
         // views and cache are the paths to the directories
         // {...} should be the same options you will use at runtime stringified as JSON
         $json = json_encode($options);
-        shell_exec("$command compile-directory views cache '$json'");
+
+        exec("php $command compile-directory views cache '$json'", $cliOutput, $cliReturn);
+
+//        ob_start();
+//
+//        $cli = new Cli('Pug\Facade', [
+//            'render',
+//            'renderFile',
+//            'renderDirectory',
+//            'compile',
+//            'compileFile',
+//            'compileDirectory' => 'textualCacheDirectory',
+//            'display'          => 'render',
+//            'displayFile'      => 'renderFile',
+//            'displayDirectory' => 'renderDirectory',
+//            'cacheDirectory'   => 'textualCacheDirectory',
+//        ]);
+//
+//        $cliReturn = $cli->run([$command, 'compile-directory', 'views', 'cache', $json]);
+//        $cliOutput = ob_get_contents();
+//
+//        ob_end_clean();
 
         // Optional step: the views directory is no longer needed as cached,
         // it can be emptied.
@@ -117,5 +139,7 @@ class PugCachePerformanceTest extends TestCase
         $this->removeDirectory($baseDir);
 
         $this->assertSame('<p>FOO</p><h1>BAR</h1>', $content);
+        $this->assertTrue($cliReturn);
+        $this->assertSame("2 templates cached.\n0 templates failed to be cached.\n", $cliOutput);
     }
 }
