@@ -532,4 +532,25 @@ body
 
         self::assertInstanceOf(Pug::class, Phug::getRenderer());
     }
+
+    public function testAliases()
+    {
+        $pug = new Pug([
+            'prettyprint' => true,
+        ]);
+
+        self::assertTrue($pug->hasOption('prettyprint'));
+        self::assertTrue($pug->hasOption('pretty'));
+
+        $pug = new Pug();
+
+        self::assertFalse($pug->hasOption('pretty'));
+
+        $pug = new Pug([
+            'pretty' => true,
+        ]);
+
+        self::assertTrue($pug->hasOption('prettyprint'));
+        self::assertTrue($pug->hasOption('pretty'));
+    }
 }

@@ -94,6 +94,15 @@ class PugJsTest extends TestCase
 
         self::assertSame("<div>\n  <p></p>\n</div>", $html);
 
+        $pug->setOption('prettyprint', true);
+
+        touch($cache, time() - 20);
+        clearstatcache();
+
+        $html = trim($pug->renderFile($source));
+
+        self::assertSame("<div>\n  <p></p>\n</div>", $html);
+
         unlink($source);
         unlink($cache);
     }

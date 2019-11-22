@@ -77,16 +77,6 @@ abstract class Options extends OptionsHandler
         }
     }
 
-    protected function setUpOptionsAliases(&$options)
-    {
-        $this->setUpOptionNameHandlers();
-        foreach ($this->optionsAliases as $from => $to) {
-            if (isset($options[$from]) && !isset($options[$to])) {
-                $options[$to] = $options[$from];
-            }
-        }
-    }
-
     protected function setUpFormats(&$options)
     {
         foreach (['default', '5'] as $format) {
