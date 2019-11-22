@@ -1,11 +1,11 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Pug\Parser;
+use Phug\CompilerException;
+use Phug\LexerException;
 use Pug\Pug;
 
-class EmulateBugException extends \Exception {}
-class OnlyOnceException extends \Exception {}
+class EmulateBugException extends Exception {}
 
 class PugExceptionsTest extends TestCase
 {
@@ -14,45 +14,41 @@ class PugExceptionsTest extends TestCase
         throw new EmulateBugException("Error Processing Request", 1);
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testAbsoluteIncludeWithNoBaseDir()
     {
+        self::expectException(Exception::class);
+
         $pug = new Pug();
         $pug->render('include /auxiliary/world');
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testCannotBeReadFromPhp()
     {
+        self::expectException(Exception::class);
+
         get_php_code('- var foo = Inf' . "\n" . 'p=foo');
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testUnexpectedValue()
     {
+        self::expectException(Exception::class);
+
         get_php_code('a(href="foo""bar")');
     }
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Unclosed attribute block
-     */
+
     public function testUnableToFindAttributesClosingParenthesis()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Unclosed attribute block');
+
         get_php_code('a(href=');
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage Error Processing Request
-     */
     public function testExceptionThroughPug()
     {
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Error Processing Request');
+
         $pug = new Pug([
             'debug' => true,
             'exit_on_error' => false,
@@ -61,31 +57,30 @@ class PugExceptionsTest extends TestCase
         $pug->render('a(href=\PugExceptionsTest::emulateBug())');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage The syntax for each is
-     */
     public function testNonParsableExtends()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('The syntax for each is');
+
         get_php_file(__DIR__ . '/../templates/auxiliary/extends-failure.pug');
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage Error Processing Request
-     */
     public function testBrokenExtends()
     {
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Error Processing Request');
+
         get_php_file(__DIR__ . '/../templates/auxiliary/extends-exception.pug');
     }
 
     /**
      * @group filters
-     * @expectedException \Exception
-     * @expectedExceptionMessage Bad filter
      */
     public function testExtendsWithFilterException()
     {
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Bad filter');
+
         $pug = new Pug([
             'debug' => true,
             'exit_on_error' => false,
@@ -96,21 +91,19 @@ class PugExceptionsTest extends TestCase
         $pug->renderFile(__DIR__ . '/../templates/auxiliary/extends-exception-filter.pug');
     }
 
-    /**
-     * @expectedException \Phug\CompilerException
-     * @expectedExceptionMessage Unknown filter foo
-     */
     public function testFilterDoesNotExist()
     {
+        self::expectException(CompilerException::class);
+        self::expectExceptionMessage('Unknown filter foo');
+
         get_php_code(':foo' . "\n" . '  | Foo language');
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage Error Processing Request
-     */
     public function testBrokenInclude()
     {
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Error Processing Request');
+
         get_php_file(__DIR__ . '/../templates/auxiliary/include-exception.pug');
     }
 }

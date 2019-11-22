@@ -46,12 +46,11 @@ class PugCacheTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage ///cannot/be/created: Cache directory doesn't exist
-     */
     public function testMissingDirectory()
     {
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('///cannot/be/created: Cache directory doesn\'t exist');
+
         $pug = new Pug(array(
             'debug' => true,
             'exit_on_error' => false,

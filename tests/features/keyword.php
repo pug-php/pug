@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Phug\AbstractExtension;
 use Phug\Compiler\Event\NodeEvent;
+use Phug\FormatterException;
 use Phug\Parser\Node\ElementNode;
 use Pug\ExtensionContainerInterface;
 use Pug\Pug;
@@ -51,22 +52,24 @@ class PugKeywordTest extends TestCase
 {
     /**
      * @group keywords
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 30
      */
     public function testInvalidAction()
     {
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionCode(30);
+
         $pug = new Pug();
         $pug->addKeyword('foo', 'bar');
     }
 
     /**
      * @group keywords
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 31
      */
     public function testAddAlreadySetKeyword()
     {
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionCode(31);
+
         $pug = new Pug();
         $pug->addKeyword('foo', function () {
             return array();
@@ -78,11 +81,12 @@ class PugKeywordTest extends TestCase
 
     /**
      * @group keywords
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 32
      */
     public function testReplaceNonSetKeyword()
     {
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionCode(32);
+
         $pug = new Pug();
         $pug->replaceKeyword('foo', function () {
             return array();
@@ -91,11 +95,12 @@ class PugKeywordTest extends TestCase
 
     /**
      * @group keywords
-     * @expectedException \Phug\FormatterException
-     * @expectedExceptionMessage The keyword foo returned an invalid value type
      */
     public function testBadReturn()
     {
+        self::expectException(FormatterException::class);
+        self::expectExceptionMessage('The keyword foo returned an invalid value type');
+
         $pug = new Pug();
         $pug->addKeyword('foo', function () {
             return 32;

@@ -85,6 +85,15 @@ class PugJsTest extends TestCase
 
         self::assertSame("<div>\n  <p></p>\n</div>", $html);
 
+        $pug->setOption('pretty', true);
+
+        touch($cache, time() - 20);
+        clearstatcache();
+
+        $html = trim($pug->renderFile($source));
+
+        self::assertSame("<div>\n  <p></p>\n</div>", $html);
+
         unlink($source);
         unlink($cache);
     }
@@ -140,11 +149,12 @@ class PugJsTest extends TestCase
 
     /**
      * @group pugjs
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage is not a valid class name
      */
     public function testPugJsOptionException()
     {
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('is not a valid class name');
+
         $pug = new Pug([
             'debug' => true,
             'exit_on_error' => false,

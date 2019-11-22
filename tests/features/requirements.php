@@ -20,12 +20,11 @@ class PugRequirementsTest extends TestCase
         self::assertTrue($pug->requirements('cacheFolderExists'), 'cacheFolderExists requirement should be true with sys_get_temp_dir()');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 19
-     */
     public function testRequirementThatDoesNotExist()
     {
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionCode(19);
+
         $pug = new Pug();
         $pug->requirements('requirementThatDoesNotExist');
     }
