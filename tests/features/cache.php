@@ -247,7 +247,7 @@ class PugCacheTest extends TestCase
         ));
         list($success, $errors) = $pug->cacheDirectory($templatesDirectory);
         $filesCount = count(array_filter(scandir($cacheDirectory), function ($file) {
-            return $file !== '.' && $file !== '..' && pathinfo($file, PATHINFO_EXTENSION) !== 'txt' && $file !== 'registry.php;
+            return $file !== '.' && $file !== '..' && pathinfo($file, PATHINFO_EXTENSION) !== 'txt' && $file !== 'registry.php';
         }));
         $expectedCount = count(array_filter(array_merge(
             scandir($templatesDirectory),
