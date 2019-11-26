@@ -120,7 +120,8 @@
             "role": "contributor"
         }
     ],
-    "minimum-stability": "beta",
+    "prefer-stable": true,
+    "minimum-stability": "stable",
     "require": {
         "php": ">=5.5.0",
         "js-phpize/js-phpize-phug": "^1.1 || ^2.0",
