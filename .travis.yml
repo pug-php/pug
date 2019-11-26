@@ -16,7 +16,7 @@ matrix:
     - php: 7.4snapshot
 
 before_script:
-  - COMPOSER_FLAGS=''
+  - composer config minimum-stability beta
   - if [[ $TRAVIS_PHP_VERSION =~ ^nightly ]]; then COMPOSER_FLAGS='--ignore-platform-reqs'; fi
   - travis_retry composer self-update
   - travis_retry composer install ${COMPOSER_FLAGS} --no-interaction --prefer-source --dev
@@ -40,4 +40,5 @@ addons:
 
 env:
   global:
+    - COMPOSER_FLAGS=''
     - CC_TEST_REPORTER_ID=d16eac66156a1f7a995de17964d4ffdd152821ab52e8470b5dbd5d3406406836
