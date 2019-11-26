@@ -1,8 +1,11 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
 require __DIR__ . '/../../vendor/autoload.php';
+
+require __DIR__ . '/AbstractTestCase' . (method_exists(TestCase::class, 'expectException') ? 'Void' : '') . '.php';
 
 define('TEMPLATES_DIRECTORY', realpath(str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/../templates')));
 

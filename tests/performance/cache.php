@@ -1,11 +1,11 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Phug\Cli;
 use Pug\Optimizer;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class PugCachePerformanceTest extends TestCase
+class PugCachePerformanceTest extends AbstractTestCase
 {
     protected function removeDirectory($directory)
     {
@@ -102,25 +102,25 @@ class PugCachePerformanceTest extends TestCase
 
         exec("php $command compile-directory views cache '$json'", $cliOutput, $cliReturn);
 
-//        ob_start();
-//
-//        $cli = new Cli('Pug\Facade', [
-//            'render',
-//            'renderFile',
-//            'renderDirectory',
-//            'compile',
-//            'compileFile',
-//            'compileDirectory' => 'textualCacheDirectory',
-//            'display'          => 'render',
-//            'displayFile'      => 'renderFile',
-//            'displayDirectory' => 'renderDirectory',
-//            'cacheDirectory'   => 'textualCacheDirectory',
-//        ]);
-//
-//        $cliReturn = $cli->run([$command, 'compile-directory', 'views', 'cache', $json]);
-//        $cliOutput = ob_get_contents();
-//
-//        ob_end_clean();
+        ob_start();
+
+        $cli = new Cli('Pug\Facade', [
+            'render',
+            'renderFile',
+            'renderDirectory',
+            'compile',
+            'compileFile',
+            'compileDirectory' => 'textualCacheDirectory',
+            'display'          => 'render',
+            'displayFile'      => 'renderFile',
+            'displayDirectory' => 'renderDirectory',
+            'cacheDirectory'   => 'textualCacheDirectory',
+        ]);
+
+        $cliReturn = $cli->run([$command, 'compile-directory', 'views', 'cache', $json]);
+        $cliOutput = ob_get_contents();
+
+        ob_end_clean();
 
         // Optional step: the views directory is no longer needed as cached,
         // it can be emptied.

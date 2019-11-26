@@ -1,13 +1,13 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Phug\CompilerException;
 use Phug\LexerException;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 class EmulateBugException extends Exception {}
 
-class PugExceptionsTest extends TestCase
+class PugExceptionsTest extends AbstractTestCase
 {
     static public function emulateBug()
     {

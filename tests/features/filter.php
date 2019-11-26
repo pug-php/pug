@@ -1,8 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Phug\CompilerException;
+use Pug\Filter\AbstractFilter;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 class ParseMethodFilter
 {
@@ -12,12 +13,12 @@ class ParseMethodFilter
     }
 }
 
-class SpecialScript extends \Pug\Filter\AbstractFilter
+class SpecialScript extends AbstractFilter
 {
     protected $tag = 'script';
 }
 
-class PugFilterTest extends TestCase
+class PugFilterTest extends AbstractTestCase
 {
     /**
      * @group filters

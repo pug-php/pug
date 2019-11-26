@@ -1,14 +1,14 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Phug\CompilerException;
 use Phug\LexerException;
 use Phug\Phug;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 include_once __DIR__.'/../lib/escape.php';
 
-class PugSettingsTest extends TestCase
+class PugSettingsTest extends AbstractTestCase
 {
     static private function rawHtml($html, $convertSingleQuote = true)
     {

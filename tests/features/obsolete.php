@@ -4,7 +4,7 @@ use Jade\Compiler;
 use Jade\Jade;
 use Jade\Lexer;
 use Jade\Parser;
-use PHPUnit\Framework\TestCase;
+use Pug\Test\AbstractTestCase;
 
 class JadeFilter extends \Jade\Filter\AbstractFilter
 {
@@ -21,7 +21,7 @@ class NodeStringFilter extends \Pug\Filter\AbstractFilter
 
 include_once __DIR__ . '/../lib/LegacyFilterNode.php';
 
-class PugObsoleteTest extends TestCase
+class PugObsoleteTest extends AbstractTestCase
 {
     public function getObsoleteClasses()
     {

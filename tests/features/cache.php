@@ -1,7 +1,7 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 class PugTest extends Pug
 {
@@ -27,7 +27,7 @@ class PugTest extends Pug
     }
 }
 
-class PugCacheTest extends TestCase
+class PugCacheTest extends AbstractTestCase
 {
     protected function emptyDirectory($dir)
     {

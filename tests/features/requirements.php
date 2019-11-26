@@ -1,9 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class PugRequirementsTest extends TestCase
+class PugRequirementsTest extends AbstractTestCase
 {
     public function testCacheFolderExists()
     {

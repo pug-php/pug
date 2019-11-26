@@ -1,9 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class PugWhiteSpaceTest extends TestCase
+class PugWhiteSpaceTest extends AbstractTestCase
 {
     public function testTextarea()
     {

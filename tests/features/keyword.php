@@ -1,12 +1,12 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Phug\AbstractExtension;
 use Phug\Compiler\Event\NodeEvent;
 use Phug\FormatterException;
 use Phug\Parser\Node\ElementNode;
 use Pug\ExtensionContainerInterface;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 class ForKeyword
 {
@@ -48,7 +48,7 @@ class BadOptionType
 {
 }
 
-class PugKeywordTest extends TestCase
+class PugKeywordTest extends AbstractTestCase
 {
     /**
      * @group keywords
