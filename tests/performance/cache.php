@@ -124,8 +124,9 @@ class PugCachePerformanceTest extends AbstractTestCase
 
         // Optional step: the views directory is no longer needed as cached,
         // it can be emptied.
-        file_put_contents('views/index.pug', '');
-        file_put_contents('views/inc.pug', '');
+        unlink('views/index.pug');
+        unlink('views/inc.pug');
+        rmdir('views');
 
         // On runtime, use \Pug\Optimizer::call to render/display the pre-compiled views
         // with local variables
