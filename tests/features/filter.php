@@ -1,7 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use Phug\CompilerException;
+use Pug\Filter\AbstractFilter;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 class ParseMethodFilter
 {
@@ -11,12 +13,12 @@ class ParseMethodFilter
     }
 }
 
-class SpecialScript extends \Pug\Filter\AbstractFilter
+class SpecialScript extends AbstractFilter
 {
     protected $tag = 'script';
 }
 
-class PugFilterTest extends TestCase
+class PugFilterTest extends AbstractTestCase
 {
     /**
      * @group filters
@@ -53,11 +55,12 @@ div
 
     /**
      * @group filters
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Invalid bar filter given
      */
     public function testNonCallableFilter()
     {
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionMessage('Invalid bar filter given');
+
         $pug = new Pug([
             'debug' => true,
             'exit_on_error' => false,
@@ -107,11 +110,12 @@ div
 
     /**
      * @group filters
-     * @expectedException \Phug\CompilerException
-     * @expectedExceptionMessage Unknown filter bar-foo
      */
     public function testFilterAutoloadWhenClassDoNotExist()
     {
+        self::expectException(CompilerException::class);
+        self::expectExceptionMessage('Unknown filter bar-foo');
+
         $pug = new Pug([
             'debug' => true,
             'exit_on_error' => false,

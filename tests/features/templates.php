@@ -1,9 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class PugTemplatesTest extends TestCase
+class PugTemplatesTest extends AbstractTestCase
 {
     public function caseProvider()
     {

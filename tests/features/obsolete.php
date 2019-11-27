@@ -1,6 +1,10 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use Jade\Compiler;
+use Jade\Jade;
+use Jade\Lexer;
+use Jade\Parser;
+use Pug\Test\AbstractTestCase;
 
 class JadeFilter extends \Jade\Filter\AbstractFilter
 {
@@ -17,79 +21,53 @@ class NodeStringFilter extends \Pug\Filter\AbstractFilter
 
 include_once __DIR__ . '/../lib/LegacyFilterNode.php';
 
-class PugObsoleteTest extends TestCase
+class PugObsoleteTest extends AbstractTestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Jade namespace is no longer available, use Pug instead.
-     */
-    public function testJadeCompiler()
+    public function getObsoleteClasses()
     {
-        new \Jade\Compiler();
+        return [
+            [Compiler::class],
+            [Jade::class],
+            [Lexer::class],
+            [Parser::class],
+            [JadeFilter::class],
+        ];
     }
 
     /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Jade namespace is no longer available, use Pug instead.
+     * @dataProvider getObsoleteClasses
      */
-    public function testJadeJade()
+    public function testJadeClassUse($class)
     {
-        new \Jade\Jade();
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionMessage('Jade namespace is no longer available, use Pug instead.');
+
+        new $class();
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Jade namespace is no longer available, use Pug instead.
-     */
-    public function testJadeLexer()
-    {
-        new \Jade\Lexer();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Jade namespace is no longer available, use Pug instead.
-     */
-    public function testJadeParser()
-    {
-        new \Jade\Parser();
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Jade namespace is no longer available, use Pug instead.
-     */
-    public function testJadeFilter()
-    {
-        new JadeFilter();
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage ->getNodeString is no longer supported since you get now contents as a string.
-     */
     public function testGetNodeString()
     {
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('->getNodeString is no longer supported since you get now contents as a string.');
+
         $filter = new NodeStringFilter();
         $filter->test();
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Pug\Filter\FilterInterface is no longer supported. Now use Pug\FilterInterface instead.
-     */
     public function testInvoke()
     {
+        self::expectException(RuntimeException::class);
+        self::expectExceptionMessage('Pug\Filter\FilterInterface is no longer supported. Now use Pug\FilterInterface instead.');
+
         $filter = new NodeStringFilter();
         $filter(new \Pug\Nodes\Filter(), new \Pug\Compiler());
     }
 
-    /**
-     * @expectedException \ErrorException
-     * @expectedExceptionMessage ->stream() is no longer available
-     */
     public function testStream()
     {
+        self::expectException(ErrorException::class);
+        self::expectExceptionMessage('->stream() is no longer available');
+
         $pug = new \Pug\Pug();
         $pug->stream();
     }

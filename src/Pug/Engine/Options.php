@@ -77,23 +77,12 @@ abstract class Options extends OptionsHandler
         }
     }
 
-    protected function setUpOptionsAliases(&$options)
-    {
-        $this->setUpOptionNameHandlers();
-        foreach ($this->optionsAliases as $from => $to) {
-            if (isset($options[$from]) && !isset($options[$to])) {
-                $options[$to] = $options[$from];
-            } // @codeCoverageIgnore
-        }
-    }
-
     protected function setUpFormats(&$options)
     {
-        if (!isset($options['formats']['default'])) {
-            $options['formats']['default'] = HtmlFormat::class;
-        }
-        if (!isset($options['formats']['5'])) {
-            $options['formats']['5'] = HtmlFormat::class;
+        foreach (['default', '5'] as $format) {
+            if (!isset($options['formats'][$format])) {
+                $options['formats'][$format] = HtmlFormat::class;
+            }
         }
     }
 

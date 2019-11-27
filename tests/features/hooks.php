@@ -1,9 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class PugHooksTest extends TestCase
+class PugHooksTest extends AbstractTestCase
 {
     public function testPreRender()
     {

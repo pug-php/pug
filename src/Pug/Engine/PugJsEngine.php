@@ -92,16 +92,9 @@ class PugJsEngine extends Keywords
             unset($options['pretty']);
         }
 
-        // options that need be encoded by json_encode
-        $jsonOptions = ['pretty'];
-
         foreach ($options as $option => $value) {
             if (!empty($value)) {
-                $function = in_array($option, $jsonOptions)
-                    ? 'json_encode'
-                    : 'escapeshellarg';
-                $value = call_user_func($function, $value);
-                $args[] = '--' . $option . ' ' . $value;
+                $args[] = '--' . $option . ' ' . escapeshellarg($value);
             }
         }
 

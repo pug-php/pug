@@ -1,9 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
-class ShareTest extends TestCase
+class ShareTest extends AbstractTestCase
 {
     public function testShare()
     {

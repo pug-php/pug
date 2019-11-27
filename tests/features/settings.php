@@ -1,12 +1,14 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use Phug\CompilerException;
+use Phug\LexerException;
 use Phug\Phug;
 use Pug\Pug;
+use Pug\Test\AbstractTestCase;
 
 include_once __DIR__.'/../lib/escape.php';
 
-class PugSettingsTest extends TestCase
+class PugSettingsTest extends AbstractTestCase
 {
     static private function rawHtml($html, $convertSingleQuote = true)
     {
@@ -258,12 +260,11 @@ mixin foo()
         self::assertSame(static::rawHtml($actual, false), static::rawHtml($expected, false), 'Allow mixed indent enabled');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
-     */
     public function testAllowMixedIndentDisabledTabSpaces()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Invalid indentation, you can use tabs or spaces but not both');
+
         $pug = new Pug(array(
             'allowMixedIndent' => false,
         ));
@@ -271,12 +272,11 @@ mixin foo()
         $pug->render('p' . "\n\t    " . 'i Hi');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
-     */
     public function testAllowMixedIndentDisabledSpacesTab()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Invalid indentation, you can use tabs or spaces but not both');
+
         $pug = new Pug(array(
             'allowMixedIndent' => false,
         ));
@@ -284,12 +284,11 @@ mixin foo()
         $pug->render('p' . "\n    \t" . 'i Hi');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
-     */
     public function testAllowMixedIndentDisabledSpacesTabAfterSpaces()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Invalid indentation, you can use tabs or spaces but not both');
+
         $pug = new Pug(array(
             'allowMixedIndent' => false,
         ));
@@ -297,12 +296,11 @@ mixin foo()
         $pug->render('p' . "\n        " . 'i Hi' . "\n    \t" . 'i Hi');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
-     */
     public function testAllowMixedIndentDisabledSpacesAfterTab()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Invalid indentation, you can use tabs or spaces but not both');
+
         $pug = new Pug(array(
             'allowMixedIndent' => false,
         ));
@@ -310,12 +308,11 @@ mixin foo()
         $pug->render('p' . "\n\t" . 'i Hi' . "\n    " . 'i Hi');
     }
 
-    /**
-     * @expectedException \Phug\LexerException
-     * @expectedExceptionMessage Invalid indentation, you can use tabs or spaces but not both
-     */
     public function testAllowMixedIndentDisabledSpacesTabTextAfterTab()
     {
+        self::expectException(LexerException::class);
+        self::expectExceptionMessage('Invalid indentation, you can use tabs or spaces but not both');
+
         $pug = new Pug(array(
             'allowMixedIndent' => false,
         ));
@@ -325,12 +322,12 @@ mixin foo()
 
     /**
      * notFound option replace the static variable includeNotFound.
-     *
-     * @expectedException \Phug\CompilerException
-     * @expectedExceptionMessage Source file does-not-exists not found
      */
     public function testIncludeNotFoundDisabledViaOption()
     {
+        self::expectException(CompilerException::class);
+        self::expectExceptionMessage('Source file does-not-exists not found');
+
         $pug = new Pug();
         $pug->render('include does-not-exists');
     }
@@ -397,12 +394,12 @@ body
 
     /**
      * notFound option replace the static variable includeNotFound.
-     *
-     * @expectedException \Phug\CompilerException
-     * @expectedExceptionMessage Either the "basedir" or "paths" option is required
      */
     public function testNoBaseDir()
     {
+        self::expectException(CompilerException::class);
+        self::expectExceptionMessage('Either the "basedir" or "paths" option is required');
+
         $pug = new Pug();
         $pug->renderFile(__DIR__ . '/../templates/auxiliary/include-sibling.pug');
     }
@@ -534,5 +531,26 @@ body
         Pug::init();
 
         self::assertInstanceOf(Pug::class, Phug::getRenderer());
+    }
+
+    public function testAliases()
+    {
+        $pug = new Pug([
+            'prettyprint' => true,
+        ]);
+
+        self::assertTrue($pug->hasOption('prettyprint'));
+        self::assertTrue($pug->hasOption('pretty'));
+
+        $pug = new Pug();
+
+        self::assertFalse($pug->hasOption('pretty'));
+
+        $pug = new Pug([
+            'pretty' => true,
+        ]);
+
+        self::assertTrue($pug->hasOption('prettyprint'));
+        self::assertTrue($pug->hasOption('pretty'));
     }
 }
