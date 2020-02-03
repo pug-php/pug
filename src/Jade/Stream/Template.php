@@ -39,6 +39,18 @@ class Template
     }
 
     /**
+     * @param $option
+     * @param $arg1
+     * @param $arg2
+     *
+     * @return bool
+     */
+    public function stream_set_option($option, $arg1, $arg2)
+    {
+        return true;
+    }
+
+    /**
      * @param $count
      *
      * @return string
