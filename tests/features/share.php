@@ -43,6 +43,7 @@ class ShareTest extends AbstractTestCase
         $pug->resetSharedVariables();
 
         $error = null;
+
         try {
             $pug->render("p\n  ?=\$foo\n=' '\n=\$bar\n  | !");
         } catch (\Exception $e) {
@@ -50,5 +51,20 @@ class ShareTest extends AbstractTestCase
         }
 
         self::assertRegExp('/Undefined variable: foo/', $error);
+    }
+
+    public function testShareThis()
+    {
+        $pug = new Pug([
+            'debug' => true,
+            'exit_on_error' => false,
+        ]);
+        $pug->share([
+            'this' => (object) [
+                'foo' => 'bar',
+            ],
+        ]);
+
+        self::assertSame('<p>bar</p>', $pug->render('p=this.foo'));
     }
 }
