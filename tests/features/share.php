@@ -50,7 +50,7 @@ class ShareTest extends AbstractTestCase
             $error = $e->getMessage();
         }
 
-        self::assertRegExp('/Undefined variable: foo/', $error);
+        self::assertRegExp('/Undefined variable:? \$?foo/', $error);
     }
 
     public function testShareThis()
