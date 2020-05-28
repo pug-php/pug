@@ -65,7 +65,8 @@ abstract class Options extends OptionsHandler
                     if (class_exists($filter)) {
                         $this->filters[$name] = method_exists($filter, 'pugInvoke')
                             ? [new $filter(), 'pugInvoke']
-                            : (method_exists($filter, 'parse')
+                            : (
+                                method_exists($filter, 'parse')
                                 ? [new $filter(), 'parse']
                                 : $filter
                             ); // @codeCoverageIgnore
