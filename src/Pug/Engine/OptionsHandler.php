@@ -19,6 +19,8 @@ abstract class OptionsHandler extends PugJsEngine
         'keepBaseName'     => 'keep_base_name',
         'notFound'         => 'not_found_template',
         'customKeywords'   => 'keywords',
+        'time_precision'    => 'time_precision',
+        'line_height'       => 'line_height',
     ];
 
     protected function normalizeOptionName($name)
