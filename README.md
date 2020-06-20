@@ -372,6 +372,12 @@ And all the people contributing to our depedencies, in particular:
 The [Phug engine](https://github.com/phug-php)
 The JS syntax converter [Js-Phpize](https://github.com/pug-php/js-phpize)
 
+### Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/pug-php#backer)]
+
+<a href="https://opencollective.com/pug-php#backers" target="_blank"><img src="https://opencollective.com/pug-php/backers.svg?width=890"></a>
+
 ## Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [Become a sponsor](https://opencollective.com/pug-php#sponsor)
