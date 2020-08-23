@@ -290,7 +290,7 @@ $pug = new Pug(array(
 );
 ```
 
-This mode require node and npm installed as it will install **pug-cli** and directly call it.
+This mode requires node and npm to be installed as it will install **pug-cli** and directly call it.
 This mode will flatten your local variables (it means complex object like DateTime, or classes with
 magic methods will be stringified in JSON to simple objects) and you will not benefit from some
 features like mixed indent, pre/post render hooks. But in this mode you will get exact same
@@ -316,7 +316,7 @@ Then your locals will be written to a JSON file and the path of the file will be
 Pug also provide a CLI tool:
 
 ```shell
-./vendor/bin/pug render-file dir/my-template.pug --output-file 
+./vendor/bin/pug render-file dir/my-template.pug --output-file
 ```
 
 See the [complete CLI documentation here](https://www.phug-lang.com/#cli)
@@ -368,7 +368,7 @@ Tidelift will coordinate the fix and disclosure.
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/pug-php/pug/contributors"><img src="https://opencollective.com/pug-php/contributors.svg?width=890&button=false" /></a>
 
-And all the people contributing to our depedencies, in particular:
+And all the people contributing to our dependencies, in particular:
 The [Phug engine](https://github.com/phug-php)
 The JS syntax converter [Js-Phpize](https://github.com/pug-php/js-phpize)
 
