@@ -94,7 +94,7 @@ $output = $pug->render('file', array(
 
 ## New in pug-php 3
 
-pug-php 3 is now aligned on [pugjs 2](github.com/pugjs/pug), it aims to be a perfect
+pug-php 3 is now aligned on [pugjs 2](https://github.com/pugjs/pug), it aims to be a perfect
 implementation of the JS project. That's why there are breaking changes in this new version.
 
 [See the changelog to know what's new](https://github.com/pug-php/pug/blob/master/CHANGELOG.md)
@@ -220,6 +220,7 @@ $pug->render('p=$myClosure("Pink")', array('myClosure' => $myClosure));
 ```
 
 This will render:
+
 ```html
 <p>Hey you Pink, out there on your own, can you hear me?</p>
 ```
@@ -237,6 +238,7 @@ This will render the same HTML than the previous example. Also note that `share`
 ## Cache
 
 **Important**: to improve performance in production, enable the Pug cache by setting the **cache** option to a writable directory, you can first cache all your template at once (during deployment):
+
 ```php
 $pug = new Pug(array(
     'cache' => 'var/cache/pug',
@@ -245,6 +247,7 @@ list($success, $errors) = $pug->cacheDirectory('path/to/pug/templates');
 echo "$success files have been cached\n";
 echo "$errors errors occurred\n";
 ```
+
 Be sure any unexpected error occurred and that all your templates in your template directory have been cached.
 
 Then use the same cache directory and template directory in production with the option upToDateCheck to ```false```
