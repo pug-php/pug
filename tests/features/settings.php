@@ -24,6 +24,12 @@ class PugSettingsTest extends AbstractTestCase
         return trim(preg_replace('`\r\n|\r|(\n\s*| *)\n`', "\n", $html));
     }
 
+    public function testSharedReference()
+    {
+        $pug = new Pug();
+        echo $pug->render("| a\n| b");
+    }
+
     /**
      * prettyprint setting test
      */
