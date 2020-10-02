@@ -11,7 +11,7 @@
 
 **Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since version 3, it uses **Phug**, a very customizable Pug template engine made by the **tale-pug** and **pug-php** developers as the new PHP Pug engine reference.
 
-##### [Official Phug documentation](https://www.phug-lang.com/)
+##### [Official Phug documentation](https://phug.selfbuild.fr/)
 ##### [See Pug-php demo](https://pug-demo.herokuapp.com/)
 ##### [Get supported pug-php/pug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-pug-php-pug?utm_source=packagist-pug-php-pug&utm_medium=referral&utm_campaign=readme)
 
