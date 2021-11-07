@@ -106,7 +106,7 @@ function get_html_code($name)
 
 function init_tests()
 {
-    error_reporting(E_ALL);
+    error_reporting(E_ALL & ~E_DEPRECATED);
     setup_autoload();
 }
 
