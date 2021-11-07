@@ -34,7 +34,7 @@ function setup_autoload()
 
     spl_autoload_register(function ($class) {
         $file = __DIR__ . '/../../src/' . str_replace("\\", DIRECTORY_SEPARATOR, $class) . '.php';
-        if(file_exists($file)) {
+        if (file_exists($file)) {
             require_once($file);
         }
     });
@@ -56,6 +56,7 @@ function build_list($test_list)
         if (!isset($group_list[$parts[0]])) {
             $group_list[$parts[0]] = [];
         }
+
         $group_list[$parts[0]][] = ['link' => $test, 'name' => $name];
     }
 
@@ -131,28 +132,30 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
     $mergeSpace = IGNORE_INDENT && strpos($name, 'indent.') === false;
     $path = TEMPLATES_DIRECTORY . DIRECTORY_SEPARATOR . $name;
     $expectedHtml = @file_get_contents($path . '.html');
-    if($expectedHtml === false) {
-        if($verbose) {
+
+    if ($expectedHtml === false) {
+        if ($verbose) {
             echo "! sample for test '$name' not found.\n";
         }
 
         return [false, [$name, null, "! sample for test '$name' not found.\n"]];
     }
 
-    if($verbose) {
+    if ($verbose) {
         echo "* rendering test '$name'\n";
     }
+
     try {
         $new = get_php_file($path . '.pug');
-    } catch(Exception $err) {
-        if($verbose) {
+    } catch (Exception $err) {
+        if ($verbose) {
             echo "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n";
         }
 
         return [false, [$name, null, "! FATAL: php exception: " . str_replace("\n", "\n\t", $err) . "\n"]];
     }
 
-    if(is_null($new)) {
+    if (is_null($new)) {
         return [false, [$name, null, "! FATAL: " . $path . ".pug returns null\n"]];
     }
 
@@ -160,22 +163,36 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
 
     $from = ["'", "\r", "<!DOCTYPEhtml>"];
     $to = ['"', '', ''];
+
     if ($mergeSpace) {
         array_push($from, "\n", "\t", " ");
         array_push($to, '', '', '');
     }
-    $expectedHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $expectedHtml);
-    $actualHtml = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $actualHtml);
-    if ($mergeSpace) {
-        $expectedHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $expectedHtml);
-        $actualHtml = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $actualHtml);
+
+    $normalize = function ($html) use ($mergeSpace, $from, $to) {
+        $html = preg_replace_callback('`class\s*=\s*(["\'])([^"\']+)\\1`', 'orderWords', $html);
+
+        if ($mergeSpace) {
+            $html = preg_replace('`(?<=[\'"])\s(?=>)|(?<=[a-zA-Z0-9:])\s(?=(>|\s[a-zA-Z0-9:]))`', '', $html);
+        }
+
+        return [$html, str_replace($from, $to, trim($html))];
+    };
+
+    list($expectedHtml, $minifiedExpectedHtml) = $normalize($expectedHtml);
+    list($actualHtml, $minifiedActualHtml) = $normalize($actualHtml);
+
+    for ($i = 0;
+         strcmp($minifiedExpectedHtml, $minifiedActualHtml) && file_exists($file = $path . '.alt-' . $i . '.html');
+         $i++
+    ) {
+        list($expectedHtml, $minifiedExpectedHtml) = $normalize(@file_get_contents($file));
     }
-    $minifiedExpectedHtml = str_replace($from, $to, trim($expectedHtml));
-    $minifiedActualHtml = str_replace($from, $to, trim($actualHtml));
+
     $result = [$name, $minifiedExpectedHtml, $minifiedActualHtml];
 
-    if(strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
-        if($verbose) {
+    if (strcmp($minifiedExpectedHtml, $minifiedActualHtml)) {
+        if ($verbose) {
             include_once __DIR__ . '/diff.php';
             $actualHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $actualHtml);
             $expectedHtml = preg_replace('`(\r\n|\r|\n)([\t ]*(\r\n|\r|\n))+`', "\n", $expectedHtml);
@@ -185,7 +202,8 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
             echo "  Actual  : $actualHtml\n\n";
             */
         }
-        if($moreVerbose) {
+
+        if ($moreVerbose) {
             echo "  PHP     : " . compile_php($name);
         }
 
@@ -197,7 +215,7 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
 
 function array_remove(&$array, $value)
 {
-    if($found = in_array($value, $array)) {
+    if ($found = in_array($value, $array)) {
         array_splice($array, array_search($value, $array), 1);
     }
 
@@ -210,7 +228,7 @@ function get_tests_results($verbose = false)
 
     $moreVerbose = array_remove($argv, '--verbose');
 
-    if(! (ini_get('allow_url_include') | 0)) {
+    if (!((int) ini_get('allow_url_include'))) {
         echo "To accelerate the test execution, set in php.ini :\nallow_url_include = On\n\n";
     }
 
@@ -220,11 +238,11 @@ function get_tests_results($verbose = false)
     $failures = 0;
     $results = [];
 
-    foreach($nav_list as $type => $arr) {
+    foreach($nav_list as $arr) {
         foreach($arr as $e) {
             $name = $e['name'];
 
-            if($name === 'index' || (
+            if ($name === 'index' || (
                 isset($argv[1]) &&
                 false === stripos($argv[0], 'phpunit') &&
                 $name !== $argv[1] &&
@@ -233,7 +251,7 @@ function get_tests_results($verbose = false)
                 continue;
             }
 
-            if($result = get_test_result($name, $verbose, $moreVerbose)) {
+            if ($result = get_test_result($name, $verbose, $moreVerbose)) {
                 $results[] = $result[1];
 
                 if ($result[0]) {
