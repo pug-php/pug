@@ -21,6 +21,11 @@ class PugSettingsTest extends AbstractTestCase
 
     static private function simpleHtml($html)
     {
+        // https://www.php.net/manual/en/migration81.incompatible.php#migration81.incompatible.standard
+        if (version_compare(PHP_VERSION, '8.1.0-dev', '>=')) {
+            $html = str_replace('&#039;', "'", $html);
+        }
+
         return trim(preg_replace('`\r\n|\r|(\n\s*| *)\n`', "\n", $html));
     }
 
@@ -200,6 +205,12 @@ mixin foo()
             ],
         ));
         $actual = $pug->render($template);
+
+        // https://www.php.net/manual/en/migration81.incompatible.php#migration81.incompatible.standard
+        if (version_compare(PHP_VERSION, '8.1.0-dev', '>=')) {
+            $actual = str_replace('&#039;', "'", $actual);
+        }
+
         $expected = "<h1 id='foo' class='bar' style='color: red;'>Hello</h1>";
 
         self::assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote enabled on a simple header');
@@ -224,6 +235,12 @@ mixin foo()
             ],
         ));
         $actual = $pug->render($template);
+
+        // https://www.php.net/manual/en/migration81.incompatible.php#migration81.incompatible.standard
+        if (version_compare(PHP_VERSION, '8.1.0-dev', '>=')) {
+            $actual = str_replace('&#039;', "'", $actual);
+        }
+
         $expected = '<h1 id="foo" class="bar" style="color: red;">Hello</h1>';
 
         self::assertSame(static::rawHtml($expected, false), static::rawHtml($actual, false), 'Single quote disabled on a simple header');

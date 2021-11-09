@@ -106,7 +106,7 @@ function get_html_code($name)
 
 function init_tests()
 {
-    error_reporting(E_ALL & ~E_DEPRECATED);
+    error_reporting(E_ALL);
     setup_autoload();
 }
 
@@ -167,6 +167,12 @@ function get_test_result($name, $verbose = false, $moreVerbose = false)
     if ($mergeSpace) {
         array_push($from, "\n", "\t", " ");
         array_push($to, '', '', '');
+    }
+
+    // https://www.php.net/manual/en/migration81.incompatible.php#migration81.incompatible.standard
+    if (version_compare(PHP_VERSION, '8.1.0-dev', '>=')) {
+        array_unshift($from, '&#039;');
+        array_unshift($to, "'");
     }
 
     $normalize = function ($html) use ($mergeSpace, $from, $to) {
