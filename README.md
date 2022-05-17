@@ -3,7 +3,6 @@
 [![Latest Stable Version](https://poser.pugx.org/pug-php/pug/v/stable.png)](https://packagist.org/packages/pug-php/pug)
 [![Monthly Downloads](https://poser.pugx.org/pug-php/pug/d/monthly)](https://packagist.org/packages/pug-php/pug)
 [![License](https://poser.pugx.org/pug-php/pug/license)](https://packagist.org/packages/pug-php/pug)
-[![Build Status](https://travis-ci.org/pug-php/pug.svg?branch=master)](https://travis-ci.org/pug-php/pug)
 [![StyleCI](https://styleci.io/repos/59010999/shield?style=flat)](https://styleci.io/repos/59010999)
 [![Test Coverage](https://codeclimate.com/github/pug-php/pug/badges/coverage.svg)](https://codecov.io/github/pug-php/pug?branch=master)
 [![Code Climate](https://codeclimate.com/github/pug-php/pug/badges/gpa.svg)](https://codeclimate.com/github/pug-php/pug)
@@ -11,7 +10,7 @@
 
 **Pug-php** adds inline PHP scripting support to the [Pug](https://pugjs.org) template compiler. Since version 3, it uses **Phug**, a very customizable Pug template engine made by the **tale-pug** and **pug-php** developers as the new PHP Pug engine reference.
 
-##### [Official Phug documentation](https://www.phug-lang.com/)
+##### [Official Phug documentation](https://phug.selfbuild.fr/)
 ##### [See Pug-php demo](https://pug-demo.herokuapp.com/)
 ##### [Get supported pug-php/pug with the Tidelift Subscription](https://tidelift.com/subscription/pkg/packagist-pug-php-pug?utm_source=packagist-pug-php-pug&utm_medium=referral&utm_campaign=readme)
 
@@ -77,19 +76,19 @@ $html = PugFacade::renderFile('my-pug-template.pug');
 Pug options should be passed to the constructor
 
 ```php
-$pug = new Pug(array(
+$pug = new Pug([
     'pretty' => true,
-    'cache' => 'pathto/writable/cachefolder/'
-));
+    'cache' => 'pathto/writable/cachefolder/',
+]);
 ```
 
 ## Supports for local variables
 
 ```php
 $pug = new Pug();
-$output = $pug->render('file', array(
-    'title' => 'Hello World'
-));
+$output = $pug->renderFile('file.pug', [
+    'title' => 'Hello World',
+]);
 ```
 
 ## New in pug-php 3
@@ -110,10 +109,11 @@ $pug->filter('escaped', 'My\Callable\Class');
 
 // or
 
-$pug->filter('escaped', function($node, $compiler){
+$pug->filter('escaped', function($node, $compiler) {
     foreach ($node->block->nodes as $line) {
         $output[] = $compiler->interpolate($line->value);
     }
+
     return htmlentities(implode("\n", $output));
 });
 ```
@@ -143,10 +143,10 @@ You can add custom keywords, here are some examples:
 $pug->addKeyword('range', function ($args) {
     list($from, $to) = explode(' ', trim($args));
 
-    return array(
+    return [
         'beginPhp' => 'for ($i = ' . $from . '; $i <= ' . $to . '; $i++) {',
         'endPhp' => '}',
-    );
+    ];
 });
 
 $pug->render('
@@ -179,10 +179,10 @@ class UserKeyword
             }
         }
 
-        return array(
+        return [
             'begin' => '<div class="' . $keyWord . '" data-name="' . $arguments . '" data-badges="[' . implode(',', $badges) . ']">',
             'end' => '</div>',
-        );
+        ];
     }
 }
 
@@ -240,10 +240,10 @@ This will render the same HTML than the previous example. Also note that `share`
 **Important**: to improve performance in production, enable the Pug cache by setting the **cache** option to a writable directory, you can first cache all your template at once (during deployment):
 
 ```php
-$pug = new Pug(array(
+$pug = new Pug([
     'cache' => 'var/cache/pug',
-);
-list($success, $errors) = $pug->cacheDirectory('path/to/pug/templates');
+]);
+[$success, $errors] = $pug->cacheDirectory('path/to/pug/templates');
 echo "$success files have been cached\n";
 echo "$errors errors occurred\n";
 ```
@@ -253,11 +253,11 @@ Be sure any unexpected error occurred and that all your templates in your templa
 Then use the same cache directory and template directory in production with the option upToDateCheck to ```false```
 to bypass the cache check and automatically use the cache version:
 ```php
-$pug = new Pug(array(
+$pug = new Pug([
     'cache' => 'var/cache/pug',
     'basedir' => 'path/to/pug/templates',
     'upToDateCheck' => false,
-);
+]);
 $pug->render('path/to/pug/templates/my-page.pug');
 ```
 
@@ -268,9 +268,9 @@ for markup and some abstraction of the language behind it (loops, conditions, et
 
 If you start a new project, we highly recommend you to use the following option:
 ```php
-$pug = new Pug(array(
-    'expressionLanguage' => 'php'
-);
+$pug = new Pug([
+    'expressionLanguage' => 'php',
+]);
 ```
 It will disable all translations, so you always have to use explicit PHP syntax:
 ```pug
@@ -280,17 +280,17 @@ p=$concat
 
 If you want expressions very close to JS, you can use:
 ```php
-$pug = new Pug(array(
-    'expressionLanguage' => 'js'
-);
+$pug = new Pug([
+    'expressionLanguage' => 'js',
+]);
 ```
 It will allow both PHP and JS in a JS-style syntax. But you have to stick to it, you will not be able to mix PHP and JS in this mode.
 
 Finally, you can use the native pug-js engine with:
 ```php
-$pug = new Pug(array(
-    'pugjs' => true
-);
+$pug = new Pug([
+    'pugjs' => true,
+]);
 ```
 
 This mode requires node and npm to be installed as it will install **pug-cli** and directly call it.
@@ -306,10 +306,10 @@ locals object passed directly to pug-cli as argument. To fix this problem you ca
 the `localsJsonFile` option:
 
 ```php
-$pug = new Pug(array(
+$pug = new Pug([
     'pugjs' => true,
     'localsJsonFile' => true
-);
+]);
 ```
 
 Then your locals will be written to a JSON file and the path of the file will be passed to the compiler.
@@ -328,9 +328,9 @@ See the [complete CLI documentation here](https://www.phug-lang.com/#cli)
 
 To check if your environment is ready to use Pug, use the `requirements` method:
 ```php
-$pug = new Pug(array(
-    'cache' => 'pathto/writable/cachefolder/'
-);
+$pug = new Pug([
+    'cache' => 'pathto/writable/cachefolder/',
+]);
 $missingRequirements = array_keys(array_filter($pug->requirements(), function ($valid) {
     return $valid === false;
 }));
