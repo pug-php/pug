@@ -423,7 +423,7 @@ class Parser
         if (isset($this->blocks[$name])) {
             $prev = &$this->blocks[$name];
 
-            switch ($prev->mode) {
+            switch (isset($prev->mode) ? $prev->mode : 'replace') {
                 case 'append':
                     $block->nodes = array_merge($block->nodes, $prev->nodes);
                     $prev = $block;
