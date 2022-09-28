@@ -70,7 +70,8 @@ class Parser
             throw new \ErrorException("The 'basedir' option need to be set to use absolute path like $path", 29);
         }
 
-        $path = ($isAbsolutePath
+        $path = (
+            $isAbsolutePath
             ? rtrim($this->options['basedir'], '/\\')
             : dirname($this->filename)
         ) . DIRECTORY_SEPARATOR . $path;
@@ -415,7 +416,8 @@ class Parser
 
         $block = 'indent' === $this->peekType()
             ? $this->block()
-            : new Nodes\Block(empty($name)
+            : new Nodes\Block(
+                empty($name)
                 ? new Nodes\MixinBlock()
                 : new Nodes\Literal('')
             );

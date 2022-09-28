@@ -42,7 +42,9 @@ class Attributes
         }
 
         $key = preg_replace(
-            array('/^[\'\"]|[\'\"]$/', '/\!/'), '', $key
+            array('/^[\'\"]|[\'\"]$/', '/\!/'),
+            '',
+            $key
         );
         $this->token->escaped[$key] = $escapedAttribute;
 
@@ -58,12 +60,12 @@ class Attributes
 
         return str_replace('\\#{', '#{', preg_replace_callback('/(?<!\\\\)#{([^}]+)}/', function ($match) use ($quote) {
             return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
-                    '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
-                    function ($match) {
-                        return CommonUtils::getGetter($match[1], $match[2]);
-                    },
-                    $match[1]
-                )) . ' . ' . $quote;
+                '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
+                function ($match) {
+                    return CommonUtils::getGetter($match[1], $match[2]);
+                },
+                $match[1]
+            )) . ' . ' . $quote;
         }, $match[0]));
     }
 

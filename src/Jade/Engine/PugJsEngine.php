@@ -90,7 +90,8 @@ class PugJsEngine extends Options
         $directory = dirname($file);
         $renderFile = './render.' . time() . mt_rand(0, 999999999) . '.js';
         chdir($directory);
-        file_put_contents($renderFile,
+        file_put_contents(
+            $renderFile,
             'console.log(require(' . json_encode($realPath) . ')' .
             '(' . (empty($options['obj']) ? '{}' : (!$this->options['localsJsonFile'] ? $options['obj'] : 'require(' . json_encode($options['obj']) . ')')) . '));'
         );

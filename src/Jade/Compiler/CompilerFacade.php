@@ -82,9 +82,11 @@ abstract class CompilerFacade extends ValuesCompiler
     {
         return isset($anything->$key)
             ? $anything->$key
-            : (method_exists($anything, $method = 'get' . ucfirst($key))
+            : (
+                method_exists($anything, $method = 'get' . ucfirst($key))
                 ? $anything->$method()
-                : (method_exists($anything, $key)
+                : (
+                    method_exists($anything, $key)
                     ? array($anything, $key)
                     : null
                 )
@@ -102,10 +104,12 @@ abstract class CompilerFacade extends ValuesCompiler
     public static function getPropertyFromAnything($anything, $key)
     {
         return is_array($anything)
-            ? (isset($anything[$key])
+            ? (
+                isset($anything[$key])
                 ? $anything[$key]
                 : null
-            ) : (is_object($anything)
+            ) : (
+                is_object($anything)
                 ? static::getPropertyFromObject($anything, $key)
                 : null
             );
