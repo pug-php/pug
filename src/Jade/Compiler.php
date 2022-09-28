@@ -392,8 +392,8 @@ class Compiler extends Options
         return $this->createPhpBlock(
             $code,
             func_num_args() > 1
-            ? $this->apply('createStatements', array_slice(func_get_args(), 1))
-            : null
+                ? $this->apply('createStatements', array_slice(func_get_args(), 1))
+                : null
         );
     }
 }

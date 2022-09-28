@@ -23,8 +23,8 @@ abstract class AttributesCompiler extends CompilerFacade
     {
         return ' ' . $key . (
             $this->terse
-            ? ''
-            : '=' . $this->quote . $key . $this->quote
+                ? ''
+                : '=' . $this->quote . $key . $this->quote
         );
     }
 

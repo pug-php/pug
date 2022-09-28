@@ -62,8 +62,8 @@ class Attributes
             return $quote . ' . ' . CommonUtils::addDollarIfNeeded(preg_replace_callback(
                 '/(?<![a-zA-Z0-9_\$])(\$?[a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)(?![a-zA-Z0-9_])/',
                 function ($match) {
-                        return CommonUtils::getGetter($match[1], $match[2]);
-                    },
+                    return CommonUtils::getGetter($match[1], $match[2]);
+                },
                 $match[1]
             )) . ' . ' . $quote;
         }, $match[0]));
