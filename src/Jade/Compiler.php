@@ -52,7 +52,7 @@ class Compiler extends Options
 
     /**
      * @param array/Jade $options
-     * @param array      $filters
+     * @param array $filters
      */
     public function __construct($options = array(), array $filters = array(), $filename = null, $jsPhpize = null)
     {
@@ -389,7 +389,9 @@ class Compiler extends Options
      */
     protected function createCode($code)
     {
-        return $this->createPhpBlock($code, func_num_args() > 1
+        return $this->createPhpBlock(
+            $code,
+            func_num_args() > 1
             ? $this->apply('createStatements', array_slice(func_get_args(), 1))
             : null
         );

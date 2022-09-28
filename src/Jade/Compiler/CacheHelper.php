@@ -65,7 +65,7 @@ class CacheHelper
      * Return true if the file or content is up to date in the cache folder,
      * false else.
      *
-     * @param string  $input file or pug code
+     * @param string $input file or pug code
      * @param &string $path  to be filled
      *
      * @return bool

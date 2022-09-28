@@ -85,7 +85,8 @@ abstract class InputHandler
 
         $indents = isset($this->identRE)
             ? array($this->identRE)
-            : ($this->allowMixedIndent
+            : (
+                $this->allowMixedIndent
                 ? array('[\\t ]*')
                 : array('\\t+', ' *')
             );

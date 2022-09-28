@@ -104,19 +104,24 @@ abstract class KeywordsCompiler extends AttributesCompiler
         if (isset($node->alternative)) {
             $this->buffer($this->createCode(
                 'if (isset(%s) && %s) {',
-                $node->obj, $node->obj
+                $node->obj,
+                $node->obj
             ));
             $this->indents++;
         }
 
-        $this->buffer(isset($node->key) && strlen($node->key) > 0
+        $this->buffer(
+            isset($node->key) && strlen($node->key) > 0
             ? $this->createCode(
                 'foreach (%s as %s => %s) {',
-                $node->obj, $node->key, $node->value
+                $node->obj,
+                $node->key,
+                $node->value
             )
             : $this->createCode(
                 'foreach (%s as %s) {',
-                $node->obj, $node->value
+                $node->obj,
+                $node->value
             )
         );
 
@@ -175,10 +180,12 @@ abstract class KeywordsCompiler extends AttributesCompiler
         }
 
         foreach (array('begin', 'end') as $key) {
-            $data[$key] = (isset($data[$key . 'Php'])
+            $data[$key] = (
+                isset($data[$key . 'Php'])
                 ? $this->createCode($data[$key . 'Php'])
                 : ''
-            ) . (isset($data[$key])
+            ) . (
+                isset($data[$key])
                 ? $data[$key]
                 : ''
             );
