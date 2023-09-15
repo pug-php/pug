@@ -51,6 +51,7 @@ class Pug extends Renderer
      * This method is kept for backward compatibility but now you should use ->setOption for any option.
      *
      * @deprecated
+     *
      * @alias setOption
      *
      * @param $name
@@ -67,6 +68,7 @@ class Pug extends Renderer
      * This method is kept for backward compatibility but now you should use ->setOptions for any option.
      *
      * @deprecated
+     *
      * @alias setOptions
      *
      * @param $options
