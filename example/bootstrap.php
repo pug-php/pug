@@ -3,7 +3,11 @@
 namespace Pug;
 
 include_once __DIR__ . '/../vendor/autoload.php';
-error_reporting(E_ALL);
+error_reporting(
+    PHP_VERSION >= 8.2 && !property_exists(Lexer::class, 'disallow')
+        ? (E_ALL & ~E_DEPRECATED)
+        : E_ALL
+);
 ini_set('display_errors', 1);
 
 class Application

@@ -1,5 +1,6 @@
 <?php
 
+use JsPhpize\Lexer\Lexer;
 use PHPUnit\Framework\TestCase;
 use Pug\Pug;
 
@@ -106,7 +107,11 @@ function get_html_code($name)
 
 function init_tests()
 {
-    error_reporting(E_ALL);
+    error_reporting(
+        PHP_VERSION >= 8.2 && !property_exists(Lexer::class, 'disallow')
+            ? (E_ALL & ~E_DEPRECATED)
+            : E_ALL
+    );
     setup_autoload();
 }
 

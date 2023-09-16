@@ -139,7 +139,10 @@ p(
     data-b="$test"
     data-c=\'#{$test}\'
     data-d="#{$test}"
-    data-e="#${test}"
+    data-e="#' . (PHP_VERSION >= 8.2
+        ? '{$test}' // Dropping ${test} support with PHP >= 8.2
+        : '${test}'
+    ) . '"
 ) test', array(
             'test' => 'foo',
         ))));
