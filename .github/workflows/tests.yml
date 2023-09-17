@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1']
+        php: ['5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3']
         setup: ['lowest', 'stable', 'next']
 
     name: PHP ${{ matrix.php }} - ${{ matrix.setup }}
@@ -40,8 +40,8 @@ jobs:
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         composer config version 1.9.0
-        ${{ matrix.php >= 7.2 && matrix.php < 8 && matrix.setup == 'lowest' && 'composer require --no-update "phpunit/phpunit:^5.7.27||^6.5.14||^7.5.20" --no-interaction;' || '' }}
-        ${{ matrix.php >= 8 && 'composer require --no-update phpunit/phpunit:^8.5.26 phpunit/php-file-iterator:^2.0.5 phug/phug:^1.9.0 --no-interaction;' || '' }}
+        ${{ matrix.php >= 7.2 && matrix.php < 8 && matrix.setup == 'lowest' && 'composer require --no-update "phpunit/phpunit:^5.7.27||^6.5.14||^7.5.20" --dev --no-interaction;' || '' }}
+        ${{ matrix.php >= 8 && 'composer require --no-update phpunit/phpunit:^8.5.33 phpunit/php-file-iterator:^2.0.5 --dev --no-interaction && composer require --no-update phug/phug:^1.9.0 --no-interaction;' || '' }}
         composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php >= 8.1 && '--ignore-platform-req=php' || '' }} --no-interaction
       env:
         MULTI_TESTER_LABELS: install
