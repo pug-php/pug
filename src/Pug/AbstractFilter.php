@@ -9,7 +9,7 @@ use Pug\Filter\AbstractFilterBase;
  */
 abstract class AbstractFilter extends AbstractFilterBase implements FilterInterface
 {
-    public function __invoke($code, array $options = null)
+    public function __invoke($code, ?array $options = null)
     {
         return $this->pugInvoke($code, $options);
     }
