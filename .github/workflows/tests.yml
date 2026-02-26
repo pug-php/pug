@@ -40,12 +40,9 @@ jobs:
       if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         composer config version 1.9.0
-        echo "L1: ${{ matrix.php >= 7.2 && matrix.php < 8 && matrix.setup == 'lowest' && 'composer require --no-update "phpunit/phpunit:^5.7.27||^6.5.14||^7.5.20" --dev --no-interaction;' || '' }}";
         ${{ matrix.php >= 7.2 && matrix.php < 8 && matrix.setup == 'lowest' && 'composer require --no-update "phpunit/phpunit:^5.7.27||^6.5.14||^7.5.20" --dev --no-interaction;' || '' }}
-        echo "L2: ${{ matrix.php >= 8 && 'composer require --no-update phpunit/phpunit:^8.5.33 phpunit/php-file-iterator:^2.0.5 --dev --no-interaction && composer require --no-update phug/phug:^1.9.0 --no-interaction;' || '' }}";
         ${{ matrix.php >= 8 && 'composer require --no-update phpunit/phpunit:^8.5.33 phpunit/php-file-iterator:^2.0.5 --dev --no-interaction && composer require --no-update phug/phug:^1.9.0 --no-interaction;' || '' }}
-        echo "L3: composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php >= 8.1 && '--ignore-platform-req=php' || '' }} --no-interaction ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-audit' || '' }}";
-        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php >= 8.1 && '--ignore-platform-req=php' || '' }} --no-interaction ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-audit' || '' }}
+        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php >= 8.1 && '--ignore-platform-req=php' || '' }} --no-interaction ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-security-blocking' || '' }}
       env:
         MULTI_TESTER_LABELS: install
 

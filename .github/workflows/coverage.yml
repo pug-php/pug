@@ -43,7 +43,7 @@ jobs:
         composer config version 1.9.0
         ${{ matrix.php >= 8 && matrix.php < 8.2 && 'composer require --no-update phpunit/phpunit:^8.5.33 phpunit/php-file-iterator:^2.0.5 --dev --no-interaction;' || '' }}
         ${{ matrix.php >= 8.2 && 'composer require --no-update phpunit/phpunit:^9.6.12 phpunit/php-file-iterator:^3.0.6 --dev --dev --no-interaction;' || '' }}
-        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-audit' || '' }}
+        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-security-blocking' || '' }}
 
     - name: Run test suite
       run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
