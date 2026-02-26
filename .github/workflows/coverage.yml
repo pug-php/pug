@@ -19,7 +19,7 @@ jobs:
     name: PHP
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -30,7 +30,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: vendor
         key: ${{ runner.os }}-${{ matrix.setup }}-coverage-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
@@ -51,7 +51,7 @@ jobs:
         composer config version 1.9.0
         ${{ matrix.php >= 8 && matrix.php < 8.2 && 'composer require --no-update phpunit/phpunit:^8.5.33 phpunit/php-file-iterator:^2.0.5 --dev --no-interaction;' || '' }}
         ${{ matrix.php >= 8.2 && 'composer require --no-update phpunit/phpunit:^9.6.12 phpunit/php-file-iterator:^3.0.6 --dev --dev --no-interaction;' || '' }}
-        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress
+        composer update --prefer-dist ${{ matrix.setup != 'next' && format('--prefer-{0}', matrix.setup) || '' }} --no-progress ${{ matrix.php < 8 && matrix.setup == 'lowest' && '--no-audit' || '' }}
 
     - name: Run test suite
       run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
@@ -60,9 +60,7 @@ jobs:
       uses: codecov/codecov-action@v3
 
     - name: Code Climate Test Reporter
-      if: ${{ env.CC_TEST_REPORTER_ID != '' }}
-      run: |
-        cp coverage.xml clover.xml
-        bash <(curl -s https://codecov.io/bash)
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      uses: qltysh/qlty-action/coverage@v2
+      with:
+        token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+        files: clover.xml
