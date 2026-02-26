@@ -9,7 +9,7 @@ abstract class AbstractFilterBase
 {
     use WrapTagTrait;
 
-    public function pugInvoke($code, array $options = null)
+    public function pugInvoke($code, ?array $options = null)
     {
         if (method_exists($this, 'parse')) {
             $code = $this->parse($code, $options);

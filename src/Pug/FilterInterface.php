@@ -13,5 +13,5 @@ interface FilterInterface
      *
      * @return string
      */
-    public function __invoke($code, array $options = null);
+    public function __invoke($code, ?array $options = null);
 }
