@@ -108,8 +108,8 @@ function get_html_code($name)
 function init_tests()
 {
     error_reporting(
-        PHP_VERSION >= 8.2 && !property_exists(Lexer::class, 'disallow')
-            ? (E_ALL & ~E_DEPRECATED)
+        (PHP_VERSION >= 8.2 && !property_exists(Lexer::class, 'disallow')) || PHP_VERSION >= 8.4
+            ? (E_ALL & ~(E_DEPRECATED | E_USER_DEPRECATED))
             : E_ALL
     );
     setup_autoload();
