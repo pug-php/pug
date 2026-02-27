@@ -9,7 +9,7 @@ use Pug\FilterInterface as FilterBase;
  */
 class Php implements FilterBase
 {
-    public function __invoke($code, array $options = null)
+    public function __invoke($code, ?array $options = null)
     {
         return "<?php\n$code\n?>";
     }
